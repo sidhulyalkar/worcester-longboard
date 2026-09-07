@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "profile_id": "example-light-rider",
+  "rider_mass_kg": 50.0,
+  "height_mm": null,
+  "stance": {
+    "dominant_direction": "regular_or_goofy_unknown",
+    "preferred_width_mm": null,
+    "left_foot_angle_deg": null,
+    "right_foot_angle_deg": null
+  },
+  "feet": {
+    "left_length_mm": null,
+    "left_width_mm": null,
+    "right_length_mm": null,
+    "right_width_mm": null
+  },
+  "scan": {
+    "mesh_path": null,
+    "coordinate_system": "+Z_up,+X_rider_right,+Y_forward",
+    "scale": "millimeters",
+    "neutral_pose": "comfortable_standing"
+  },
+  "fit": {
+    "use_asymmetric_binding_mounts": true,
+    "allow_independent_foot_angles": true,
+    "allow_independent_lateral_offsets": true,
+    "allow_independent_cant_shims": true,
+    "allow_asymmetric_truck_preload": false
+  }
+}
