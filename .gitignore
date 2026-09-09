@@ -9,6 +9,7 @@ rider/private/
 
 # Generated CAD / local artifacts
 cad/generated/
+cad/generated_fit/
 *.log
 __pycache__/
 .pytest_cache/
