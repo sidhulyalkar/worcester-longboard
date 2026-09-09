@@ -44,6 +44,10 @@ The four zones are:
 
 Do not convert a left/right load difference directly into unequal truck spring preload. First see whether binding position, yaw, stance width, or removable footplate cant improves comfort and repeatability.
 
+## Dynamic validation
+
+If a Wi-Fi CSI pose system is available, use it as a repeated-motion sensor rather than a dimensional ruler. Compare neutral stance, gentle toe/heel lean and carve posture across repeated trials. Manufacturing dimensions should still come from direct measurements or calibrated 3D geometry.
+
 ## Privacy
 
 Raw meshes, medical information, exact personal measurements, CSI recordings and camera data belong under `rider/private/` or another local private store. The public repository should contain only schemas, tooling, tests and non-identifying example data.
