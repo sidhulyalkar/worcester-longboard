@@ -1,31 +1,27 @@
 {
-  "schema_version": 1,
-  "profile_id": "example-light-rider",
-  "rider_mass_kg": 50.0,
+  "schema_version": 2,
+  "mass_kg": null,
   "height_mm": null,
-  "stance": {
-    "dominant_direction": "regular_or_goofy_unknown",
-    "preferred_width_mm": null,
-    "left_foot_angle_deg": null,
-    "right_foot_angle_deg": null
+  "board_mass_kg": 20.0,
+  "stance_width_mm": null,
+  "fit_mode": "independent_left_right",
+  "symmetric_trucks_default": true,
+  "left_foot": {
+    "length_mm": null,
+    "width_mm": null,
+    "shoe_size_label": null,
+    "natural_yaw_deg": null,
+    "natural_center_x_mm": null,
+    "natural_center_y_mm": null,
+    "cant_deg": 0.0
   },
-  "feet": {
-    "left_length_mm": null,
-    "left_width_mm": null,
-    "right_length_mm": null,
-    "right_width_mm": null
-  },
-  "scan": {
-    "mesh_path": null,
-    "coordinate_system": "+Z_up,+X_rider_right,+Y_forward",
-    "scale": "millimeters",
-    "neutral_pose": "comfortable_standing"
-  },
-  "fit": {
-    "use_asymmetric_binding_mounts": true,
-    "allow_independent_foot_angles": true,
-    "allow_independent_lateral_offsets": true,
-    "allow_independent_cant_shims": true,
-    "allow_asymmetric_truck_preload": false
+  "right_foot": {
+    "length_mm": null,
+    "width_mm": null,
+    "shoe_size_label": null,
+    "natural_yaw_deg": null,
+    "natural_center_x_mm": null,
+    "natural_center_y_mm": null,
+    "cant_deg": 0.0
   }
 }
