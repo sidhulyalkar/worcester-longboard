@@ -53,6 +53,8 @@ X1 does not assume bilateral symmetry. The generic fit layer supports independen
 
 The four-zone load analysis preserves observed asymmetry and evaluates repeatability rather than forcing the rider toward a 50/50 load split. Exact rider measurements, medical information, raw body scans and pose recordings are intentionally excluded from the public repository.
 
+Wi-Fi CSI or optical pose systems can be used for repeated dynamic posture validation, but manufacturing dimensions should come from direct measurements or calibrated 3D geometry.
+
 ## Safety boundary
 
 This repository is an engineering development workspace, not a certification. High-current battery construction belongs with a qualified pack builder. Maintain an independent mechanical braking path, use progressive commissioning, and treat all software limits as secondary to hard electrical/mechanical safety limits.
