@@ -1,6 +1,6 @@
 # Worcester X1
 
-Experimental off-road electric mountainboard platform focused on controllability, instrumentation, redundant braking, and terrain-aware ride control.
+Experimental off-road electric mountainboard platform focused on controllability, instrumentation, redundant braking, terrain-aware ride control, and rider-specific fit.
 
 > **Status:** Alpha engineering prototype. Hardware and firmware are not yet qualified for riding. Commission from an unpowered rolling chassis through bench and walking-speed gates before enabling higher modes.
 
@@ -15,17 +15,18 @@ Experimental off-road electric mountainboard platform focused on controllability
 - ESP32-S3 supervisory ECU
 - front-wheel speed sensing for rear slip estimation
 - traction-control / regen-slip prototype
-- privacy-preserving adjustable rider-fit subsystem
+- privacy-preserving asymmetric rider-fit subsystem
 
 ## Repository map
 
-- `cad/` parametric custom-part source
+- `cad/` parametric custom-part source, including the unpowered adjustable fit rig
 - `firmware/` supervisory controller and VESC CAN integration
 - `simulation/` gearing, speed, force and grade sizing
-- `docs/` architecture, electrical and commissioning rationale
-- `fit/` generic adjustable rider-fit schema and load calibration
+- `docs/` architecture, electrical, fit and commissioning rationale
+- `fit/` generic rider profile, left/right stance optimization and load analysis
+- `rider/` public schemas only; personal data belongs under gitignored `rider/private/`
 - `bom/` procurement notes
-- `tools/` commissioning and measurement gates
+- `tools/` commissioning, measurement gates and private-profile utilities
 
 ## Design philosophy
 
@@ -35,16 +36,22 @@ Use proven commercial hardware for safety-critical load paths where practical, t
 
 ```bash
 python simulation/x1_dynamics.py
-python -m pytest -q tests/test_fit_tools.py
+python -m pytest -q tests
 
 g++ -std=c++17 -O2 -Ifirmware/include \
   firmware/src/x1_control_core.cpp firmware/test/test_control_core.cpp \
   -o /tmp/x1_control_test && /tmp/x1_control_test
 ```
 
+GitHub Actions runs the same dynamics, full Python test suite and host controller-core test on every push and pull request.
+
 ## Rider fit
 
-X1 does not require a perfectly symmetric stance. The generic fit layer supports independent binding position, yaw, lateral offset and removable cant shims while keeping steering geometry symmetric by default. Exact rider measurements and raw scans are intentionally excluded from the public repository.
+X1 does not assume bilateral symmetry. The generic fit layer supports independent left/right foot dimensions, natural yaw, position and removable cant shims while keeping steering geometry symmetric by default. The stance optimizer is measurement-gated: shoe-size labels are never converted into manufacturing dimensions.
+
+`cad/generate_fit_rig.py` creates an **unpowered** universal footplate and removable 1–4 degree wedges for stance experiments. These parts are calibration fixtures, not structural riding hardware.
+
+The four-zone load analysis preserves observed asymmetry and evaluates repeatability rather than forcing the rider toward a 50/50 load split. Exact rider measurements, medical information, raw body scans and pose recordings are intentionally excluded from the public repository.
 
 ## Safety boundary
 
