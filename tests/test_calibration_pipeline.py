@@ -17,6 +17,23 @@ def test_ruview_normalization_preserves_17_keypoints_without_metric_claim():
     assert set(out["keypoints"]) == set(COCO17)
     assert out["missing_keypoints"] == []
     assert out["metric_geometry_authoritative"] is False
+    assert out["control_authoritative"] is False
+
+
+def test_ruview_named_partial_frame_uses_names_not_positions():
+    payload = {
+        "persons": [{"id": 0, "keypoints": [
+            {"name": "right_hip", "x": 0.6, "y": 0.5, "z": 0.1, "confidence": 0.8},
+            {"name": "left_shoulder", "x": 0.4, "y": 0.3, "z": 0.1, "confidence": 0.9},
+        ]}],
+        "frame_id": 42,
+        "timestamp_ms": 123456,
+    }
+    out = normalize_pose(payload)
+    assert set(out["keypoints"]) == {"right_hip", "left_shoulder"}
+    assert "nose" in out["missing_keypoints"]
+    assert out["source_frame_id"] == 42
+    assert out["source_timestamp_ms"] == 123456
 
 
 def test_fit_score_does_not_penalize_stable_asymmetric_loading():
