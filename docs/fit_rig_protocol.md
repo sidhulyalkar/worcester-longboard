@@ -1,12 +1,12 @@
 # X1 asymmetric fit-rig protocol
 
-The fit rig exists to learn the rider's comfortable, repeatable stance before any personalized geometry is transferred to a rideable board.
+The fit rig exists to learn a comfortable, repeatable stance before personalized geometry is transferred to a rideable board.
 
 ## Safety boundary
 
 The generated footplates and wedges are **unpowered calibration fixtures only**. Do not use the fit-rig parts as structural riding hardware. Keep the actual trucks mechanically symmetric during this phase.
 
-This is an engineering fit process, not a medical assessment. If a clinician or therapist has a stance/joint-loading constraint, treat that as an external requirement rather than something the optimizer should override.
+This is an engineering fit process, not a medical assessment. Any clinician- or therapist-provided stance/joint-loading constraint should be treated as an external requirement that the optimizer is not allowed to override.
 
 ## Why left and right are independent
 
@@ -16,13 +16,14 @@ The software does not assume equal foot dimensions, equal foot angle, equal late
 
 1. Record standing height and body mass directly.
 2. Measure each bare foot separately: heel-to-longest-toe length and maximum forefoot width in millimetres.
-3. Capture a neutral 3D scan and a comfortable unpowered riding-stance scan.
+3. Capture a neutral 3D scan and a comfortable unpowered riding-stance scan if available.
 4. On the adjustable fit rig, find a stance that feels natural without deliberately trying to be symmetric.
 5. Record left/right plate center, yaw angle, and center-to-center stance width.
-6. Record at least three 20–30 second four-zone load trials.
-7. Repeat after stepping off and remounting. A setup is more useful when the load pattern is reproducible, not merely visually symmetric.
-8. Use optional optical or Wi-Fi CSI pose tracking to compare pelvis/shoulder/knee trajectories across gentle heel/toe lean drills.
-9. Freeze only the geometry that remains comfortable and repeatable across sessions.
+6. Calibrate each load-cell zone from raw counts to newtons using `fit/pressure_calibration.py`.
+7. Record at least three 20-second four-zone neutral trials, fully stepping off and remounting between trials.
+8. Record deck IMU simultaneously; optionally record optical or RuView pose.
+9. Synchronize streams only within a bounded clock tolerance using `fit/session_sync.py`.
+10. Rank candidates with `fit/fit_score.py`, then freeze only geometry that is comfortable, repeatable and mechanically feasible.
 
 ## Required dimensional inputs before Rev-B rideable CAD
 
@@ -42,12 +43,12 @@ The four zones are:
 - right heel
 - right forefoot
 
-Do not convert a left/right load difference directly into unequal truck spring preload. First see whether binding position, yaw, stance width, or removable footplate cant improves comfort and repeatability.
+A repeatable non-50/50 left/right load split is not automatically an error. Do not convert a load difference directly into unequal truck spring preload. First evaluate whether binding position, yaw, stance width or removable footplate cant improves comfort and neutral board behavior.
 
-## Dynamic validation
+## Dynamic pose
 
-If a Wi-Fi CSI pose system is available, use it as a repeated-motion sensor rather than a dimensional ruler. Compare neutral stance, gentle toe/heel lean and carve posture across repeated trials. Manufacturing dimensions should still come from direct measurements or calibrated 3D geometry.
+RuView or optical pose is optional and auxiliary. Current X1 tooling normalizes a 17-keypoint pose stream for repeated-motion comparison, but pose coordinates are not treated as authoritative manufacturing dimensions. Direct measurement and calibrated body geometry remain the CAD source of truth.
 
 ## Privacy
 
-Raw meshes, medical information, exact personal measurements, CSI recordings and camera data belong under `rider/private/` or another local private store. The public repository should contain only schemas, tooling, tests and non-identifying example data.
+Raw meshes, medical information, exact personal measurements, CSI recordings and camera data belong under `rider/private/` or another local private store. The public repository contains only schemas, tooling, tests and non-identifying example data.
