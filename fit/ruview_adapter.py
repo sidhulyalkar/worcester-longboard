@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Normalize RuView pose payloads into X1's generic keypoint format.
 
-The adapter is intentionally dependency-free and does not assume metric accuracy.
-RuView pose is used for dynamic stance comparison only, never final CAD dimensions.
+RuView pose is auxiliary dynamic-comparison data. It is never treated as
+millimetre-accurate manufacturing geometry or as a sole safety/control source.
 """
 from __future__ import annotations
 from typing import Any
@@ -48,9 +48,11 @@ def normalize_pose(payload: dict[str, Any]) -> dict[str, Any]:
     out: dict[str, dict[str, float | None]] = {}
     if isinstance(raw, dict):
         items = raw.items()
+    elif raw and isinstance(raw[0], dict) and raw[0].get("name") is not None:
+        items = ((str(value["name"]), value) for value in raw)
     else:
         if len(raw) < 17:
-            raise ValueError("Expected at least 17 keypoints")
+            raise ValueError("Unnamed pose arrays must contain all 17 COCO keypoints")
         items = zip(COCO17, raw[:17])
 
     for name, value in items:
@@ -63,7 +65,11 @@ def normalize_pose(payload: dict[str, Any]) -> dict[str, Any]:
     return {
         "schema_version": 1,
         "source": "ruview_pose",
+        "source_frame_id": payload.get("frame_id"),
+        "source_timestamp_ms": payload.get("timestamp_ms"),
         "keypoints": out,
         "missing_keypoints": missing,
         "metric_geometry_authoritative": False,
+        "control_authoritative": False,
+        "intended_use": "dynamic_stance_comparison",
     }
