@@ -16,7 +16,13 @@
   "trial_policy": {
     "minimum_remount_trials": 3,
     "neutral_trial_seconds": 20,
-    "powered": false
+    "powered": false,
+    "require_full_step_off_between_trials": true
+  },
+  "authority": {
+    "shoe_size_is_dimensional": false,
+    "wifi_pose_is_metric_cad_source": false,
+    "truck_geometry_symmetric_during_fit": true
   },
   "notes": "Example only. Exact rider data remains private."
 }
