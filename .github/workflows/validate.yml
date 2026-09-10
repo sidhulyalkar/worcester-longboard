@@ -14,7 +14,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: python simulation/x1_dynamics.py
-      - run: python -m pip install pytest trimesh numpy platformio
+      - run: python -m pip install pytest trimesh numpy platformio cadquery
       - run: python -m pytest -q tests
       - name: Host-test controller core
         run: |
@@ -24,3 +24,16 @@ jobs:
           /tmp/x1_control_test
       - name: Compile fit-rig ESP32-S3 logger
         run: platformio run -d firmware/fit_rig_logger
+      - name: Generate fit-rig CAD reference artifacts
+        run: |
+          python cad/generate_fit_rig.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('cad/generated_fit/fit_rig_authority.json')
+          data = json.loads(p.read_text())
+          assert data['validation_errors'] == []
+          assert data['sensor_mount_fabrication_ready'] is False
+          assert len(data['measurement_gates']) == 2
+          print('Fit-rig CAD generated; sensor mount correctly remains measurement-gated.')
+          PY
