@@ -9,7 +9,7 @@ The goal is to fit the board to a repeatable neutral stance without assuming the
 3. **Deck IMU**: neutral roll/pitch and response during lean drills.
 4. **RuView or optical pose**: optional dynamic landmark trajectories.
 
-No one stream is allowed to silently replace another. In particular, shoe size is metadata, not a foot-length measurement, and Wi-Fi pose coordinates are not treated as millimetre-accurate CAD geometry.
+No one stream is allowed to silently replace another. Shoe size is metadata, not a foot-length measurement, and Wi-Fi pose coordinates are not treated as millimetre-accurate CAD geometry.
 
 ## Session structure
 
