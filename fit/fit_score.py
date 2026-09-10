@@ -6,7 +6,7 @@ not reward a 50/50 left-right load split, because stable asymmetry may be normal
 for a given rider.
 """
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from statistics import pstdev
 from typing import Iterable, Mapping
 
@@ -20,8 +20,16 @@ class TrialSummary:
     right_yaw_deg: float
 
 
+def _coerce_trial(row: Mapping[str, float]) -> TrialSummary:
+    required = tuple(f.name for f in fields(TrialSummary))
+    missing = [name for name in required if name not in row]
+    if missing:
+        raise KeyError(f"trial summary missing fields: {', '.join(missing)}")
+    return TrialSummary(**{name: float(row[name]) for name in required})
+
+
 def score_trials(trials: Iterable[Mapping[str, float]]) -> dict[str, float | int]:
-    rows = [TrialSummary(**{k: float(v) for k, v in row.items()}) for row in trials]
+    rows = [_coerce_trial(row) for row in trials]
     if len(rows) < 2:
         raise ValueError("At least two remount trials are required")
 
