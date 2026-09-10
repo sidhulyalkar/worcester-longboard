@@ -17,11 +17,11 @@ Geometry is not automatically converted into steering bias. Rev-B CAD should sup
 ## Calibration modules
 
 - `pressure_calibration.py`: raw load-cell counts to calibrated force
-- `static_load.py`: four-zone left/right and heel/forefoot summaries
+- `static_load.py` / `pressure_analysis.py`: four-zone left/right and heel/forefoot summaries
 - `session_sync.py`: bounded nearest-timestamp stream alignment
 - `ruview_adapter.py`: normalizes RuView 17-keypoint pose payloads for dynamic comparison
 - `fit_score.py`: ranks repeatable unpowered stance candidates without penalizing stable left/right asymmetry
 - `landmarks.py`: private landmark-derived left/right geometry descriptors
-- `session.example.json`: non-identifying session schema
+- `session.example.json`: non-identifying session schema and authority constraints
 
-See `docs/calibration_pipeline.md` and `hardware/fit_rig_bom.md` for the physical workflow.
+See `docs/calibration_pipeline.md`, `docs/fit_rig_protocol.md`, and `hardware/fit_rig_bom.md` for the physical workflow.
