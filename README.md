@@ -23,9 +23,10 @@ Experimental off-road electric mountainboard platform focused on controllability
 - `firmware/` supervisory controller and VESC CAN integration
 - `simulation/` gearing, speed, force and grade sizing
 - `docs/` architecture, electrical, fit and commissioning rationale
-- `fit/` generic rider profile, left/right stance optimization and load analysis
+- `fit/` rider profile, force calibration, stance scoring, stream synchronization and optional pose adapters
+- `hardware/` low-voltage fit-rig hardware notes
 - `rider/` public schemas only; personal data belongs under gitignored `rider/private/`
-- `bom/` procurement notes
+- `bom/` drivetrain/power procurement notes
 - `tools/` commissioning, measurement gates and private-profile utilities
 
 ## Design philosophy
@@ -51,9 +52,11 @@ X1 does not assume bilateral symmetry. The generic fit layer supports independen
 
 `cad/generate_fit_rig.py` creates an **unpowered** universal footplate and removable 1–4 degree wedges for stance experiments. These parts are calibration fixtures, not structural riding hardware.
 
-The four-zone load analysis preserves observed asymmetry and evaluates repeatability rather than forcing the rider toward a 50/50 load split. Exact rider measurements, medical information, raw body scans and pose recordings are intentionally excluded from the public repository.
+The calibration pipeline adds raw load-cell-to-force calibration, four-zone load analysis, bounded timestamp synchronization, repeatability-based stance scoring and an optional RuView 17-keypoint adapter. Stable asymmetric loading is preserved as observed data rather than treated as an error to be forced toward 50/50.
 
-Wi-Fi CSI or optical pose systems can be used for repeated dynamic posture validation, but manufacturing dimensions should come from direct measurements or calibrated 3D geometry.
+Exact rider measurements, medical information, raw body scans, CSI captures and pose recordings are intentionally excluded from the public repository. Manufacturing dimensions come from direct measurement or calibrated 3D geometry; Wi-Fi pose is auxiliary dynamic data only.
+
+See issue #2 for the X1 Fit Rig v0.3 physical build/qualification milestone.
 
 ## Safety boundary
 
