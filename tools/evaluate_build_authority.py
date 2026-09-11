@@ -84,14 +84,10 @@ def _validate_plan(plan: dict) -> None:
 
 
 def _procurement_authority(procurement: dict) -> tuple[dict[str, bool], dict[str, dict]]:
-    """Evaluate orderability per item, then summarize whether each stage has work open.
-
-    `measure_first_requires_issue` is deliberately an item-level rule. An optional
-    or deferred measurement candidate must not close the entire MEASURE_FIRST
-    stage when other issue-linked evidence hardware is ready to order.
-    """
+    """Evaluate orderability per item, then summarize whether each stage has work open."""
     rules = procurement.get("rules", {})
     items = procurement.get("items", [])
+    preferred_item_id = rules.get("preferred_chassis_item_id")
     item_state: dict[str, dict] = {}
 
     for index, item in enumerate(items):
@@ -109,6 +105,10 @@ def _procurement_authority(procurement: dict) -> tuple[dict[str, bool], dict[str
                 blockers.append("MEASURE_FIRST item lacks required_for issue authority")
             if item.get("defer_until"):
                 blockers.append(f"deferred until: {item['defer_until']}")
+            if preferred_item_id and item.get("alternative_to") == preferred_item_id:
+                blockers.append(
+                    f"fallback blocked while preferred chassis item is active: {preferred_item_id}"
+                )
 
         if stage == "POWER_GATED" and rules.get("power_gated_authorized") is not True:
             blockers.append("POWER_GATED is not authorized")
@@ -119,6 +119,7 @@ def _procurement_authority(procurement: dict) -> tuple[dict[str, bool], dict[str
             "blockers": blockers,
             "required_for": item.get("required_for"),
             "defer_until": item.get("defer_until"),
+            "alternative_to": item.get("alternative_to"),
         }
 
     stage_allowed = {

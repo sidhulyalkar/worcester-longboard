@@ -6,12 +6,20 @@
     "buy_now_max_total_usd": 125.0,
     "measure_first_requires_issue": true,
     "power_gated_authorized": false,
-    "preferred_chassis_strategy": "DONOR_COMP95"
+    "preferred_chassis_strategy": "DONOR_COMP95",
+    "preferred_chassis_item_id": "DONOR-COMP95"
   },
   "items": [
     {"id":"LC-3135","stage":"BUY_NOW","qty":2,"vendor":"Phidgets","sku":"3135_0","unit_price_usd":7.0,"required_for":"issue-4"},
     {"id":"ADC-HX711","stage":"BUY_NOW","qty":2,"vendor":"SparkFun","sku":"SEN-13879","unit_price_usd":4.95,"required_for":"issue-4"},
     {"id":"MCU-ESP32S3","stage":"BUY_NOW","qty":1,"vendor":"reputable-electronics-supplier","sku":"ESP32-S3-DevKitC-1-compatible","unit_price_ceiling_usd":20.0,"optional_if_owned":true,"required_for":"issue-4"},
+    {"id":"USB-DATA","stage":"BUY_NOW","qty":1,"vendor":"owned-or-local","sku":"known-good-usb-data-cable","unit_price_ceiling_usd":5.0,"optional_if_owned":true,"required_for":"issue-4"},
+    {"id":"HW-M5-PILOT","stage":"BUY_NOW","qty":1,"vendor":"local-hardware-or-McMaster","sku":"M5-screw-washer-assortment","unit_price_ceiling_usd":12.0,"optional_if_owned":true,"required_for":"issue-4"},
+    {"id":"HW-M4-PILOT","stage":"BUY_NOW","qty":1,"vendor":"local-hardware","sku":"M4-screw-washer-nyloc-assortment","unit_price_ceiling_usd":10.0,"optional_if_owned":true,"required_for":"issue-4"},
+    {"id":"WIRE-HEATSHRINK","stage":"BUY_NOW","qty":1,"vendor":"electronics-supplier","sku":"flexible-4-conductor-wire-plus-heatshrink","unit_price_ceiling_usd":10.0,"optional_if_owned":true,"required_for":"issue-4"},
+    {"id":"CALIPER-SCREENING","stage":"BUY_NOW","qty":1,"vendor":"owned-or-generic","sku":"digital-caliper-0.01mm-display-class","unit_price_ceiling_usd":20.0,"optional_if_owned":true,"required_for":"issue-4","notes":"Geometry screening only; not metrology certification."},
+    {"id":"FEELER-GAUGE","stage":"BUY_NOW","qty":1,"vendor":"owned-or-generic","sku":"metric-feeler-gauge-set","unit_price_ceiling_usd":10.0,"optional_if_owned":true,"required_for":"issue-4"},
+    {"id":"PILOT-BASE","stage":"BUY_NOW","qty":1,"vendor":"scrap-or-local","sku":"rigid-plywood-or-aluminum-base","unit_price_ceiling_usd":10.0,"optional_if_owned":true,"required_for":"issue-4"},
 
     {"id":"DONOR-COMP95","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"10303","unit_price_usd":499.95,"purchase_strategy":"preferred_complete_chassis","required_for":"issues-12-14","notes":"Preferred new fallback; used current-generation Matrix III donor is attractive only after condition and exact truck generation are verified."},
     {"id":"BRAKE-V5","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"15006","unit_price_usd":89.95,"purchase_strategy":"required_with_donor_or_fallback","required_for":"issue-14"},

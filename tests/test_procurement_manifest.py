@@ -13,12 +13,14 @@ def test_manifest_is_valid_and_power_hardware_stays_blocked():
     report = validate_manifest(_manifest())
     assert report["valid"] is True
     assert report["power_gated_authorized"] is False
+    assert report["buy_now_maximum_usd"] == 120.9
     assert report["buy_now_maximum_usd"] <= report["buy_now_ceiling_usd"]
 
 
 def test_comp95_is_preferred_chassis_and_piecemeal_parts_are_fallbacks():
     data = _manifest()
     assert data["rules"]["preferred_chassis_strategy"] == "DONOR_COMP95"
+    assert data["rules"]["preferred_chassis_item_id"] == "DONOR-COMP95"
     items = {item["id"]: item for item in data["items"]}
     assert items["DONOR-COMP95"]["purchase_strategy"] == "preferred_complete_chassis"
     assert items["TRUCK-M3-400"]["alternative_to"] == "DONOR-COMP95"
@@ -49,3 +51,13 @@ def test_duplicate_sku_authority_id_is_rejected():
     report = validate_manifest(data)
     assert report["valid"] is False
     assert any("duplicate" in err for err in report["errors"])
+
+
+def test_missing_preferred_or_alternative_targets_are_rejected():
+    data = _manifest()
+    data["rules"]["preferred_chassis_item_id"] = "NOT-REAL"
+    data["items"][12]["alternative_to"] = "ALSO-NOT-REAL"
+    report = validate_manifest(data)
+    assert report["valid"] is False
+    assert any("preferred chassis item does not exist" in err for err in report["errors"])
+    assert any("alternative target does not exist" in err for err in report["errors"])

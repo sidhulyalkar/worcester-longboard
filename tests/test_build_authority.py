@@ -27,33 +27,12 @@ def _stamp(doc):
 
 def _all_physical_evidence():
     return [
-        _stamp({
-            "qualified_for_four_zone_duplication": True,
-        }),
-        _stamp({
-            "authority": "x1_fit_session",
-            "schema_version": 2,
-            "rev_b_gate": {"ready_for_rev_b_fit_cad": True},
-        }),
-        _stamp({
-            "authority": "x1_mechanical_brake_interface",
-            "qualified": True,
-            "brake_interface_verified": True,
-            "powered_operation_authorized": False,
-        }),
-        _stamp({
-            "authority": "x1_rolling_chassis_physical",
-            "qualified": True,
-            "powered_operation_authorized": False,
-        }),
-        _stamp({
-            "authority": "x1_rev_b_template",
-            "qualified": True,
-        }),
-        _stamp({
-            "authority": "x1_power_architecture",
-            "qualified": True,
-        }),
+        _stamp({"qualified_for_four_zone_duplication": True}),
+        _stamp({"authority": "x1_fit_session", "schema_version": 2, "rev_b_gate": {"ready_for_rev_b_fit_cad": True}}),
+        _stamp({"authority": "x1_mechanical_brake_interface", "qualified": True, "brake_interface_verified": True, "powered_operation_authorized": False}),
+        _stamp({"authority": "x1_rolling_chassis_physical", "qualified": True, "powered_operation_authorized": False}),
+        _stamp({"authority": "x1_rev_b_template", "qualified": True}),
+        _stamp({"authority": "x1_power_architecture", "qualified": True}),
     ]
 
 
@@ -67,27 +46,31 @@ def test_public_repo_defaults_are_conservative():
     assert report["capabilities"]["powered_operation"]["allowed"] is False
 
 
-def test_measurement_procurement_is_item_level_not_all_or_nothing():
+def test_measurement_procurement_is_item_level_and_preferred_path_exclusive():
     report = evaluate(_plan(), _procurement(), [])
     items = report["procurement_items"]
-
     assert report["procurement_stage_authorized"]["MEASURE_FIRST"] is True
     assert items["DONOR-COMP95"]["orderable"] is True
     assert items["BRAKE-V5"]["orderable"] is True
-
+    assert items["TRUCK-M3-400"]["orderable"] is False
+    assert items["HUB-RSII"]["orderable"] is False
+    assert any("preferred chassis item" in x for x in items["TRUCK-M3-400"]["blockers"])
     assert items["TIRE-T2-9"]["orderable"] is False
-    assert "required_for issue authority" in items["TIRE-T2-9"]["blockers"][0]
     assert items["TUBE-9"]["orderable"] is False
     assert items["AXLE-M3-70"]["orderable"] is False
     assert any("deferred until" in blocker for blocker in items["AXLE-M3-70"]["blockers"])
 
 
+def test_fallback_can_only_open_after_explicit_strategy_change():
+    procurement = copy.deepcopy(_procurement())
+    procurement["rules"]["preferred_chassis_item_id"] = None
+    report = evaluate(_plan(), procurement, [])
+    assert report["procurement_items"]["TRUCK-M3-400"]["orderable"] is True
+    assert report["procurement_items"]["HUB-RSII"]["orderable"] is True
+
+
 def test_downstream_evidence_cannot_skip_upstream_gate():
-    evidence = [_stamp({
-        "authority": "x1_rolling_chassis_physical",
-        "qualified": True,
-        "powered_operation_authorized": False,
-    })]
+    evidence = [_stamp({"authority": "x1_rolling_chassis_physical", "qualified": True, "powered_operation_authorized": False})]
     report = evaluate(_plan(), _procurement(), evidence)
     state = report["gates"]["rolling_chassis_physical_qualified"]
     assert state["evidence_matched"] is True
