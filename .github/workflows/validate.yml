@@ -22,8 +22,10 @@ jobs:
             firmware/src/x1_control_core.cpp firmware/test/test_control_core.cpp \
             -o /tmp/x1_control_test
           /tmp/x1_control_test
-      - name: Compile fit-rig ESP32-S3 logger
-        run: platformio run -d firmware/fit_rig_logger
+      - name: Compile fit-rig ESP32-S3 logger at 10 SPS
+        run: platformio run -d firmware/fit_rig_logger -e fit_rig_esp32s3_10sps
+      - name: Compile fit-rig ESP32-S3 logger at 80 SPS
+        run: platformio run -d firmware/fit_rig_logger -e fit_rig_esp32s3_80sps
       - name: Generate fit-rig CAD reference artifacts
         run: |
           python cad/generate_fit_rig.py
