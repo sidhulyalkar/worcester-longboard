@@ -1,0 +1,183 @@
+{
+  "schema_version": 1,
+  "project": "Worcester X1",
+  "purpose": "Complete system BOM map. Entries may be requirements without purchase authority.",
+  "rules": {
+    "no_powered_operation_authorized": true,
+    "professional_traction_battery_only": true,
+    "physical_measurements_override_catalog_dimensions": true,
+    "do_not_freeze_tbd_parts_before_named_gate": true
+  },
+  "subsystems": [
+    {
+      "id": "FIT-PILOT",
+      "status": "ORDER_NOW",
+      "freeze_gate": null,
+      "contents": [
+        "2x Phidgets 3135_0 50 kg load cells",
+        "2x SparkFun SEN-13879 HX711 boards",
+        "1x ESP32-S3 DevKitC-1 compatible board if not owned",
+        "known-good USB data cable",
+        "M5 length assortment and washers",
+        "M4 through-fasteners, washers and positive-locking nuts",
+        "flexible stranded wire and heatshrink",
+        "screening caliper",
+        "metric/SAE feeler gauge set",
+        "rigid pilot base",
+        "one-zone carrier/pod/pad CAD fabrication"
+      ],
+      "authority": "Issue #4 only; unpowered bench fixture"
+    },
+    {
+      "id": "FIT-FOUR-ZONE",
+      "status": "PLAN_ONLY",
+      "freeze_gate": "fit_pilot_qualified",
+      "contents": [
+        "2 additional Phidgets 3135_0 load cells to reach four active zones",
+        "2 additional HX711 boards to reach four active zones",
+        "optional fifth load-cell/HX711 spare pair after the four-zone geometry is frozen",
+        "remaining three sensor pods / zone pads / carriers",
+        "four-channel harnessing and strain relief",
+        "fixture IMU required by the Rev-B fit-session gate"
+      ],
+      "authority": "Do not order/duplicate until the fingerprinted one-zone report passes"
+    },
+    {
+      "id": "CHASSIS",
+      "status": "SOURCE_NOW_BUY_LATER",
+      "freeze_gate": "rolling_chassis_physical_qualified",
+      "contents": [
+        "Preferred MBS Comp 95 donor (10303)",
+        "Matrix III CNC 400 mm trucks included with donor",
+        "Rockstar II hubs included with donor",
+        "12x28 mm bearings included with donor",
+        "8 inch T1 tires/tubes included with donor",
+        "F5 bindings and mounting hardware included with donor"
+      ],
+      "authority": "Donor-first. Used donor only after exact generation and condition inspection."
+    },
+    {
+      "id": "MECHANICAL-BRAKE",
+      "status": "SOURCE_NOW_BUY_WITH_CHASSIS",
+      "freeze_gate": "brake_interface_qualified",
+      "contents": [
+        "MBS V5 brake system (15006)",
+        "cable/housing supplied or selected to the physical kit",
+        "rotor/hub hardware appropriate to Rockstar II",
+        "replacement consumables only after exact received revision is identified"
+      ],
+      "authority": "Issue #14 physical interface + stop-performance evidence required"
+    },
+    {
+      "id": "RIDER-INTERFACE",
+      "status": "PLAN_ONLY",
+      "freeze_gate": "rev_b_template_qualified",
+      "contents": [
+        "independent left/right Rev-B adapters",
+        "adjustment-slot hardware",
+        "grip / anti-slip surface",
+        "binding position hardware",
+        "physical full-scale template before permanent drilling"
+      ],
+      "authority": "No permanent rider-specific structural drilling before Rev-B template authority"
+    },
+    {
+      "id": "WHEELS-OPTIONAL-9IN",
+      "status": "BLOCKED_OPTION",
+      "freeze_gate": "rolling_chassis_physical_qualified",
+      "contents": [
+        "MBS T2 9 inch tire 13120",
+        "MBS 9 inch tube 13013",
+        "compatible 9 inch hub choice only after exact measured need"
+      ],
+      "authority": "Characterize donor 8 inch wheels first; nominal product names are not geometry authority"
+    },
+    {
+      "id": "DRIVE",
+      "status": "POWER_GATED_TBD",
+      "freeze_gate": "power_architecture_frozen",
+      "contents": [
+        "MBS G1 dual gear-drive reference 16101 or qualified alternative",
+        "2x sensored 6374-class motors",
+        "exact motor KV, shaft, connector and mount pattern TBD",
+        "70 mm Matrix III axles only if physical brake/drive coexistence study requires them",
+        "motor/gear guards and service spares"
+      ],
+      "authority": "No purchase until ratio, wheel, voltage and brake coexistence freeze together"
+    },
+    {
+      "id": "MOTOR-CONTROL",
+      "status": "POWER_GATED_TBD",
+      "freeze_gate": "power_architecture_frozen",
+      "contents": [
+        "dual VESC-class controller or two matched controllers",
+        "sealed/splash-resistant enclosure strategy",
+        "current, ERPM and thermal headroom selected against final motors/battery",
+        "CAN integration",
+        "remote receiver interface"
+      ],
+      "authority": "Exact vendor/model intentionally TBD"
+    },
+    {
+      "id": "TRACTION-BATTERY",
+      "status": "POWER_GATED_TBD",
+      "freeze_gate": "power_architecture_frozen",
+      "contents": [
+        "professionally assembled high-drain 12S4P-class traction pack reference",
+        "pack-builder-selected BMS with balancing and temperature monitoring",
+        "matched charger",
+        "DC-rated main fuse",
+        "service disconnect",
+        "precharge / anti-spark strategy",
+        "high-current connectors and conductors",
+        "crash-protected sealed enclosure with service access"
+      ],
+      "authority": "Do not DIY the first traction battery as a cost-saving shortcut; exact voltage/cell/current architecture TBD"
+    },
+    {
+      "id": "SUPERVISORY-ELECTRONICS",
+      "status": "PLAN_ONLY",
+      "freeze_gate": "power_architecture_frozen",
+      "contents": [
+        "ESP32-S3 supervisory ECU",
+        "3.3 V compatible physical CAN transceiver",
+        "2x front-wheel digital Hall sensors plus magnets",
+        "low-noise 6-axis IMU",
+        "high-endurance microSD and interface",
+        "optional GNSS",
+        "water-resistant low-voltage connectors",
+        "twisted-pair CAN cable",
+        "abrasion sleeve and strain relief"
+      ],
+      "authority": "Low-voltage bench development can proceed, but installation geometry waits for the physical chassis"
+    },
+    {
+      "id": "ENCLOSURES-HARNESS",
+      "status": "PLAN_ONLY",
+      "freeze_gate": "power_architecture_frozen",
+      "contents": [
+        "battery enclosure base/lid after pack-builder envelope signoff",
+        "ESC/ECU tray",
+        "bulkhead connectors after exact connector selection",
+        "elastomer/isolation hardware where justified",
+        "service loops at steering trucks",
+        "labeled harnesses and witness-marked structural fasteners"
+      ],
+      "authority": "Fabrication dimensions follow received hardware, not catalog guesses"
+    },
+    {
+      "id": "SPARES",
+      "status": "PLAN_ONLY",
+      "freeze_gate": "rolling_chassis_physical_qualified",
+      "contents": [
+        "at least one inner tube matching the installed wheel size",
+        "wheel bearings matching the installed hub/axle",
+        "exact installed main fuse",
+        "one Hall sensor and magnet set",
+        "brake consumables after received revision is identified",
+        "drive consumables only after final drive selection"
+      ],
+      "authority": "Buy spares only after the installed revision/size is known"
+    }
+  ]
+}
