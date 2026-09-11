@@ -72,6 +72,26 @@ jobs:
           assert not missing, f'missing pilot CAD outputs: {missing}'
           print('One-zone pilot CAD generated: bench package ready; physical Issue #4 qualification still required.')
           PY
+      - name: Generate unpowered rolling-chassis references
+        run: |
+          python cad/generate_rolling_chassis.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('cad/generated_chassis')
+          for variant in ('brake_first_400mm', 'drive_clearance_420mm'):
+              authority = json.loads((root / f'x1_chassis_{variant}_authority.json').read_text())
+              assert authority['validation_errors'] == []
+              assert authority['scope'] == 'unpowered_rolling_chassis_geometry_only'
+              assert authority['fabrication_ready'] is False
+              assert authority['vendor_envelopes_verified'] is False
+              assert authority['brake_interface_verified'] is False
+              assert authority['motion_sweep_verified'] is False
+              for state in ('neutral', 'sweep'):
+                  assert (root / f'x1_chassis_{variant}_{state}.step').stat().st_size > 0
+                  assert (root / f'x1_chassis_{variant}_{state}.stl').stat().st_size > 0
+          print('Rolling chassis envelopes generated: reference CAD only; physical interfaces remain gated.')
+          PY
       - name: Upload fit-rig reference CAD
         uses: actions/upload-artifact@v7
         with:
@@ -84,5 +104,12 @@ jobs:
         with:
           name: x1-one-zone-pilot-build-${{ github.sha }}
           path: cad/generated_one_zone_pilot/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload rolling-chassis reference CAD
+        uses: actions/upload-artifact@v7
+        with:
+          name: x1-rolling-chassis-reference-${{ github.sha }}
+          path: cad/generated_chassis/
           if-no-files-found: error
           retention-days: 30
