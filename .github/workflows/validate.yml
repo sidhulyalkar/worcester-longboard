@@ -43,10 +43,46 @@ jobs:
           assert len(data['measurement_gates']) == 3
           print('Fit-rig CAD generated: one-zone vendor-pattern pilot ready; four-pod duplication remains physically gated.')
           PY
+      - name: Generate one-zone pilot CAD package
+        run: |
+          python cad/generate_one_zone_pilot.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('cad/generated_one_zone_pilot')
+          authority = json.loads((root / 'one_zone_pilot_authority.json').read_text())
+          cut_sheet = json.loads((root / 'one_zone_pilot_cut_sheet.json').read_text())
+          assert authority['pilot_validation_errors'] == []
+          assert authority['pilot_cad_ready'] is True
+          assert authority['four_zone_duplication_ready'] is False
+          assert len(authority['physical_gates']) == 5
+          assert cut_sheet['scope'] == 'unpowered_one_zone_pilot_reference_only'
+          assert cut_sheet['not_strength_certification'] is True
+          assert cut_sheet['load_cell_reference']['physical_unit_verified'] is False
+          required = {
+              'x1_pilot_carrier_plate.step', 'x1_pilot_carrier_plate.stl',
+              'x1_pilot_load_cell_pod.step', 'x1_pilot_load_cell_pod.stl',
+              'x1_pilot_zone_pad.step', 'x1_pilot_zone_pad.stl',
+              'x1_pilot_load_cell_reference.step', 'x1_pilot_load_cell_reference.stl',
+              'x1_pilot_alignment_jig.step', 'x1_pilot_alignment_jig.stl',
+              'one_zone_pilot_cut_sheet.json', 'one_zone_pilot_authority.json',
+          }
+          present = {p.name for p in root.iterdir() if p.is_file()}
+          missing = sorted(required - present)
+          assert not missing, f'missing pilot CAD outputs: {missing}'
+          print('One-zone pilot CAD generated: bench package ready; physical Issue #4 qualification still required.')
+          PY
       - name: Upload fit-rig reference CAD
         uses: actions/upload-artifact@v7
         with:
           name: x1-fit-rig-v03-reference-${{ github.sha }}
           path: cad/generated_fit/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload one-zone pilot CAD
+        uses: actions/upload-artifact@v7
+        with:
+          name: x1-one-zone-pilot-build-${{ github.sha }}
+          path: cad/generated_one_zone_pilot/
           if-no-files-found: error
           retention-days: 30
