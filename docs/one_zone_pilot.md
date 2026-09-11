@@ -1,24 +1,26 @@
-# X1 Fit Rig v0.3 — one-zone pilot qualification
+# X1 Fit Rig v0.3: one-zone pilot qualification
 
 Before four load-cell pods are duplicated, one physical Phidgets 3135/HX711/pod/pad stack must pass a bench qualification. This is an **unpowered fixture test**. It does not qualify any rideable component.
 
 ## Why one zone first
 
-The CAD authority already permits a vendor-pattern pilot but deliberately blocks four-pod fabrication until one real sensor verifies the mechanical stack. The one-zone pilot is where we discover screw engagement, orientation, flexure clearance, stop geometry, wiring polarity, logger health, and calibration behavior at low consequence.
+The CAD authority permits a vendor-pattern pilot but deliberately blocks four-pod fabrication until one real sensor verifies the mechanical stack. The one-zone pilot is where we discover screw engagement, orientation, flexure clearance, stop geometry, wiring polarity, logger health, and calibration behavior at low consequence.
 
 ## Evidence contract
 
-Keep physical measurements and raw logs under `rider/private/`. Start from `hardware/one_zone_pilot_manifest.example.json`.
+Keep physical measurements and raw logs under one `rider/private/` session directory. Start from `hardware/one_zone_pilot_manifest.example.json`. The qualification tool refuses log paths that escape the manifest directory, so the authority stays bound to one private evidence bundle.
 
-Each load plateau is a separate raw logger CSV. Use the same selected logger channel for every file. The minimum sequence is:
+Every raw plateau must retain the logger startup line `# hx711_sps=<10|80>`. That header must match the manifest, and `acquisition.rate_jumper_verified` must be set true only after checking the physical HX711 RATE configuration. The firmware declaration alone cannot prove the jumper state.
+
+Each load plateau is a separate raw logger CSV using the same selected logger channel. The minimum sequence is:
 
 1. unloaded `zero_pre`
 2. three or more unique ascending nonzero masses
 3. two or more matching descending masses
 4. unloaded `zero_post`
-5. at least one independent validation mass not used to fit the calibration line
+5. at least one positive validation mass that is not one of the ascending calibration masses
 
-Record at least five seconds of settled data per plateau. Do not include the transient while adding or removing the mass.
+Record at least five seconds of settled data per plateau. Do not include the transient while adding or removing a mass. The pilot software enforces a hard **20 kg maximum applied calibration/validation mass**. This is a conservative X1 screening ceiling, not the sensor manufacturer's capacity rating.
 
 ## Mechanical checks
 
@@ -37,6 +39,8 @@ Do not intentionally drive the load cell into the stop to test it. The stop is a
 `fit/pilot_qualification.py` owns the exact values:
 
 - selected-channel coverage >= 98%
+- raw `hx711_sps` header agrees with the manifest
+- physical RATE jumper explicitly verified
 - strictly monotonic logger timestamps
 - each plateau >= 5 s
 - linearity R² >= 0.999
@@ -47,6 +51,7 @@ Do not intentionally drive the load cell into the stop to test it. The stop is a
 - plateau noise <= 0.5% of pilot full scale
 - unloaded stop gap 0.30–2.00 mm
 - minimum loaded stop clearance >= 0.15 mm
+- no pilot mass > 20 kg
 
 These are engineering screening limits for this fixture, not manufacturer certification claims.
 
