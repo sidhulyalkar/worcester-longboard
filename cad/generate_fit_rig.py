@@ -87,7 +87,9 @@ def load_cell_pod(g: FitRigGeometry):
         base = base.cut(cq.Workplane("XY").center(x, y).circle(2.75)
                         .extrude(g.load_cell_pod_thickness_mm + 2))
 
-    stop_h = g.load_cell.height_mm + g.overload_stop_gap_mm
+    # Towers start at the pod bottom. Their top must sit `gap` below the nominal
+    # zone-pad bottom, not merely `cell height + gap` above Z=0.
+    stop_h = g.nominal_overload_stop_top_z_mm
     loaded_x = g.load_cell.loaded_hole_xy_mm[0]
     for y in (-12.0, 12.0):
         base = base.union(cq.Workplane("XY").center(loaded_x, y)
