@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-09-11",
+  "currency": "USD",
+  "rules": {
+    "buy_now_max_total_usd": 125.0,
+    "measure_first_requires_issue": true,
+    "power_gated_authorized": false
+  },
+  "items": [
+    {"id":"LC-3135","stage":"BUY_NOW","qty":2,"vendor":"Phidgets","sku":"3135_0","unit_price_usd":7.0,"required_for":"issue-4"},
+    {"id":"ADC-HX711","stage":"BUY_NOW","qty":2,"vendor":"SparkFun","sku":"SEN-13879","unit_price_usd":4.95,"required_for":"issue-4"},
+    {"id":"MCU-ESP32S3","stage":"BUY_NOW","qty":1,"vendor":"reputable-electronics-supplier","sku":"ESP32-S3-DevKitC-1-compatible","unit_price_ceiling_usd":20.0,"optional_if_owned":true,"required_for":"issue-4"},
+    {"id":"BRAKE-V5","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"15006","unit_price_usd":89.95,"required_for":"issue-14"},
+    {"id":"TRUCK-M3-400","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"12300-or-12302-family","unit_price_ceiling_usd":124.95,"required_for":"issue-14"},
+    {"id":"HUB-RSII","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"1323x","unit_price_usd":14.95,"required_for":"issue-14"},
+    {"id":"TIRE-T2-9","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"13120","unit_price_usd":29.95,"required_for":"issue-14"},
+    {"id":"TUBE-9","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"13013","unit_price_usd":12.95,"required_for":"issue-14"},
+    {"id":"AXLE-M3-70","stage":"MEASURE_FIRST","qty":2,"vendor":"MBS","sku":"12342","unit_price_usd":24.95,"defer_until":"brake-first geometry measured"},
+    {"id":"DRIVE-G1-DUAL","stage":"POWER_GATED","qty":1,"vendor":"MBS","sku":"16101","unit_price_usd":399.95,"required_for":"future-drive-qualification"},
+    {"id":"ESC-DUAL","stage":"POWER_GATED","qty":1,"vendor":"TBD","sku":"VESC-class-dual","unit_price_range_usd":[160.0,245.0],"required_for":"future-power-architecture"},
+    {"id":"MOTOR-6374","stage":"POWER_GATED","qty":2,"vendor":"TBD","sku":"sensored-6374-class","unit_price_range_usd":[79.0,129.0],"required_for":"future-drive-qualification"},
+    {"id":"BATTERY-12S4P","stage":"POWER_GATED","qty":1,"vendor":"reputable-professional-builder","sku":"high-drain-12S4P","unit_price_range_usd":[490.0,600.0],"required_for":"future-power-architecture"}
+  ]
+}
