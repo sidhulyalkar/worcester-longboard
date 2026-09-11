@@ -1,5 +1,11 @@
 {
   "schema_version": 1,
+  "hardware_ids": {
+    "load_cell_id": "REPLACE_WITH_PHYSICAL_LOAD_CELL_ID",
+    "hx711_id": "REPLACE_WITH_ADC_ID",
+    "pod_id": "REPLACE_WITH_POD_ID",
+    "zone_pad_id": "REPLACE_WITH_ZONE_PAD_ID"
+  },
   "channel": "left_heel",
   "hx711_sps": 10,
   "acquisition": {
