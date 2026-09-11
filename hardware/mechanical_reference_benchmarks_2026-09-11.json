@@ -2,7 +2,7 @@
   "schema_version": 1,
   "as_of": "2026-09-11",
   "project": "Worcester X1",
-  "purpose": "Record comparable mountainboard/e-MTB architectures and the specific mechanical lessons used by X1. These are design references, not authority over received X1 hardware.",
+  "purpose": "Record representative comparable mountainboard/e-MTB architectures and the specific mechanical lessons used by X1. These are design references, not authority over received X1 hardware.",
   "references": [
     {
       "id": "MBS-COMP95",
@@ -90,7 +90,7 @@
     {
       "id": "OWNBOARD-PROMETHEUS",
       "class": "production_electric_all_terrain",
-      "url": "https://www.ownboard.net/products/ownboard-prometheus-electric-skateboard",
+      "url": "https://www.ownboard.net/collections/usa-warehouse/products/ownboard-prometheus-electric-skateboard",
       "observed_architecture": [
         "MBS Matrix III trucks",
         "dual 6384 170kv motors",
@@ -100,6 +100,60 @@
         "20.5 kg complete mass"
       ],
       "x1_lesson": "Matrix III plus dual gear drive and 8-inch pneumatics is a proven high-power packaging family. X1 should remain lighter/lower-power where mission requirements permit rather than copying peak specification."
+    },
+    {
+      "id": "BAJABOARD-G4",
+      "class": "independent_suspension_offroad_reference",
+      "url": "https://www.bajaboard.com.au/pages/about-g4",
+      "observed_architecture": [
+        "buggy-like independent suspension instead of skate trucks",
+        "up to 60 mm suspension travel",
+        "10x2 inch pneumatic wheels",
+        "motors kept as sprung mass rather than hub motors",
+        "G4 rear belt drive and G4X all-wheel belt drive family",
+        "approximately 20 kg G4 and 25 kg G4X complete mass"
+      ],
+      "x1_lesson": "Independent suspension is a valid solution when speed/terrain demand it, but it multiplies joints, mass and cost. Do not adopt it for X1 unless donor testing demonstrates a specific terrain-control deficiency that truck tuning and pneumatic tires cannot solve."
+    },
+    {
+      "id": "BAJABOARD-DIY-CHASSIS",
+      "class": "independent_suspension_cost_reference",
+      "url": "https://www.bajaboard.com.au/products/g4-g4x-chassis-for-diy",
+      "observed_architecture": [
+        "DIY mechanical chassis sold separately from electronics",
+        "front/rear suspension with shocks",
+        "belt drivetrain and motor mounting plates",
+        "deck and battery box included",
+        "mechanical chassis alone priced around 1880 USD in the dated review"
+      ],
+      "x1_lesson": "A mature independent-suspension chassis costs nearly the low-end target for the entire X1 build before electronics. This is strong evidence to preserve the simpler donor architecture unless its physical limits are actually reached."
+    },
+    {
+      "id": "PROPEL-ENDEAVOR",
+      "class": "independent_suspension_8in_reference",
+      "url": "https://www.ridepropel.com/electric-skateboard/propel-endeavor3-gt/",
+      "observed_architecture": [
+        "urban independent suspension",
+        "8-inch 200 mm pneumatic wheels",
+        "belt and gear-drive variants",
+        "roughly 22 kg belt-drive and 24 kg gear-drive complete masses",
+        "independent wheel contact prioritized for rough-surface stability"
+      ],
+      "x1_lesson": "Eight-inch pneumatics remain viable even with independent suspension. Suspension should be justified by measured contact/stability need, not assumed necessary merely because X1 is off-road."
+    },
+    {
+      "id": "LACROIX-HYPERTRUCK",
+      "class": "precision_conventional_truck_reference",
+      "url": "https://www.lacroixboards.com/products/lacroix-hypertruck%E2%84%A2",
+      "observed_architecture": [
+        "precision 7075 CNC truck",
+        "multiple bearings in axle/pulley support",
+        "tunable bushings",
+        "dedicated two-piece motor mounts",
+        "rear pulley centering bearing",
+        "belt and sealed gear-drive configurations"
+      ],
+      "x1_lesson": "High-speed stability and drive alignment can be improved inside a conventional truck architecture through bearing support, retention, damping/tuning and dedicated motor-mount geometry. Complexity should be added locally before replacing the whole chassis concept."
     },
     {
       "id": "TRAMPA-FRONT-HYDRAULIC",
