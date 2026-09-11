@@ -27,6 +27,11 @@ LIMITS = {
     "min_unloaded_gap_mm": 0.30,
     "max_unloaded_gap_mm": 2.00,
 }
+MIN_LIMITS = {"min_duration_s", "min_coverage", "min_r2", "min_loaded_gap_mm", "min_unloaded_gap_mm"}
+MAX_LIMITS = {
+    "max_residual_fs", "max_hysteresis_fs", "max_zero_return_fs",
+    "max_validation_error", "max_noise_fs", "max_unloaded_gap_mm",
+}
 
 
 def _sha(path: Path) -> str:
@@ -40,8 +45,11 @@ def _digest(obj: dict) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def _tool_sha256() -> str:
+    return _sha(Path(__file__).resolve())
+
+
 def _resolve_log(base: Path, relative: str) -> Path:
-    """Resolve a pilot evidence file without allowing escape from its session root."""
     candidate = (base / relative).resolve()
     try:
         candidate.relative_to(base)
@@ -70,11 +78,7 @@ def _plateau(path: Path, channel: str, kind: str, mass: float) -> dict:
         idx = CHANNELS.index(channel)
     except ValueError as exc:
         raise ValueError(f"unknown channel {channel!r}") from exc
-    vals = [
-        row.raw[idx]
-        for row in rows
-        if (row.load_valid_mask & (1 << idx)) and row.raw[idx] is not None
-    ]
+    vals = [row.raw[idx] for row in rows if (row.load_valid_mask & (1 << idx)) and row.raw[idx] is not None]
     if not vals:
         raise ValueError(f"{path}: no valid {channel} samples")
     return {
@@ -105,15 +109,41 @@ def _fit(points: list[dict]) -> dict:
     intercept = yb - slope * xb
     ssr = sum((y - (intercept + slope * x)) ** 2 for x, y in zip(xs, ys))
     sst = sum((y - yb) ** 2 for y in ys)
-    return {
-        "intercept": intercept,
-        "counts_per_n": slope,
-        "r2": 1.0 if sst == 0 else 1 - ssr / sst,
-    }
+    return {"intercept": intercept, "counts_per_n": slope, "r2": 1.0 if sst == 0 else 1 - ssr / sst}
 
 
 def _force(raw: float, fit: dict) -> float:
     return (raw - fit["intercept"]) / fit["counts_per_n"]
+
+
+def _limits_from_manifest(manifest: dict) -> tuple[dict, list[str]]:
+    limits = dict(LIMITS)
+    failures: list[str] = []
+    overrides = manifest.get("thresholds", {})
+    unknown = sorted(set(overrides) - set(LIMITS))
+    if unknown:
+        failures.append("unknown threshold override(s): " + ", ".join(unknown))
+    for name, value in overrides.items():
+        if name not in LIMITS:
+            continue
+        value = float(value)
+        default = LIMITS[name]
+        if name in MIN_LIMITS and value < default:
+            failures.append(f"threshold {name} may only be made stricter")
+        elif name in MAX_LIMITS and value > default:
+            failures.append(f"threshold {name} may only be made stricter")
+        else:
+            limits[name] = value
+    return limits, failures
+
+
+def _validate_hardware_ids(manifest: dict) -> tuple[dict, list[str]]:
+    ids = manifest.get("hardware_ids", {})
+    failures = []
+    for key in ("load_cell_id", "hx711_id", "pod_id", "zone_pad_id"):
+        if not isinstance(ids.get(key), str) or not ids[key].strip():
+            failures.append(f"hardware_ids.{key} must be a nonempty string")
+    return ids, failures
 
 
 def qualify_manifest(path: Path) -> dict:
@@ -123,8 +153,9 @@ def qualify_manifest(path: Path) -> dict:
     if manifest.get("schema_version") != 1:
         raise ValueError("schema_version must be 1")
 
-    limits = dict(LIMITS)
-    limits.update(manifest.get("thresholds", {}))
+    limits, failures = _limits_from_manifest(manifest)
+    hardware_ids, hardware_id_failures = _validate_hardware_ids(manifest)
+    failures.extend(hardware_id_failures)
     channel = manifest["channel"]
     rate = manifest.get("hx711_sps")
     acquisition = manifest.get("acquisition", {})
@@ -138,12 +169,12 @@ def qualify_manifest(path: Path) -> dict:
         for item in manifest.get("validation", [])
     ]
 
+    kinds = [p["kind"] for p in obs]
     pre = [p for p in obs if p["kind"] == "zero_pre" and p["mass_kg"] == 0]
     post = [p for p in obs if p["kind"] == "zero_post" and p["mass_kg"] == 0]
     up = [p for p in obs if p["kind"] == "load_up" and p["mass_kg"] > 0]
     down = [p for p in obs if p["kind"] == "load_down" and p["mass_kg"] > 0]
 
-    failures: list[str] = []
     paired = sorted({p["mass_kg"] for p in up} & {p["mass_kg"] for p in down})
     cal_masses = {p["mass_kg"] for p in up}
 
@@ -155,8 +186,18 @@ def qualify_manifest(path: Path) -> dict:
         failures.append("missing zero_pre")
     if not post:
         failures.append("missing zero_post")
-    if len(cal_masses) < 3:
+    if kinds and kinds[0] != "zero_pre":
+        failures.append("observation sequence must start with zero_pre")
+    if kinds and kinds[-1] != "zero_post":
+        failures.append("observation sequence must end with zero_post")
+    if len({p["mass_kg"] for p in up}) < 3:
         failures.append("need >=3 ascending masses")
+    up_masses = [p["mass_kg"] for p in up]
+    down_masses = [p["mass_kg"] for p in down]
+    if len(up_masses) >= 2 and not all(b > a for a, b in zip(up_masses, up_masses[1:])):
+        failures.append("load_up masses must be strictly ascending")
+    if len(down_masses) >= 2 and not all(b < a for a, b in zip(down_masses, down_masses[1:])):
+        failures.append("load_down masses must be strictly descending")
     if len(paired) < 2:
         failures.append("need >=2 paired masses for hysteresis")
     if not val:
@@ -184,13 +225,10 @@ def qualify_manifest(path: Path) -> dict:
         if p["mass_kg"] in cal_masses:
             failures.append("validation mass must be independent of calibration masses")
 
-    metrics = {
-        key: None
-        for key in (
-            "r2", "residual_fs", "hysteresis_fs", "zero_return_fs",
-            "validation_error", "noise_fs",
-        )
-    }
+    metrics = {key: None for key in (
+        "r2", "residual_fs", "hysteresis_fs", "zero_return_fs",
+        "validation_error", "noise_fs",
+    )}
     fit = None
     full_scale_n = max((p["force_n"] for p in up), default=0.0)
     if pre and up and full_scale_n > 0:
@@ -223,7 +261,6 @@ def qualify_manifest(path: Path) -> dict:
                 abs(_force(p["mean"], fit) - p["force_n"]) / p["force_n"]
                 for p in positive_val
             )
-
         checks = [
             ("r2", ">=", "min_r2"),
             ("residual_fs", "<=", "max_residual_fs"),
@@ -242,21 +279,12 @@ def qualify_manifest(path: Path) -> dict:
                 failures.append(f"{name} above limit")
 
     mechanical = manifest.get("mechanical", {})
-    for key in (
-        "vendor_pattern_verified",
-        "fixed_loaded_orientation_verified",
-        "screw_stack_verified",
-    ):
+    for key in ("vendor_pattern_verified", "fixed_loaded_orientation_verified", "screw_stack_verified"):
         if mechanical.get(key) is not True:
             failures.append(f"mechanical.{key} must be true")
     unloaded_gap = mechanical.get("stop_gap_unloaded_mm")
     loaded_gap = mechanical.get("stop_gap_min_loaded_mm")
-    if (
-        unloaded_gap is None
-        or not limits["min_unloaded_gap_mm"]
-        <= float(unloaded_gap)
-        <= limits["max_unloaded_gap_mm"]
-    ):
+    if unloaded_gap is None or not limits["min_unloaded_gap_mm"] <= float(unloaded_gap) <= limits["max_unloaded_gap_mm"]:
         failures.append("unloaded stop gap invalid")
     if loaded_gap is None or float(loaded_gap) < limits["min_loaded_gap_mm"]:
         failures.append("loaded stop gap invalid")
@@ -271,6 +299,7 @@ def qualify_manifest(path: Path) -> dict:
         "schema_version": 1,
         "authority": "x1_one_zone_pilot",
         "scope": "unpowered_fit_rig_only",
+        "hardware_ids": hardware_ids,
         "channel": channel,
         "hx711_sps": rate,
         "hard_max_pilot_mass_kg": HARD_MAX_PILOT_MASS_KG,
@@ -281,6 +310,7 @@ def qualify_manifest(path: Path) -> dict:
         "mechanical": mechanical,
         "source_fingerprints": sources,
         "manifest_sha256": _sha(path),
+        "qualification_tool_sha256": _tool_sha256(),
         "failures": sorted(set(failures)),
         "qualified_for_four_zone_duplication": not failures,
     }
