@@ -17,6 +17,7 @@ def deck_reference(g: ChassisEnvelope):
         .box(g.deck_length_mm, g.deck_max_width_mm, g.deck_reference_thickness_mm,
              centered=(True, True, False))
         .edges("|Z").fillet(18)
+        .translate((0, 0, g.static_ground_clearance_mm))
     )
 
 
@@ -26,7 +27,16 @@ def rider_keepout(g: ChassisEnvelope):
         g.rider_interface_keepout_width_mm,
         4.0,
         centered=(True, True, False),
-    ).translate((0, 0, g.deck_reference_thickness_mm + 2.0))
+    ).translate((0, 0, g.static_ground_clearance_mm + g.deck_reference_thickness_mm + 2.0))
+
+
+def ground_reference(g: ChassisEnvelope):
+    return cq.Workplane("XY").box(
+        g.deck_length_mm + 300.0,
+        g.truck.total_width_mm + g.wheel.width_mm + 100.0,
+        1.0,
+        centered=(True, True, False),
+    )
 
 
 def truck_reference(g: ChassisEnvelope, x: float):
@@ -35,18 +45,18 @@ def truck_reference(g: ChassisEnvelope, x: float):
         g.truck.total_width_mm,
         18.0,
         centered=(True, True, False),
-    ).translate((x, 0, -18.0))
+    ).translate((x, 0, g.static_ground_clearance_mm - 18.0))
 
 
 def wheel_reference(g: ChassisEnvelope, x: float, y: float, steer_deg: float):
-    # Wheel axis lies along Y. A simple cylindrical envelope is rotated about Z
-    # for plan-view steering sweep visualization.
+    # Ground is Z=0 and wheel center is one radius above ground. Wheel axis lies
+    # along Y; yaw is a conservative plan-view packaging reference.
     wheel = (
         cq.Workplane("XZ")
         .circle(g.wheel_radius_mm)
         .extrude(g.wheel.width_mm / 2.0, both=True)
     )
-    return wheel.rotate((0, 0, 0), (0, 0, 1), steer_deg).translate((x, y, -g.wheel_radius_mm + g.static_ground_clearance_mm))
+    return wheel.rotate((0, 0, 0), (0, 0, 1), steer_deg).translate((x, y, g.wheel_radius_mm))
 
 
 def rotor_reference(g: ChassisEnvelope, x: float, y: float, steer_deg: float):
@@ -56,11 +66,11 @@ def rotor_reference(g: ChassisEnvelope, x: float, y: float, steer_deg: float):
         .circle(g.brake_rotor_reference_diameter_mm / 2.0 - 3.0)
         .extrude(1.0, both=True)
     )
-    return rotor.rotate((0, 0, 0), (0, 0, 1), steer_deg).translate((x, y, -g.wheel_radius_mm + g.static_ground_clearance_mm))
+    return rotor.rotate((0, 0, 0), (0, 0, 1), steer_deg).translate((x, y, g.wheel_radius_mm))
 
 
 def assembly(g: ChassisEnvelope, steer_deg: float = 0.0):
-    result = deck_reference(g).union(rider_keepout(g))
+    result = ground_reference(g).union(deck_reference(g)).union(rider_keepout(g))
     axle_x = g.wheelbase_mm / 2.0
     wheel_y = g.truck.total_width_mm / 2.0
     for x in (-axle_x, axle_x):
