@@ -17,6 +17,11 @@ constexpr uint8_t kWhoAmIExpected = 0x47;
 constexpr uint8_t kPwrMgmt0 = 0x4E;
 constexpr uint8_t kAccelDataX1 = 0x1F;
 
+// Prefer simultaneous four-channel samples, but never let one failed ADC freeze
+// the entire rig.  At 80 SPS a healthy HX711 should update every ~12.5 ms.
+constexpr uint32_t kSampleWaitTimeoutUs = 30000;
+constexpr uint32_t kIdlePollDelayUs = 250;
+
 HX711 scales[4];
 uint8_t icmAddr = 0;
 
@@ -69,11 +74,27 @@ bool readStaticRollDeg(float &rollDeg) {
   return isfinite(rollDeg);
 }
 
-bool allLoadCellsReady() {
-  for (auto &scale : scales) {
-    if (!scale.is_ready()) return false;
+uint8_t readyMask() {
+  uint8_t mask = 0;
+  for (size_t i = 0; i < 4; ++i) {
+    if (scales[i].is_ready()) mask |= static_cast<uint8_t>(1u << i);
   }
-  return true;
+  return mask;
+}
+
+uint8_t waitForChannels() {
+  const int64_t startUs = esp_timer_get_time();
+  uint8_t mask = readyMask();
+  while (mask != 0x0F && static_cast<uint32_t>(esp_timer_get_time() - startUs) < kSampleWaitTimeoutUs) {
+    delayMicroseconds(kIdlePollDelayUs);
+    mask = readyMask();
+  }
+  return mask;
+}
+
+void printMaybeRaw(bool valid, long value) {
+  if (valid) Serial.print(value);
+  else Serial.print("nan");
 }
 }  // namespace
 
@@ -93,23 +114,32 @@ void setup() {
   Serial.println("# Worcester X1 Fit Rig v0.3 raw logger");
   Serial.print("# imu_icm42688=");
   Serial.println(imuOk ? "ok" : "missing");
-  Serial.println("t_us,left_heel_raw,left_forefoot_raw,right_heel_raw,right_forefoot_raw,roll_deg,imu_ok");
+  Serial.println("t_us,left_heel_raw,left_forefoot_raw,right_heel_raw,right_forefoot_raw,load_valid_mask,roll_deg,imu_ok");
 }
 
 void loop() {
-  if (!allLoadCellsReady()) {
+  const uint8_t mask = waitForChannels();
+  if (mask == 0) {
+    // Preserve serial responsiveness without emitting empty pseudo-samples.
     delay(1);
     return;
   }
 
-  long raw[4];
-  for (size_t i = 0; i < 4; ++i) raw[i] = scales[i].read();
+  long raw[4] = {0, 0, 0, 0};
+  for (size_t i = 0; i < 4; ++i) {
+    if (mask & (1u << i)) raw[i] = scales[i].read();
+  }
 
   float rollDeg = NAN;
   const bool imuOk = readStaticRollDeg(rollDeg);
   const int64_t tUs = esp_timer_get_time();
 
-  Serial.printf("%lld,%ld,%ld,%ld,%ld,", tUs, raw[0], raw[1], raw[2], raw[3]);
+  Serial.printf("%lld,", tUs);
+  for (size_t i = 0; i < 4; ++i) {
+    printMaybeRaw(mask & (1u << i), raw[i]);
+    Serial.print(',');
+  }
+  Serial.printf("%u,", static_cast<unsigned>(mask));
   if (imuOk) Serial.printf("%.5f,1\n", rollDeg);
   else Serial.println("nan,0");
 }
