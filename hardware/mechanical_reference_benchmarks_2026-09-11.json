@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-09-11",
+  "project": "Worcester X1",
+  "purpose": "Record comparable mountainboard/e-MTB architectures and the specific mechanical lessons used by X1. These are design references, not authority over received X1 hardware.",
+  "references": [
+    {
+      "id": "MBS-COMP95",
+      "class": "unpowered_donor",
+      "url": "https://www.mbs.com/shop/p/comp-95-mountainboard-silver-hex",
+      "observed_architecture": [
+        "Matrix III CNC 400 mm trucks",
+        "12 mm hollow axles",
+        "Rockstar II hubs",
+        "T1 200x50 tires",
+        "940 mm axle-to-axle reference",
+        "950 mm deck tip-to-tip reference",
+        "F5 bindings",
+        "V5 brake compatible"
+      ],
+      "x1_lesson": "Use this as the first physical rolling-chassis reference. Preserve stock 8-inch interfaces until measured evidence justifies a change."
+    },
+    {
+      "id": "MBS-MATRIXIII-400",
+      "class": "truck_brake_reference",
+      "url": "https://www.mbs.com/shop/p/mbs-matrix-iii-mountain-board-truck-12mmx400mm",
+      "observed_architecture": [
+        "300 mm hanger with 50 mm axles",
+        "V5 brake compatible",
+        "not directly Agent/G1 gear-drive compatible",
+        "70 mm axle upgrade creates an ultra-wide 440 mm drivetrain-compatible variant"
+      ],
+      "x1_lesson": "Brake compatibility is proven only for the brake-first family. A 70 mm axle conversion changes axial geometry and must be re-qualified before assuming the V5 still aligns."
+    },
+    {
+      "id": "MBS-MATRIXIII-420",
+      "class": "truck_drive_reference",
+      "url": "https://www.mbs.com/shop/p/mbs-matrix-iii-mountain-board-truck-12mmx420mm",
+      "observed_architecture": [
+        "280 mm hanger with 70 mm axles",
+        "electric mountainboard optimized",
+        "Agent/G1 gear-drive compatible",
+        "not MBS brake-system compatible"
+      ],
+      "x1_lesson": "Do not merge the 420 mm drive geometry and 400 mm brake geometry into one fictional truck. They are separate reference branches until a topology test selects one."
+    },
+    {
+      "id": "MBS-V5",
+      "class": "mechanical_brake_reference",
+      "url": "https://static1.squarespace.com/static/58136924b3db2ba8eafb3d5e/t/5d167ecf2154e000017b8485/1561755348810/MBS%2BV5%2BBrake%2BManual%2Bv.18.01.pdf",
+      "observed_architecture": [
+        "two rear wheel rotors",
+        "truck-mounted left/right brake arms",
+        "spring-pin indexed brake-arm interface",
+        "cable actuation",
+        "Rockstar II five-screw hub compatibility",
+        "manual calls for brake inspection before riding"
+      ],
+      "x1_lesson": "Treat rear-wheel placement, rotor/hub stack, arm sweep, cable sweep, pad rebound and service inspection as real constraints. Brake qualification never authorizes traction power."
+    },
+    {
+      "id": "MBS-G1",
+      "class": "sealed_gear_drive_reference",
+      "url": "https://www.mbs.com/shop/p/gear-drive-system",
+      "observed_architecture": [
+        "70 mm Matrix III axles required",
+        "sealed 6061-T6 gear cases",
+        "CrMo helical gears",
+        "replaceable aluminum skid plates",
+        "PU wheel coupler cushions",
+        "44 mm diagonal common four-hole motor pattern",
+        "wheel couplers, motor gears, motors and guards are separate interface items"
+      ],
+      "x1_lesson": "Gear-drive strength does not solve interface coexistence. Model coupler, skid, guard, motor, wheel-removal and axial-space envelopes explicitly."
+    },
+    {
+      "id": "MBS-AGENT",
+      "class": "production_electric_mountainboard",
+      "url": "https://www.mbs.com/electric-mountain-boards",
+      "observed_architecture": [
+        "Matrix III CNC 420 mm trucks",
+        "helical steel rear gear drive",
+        "top-mounted quick-swap battery",
+        "6890 motors",
+        "8-inch tire option on Agent Air",
+        "replaceable motor/gear protection"
+      ],
+      "x1_lesson": "Production off-road architecture favors strong wide drive trucks, guarded gears, top-side battery protection and serviceable couplers. It does not establish simultaneous V5 mechanical-brake compatibility."
+    },
+    {
+      "id": "OWNBOARD-PROMETHEUS",
+      "class": "production_electric_all_terrain",
+      "url": "https://www.ownboard.net/products/ownboard-prometheus-electric-skateboard",
+      "observed_architecture": [
+        "MBS Matrix III trucks",
+        "dual 6384 170kv motors",
+        "LinnPower gear drive",
+        "13S5P 1170Wh battery",
+        "8-inch pneumatic wheels",
+        "20.5 kg complete mass"
+      ],
+      "x1_lesson": "Matrix III plus dual gear drive and 8-inch pneumatics is a proven high-power packaging family. X1 should remain lighter/lower-power where mission requirements permit rather than copying peak specification."
+    },
+    {
+      "id": "TRAMPA-FRONT-HYDRAULIC",
+      "class": "production_mechanical_brake_reference",
+      "url": "https://trampa.co.uk/product/mountainboard-4-pre-configured-board/",
+      "observed_architecture": [
+        "front-mounted Magura HS11 hydraulic brakes",
+        "dedicated brake hanger/interface",
+        "5 mm aluminum brake disks",
+        "front braking selected for forward weight transfer",
+        "12 mm heat-treated solid axles"
+      ],
+      "x1_lesson": "Front friction braking is a proven mountainboard topology when designed around a dedicated brake truck. This is an existence proof, not permission to improvise a brake adapter onto Matrix III."
+    },
+    {
+      "id": "TRAMPA-SPUR-GEAR",
+      "class": "production_spur_drive_reference",
+      "url": "https://trampaboards.com/2wd-spur-gear-drive-electric-mountainboard--custom--p-29506.html",
+      "observed_architecture": [
+        "final gear backlash must be set only after truck, wheels and drive are assembled",
+        "bash guards protect drivetrain",
+        "sealed/v-ring drive interfaces",
+        "service knowledge is treated as part of ownership"
+      ],
+      "x1_lesson": "A drivetrain has assembly-state variables that CAD cannot freeze. Backlash/tension, guard clearance and maintenance checks must become commissioning evidence."
+    },
+    {
+      "id": "TRAMPA-OPEN-BELT",
+      "class": "production_belt_drive_reference",
+      "url": "https://trampa.co.uk/product/open-belt-drive-custom-build/",
+      "observed_architecture": [
+        "simple lightweight belt drive",
+        "multiple ratios",
+        "easy maintenance",
+        "spare belt and inner tube recommended for rides"
+      ],
+      "x1_lesson": "Belt drive remains a credible fallback if it uniquely solves brake packaging, but its debris, tension, idler, spare-belt and guard failure modes must be accepted explicitly."
+    },
+    {
+      "id": "DIY-FAILURE-CATALOG",
+      "class": "community_failure_modes",
+      "url": "https://forum.esk8.news/t/what-could-go-wrong/10257",
+      "observed_architecture": [
+        "loose motor mounts",
+        "belt tension loss",
+        "bent mounts",
+        "pulley/gear slip",
+        "bearing failure",
+        "water ingress",
+        "connector/receiver failures"
+      ],
+      "x1_lesson": "Design inspection and positive-retention features around common mundane failures rather than assuming nominal CAD alignment survives trail vibration."
+    },
+    {
+      "id": "DIY-WHEEL-RETENTION",
+      "class": "community_failure_example",
+      "url": "https://forum.esk8.news/t/converting-36-landyachtz-evo-to-mountainboard/83152",
+      "observed_architecture": [
+        "insufficient threadlocker/retention preceded wheel loss and axle-thread damage"
+      ],
+      "x1_lesson": "Wheel retention requires a defined fastener stack, torque/retention procedure, witness marks and pre/post-ride inspection rather than an informal tighten-and-forget step."
+    },
+    {
+      "id": "DIY-ENCLOSURE-MOUNT",
+      "class": "community_failure_example",
+      "url": "https://forum.esk8.news/t/budget-mbs-agent-explorer-build-16s-from-zero-to-mountainboarding/88091",
+      "observed_architecture": [
+        "successful long ride with enclosure mounting identified as the outstanding mechanical problem"
+      ],
+      "x1_lesson": "Battery/enclosure mounting is a primary structural load path. It needs isolation, positive retention, service access and fatigue inspection, not just a waterproof box."
+    }
+  ]
+}
