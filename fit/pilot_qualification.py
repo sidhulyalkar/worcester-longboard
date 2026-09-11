@@ -59,11 +59,17 @@ def qualify_manifest(path: Path) -> dict:
     up=[p for p in obs if p["kind"]=="load_up" and p["mass_kg"]>0]
     down=[p for p in obs if p["kind"]=="load_down" and p["mass_kg"]>0]
     fails=[]; paired=sorted({p["mass_kg"] for p in up}&{p["mass_kg"] for p in down})
+    rate=m.get("hx711_sps")
+    if rate not in (10,80): fails.append("hx711_sps must be 10 or 80")
     if not pre: fails.append("missing zero_pre")
     if not post: fails.append("missing zero_post")
-    if len({p["mass_kg"] for p in up})<3: fails.append("need >=3 ascending masses")
+    cal_masses={p["mass_kg"] for p in up}
+    if len(cal_masses)<3: fails.append("need >=3 ascending masses")
     if len(paired)<2: fails.append("need >=2 paired masses for hysteresis")
     if not val: fails.append("need independent validation mass")
+    for p in val:
+        if p["mass_kg"]<=0: fails.append("validation mass must be positive")
+        if p["mass_kg"] in cal_masses: fails.append("validation mass must be independent of calibration masses")
     for p in obs+val:
         if p["duration_s"]<limits["min_duration_s"]: fails.append(f'{p["path"]}: short plateau')
         if p["coverage"]<limits["min_coverage"]: fails.append(f'{p["path"]}: low coverage')
@@ -78,8 +84,9 @@ def qualify_manifest(path: Path) -> dict:
             metrics["hysteresis_fs"]=max(abs(fmean(_force(p["mean"],fit) for p in up if p["mass_kg"]==x)-fmean(_force(p["mean"],fit) for p in down if p["mass_kg"]==x))/fs for x in paired)
         if post:
             metrics["zero_return_fs"]=abs(_force(fmean(p["mean"] for p in post),fit)-_force(fmean(p["mean"] for p in pre),fit))/fs
-        if val:
-            metrics["validation_error"]=max(abs(_force(p["mean"],fit)-p["force_n"])/p["force_n"] for p in val if p["force_n"]>0)
+        positive_val=[p for p in val if p["force_n"]>0]
+        if positive_val:
+            metrics["validation_error"]=max(abs(_force(p["mean"],fit)-p["force_n"])/p["force_n"] for p in positive_val)
         checks=[("r2",">=","min_r2"),("residual_fs","<=","max_residual_fs"),("hysteresis_fs","<=","max_hysteresis_fs"),("zero_return_fs","<=","max_zero_return_fs"),("validation_error","<=","max_validation_error"),("noise_fs","<=","max_noise_fs")]
         for name,op,lim in checks:
             v=metrics[name]
@@ -94,5 +101,5 @@ def qualify_manifest(path: Path) -> dict:
     if lg is None or float(lg)<limits["min_loaded_gap_mm"]: fails.append("loaded stop gap invalid")
     if ug is not None and lg is not None and float(lg)>float(ug): fails.append("loaded gap exceeds unloaded gap")
     sources={str(Path(p["path"]).resolve().relative_to(base)) : p["sha256"] for p in obs+val}
-    report={"schema_version":1,"authority":"x1_one_zone_pilot","scope":"unpowered_fit_rig_only","channel":channel,"hx711_sps":m.get("hx711_sps"),"thresholds":limits,"metrics":metrics,"linear_fit":fit,"mechanical":mech,"source_fingerprints":sources,"manifest_sha256":_sha(path),"failures":sorted(set(fails)),"qualified_for_four_zone_duplication":not fails}
+    report={"schema_version":1,"authority":"x1_one_zone_pilot","scope":"unpowered_fit_rig_only","channel":channel,"hx711_sps":rate,"thresholds":limits,"metrics":metrics,"linear_fit":fit,"mechanical":mech,"source_fingerprints":sources,"manifest_sha256":_sha(path),"failures":sorted(set(fails)),"qualified_for_four_zone_duplication":not fails}
     report["authority_fingerprint_sha256"]=_digest(report); return report
