@@ -1,12 +1,13 @@
 # X1 Fit Rig v0.3 interface control document
 
-This document defines which mechanical interfaces are frozen, adjustable, or measurement-gated for the **unpowered** rider-fit fixture.
+This document defines which mechanical interfaces are frozen, adjustable, vendor-authoritative, or physically verification-gated for the **unpowered** rider-fit fixture.
 
 ## Authority classes
 
 - **FROZEN-REFERENCE**: safe to use for mock-up/CAD packaging and fixture fabrication where noted.
+- **VENDOR-AUTHORITY**: taken from the current component mechanical drawing and suitable for a one-zone pilot.
 - **ADJUSTABLE**: intentionally slotted or shimmed; final rider-specific value is discovered experimentally.
-- **MEASUREMENT-GATED**: do not drill/machine from nominal assumptions. Measure the purchased part first.
+- **PHYSICAL-VERIFY**: check one purchased component before duplicating the interface four times.
 - **PRIVATE-FIT**: rider-specific result stored under `rider/private/`, never committed to public Git history.
 
 ## Base fixture
@@ -40,21 +41,22 @@ Each foot has heel and forefoot zones. Every zone is mechanically independent.
 | Interface | Value/status | Authority |
 |---|---|---|
 | zone pad envelope | 105 x 78 x 6 mm | FROZEN-REFERENCE |
-| transfer button | 12 mm diameter x 2 mm nominal | FROZEN-REFERENCE; verify contact |
+| zone-pad attachment | one M5 clearance hole to loaded sensor end | VENDOR-AUTHORITY / PHYSICAL-VERIFY |
 | load-cell pod | 92 x 38 x 6 mm | FROZEN-REFERENCE |
+| pod attachment | one M5 clearance hole to fixed sensor end | VENDOR-AUTHORITY / PHYSICAL-VERIFY |
 | overload stop diameter | 10 mm nominal | FROZEN-REFERENCE |
-| overload stop gap | 0.8 mm starting value | MEASUREMENT-GATED under real deflection |
+| overload stop gap | 0.8 mm starting value | PHYSICAL-VERIFY under real deflection |
 
-The overload stop must not become part of the normal load path. Verify the gap experimentally on one zone before a person uses the full fixture.
+There is no separate force-transfer button in the current architecture. The single-point sensor itself is the compliant connection between pod and top pad.
 
 ## Load-cell interface
 
-Nominal envelope currently used for collision geometry:
+Current Phidgets 3135_0 vendor drawing reference:
 
-- length: 55.25 mm,
-- width: 12.70 mm,
-- height: 12.70 mm,
-- threaded family: M5.
+- body: 55 x 12.65 x 12.65 mm,
+- 2x M5x0.8 through holes total,
+- 40 mm hole-center spacing,
+- reference sensor-frame coordinates: fixed/wire hole `(-20, 0)` mm, loaded/free hole `(20, 0)` mm.
 
 The sensor coordinate frame is:
 
@@ -63,14 +65,11 @@ The sensor coordinate frame is:
 - -x toward fixed/wire end,
 - +y across narrow width.
 
-The following remain **MEASUREMENT-GATED**:
+**One-zone pilot authority:** the vendor drawing is sufficient to generate and fabricate one pilot pod/pad pair.
 
-- fixed-end hole-center coordinates,
-- loaded-end hole-center coordinates,
-- actual transfer-button contact position relative to manufacturer's load arrow/marking,
-- final overload-stop height.
+**Four-zone duplication gate:** before making four final pods, verify one purchased sensor's hole centers and actual cable/fixed-end orientation, then check real overload-stop clearance under small known loads.
 
-Use `cad/fit_rig_measurements.example.json`, `tools/validate_fit_rig_measurements.py`, and `cad/generate_fit_rig.py --measurements ...` to close these gates.
+Use `cad/fit_rig_measurements.example.json`, `tools/validate_fit_rig_measurements.py`, and `cad/generate_fit_rig.py --measurements ...` to record that verification.
 
 ## Electronics enclosure
 
@@ -78,8 +77,8 @@ Use `cad/fit_rig_measurements.example.json`, `tools/validate_fit_rig_measurement
 |---|---|---|
 | outer reference envelope | 185 x 125 x 42 mm | FROZEN-REFERENCE |
 | wall | 3 mm | FROZEN-REFERENCE |
-| cable windows | generic reference | MEASUREMENT-GATED to actual glands/cables |
-| internal PCB mounting | not frozen | MEASUREMENT-GATED |
+| cable windows | generic reference | PHYSICAL-VERIFY to actual glands/cables |
+| internal PCB mounting | not frozen | PHYSICAL-VERIFY |
 
 Because this fixture is low-voltage, packaging priority is strain relief, connector accessibility and clean sensor wiring rather than environmental sealing.
 
