@@ -23,6 +23,7 @@ def _max_item_cost(item: dict) -> float:
 def validate_manifest(data: dict) -> dict:
     errors: list[str] = []
     ids: set[str] = set()
+    items_by_id: dict[str, dict] = {}
     buy_now_total = 0.0
 
     if data.get("schema_version") != 1:
@@ -34,6 +35,7 @@ def validate_manifest(data: dict) -> dict:
             errors.append(f"duplicate or missing item id: {item_id}")
             continue
         ids.add(item_id)
+        items_by_id[item_id] = item
         stage = item.get("stage")
         if stage not in STAGES:
             errors.append(f"{item_id}: invalid stage {stage}")
@@ -50,7 +52,23 @@ def validate_manifest(data: dict) -> dict:
         if stage == "POWER_GATED" and data.get("rules", {}).get("power_gated_authorized") is True:
             errors.append("power-gated procurement cannot be globally authorized in this tranche")
 
-    ceiling = float(data.get("rules", {}).get("buy_now_max_total_usd", 0))
+    rules = data.get("rules", {})
+    preferred = rules.get("preferred_chassis_item_id")
+    if preferred:
+        if preferred not in ids:
+            errors.append(f"preferred chassis item does not exist: {preferred}")
+        elif items_by_id[preferred].get("stage") != "MEASURE_FIRST":
+            errors.append("preferred chassis item must be MEASURE_FIRST")
+
+    for item in data.get("items", []):
+        alternative_to = item.get("alternative_to")
+        if alternative_to:
+            if alternative_to == item.get("id"):
+                errors.append(f"{item.get('id')}: cannot be an alternative to itself")
+            elif alternative_to not in ids:
+                errors.append(f"{item.get('id')}: alternative target does not exist: {alternative_to}")
+
+    ceiling = float(rules.get("buy_now_max_total_usd", 0))
     if buy_now_total > ceiling:
         errors.append(f"BUY_NOW ceiling exceeded: ${buy_now_total:.2f} > ${ceiling:.2f}")
 
@@ -64,7 +82,8 @@ def validate_manifest(data: dict) -> dict:
         "buy_now_maximum_usd": round(buy_now_total, 2),
         "buy_now_ceiling_usd": ceiling,
         "item_count": len(ids),
-        "power_gated_authorized": data.get("rules", {}).get("power_gated_authorized") is True,
+        "preferred_chassis_item_id": preferred,
+        "power_gated_authorized": rules.get("power_gated_authorized") is True,
     }
 
 
