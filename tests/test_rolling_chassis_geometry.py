@@ -31,11 +31,24 @@ def test_wheel_sweep_grows_with_steering_angle():
     assert BRAKE_FIRST.steered_wheel_half_extent_x_mm > straight.steered_wheel_half_extent_x_mm
 
 
-def test_authority_stays_nonfabrication_until_vendor_interfaces_verified():
+def test_component_measurement_alone_does_not_unlock_fabrication():
+    verified = BRAKE_FIRST.with_component_verification()
+    assert verified.vendor_envelopes_verified is True
+    assert verified.brake_interface_verified is False
+    assert verified.motion_sweep_verified is False
+    assert verified.fabrication_ready is False
+
+
+def test_full_interface_verification_is_required_for_fabrication_authority():
+    verified = BRAKE_FIRST.with_full_interface_verification()
+    assert verified.vendor_envelopes_verified is True
+    assert verified.brake_interface_verified is True
+    assert verified.motion_sweep_verified is True
+    assert verified.fabrication_ready is True
+
+
+def test_authority_exposes_all_manufacturing_gates():
     report = BRAKE_FIRST.authority_report()
     assert report["scope"] == "unpowered_rolling_chassis_geometry_only"
     assert report["fabrication_ready"] is False
     assert len(report["gates"]) == 6
-    verified = BRAKE_FIRST.with_component_verification()
-    assert verified.vendor_envelopes_verified is True
-    assert verified.fabrication_ready is True
