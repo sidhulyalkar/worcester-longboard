@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "coordinate_frame": {
     "origin": "load-cell geometric center",
     "+x": "loaded/free end",
@@ -7,13 +7,22 @@
     "+y": "across narrow sensor width",
     "units": "mm"
   },
+  "vendor_reference": {
+    "body_mm": [55.0, 12.65, 12.65],
+    "thread": "M5x0.8 THRU",
+    "hole_center_spacing_mm": 40.0,
+    "fixed_hole_xy_mm": [-20.0, 0.0],
+    "loaded_hole_xy_mm": [20.0, 0.0],
+    "source": "Phidgets 3135_0 mechanical drawing Rev 1, 2025-06-04"
+  },
   "load_cell": {
-    "fixed_holes_xy_mm": null,
-    "loaded_holes_xy_mm": null
+    "fixed_hole_xy_mm": null,
+    "loaded_hole_xy_mm": null
   },
   "measurement_notes": [
-    "Measure physical hole centers with calipers; do not copy placeholder values from drawings.",
-    "Record at least two hole centers on the fixed/wire end and two on the loaded/free end.",
-    "Leave values null until measured. The CAD generator must remain measurement-gated otherwise."
+    "This file verifies one purchased sensor against the vendor drawing before four final pods are duplicated.",
+    "Measure the fixed/wire-end and loaded/free-end hole centers in the documented sensor coordinate frame.",
+    "Do not fill these values by copying the vendor_reference block; enter physical measurements only.",
+    "The one-zone pilot CAD may use the vendor pattern before this verification is complete."
   ]
 }
