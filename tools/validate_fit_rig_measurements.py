@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Validate private load-cell measurements before they are used by CAD.
+"""Validate one physical Phidgets 3135 against X1's vendor CAD authority.
 
-This utility prints a machine-readable authority report. It never invents missing
-coordinates and does not write measurements into the public repository.
+The vendor drawing is allowed to drive a one-zone pilot. This utility closes the
+four-pod duplication gate only after a purchased sensor is physically checked.
 """
 from __future__ import annotations
 
@@ -16,19 +16,25 @@ from cad.fit_rig_geometry import DEFAULT
 def validate_file(path: Path) -> dict:
     data = json.loads(path.read_text(encoding="utf-8"))
     cell = data.get("load_cell") or {}
-    fixed = cell.get("fixed_holes_xy_mm")
-    loaded = cell.get("loaded_holes_xy_mm")
+    fixed = cell.get("fixed_hole_xy_mm")
+    loaded = cell.get("loaded_hole_xy_mm")
 
-    if not fixed or not loaded:
+    if fixed is None or loaded is None:
         report = DEFAULT.authority_report()
         report["input_file"] = str(path)
         report["input_complete"] = False
         return report
 
-    geometry = DEFAULT.with_load_cell_measurements(
-        {"fixed_holes_xy_mm": fixed, "loaded_holes_xy_mm": loaded}
-    )
-    report = geometry.authority_report()
+    try:
+        geometry = DEFAULT.with_load_cell_verification(
+            {"fixed_hole_xy_mm": fixed, "loaded_hole_xy_mm": loaded}
+        )
+        report = geometry.authority_report()
+        report["verification_error"] = None
+    except (ValueError, KeyError, TypeError, IndexError) as exc:
+        report = DEFAULT.authority_report()
+        report["verification_error"] = str(exc)
+
     report["input_file"] = str(path)
     report["input_complete"] = True
     return report
