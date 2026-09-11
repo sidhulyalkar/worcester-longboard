@@ -1,12 +1,14 @@
 import csv, json
 from pathlib import Path
+import pytest
 from fit.pilot_qualification import qualify_manifest
 
 HEADER=["t_us","left_heel_raw","left_forefoot_raw","right_heel_raw","right_forefoot_raw","load_valid_mask","roll_deg","imu_ok"]
 
-def _write_log(path:Path,mean_raw:float,seconds:float=6.0,sps:int=10,noise:int=2):
+def _write_log(path:Path,mean_raw:float,seconds:float=6.0,sps:int=10,noise:int=2,header_sps:int|None=None):
     n=int(seconds*sps)+1
     with path.open("w",newline="",encoding="utf-8") as f:
+        f.write(f"# hx711_sps={header_sps if header_sps is not None else sps}\n")
         w=csv.writer(f); w.writerow(HEADER)
         for i in range(n):
             j=(i%(2*noise+1))-noise if noise else 0
@@ -17,7 +19,7 @@ def _manifest(tmp:Path,nonlinear_validation=False,loaded_gap=0.30):
     specs=[("zero_pre",0,"zero_pre.csv",raw(0)),("load_up",2,"up2.csv",raw(2)),("load_up",5,"up5.csv",raw(5)),("load_up",10,"up10.csv",raw(10)),("load_down",5,"down5.csv",raw(5)+25),("load_down",2,"down2.csv",raw(2)+15),("zero_post",0,"zero_post.csv",raw(0)+10)]
     for _,_,fn,r in specs:_write_log(tmp/fn,r)
     _write_log(tmp/"validation.csv",raw(7.5)+(4000 if nonlinear_validation else 0))
-    data={"schema_version":1,"channel":"left_heel","hx711_sps":10,"observations":[{"kind":k,"mass_kg":m,"log":f} for k,m,f,_ in specs],"validation":[{"mass_kg":7.5,"log":"validation.csv"}],"mechanical":{"vendor_pattern_verified":True,"fixed_loaded_orientation_verified":True,"screw_stack_verified":True,"stop_gap_unloaded_mm":0.8,"stop_gap_min_loaded_mm":loaded_gap}}
+    data={"schema_version":1,"channel":"left_heel","hx711_sps":10,"acquisition":{"rate_jumper_verified":True},"observations":[{"kind":k,"mass_kg":m,"log":f} for k,m,f,_ in specs],"validation":[{"mass_kg":7.5,"log":"validation.csv"}],"mechanical":{"vendor_pattern_verified":True,"fixed_loaded_orientation_verified":True,"screw_stack_verified":True,"stop_gap_unloaded_mm":0.8,"stop_gap_min_loaded_mm":loaded_gap}}
     p=tmp/"pilot_manifest.json"; p.write_text(json.dumps(data)); return p
 
 def test_good_pilot_qualifies_and_is_fingerprinted(tmp_path):
@@ -57,3 +59,34 @@ def test_unknown_hx711_rate_blocks_duplication(tmp_path):
     p.write_text(json.dumps(d)); r=qualify_manifest(p)
     assert r["qualified_for_four_zone_duplication"] is False
     assert "hx711_sps must be 10 or 80" in r["failures"]
+
+def test_logger_header_must_match_manifest_rate(tmp_path):
+    p=_manifest(tmp_path)
+    raw=lambda m:100000+m*9.80665*1000
+    _write_log(tmp_path/"validation.csv",raw(7.5),header_sps=80)
+    r=qualify_manifest(p)
+    assert r["qualified_for_four_zone_duplication"] is False
+    assert any("logger hx711_sps disagrees" in x for x in r["failures"])
+
+def test_rate_jumper_verification_is_explicit(tmp_path):
+    p=_manifest(tmp_path); d=json.loads(p.read_text())
+    d["acquisition"]["rate_jumper_verified"]=False
+    p.write_text(json.dumps(d)); r=qualify_manifest(p)
+    assert r["qualified_for_four_zone_duplication"] is False
+    assert "acquisition.rate_jumper_verified must be true" in r["failures"]
+
+def test_pilot_mass_ceiling_blocks_needlessly_large_load(tmp_path):
+    p=_manifest(tmp_path); d=json.loads(p.read_text())
+    d["validation"][0]["mass_kg"]=21.0
+    p.write_text(json.dumps(d)); r=qualify_manifest(p)
+    assert r["qualified_for_four_zone_duplication"] is False
+    assert any("hard 20 kg" in x for x in r["failures"])
+
+def test_manifest_cannot_escape_private_session_root(tmp_path):
+    p=_manifest(tmp_path); d=json.loads(p.read_text())
+    outside=tmp_path.parent/"outside.csv"
+    _write_log(outside,100000)
+    d["observations"][0]["log"]="../outside.csv"
+    p.write_text(json.dumps(d))
+    with pytest.raises(ValueError,match="escapes manifest directory"):
+        qualify_manifest(p)
