@@ -11,7 +11,7 @@ def test_default_uses_vendor_pattern_but_stays_physical_verification_gated():
     assert DEFAULT.sensor_mount_fabrication_ready is False
     report = DEFAULT.authority_report()
     assert report["fixture_type"] == "unpowered_fit_rig_only"
-    assert report["schema_version"] == 3
+    assert report["schema_version"] == 4
     assert report["sensor_mount_pilot_ready"] is True
     assert len(report["measurement_gates"]) == 3
 
@@ -22,6 +22,19 @@ def test_vendor_pattern_matches_current_40mm_two_hole_drawing():
     assert cell.loaded_hole_xy_mm == (20.0, 0.0)
     assert cell.loaded_hole_xy_mm[0] - cell.fixed_hole_xy_mm[0] == 40.0
     assert cell.thread == "M5x0.8 THRU"
+
+
+def test_overload_stop_z_stack_reproduces_requested_air_gap():
+    assert DEFAULT.nominal_zone_pad_bottom_z_mm == (
+        DEFAULT.load_cell_pod_thickness_mm + DEFAULT.load_cell.height_mm
+    )
+    assert DEFAULT.nominal_overload_stop_top_z_mm == (
+        DEFAULT.nominal_zone_pad_bottom_z_mm - DEFAULT.overload_stop_gap_mm
+    )
+    assert abs(
+        DEFAULT.nominal_overload_stop_clearance_mm - DEFAULT.overload_stop_gap_mm
+    ) < 1e-9
+    assert DEFAULT.nominal_overload_stop_top_z_mm > DEFAULT.load_cell_pod_thickness_mm
 
 
 def test_physical_verification_closes_four_pod_gate():
