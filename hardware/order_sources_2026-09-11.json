@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-09-11",
+  "currency": "USD",
+  "shipping_tax_excluded": true,
+  "refresh_live_price_and_stock_before_checkout": true,
+  "sources": [
+    {
+      "manifest_id": "LC-3135",
+      "recommended": true,
+      "seller": "Phidgets",
+      "manufacturer": "Phidgets",
+      "sku": "3135_0",
+      "url": "https://www.phidgets.com/?prodid=226",
+      "unit_price_usd": 7.00,
+      "qty": 2,
+      "availability_note": "Direct page showed quantity available on 2026-09-11.",
+      "interface_notes": [
+        "50 kg single-point load cell",
+        "M5x0.8 threaded mounting interfaces",
+        "55.25 mm body length reference",
+        "40 mm mounting-pattern reference",
+        "One active pilot cell plus one untouched spare until Issue #4 qualifies"
+      ]
+    },
+    {
+      "manifest_id": "ADC-HX711",
+      "recommended": true,
+      "seller": "SparkFun",
+      "manufacturer": "SparkFun",
+      "sku": "SEN-13879",
+      "url": "https://www.sparkfun.com/sparkfun-load-cell-amplifier-hx711.html",
+      "unit_price_usd": 4.95,
+      "qty": 2,
+      "availability_note": "Price verified; page stock fragments were inconsistent, so confirm at checkout.",
+      "interface_notes": [
+        "Selectable 10 SPS / 80 SPS",
+        "2.7-5 V operation",
+        "One active pilot ADC plus one spare until Issue #4 qualifies"
+      ]
+    },
+    {
+      "manifest_id": "MCU-ESP32S3",
+      "recommended": true,
+      "seller": "Mouser",
+      "manufacturer": "Espressif Systems",
+      "sku": "ESP32-S3-DevKitC-1-N8R8",
+      "seller_sku": "356-EP32S3DVKTC1N8R8",
+      "url": "https://www.mouser.com/en/ProductDetail/Espressif-Systems/ESP32-S3-DevKitC-1-N8R8",
+      "unit_price_usd": 15.00,
+      "qty": 1,
+      "availability_note": "Direct page showed >1,500 units immediately shippable on 2026-09-11; US tariff may apply.",
+      "skip_if_owned": true,
+      "interface_notes": [
+        "Official Espressif DevKitC-1 family board",
+        "8 MB flash + 8 MB PSRAM variant",
+        "Current fit-rig firmware targets ESP32-S3"
+      ]
+    },
+    {
+      "manifest_id": "HW-M5-PILOT",
+      "recommended": false,
+      "seller": "Home Depot",
+      "manufacturer": "MYWISH",
+      "sku": "SF-TZ00083",
+      "url": "https://www.homedepot.com/p/MYWISH-244-Piece-M5-Hex-Socket-Head-Cap-Screw-and-Nuts-Kit-304-Stainless-Steel-with-Washers-SF-TZ00083/337777103",
+      "unit_price_usd": 11.99,
+      "qty": 1,
+      "availability_note": "Example convenience assortment, not a structural fastener authority.",
+      "skip_if_owned": true,
+      "interface_notes": [
+        "Use only as a length assortment for the bench pilot",
+        "Final M5 length must be selected after measuring the real sensor stack",
+        "Never bottom a screw into the load-cell body or clamp its flexure region"
+      ]
+    },
+    {
+      "manifest_id": "HW-M4-PILOT",
+      "recommended": false,
+      "seller": "Home Depot + local/Lowes equivalent",
+      "manufacturer": "MYWISH / Hillman equivalent",
+      "sku": "SF-TZ00003 + M4x0.7 nylon-insert lock nuts",
+      "url": "https://www.homedepot.com/p/MYWISH-380-Pieces-M4-Screw-Nuts-Bolts-Assortment-Kit-304-Stainless-Steel-Button-Head-Socket-Cap-Metric-Screws-Bolts-in-Silver-SF-TZ00003/333906803",
+      "unit_price_usd": 8.39,
+      "qty": 1,
+      "availability_note": "Add four or more M4x0.7 nylon-insert lock nuts locally; Lowes Hillman 880810 was $0.98/4 on 2026-09-11.",
+      "skip_if_owned": true,
+      "interface_notes": [
+        "Pilot-only four through-fasteners",
+        "Use washers and positive locking such as M4x0.7 nyloc nuts"
+      ]
+    },
+    {
+      "manifest_id": "CALIPER-SCREENING",
+      "recommended": false,
+      "seller": "Home Depot",
+      "manufacturer": "WEN",
+      "sku": "10761",
+      "url": "https://www.homedepot.com/p/WEN-6-1-in-Electronic-Digital-Caliper-with-LCD-Readout-and-Storage-Case-10761/306638595",
+      "unit_price_usd": 13.26,
+      "qty": 1,
+      "availability_note": "Cheap screening option; 0.01 mm display resolution but roughly +/-0.2 mm accuracy per current product Q&A.",
+      "skip_if_owned": true,
+      "interface_notes": [
+        "Geometry screening only",
+        "Do not treat display resolution as metrology accuracy",
+        "Use feeler gauges for the critical overload-stop gap"
+      ]
+    },
+    {
+      "manifest_id": "FEELER-GAUGE",
+      "recommended": true,
+      "seller": "Harbor Freight",
+      "manufacturer": "Pittsburgh",
+      "sku": "63665",
+      "url": "https://www.harborfreight.com/feeler-gauge-32-piece-63665.html",
+      "unit_price_usd": 4.99,
+      "qty": 1,
+      "availability_note": "Direct page price verified on 2026-09-11.",
+      "skip_if_owned": true,
+      "interface_notes": [
+        "31 steel blades with metric and SAE markings",
+        "Blades may be stacked for larger gaps",
+        "Use for unloaded and loaded overload-stop clearances"
+      ]
+    },
+    {
+      "manifest_id": "USB-DATA",
+      "recommended": false,
+      "seller": "owned-or-local",
+      "manufacturer": "TBD",
+      "sku": "known-good-data-capable-USB-cable",
+      "unit_price_ceiling_usd": 5.00,
+      "qty": 1,
+      "availability_note": "Prefer an already-proven data cable rather than buying a charge-only cable.",
+      "skip_if_owned": true
+    },
+    {
+      "manifest_id": "WIRE-HEATSHRINK",
+      "recommended": false,
+      "seller": "electronics-supplier",
+      "manufacturer": "TBD",
+      "sku": "24-30-AWG-flexible-stranded-wire-plus-heatshrink",
+      "unit_price_ceiling_usd": 10.00,
+      "qty": 1,
+      "availability_note": "Generic bench wiring; prioritize flexibility and strain relief over cosmetic sleeving.",
+      "skip_if_owned": true
+    },
+    {
+      "manifest_id": "PILOT-BASE",
+      "recommended": false,
+      "seller": "scrap-or-local",
+      "manufacturer": "TBD",
+      "sku": "rigid-plywood-or-aluminum-base",
+      "unit_price_ceiling_usd": 10.00,
+      "qty": 1,
+      "availability_note": "Use rigid scrap material when possible; the base must be clamped or positively fastened to the bench.",
+      "skip_if_owned": true
+    },
+    {
+      "manifest_id": "DONOR-COMP95",
+      "recommended": true,
+      "seller": "MBS",
+      "manufacturer": "MBS",
+      "sku": "10303",
+      "url": "https://www.mbs.com/shop/p/comp-95-mountainboard-silver-hex",
+      "unit_price_usd": 499.95,
+      "qty": 1,
+      "availability_note": "Direct page showed Add to Cart plus stock-notification language; verify live availability before payment.",
+      "purchase_timing": "QUOTE/WATCH NOW; normally buy after Issue #4 passes, except a verified healthy used Matrix III donor at <=$350 may justify earlier capture.",
+      "interface_notes": [
+        "Matrix III CNC 400 mm trucks",
+        "12 mm axles and 12x28 mm bearings",
+        "Rockstar II hubs",
+        "8 inch T1 tires/tubes",
+        "F5 bindings",
+        "Brake compatible",
+        "Upgradeable to 70 mm axles later for MBS gear-drive compatibility"
+      ]
+    },
+    {
+      "manifest_id": "BRAKE-V5",
+      "recommended": true,
+      "seller": "MBS",
+      "manufacturer": "MBS",
+      "sku": "15006",
+      "url": "https://www.mbs.com/shop/p/15006-mbs-v5-brake-system",
+      "unit_price_usd": 89.95,
+      "qty": 1,
+      "availability_note": "Direct page showed Add to Cart plus stock-notification language; verify live availability before payment.",
+      "purchase_timing": "Buy with the selected donor/chassis measurement tranche, not as part of Issue #4.",
+      "interface_notes": [
+        "Compatible with MBS Matrix trucks",
+        "Compatible with Rockstar / Rockstar II hubs",
+        "Physical rotor, arm, cable and stop performance still require Issue #14 qualification"
+      ]
+    },
+    {
+      "manifest_id": "TRUCK-M3-400",
+      "recommended": false,
+      "seller": "MBS",
+      "manufacturer": "MBS",
+      "sku": "12302 / 12300 family",
+      "url": "https://www.mbs.com/shop/parts/trucks/matrix-iii",
+      "unit_price_ceiling_usd": 124.95,
+      "qty": 1,
+      "availability_note": "12302 CNC 400 mm was waitlisted on 2026-09-11; 12300 non-CNC 400 mm listed at $119.95.",
+      "purchase_timing": "BLOCKED while donor-first strategy is active."
+    },
+    {
+      "manifest_id": "HUB-RSII",
+      "recommended": false,
+      "seller": "MBS",
+      "manufacturer": "MBS",
+      "sku": "13230/13231/13232 family",
+      "url": "https://www.mbs.com/shop/parts/wheels/hubs",
+      "unit_price_usd": 14.95,
+      "qty": 1,
+      "availability_note": "Several Rockstar II colors listed at $14.95 on 2026-09-11.",
+      "purchase_timing": "BLOCKED while donor-first strategy is active."
+    },
+    {
+      "manifest_id": "TIRE-T2-9",
+      "recommended": false,
+      "seller": "MBS",
+      "manufacturer": "MBS",
+      "sku": "13120",
+      "url": "https://www.mbs.com/shop/p/13120-9-mbs-t2-tires-1",
+      "unit_price_usd": 29.95,
+      "qty": 1,
+      "availability_note": "Direct page lists nominal 9 inch tire with stated 8.625 inch / 219 mm tire diameter and 2.6 inch / 67 mm width.",
+      "purchase_timing": "BLOCKED until donor 8 inch clearance is characterized and a 9 inch measurement is justified."
+    },
+    {
+      "manifest_id": "TUBE-9",
+      "recommended": false,
+      "seller": "MBS",
+      "manufacturer": "MBS",
+      "sku": "13013",
+      "url": "https://www.mbs.com/shop",
+      "unit_price_usd": 12.95,
+      "qty": 1,
+      "purchase_timing": "BLOCKED with the optional 9 inch tire study."
+    },
+    {
+      "manifest_id": "AXLE-M3-70",
+      "recommended": false,
+      "seller": "MBS",
+      "manufacturer": "MBS",
+      "sku": "12342",
+      "url": "https://www.mbs.com/shop/parts/trucks/matrix-iii",
+      "unit_price_usd": 24.95,
+      "qty": 2,
+      "purchase_timing": "BLOCKED until brake-first 50 mm axle geometry is physically measured."
+    },
+    {
+      "manifest_id": "DRIVE-G1-DUAL",
+      "recommended": false,
+      "seller": "MBS",
+      "manufacturer": "MBS",
+      "sku": "16101",
+      "url": "https://www.mbs.com/shop/parts/electric-parts/gear-drives",
+      "unit_price_usd": 399.95,
+      "qty": 1,
+      "purchase_timing": "POWER_GATED: do not order."
+    }
+  ]
+}
