@@ -1,26 +1,39 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "session_id": "example-fit-session",
   "candidate_id": "stance-A",
   "profile": "../rider/private/profile.json",
   "trials": [
     {
       "trial_id": "remount-1",
-      "csv": "../rider/private/sessions/stance-A/remount-1.csv",
+      "raw_log": "../rider/private/sessions/stance-A/remount-1.raw.csv",
+      "csv": "../rider/private/sessions/stance-A/remount-1.calibrated.csv",
       "geometry": {"stance_width_mm": 390.0, "left_yaw_deg": 12.0, "right_yaw_deg": -10.0}
     },
     {
       "trial_id": "remount-2",
-      "csv": "../rider/private/sessions/stance-A/remount-2.csv",
+      "raw_log": "../rider/private/sessions/stance-A/remount-2.raw.csv",
+      "csv": "../rider/private/sessions/stance-A/remount-2.calibrated.csv",
       "geometry": {"stance_width_mm": 391.0, "left_yaw_deg": 12.5, "right_yaw_deg": -10.0}
     },
     {
       "trial_id": "remount-3",
-      "csv": "../rider/private/sessions/stance-A/remount-3.csv",
+      "raw_log": "../rider/private/sessions/stance-A/remount-3.raw.csv",
+      "csv": "../rider/private/sessions/stance-A/remount-3.calibrated.csv",
       "geometry": {"stance_width_mm": 389.0, "left_yaw_deg": 12.0, "right_yaw_deg": -10.5}
     }
   ],
-  "trial_csv_columns": [
+  "raw_logger_columns": [
+    "t_us",
+    "left_heel_raw",
+    "left_forefoot_raw",
+    "right_heel_raw",
+    "right_forefoot_raw",
+    "load_valid_mask",
+    "roll_deg",
+    "imu_ok"
+  ],
+  "calibrated_trial_columns": [
     "t_s",
     "left_heel_N",
     "left_forefoot_N",
@@ -28,5 +41,6 @@
     "right_forefoot_N",
     "roll_deg"
   ],
+  "qualification_note": "Rev-B readiness requires >=3 raw logs with >=20 s duration, monotonic timestamps, >=98% complete four-force-channel coverage and >=95% IMU coverage, in addition to fit-repeatability gates.",
   "privacy": "Paths are examples. Real measurements and recordings belong under rider/private/."
 }
