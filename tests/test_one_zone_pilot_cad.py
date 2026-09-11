@@ -1,5 +1,7 @@
 from dataclasses import replace
 
+import pytest
+
 from cad.fit_rig_geometry import DEFAULT
 from cad.generate_one_zone_pilot import PILOT, carrier_plate, cut_sheet, pilot_pod
 
@@ -47,4 +49,6 @@ def test_cut_sheet_exposes_fabrication_coordinates_without_claiming_certificatio
     assert len(sheet["carrier"]["pod_mount_holes"]["centers_xy"]) == 4
     assert len(sheet["carrier"]["bench_mount_holes"]["centers_xy"]) == 4
     assert sheet["load_cell_reference"]["physical_unit_verified"] is False
-    assert sheet["nominal_z_stack"]["overload_stop_clearance_mm"] == DEFAULT.overload_stop_gap_mm
+    assert sheet["nominal_z_stack"]["overload_stop_clearance_mm"] == pytest.approx(
+        DEFAULT.overload_stop_gap_mm, abs=1e-9
+    )
