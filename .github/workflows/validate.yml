@@ -23,6 +23,8 @@ jobs:
         run: python tools/validate_procurement_manifest.py hardware/procurement_manifest.json
       - name: Validate complete ordering spec
         run: python tools/validate_ordering_spec.py
+      - name: Validate mechanical architecture
+        run: python tools/validate_mechanical_architecture.py
       - name: Evaluate public build authority
         run: |
           python tools/evaluate_build_authority.py \
@@ -37,9 +39,11 @@ jobs:
           assert report['capabilities']['order_measurement_chassis_parts']['allowed'] is True
           assert report['capabilities']['duplicate_four_fit_zones']['allowed'] is False
           assert report['capabilities']['fabricate_unpowered_chassis']['allowed'] is False
+          assert report['capabilities']['qualify_brake_drive_topology']['allowed'] is False
           assert report['capabilities']['order_power_hardware']['allowed'] is False
           assert report['capabilities']['powered_operation']['allowed'] is False
-          print('Public authority is conservative: evidence acquisition open; physical/power gates remain closed.')
+          assert report['gates']['brake_drive_topology_qualified']['satisfied'] is False
+          print('Public authority is conservative: evidence acquisition open; topology/physical/power gates remain closed.')
           PY
       - name: Host-test controller core
         run: |
@@ -94,25 +98,35 @@ jobs:
           assert not missing, f'missing pilot CAD outputs: {missing}'
           print('One-zone pilot CAD generated: bench package ready; physical Issue #4 qualification still required.')
           PY
-      - name: Generate unpowered rolling-chassis references
+      - name: Generate donor-grounded rolling-chassis references
         run: |
           python cad/generate_rolling_chassis.py
           python - <<'PY'
           import json
           from pathlib import Path
           root = Path('cad/generated_chassis')
-          for variant in ('brake_first_400mm', 'drive_clearance_420mm'):
+          variants = (
+              'brake_first_400mm',
+              'drive_clearance_420mm',
+              'brake_hanger_70mm_topology_study',
+          )
+          for variant in variants:
               authority = json.loads((root / f'x1_chassis_{variant}_authority.json').read_text())
+              assert authority['schema_version'] == 2
               assert authority['validation_errors'] == []
               assert authority['scope'] == 'unpowered_rolling_chassis_geometry_only'
               assert authority['fabrication_ready'] is False
               assert authority['vendor_envelopes_verified'] is False
               assert authority['brake_interface_verified'] is False
               assert authority['motion_sweep_verified'] is False
+              assert authority['geometry']['wheel']['diameter_mm'] == 194.0
+              assert authority['geometry']['wheelbase_mm'] == 940.0
               for state in ('neutral', 'sweep'):
                   assert (root / f'x1_chassis_{variant}_{state}.step').stat().st_size > 0
                   assert (root / f'x1_chassis_{variant}_{state}.stl').stat().st_size > 0
-          print('Rolling chassis envelopes generated: reference CAD only; physical interfaces remain gated.')
+          assert json.loads((root / 'x1_chassis_brake_first_400mm_authority.json').read_text())['reference_conflicts']['400mm_50mm_axle_brake_first']['brake_reference_compatible'] is True
+          assert json.loads((root / 'x1_chassis_brake_hanger_70mm_topology_study_authority.json').read_text())['reference_conflicts']['300mm_hanger_70mm_axle_440mm_topology_study']['brake_reference_compatible'] == 'UNKNOWN_AFTER_AXLE_SWAP'
+          print('Donor-grounded rolling chassis envelopes generated: three separate brake/drive topology references, none fabrication-ready.')
           PY
       - name: Upload fit-rig reference CAD
         uses: actions/upload-artifact@v7
