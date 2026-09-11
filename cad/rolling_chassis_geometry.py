@@ -74,14 +74,15 @@ class ChassisEnvelope:
 
     @property
     def steered_wheel_half_extent_x_mm(self) -> float:
-        """Conservative half-extent of one rectangular wheel envelope in plan view."""
+        """Plan-view longitudinal half-extent of a yawed wheel rectangle."""
         a = math.radians(abs(self.truck.max_steer_deg))
-        return self.wheel_radius_mm * math.sin(a) + self.wheel.width_mm / 2.0 * math.cos(a)
+        return self.wheel_radius_mm * math.cos(a) + self.wheel.width_mm / 2.0 * math.sin(a)
 
     @property
     def steered_wheel_half_extent_y_mm(self) -> float:
+        """Plan-view lateral half-extent of a yawed wheel rectangle."""
         a = math.radians(abs(self.truck.max_steer_deg))
-        return self.wheel_radius_mm * math.cos(a) + self.wheel.width_mm / 2.0 * math.sin(a)
+        return self.wheel_radius_mm * math.sin(a) + self.wheel.width_mm / 2.0 * math.cos(a)
 
     @property
     def rider_keepout_margin_each_end_mm(self) -> float:
