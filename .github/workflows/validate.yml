@@ -21,6 +21,8 @@ jobs:
       - run: python -m pytest -q tests
       - name: Validate staged procurement authority
         run: python tools/validate_procurement_manifest.py hardware/procurement_manifest.json
+      - name: Validate complete ordering spec
+        run: python tools/validate_ordering_spec.py
       - name: Evaluate public build authority
         run: |
           python tools/evaluate_build_authority.py \
