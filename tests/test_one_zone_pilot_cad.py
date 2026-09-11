@@ -1,7 +1,7 @@
 from dataclasses import replace
 
 from cad.fit_rig_geometry import DEFAULT
-from cad.generate_one_zone_pilot import PILOT, carrier_plate, pilot_pod
+from cad.generate_one_zone_pilot import PILOT, carrier_plate, cut_sheet, pilot_pod
 
 
 def test_default_pilot_geometry_is_reference_ready_but_not_four_zone_authority():
@@ -28,3 +28,23 @@ def test_loaded_end_mount_holes_stay_clear_of_overload_towers():
 def test_carrier_must_have_margin_around_pod():
     too_small = replace(PILOT, carrier_length_mm=100.0)
     assert any("longitudinal margin" in err for err in too_small.validate(DEFAULT))
+
+
+def test_bench_holes_require_edge_ligament():
+    too_close_to_edge = replace(PILOT, bench_mount_x_mm=61.0)
+    assert any("bench mount holes lack carrier edge ligament" in err for err in too_close_to_edge.validate(DEFAULT))
+
+
+def test_pod_and_bench_holes_require_separation():
+    colliding = replace(PILOT, bench_mount_x_mm=43.0, bench_mount_y_mm=16.0)
+    assert any("too close together" in err for err in colliding.validate(DEFAULT))
+
+
+def test_cut_sheet_exposes_fabrication_coordinates_without_claiming_certification():
+    sheet = cut_sheet(DEFAULT, PILOT)
+    assert sheet["scope"] == "unpowered_one_zone_pilot_reference_only"
+    assert sheet["not_strength_certification"] is True
+    assert len(sheet["carrier"]["pod_mount_holes"]["centers_xy"]) == 4
+    assert len(sheet["carrier"]["bench_mount_holes"]["centers_xy"]) == 4
+    assert sheet["load_cell_reference"]["physical_unit_verified"] is False
+    assert sheet["nominal_z_stack"]["overload_stop_clearance_mm"] == DEFAULT.overload_stop_gap_mm
