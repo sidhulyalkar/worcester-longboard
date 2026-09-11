@@ -13,7 +13,7 @@
         },
         {
           "path": "authority_fingerprint_sha256",
-          "type": "nonempty_string"
+          "type": "valid_authority_fingerprint"
         }
       ]
     },
@@ -37,7 +37,7 @@
         },
         {
           "path": "authority_fingerprint_sha256",
-          "type": "nonempty_string"
+          "type": "valid_authority_fingerprint"
         }
       ]
     },
@@ -63,7 +63,7 @@
         },
         {
           "path": "authority_fingerprint_sha256",
-          "type": "nonempty_string"
+          "type": "valid_authority_fingerprint"
         }
       ]
     },
@@ -87,7 +87,7 @@
         },
         {
           "path": "authority_fingerprint_sha256",
-          "type": "nonempty_string"
+          "type": "valid_authority_fingerprint"
         }
       ]
     },
@@ -108,7 +108,7 @@
         },
         {
           "path": "authority_fingerprint_sha256",
-          "type": "nonempty_string"
+          "type": "valid_authority_fingerprint"
         }
       ]
     },
@@ -129,7 +129,7 @@
         },
         {
           "path": "authority_fingerprint_sha256",
-          "type": "nonempty_string"
+          "type": "valid_authority_fingerprint"
         }
       ]
     }

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -23,6 +24,19 @@ def _predicate_matches(data: dict, predicate: dict) -> bool:
         return value == predicate["equals"]
     if predicate.get("type") == "nonempty_string":
         return isinstance(value, str) and bool(value.strip())
+    if predicate.get("type") == "valid_authority_fingerprint":
+        if not isinstance(value, str) or not value:
+            return False
+        unsigned = dict(data)
+        unsigned.pop("authority_fingerprint_sha256", None)
+        try:
+            payload = json.dumps(
+                unsigned, sort_keys=True, separators=(",", ":"), allow_nan=False
+            ).encode("utf-8")
+        except (TypeError, ValueError):
+            return False
+        expected = hashlib.sha256(payload).hexdigest()
+        return value == expected
     raise ValueError(f"unsupported evidence predicate: {predicate}")
 
 

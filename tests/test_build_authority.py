@@ -1,4 +1,5 @@
 import copy
+import hashlib
 import json
 from pathlib import Path
 
@@ -17,41 +18,42 @@ def _procurement():
     return json.loads((ROOT / "hardware/procurement_manifest.json").read_text())
 
 
+def _stamp(doc):
+    payload = json.dumps(doc, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
+    stamped = dict(doc)
+    stamped["authority_fingerprint_sha256"] = hashlib.sha256(payload).hexdigest()
+    return stamped
+
+
 def _all_physical_evidence():
     return [
-        {
+        _stamp({
             "qualified_for_four_zone_duplication": True,
-            "authority_fingerprint_sha256": "a" * 64,
-        },
-        {
+        }),
+        _stamp({
             "authority": "x1_fit_session",
             "schema_version": 2,
             "rev_b_gate": {"ready_for_rev_b_fit_cad": True},
-            "authority_fingerprint_sha256": "b" * 64,
-        },
-        {
+        }),
+        _stamp({
             "authority": "x1_mechanical_brake_interface",
             "qualified": True,
             "brake_interface_verified": True,
             "powered_operation_authorized": False,
-            "authority_fingerprint_sha256": "c" * 64,
-        },
-        {
+        }),
+        _stamp({
             "authority": "x1_rolling_chassis_physical",
             "qualified": True,
             "powered_operation_authorized": False,
-            "authority_fingerprint_sha256": "d" * 64,
-        },
-        {
+        }),
+        _stamp({
             "authority": "x1_rev_b_template",
             "qualified": True,
-            "authority_fingerprint_sha256": "e" * 64,
-        },
-        {
+        }),
+        _stamp({
             "authority": "x1_power_architecture",
             "qualified": True,
-            "authority_fingerprint_sha256": "f" * 64,
-        },
+        }),
     ]
 
 
@@ -66,12 +68,11 @@ def test_public_repo_defaults_are_conservative():
 
 
 def test_downstream_evidence_cannot_skip_upstream_gate():
-    evidence = [{
+    evidence = [_stamp({
         "authority": "x1_rolling_chassis_physical",
         "qualified": True,
         "powered_operation_authorized": False,
-        "authority_fingerprint_sha256": "d" * 64,
-    }]
+    })]
     report = evaluate(_plan(), _procurement(), evidence)
     state = report["gates"]["rolling_chassis_physical_qualified"]
     assert state["evidence_matched"] is True
@@ -93,6 +94,13 @@ def test_future_power_ordering_requires_explicit_manifest_promotion():
     report = evaluate(_plan(), procurement, _all_physical_evidence())
     assert report["capabilities"]["order_power_hardware"]["allowed"] is True
     assert report["capabilities"]["powered_operation"]["allowed"] is False
+
+
+def test_tampered_evidence_fingerprint_is_rejected():
+    evidence = _all_physical_evidence()
+    evidence[2]["brake_interface_verified"] = False
+    report = evaluate(_plan(), _procurement(), evidence)
+    assert report["gates"]["brake_interface_qualified"]["satisfied"] is False
 
 
 def test_gate_cycles_are_rejected():
