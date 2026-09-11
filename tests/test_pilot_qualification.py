@@ -43,3 +43,17 @@ def test_missing_hysteresis_pair_is_rejected(tmp_path):
     p.write_text(json.dumps(d)); r=qualify_manifest(p)
     assert r["qualified_for_four_zone_duplication"] is False
     assert any("paired masses" in x for x in r["failures"])
+
+def test_validation_mass_cannot_reuse_calibration_mass(tmp_path):
+    p=_manifest(tmp_path); d=json.loads(p.read_text())
+    d["validation"][0]["mass_kg"]=5
+    p.write_text(json.dumps(d)); r=qualify_manifest(p)
+    assert r["qualified_for_four_zone_duplication"] is False
+    assert "validation mass must be independent of calibration masses" in r["failures"]
+
+def test_unknown_hx711_rate_blocks_duplication(tmp_path):
+    p=_manifest(tmp_path); d=json.loads(p.read_text())
+    d["hx711_sps"]=42
+    p.write_text(json.dumps(d)); r=qualify_manifest(p)
+    assert r["qualified_for_four_zone_duplication"] is False
+    assert "hx711_sps must be 10 or 80" in r["failures"]
