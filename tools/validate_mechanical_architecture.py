@@ -34,6 +34,11 @@ def validate(
         "MBS-V5",
         "MBS-G1",
         "MBS-AGENT",
+        "OWNBOARD-PROMETHEUS",
+        "BAJABOARD-G4",
+        "BAJABOARD-DIY-CHASSIS",
+        "PROPEL-ENDEAVOR",
+        "LACROIX-HYPERTRUCK",
         "TRAMPA-FRONT-HYDRAULIC",
         "TRAMPA-SPUR-GEAR",
         "TRAMPA-OPEN-BELT",
@@ -117,6 +122,9 @@ def validate(
         errors.append("power architecture can freeze without brake-drive topology authority")
 
     subsystems = {x.get("id"): x for x in planned_bom.get("subsystems", []) if isinstance(x, dict)}
+    topology_subsystem = subsystems.get("BRAKE-DRIVE-TOPOLOGY")
+    if not topology_subsystem or topology_subsystem.get("freeze_gate") != "brake_drive_topology_qualified":
+        errors.append("planned BOM must preserve explicit BRAKE-DRIVE-TOPOLOGY subsystem")
     for sid in ("DRIVE", "MOTOR-CONTROL", "TRACTION-BATTERY"):
         item = subsystems.get(sid)
         if not item or item.get("status") != "POWER_GATED_TBD":
@@ -133,7 +141,7 @@ def main() -> None:
     build = json.loads((ROOT / "hardware/build_authority.json").read_text())
     planned_bom = json.loads((ROOT / "hardware/planned_system_bom.json").read_text())
     errors = validate(benchmarks, risks, build, planned_bom)
-    report = {"valid": not errors, "errors": errors, "risk_count": len(risks.get("risks", []))}
+    report = {"valid": not errors, "errors": errors, "risk_count": len(risks.get("risks", [])), "benchmark_count": len(benchmarks.get("references", []))}
     print(json.dumps(report, indent=2))
     if errors:
         raise SystemExit(1)
