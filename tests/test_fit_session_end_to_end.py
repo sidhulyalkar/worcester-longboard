@@ -34,27 +34,68 @@ def complete_profile():
     })
 
 
-def test_stable_asymmetric_session_can_pass_fit_gate():
-    trials = [
+def good_raw_quality():
+    base = {
+        "duration_s": 20.5,
+        "monotonic_time": True,
+        "complete_force_fraction": 1.0,
+        "channel_valid_fraction": {
+            "left_heel": 1.0,
+            "left_forefoot": 1.0,
+            "right_heel": 1.0,
+            "right_forefoot": 1.0,
+        },
+        "imu_valid_fraction": 1.0,
+        "warnings": [],
+    }
+    return [dict(base, trial_id=f"remount-{i}") for i in (1, 2, 3)]
+
+
+def stable_trials():
+    return [
         summarize_neutral_trial(rows(0.40, 0.10), stance_width_mm=390, left_yaw_deg=12, right_yaw_deg=-10),
         summarize_neutral_trial(rows(0.41, 0.08), stance_width_mm=391, left_yaw_deg=12.5, right_yaw_deg=-10),
         summarize_neutral_trial(rows(0.40, 0.12), stance_width_mm=389, left_yaw_deg=12, right_yaw_deg=-10.5),
     ]
-    score = score_trials(trials)
-    gate = evaluate(complete_profile(), score)
+
+
+def test_stable_asymmetric_session_can_pass_fit_gate_with_qualified_raw_logs():
+    score = score_trials(stable_trials())
+    gate = evaluate(complete_profile(), score, good_raw_quality())
     assert gate["ready_for_rev_b_fit_cad"] is True
     assert score["left_load_mean"] < 0.5
+
+
+def test_missing_raw_quality_blocks_rev_b_even_when_fit_statistics_are_good():
+    gate = evaluate(complete_profile(), score_trials(stable_trials()))
+    assert gate["ready_for_rev_b_fit_cad"] is False
+    assert any("raw quality reports" in blocker for blocker in gate["blockers"])
+
+
+def test_force_channel_dropout_blocks_rev_b():
+    quality = good_raw_quality()
+    quality[1]["complete_force_fraction"] = 0.90
+    quality[1]["channel_valid_fraction"] = dict(quality[1]["channel_valid_fraction"])
+    quality[1]["channel_valid_fraction"]["right_forefoot"] = 0.90
+    gate = evaluate(complete_profile(), score_trials(stable_trials()), quality)
+    assert gate["ready_for_rev_b_fit_cad"] is False
+    assert any("right_forefoot" in blocker for blocker in gate["blockers"])
+
+
+def test_short_or_nonmonotonic_raw_trial_blocks_rev_b():
+    quality = good_raw_quality()
+    quality[0]["duration_s"] = 10.0
+    quality[2]["monotonic_time"] = False
+    gate = evaluate(complete_profile(), score_trials(stable_trials()), quality)
+    assert gate["ready_for_rev_b_fit_cad"] is False
+    assert any("duration" in blocker for blocker in gate["blockers"])
+    assert any("monotonic" in blocker for blocker in gate["blockers"])
 
 
 def test_missing_direct_foot_measurement_blocks_rev_b():
     profile = complete_profile()
     profile.left_foot.length_mm = None
-    trials = [
-        summarize_neutral_trial(rows(), stance_width_mm=390, left_yaw_deg=12, right_yaw_deg=-10),
-        summarize_neutral_trial(rows(), stance_width_mm=390, left_yaw_deg=12, right_yaw_deg=-10),
-        summarize_neutral_trial(rows(), stance_width_mm=390, left_yaw_deg=12, right_yaw_deg=-10),
-    ]
-    gate = evaluate(profile, score_trials(trials))
+    gate = evaluate(profile, score_trials(stable_trials()), good_raw_quality())
     assert gate["ready_for_rev_b_fit_cad"] is False
     assert "missing measurement: left_foot.length_mm" in gate["blockers"]
 
@@ -65,6 +106,6 @@ def test_large_neutral_roll_bias_blocks_rev_b():
         summarize_neutral_trial(rows(0.40, 1.4), stance_width_mm=390, left_yaw_deg=12, right_yaw_deg=-10),
         summarize_neutral_trial(rows(0.40, 1.6), stance_width_mm=390, left_yaw_deg=12, right_yaw_deg=-10),
     ]
-    gate = evaluate(complete_profile(), score_trials(trials))
+    gate = evaluate(complete_profile(), score_trials(trials), good_raw_quality())
     assert gate["ready_for_rev_b_fit_cad"] is False
     assert any("roll" in blocker for blocker in gate["blockers"])
