@@ -4,14 +4,15 @@ This fixture exists only to measure stance geometry and repeatable force transfe
 
 ## Mechanical stack
 
-Each of the four zones uses the same stack:
+Each of the four zones uses the same single-point-scale arrangement:
 
 1. rigid fixture base,
 2. load-cell pod,
-3. single-point full-bridge load cell,
-4. centered force-transfer button,
-5. heel or forefoot zone pad,
-6. adjustable footplate above the two zones for that foot.
+3. fixed/wire end of one single-point full-bridge load cell bolted to the pod,
+4. loaded/free end of that load cell bolted directly to the heel or forefoot zone pad,
+5. adjustable footplate supported by the two independent zones for that foot.
+
+This matches the intended single-point load-cell installation pattern: one end secured to the base and the other end secured to the top plate. There is no separate force-transfer button in the current v0.3 architecture.
 
 The four zones remain mechanically and electrically independent:
 
@@ -20,7 +21,7 @@ The four zones remain mechanically and electrically independent:
 - right heel,
 - right forefoot.
 
-Do not bridge the left/right pads together with a rigid plate that bypasses the sensors. The footplate must transfer load through its intended heel/forefoot supports without bottoming on the fixture base during normal calibration.
+Do not bridge the force zones together with a rigid bypass structure. The footplate must transfer load through its intended heel/forefoot supports without bottoming on the fixture base during normal calibration.
 
 ## Current Rev-A reference dimensions
 
@@ -30,16 +31,16 @@ The public CAD authority currently uses:
 - footplate: 260 x 132 x 6 mm,
 - zone pad: 105 x 78 x 6 mm,
 - load-cell pod: 92 x 38 x 6 mm,
-- nominal load-cell envelope: 55.25 x 12.70 x 12.70 mm,
-- force-transfer button: 12 mm diameter x 2 mm,
+- Phidgets 3135 vendor body reference: 55 x 12.65 x 12.65 mm,
+- sensor holes: 2x M5x0.8 THRU, 40 mm center-to-center,
 - nominal overload-stop gap: 0.8 mm,
 - electronics enclosure: 185 x 125 x 42 mm.
 
 These are prototype fixture dimensions, not a certification or structural-rating claim.
 
-## Measurement-gated sensor interface
+## Vendor pattern vs physical verification
 
-The nominal sensor envelope and M5 thread family are known, but the actual threaded-hole centers must be measured on the physical load cells before sensor mounts are treated as fabrication-authoritative.
+The current Phidgets 3135 mechanical drawing is now sufficient to define a **one-zone pilot**: two M5 through holes total, separated by 40 mm. In X1's sensor coordinate frame the reference centers are `(-20, 0)` and `(20, 0)` mm.
 
 Coordinate convention:
 
@@ -49,37 +50,37 @@ Coordinate convention:
 - +y: across the narrow width,
 - units: millimetres.
 
-Record the centers in a private copy of `cad/fit_rig_measurements.example.json`.
+Before duplicating four final pods, verify one purchased sensor against the vendor pattern with calipers and inspect which physical end carries the cable/load arrow.
 
 Suggested workflow:
 
 ```bash
 cp cad/fit_rig_measurements.example.json rider/private/fit_rig_measurements.json
-# fill only direct caliper measurements
+# enter one physical sensor's measured fixed and loaded hole centers
 python tools/validate_fit_rig_measurements.py rider/private/fit_rig_measurements.json
 python cad/generate_fit_rig.py \
   --measurements rider/private/fit_rig_measurements.json \
   --out rider/private/generated_fit_v03
 ```
 
-A non-zero exit from the validator means the sensor interface remains measurement-gated.
+Without the private verification file, the generator still emits a vendor-pattern pilot pod but the authority report keeps four-pod replication gated.
 
 ## Overload protection
 
-The CAD contains hard-stop towers near the loaded end. The nominal 0.8 mm gap is a starting prototype value only. Before a person steps on the fixture:
+The CAD contains hard-stop towers near the loaded end. The nominal 0.8 mm gap is only a starting prototype value. Before a person steps on the fixture:
 
 1. assemble one sensor zone by itself,
 2. apply small known loads,
-3. confirm the force-transfer pad loads the intended free end without rubbing or side-loading,
+3. confirm the top pad is supported by the intended loaded sensor end without rubbing or side-loading,
 4. measure actual deflection and stop clearance,
-5. trim/shim the stop height so the cell cannot be crushed by a misstep,
-6. verify the stop does not touch during the entire expected calibration load range.
+5. trim/shim the stop height so a misstep cannot grossly overload the cell,
+6. verify the stop does not touch during the entire intended calibration load range.
 
-A hard stop is backup protection, not a calibration surface.
+A hard stop is backup protection, not part of the normal calibrated load path.
 
-## Force-transfer pads
+## Zone pads
 
-The underside button should contact the intended loaded region of the sensor without introducing a large lateral moment. The first pad is deliberately generic. After the physical sensors arrive, inspect the manufacturer's force-application marking and adjust the button location if needed before full-load use.
+The zone pad is bolted to the loaded/free end of the single-point cell. The pilot CAD uses the vendor hole pattern. Screw length, washer stack and any spacer must be selected from the actual printed/machined pad + physical sensor stack so the fastener does not bottom improperly or interfere with sensor flexure.
 
 ## Base and footplate adjustment
 
@@ -89,23 +90,16 @@ Do not permanently drill the rideable deck from these reference dimensions. Rev-
 
 ## Electronics enclosure
 
-The generated enclosure is a low-voltage packaging reference for:
-
-- ESP32-S3,
-- four HX711 boards,
-- IMU,
-- microSD/logging hardware,
-- USB power/data.
-
-The current cable windows are generic. Choose glands/strain reliefs after measuring the actual board stack and cable diameters.
+The generated enclosure is a low-voltage packaging reference for ESP32-S3, four HX711 boards, IMU, optional microSD and USB power/data. The cable windows are generic; choose final strain relief after measuring the actual board stack and cable diameters.
 
 ## Assembly-jig purpose
 
-`fit_load_cell_alignment_jig` is a shallow pocket gauge around the nominal sensor envelope. Use it to keep sensor placement repeatable during mock-up and measurement. It does not define threaded-hole coordinates.
+`fit_load_cell_alignment_jig` is a shallow pocket gauge around the vendor sensor envelope. Use it to keep placement repeatable during the one-zone pilot and physical verification. It does not override the current vendor mechanical drawing or physical measurements.
 
 ## Qualification before a rider uses the rig
 
-- all four cells individually calibrated with a known mass,
+- one pilot zone physically verifies the vendor hole pattern,
+- all four final cells individually calibrated with a known mass,
 - each channel verified with a second independent mass,
 - no visible rubbing or preload when unloaded,
 - total reconstructed force plausible when standing centrally,
