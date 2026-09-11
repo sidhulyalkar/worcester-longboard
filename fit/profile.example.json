@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "mass_kg": null,
+  "height_mm": null,
+  "board_mass_kg": 20.0,
+  "stance_width_mm": null,
+  "fit_mode": "independent_left_right",
+  "symmetric_trucks_default": true,
+  "left_foot": {
+    "length_mm": null,
+    "width_mm": null,
+    "shoe_size_label": null,
+    "natural_yaw_deg": null,
+    "natural_center_x_mm": null,
+    "natural_center_y_mm": null,
+    "cant_deg": 0.0
+  },
+  "right_foot": {
+    "length_mm": null,
+    "width_mm": null,
+    "shoe_size_label": null,
+    "natural_yaw_deg": null,
+    "natural_center_x_mm": null,
+    "natural_center_y_mm": null,
+    "cant_deg": 0.0
+  }
+}

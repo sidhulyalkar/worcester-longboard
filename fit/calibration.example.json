@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "units": {
+    "raw": "HX711 ADC counts",
+    "known_mass": "kg",
+    "output_force": "N"
+  },
+  "channels": {
+    "left_heel": {
+      "zero_raw": null,
+      "loaded_raw": null,
+      "known_mass_kg": null
+    },
+    "left_forefoot": {
+      "zero_raw": null,
+      "loaded_raw": null,
+      "known_mass_kg": null
+    },
+    "right_heel": {
+      "zero_raw": null,
+      "loaded_raw": null,
+      "known_mass_kg": null
+    },
+    "right_forefoot": {
+      "zero_raw": null,
+      "loaded_raw": null,
+      "known_mass_kg": null
+    }
+  },
+  "rules": [
+    "Calibrate every installed sensor independently after the final mechanical stack is assembled.",
+    "Use a measured known mass and keep the load centered/repeatable on the corresponding zone pad.",
+    "Verify calibration with a second independent mass before collecting fit trials.",
+    "Do not fill null values from example numbers or another sensor's calibration."
+  ]
+}

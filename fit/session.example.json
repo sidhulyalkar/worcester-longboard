@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "session_id": "example-session",
+  "candidate_id": "stance-A",
+  "fixture": "unpowered-fit-rig",
+  "geometry": {
+    "stance_width_mm": null,
+    "left": {"center_x_mm": null, "center_y_mm": null, "yaw_deg": null, "cant_deg": 0},
+    "right": {"center_x_mm": null, "center_y_mm": null, "yaw_deg": null, "cant_deg": 0}
+  },
+  "streams": {
+    "load_cells": "rider/private/session/load_raw.csv",
+    "imu": "rider/private/session/imu.csv",
+    "pose": null
+  },
+  "trial_policy": {
+    "minimum_remount_trials": 3,
+    "neutral_trial_seconds": 20,
+    "powered": false,
+    "require_full_step_off_between_trials": true
+  },
+  "authority": {
+    "shoe_size_is_dimensional": false,
+    "wifi_pose_is_metric_cad_source": false,
+    "truck_geometry_symmetric_during_fit": true
+  },
+  "notes": "Example only. Exact rider data remains private."
+}

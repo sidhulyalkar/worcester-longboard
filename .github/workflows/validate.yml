@@ -1,0 +1,52 @@
+name: validate
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  software:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: python simulation/x1_dynamics.py
+      - run: python -m pip install pytest trimesh numpy platformio cadquery
+      - run: python -m pytest -q tests
+      - name: Host-test controller core
+        run: |
+          g++ -std=c++17 -O2 -Ifirmware/include \
+            firmware/src/x1_control_core.cpp firmware/test/test_control_core.cpp \
+            -o /tmp/x1_control_test
+          /tmp/x1_control_test
+      - name: Compile fit-rig ESP32-S3 logger at 10 SPS
+        run: platformio run -d firmware/fit_rig_logger -e fit_rig_esp32s3_10sps
+      - name: Compile fit-rig ESP32-S3 logger at 80 SPS
+        run: platformio run -d firmware/fit_rig_logger -e fit_rig_esp32s3_80sps
+      - name: Generate fit-rig CAD reference artifacts
+        run: |
+          python cad/generate_fit_rig.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('cad/generated_fit/fit_rig_authority.json')
+          data = json.loads(p.read_text())
+          assert data['validation_errors'] == []
+          assert data['sensor_mount_pilot_ready'] is True
+          assert data['sensor_mount_fabrication_ready'] is False
+          assert len(data['measurement_gates']) == 3
+          print('Fit-rig CAD generated: one-zone vendor-pattern pilot ready; four-pod duplication remains physically gated.')
+          PY
+      - name: Upload fit-rig reference CAD
+        uses: actions/upload-artifact@v7
+        with:
+          name: x1-fit-rig-v03-reference-${{ github.sha }}
+          path: cad/generated_fit/
+          if-no-files-found: error
+          retention-days: 30

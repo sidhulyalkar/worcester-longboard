@@ -1,0 +1,17 @@
+# Rider-specific data is intentionally private
+rider/private/
+*.body.obj
+*.body.ply
+*.body.stl
+*.body.glb
+*.body.gltf
+*.csi.jsonl
+
+# Generated CAD / local artifacts
+cad/generated/
+cad/generated_fit/
+*.log
+__pycache__/
+.pytest_cache/
+.venv/
+.DS_Store
