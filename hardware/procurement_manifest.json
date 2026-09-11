@@ -26,8 +26,8 @@
 
     {"id":"TRUCK-M3-400","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"12300-or-12302-family","unit_price_ceiling_usd":124.95,"purchase_strategy":"fallback_piecemeal_measurement","alternative_to":"DONOR-COMP95","required_for":"issue-14"},
     {"id":"HUB-RSII","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"1323x","unit_price_usd":14.95,"purchase_strategy":"fallback_piecemeal_measurement","alternative_to":"DONOR-COMP95","required_for":"issue-14"},
-    {"id":"TIRE-T2-9","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"13120","unit_price_usd":29.95,"purchase_strategy":"optional_9in_measurement_or_upgrade","notes":"Do not infer real inflated diameter from the nominal product name; measure the installed tire."},
-    {"id":"TUBE-9","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"13013","unit_price_usd":12.95,"purchase_strategy":"optional_9in_measurement_or_upgrade"},
+    {"id":"TIRE-T2-9","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"13120","unit_price_usd":29.95,"purchase_strategy":"optional_9in_measurement_or_upgrade","defer_until":"donor 8in terrain/clearance need is measured and a T2-compatible 9in hub family is selected; MBS does not list standard Rockstar II as compatible with 13120","notes":"Direct MBS page lists FiveStar, Tri-Spoke and Rockstar Pro II XL compatibility. Do not infer a drop-in Rockstar II conversion or real inflated diameter from the nominal product name."},
+    {"id":"TUBE-9","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"13013","unit_price_usd":12.95,"purchase_strategy":"optional_9in_measurement_or_upgrade","defer_until":"T2-compatible 9in hub/tire architecture selected"},
     {"id":"AXLE-M3-70","stage":"MEASURE_FIRST","qty":2,"vendor":"MBS","sku":"12342","unit_price_usd":24.95,"purchase_strategy":"deferred_interface_study","defer_until":"brake-first 50mm axle geometry measured"},
 
     {"id":"DRIVE-G1-DUAL","stage":"POWER_GATED","qty":1,"vendor":"MBS","sku":"16101","unit_price_usd":399.95,"required_for":"future-drive-qualification"},

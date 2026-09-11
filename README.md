@@ -15,6 +15,22 @@ X1 has moved beyond the original TRAMPA/14S Alpha sketch. Current build and purc
 
 If an older document conflicts with a current manifest or qualified authority, the older document does **not** authorize a purchase, fabrication step, or ride test.
 
+## Ordering and sourcing
+
+Start with `docs/complete_ordering_guide.md` for the complete staged checkout and receiving procedure.
+
+The ordering stack is deliberately split by function:
+
+- `hardware/procurement_manifest.json` says what is currently orderable or blocked;
+- `hardware/order_sources_2026-09-11.json` records the dated vendor/source snapshot used for the current shopping guide;
+- `hardware/planned_system_bom.json` maps the complete future board without pretending TBD powered parts are frozen;
+- `tools/render_procurement_packet.py` renders the currently authorized checkout packet;
+- `tools/validate_ordering_spec.py` detects source/price/compatibility drift against repository authority.
+
+The current complete Issue #4 convenience ceiling is **$120.90 before shipping/tax**, and optional owned tools/materials should be skipped. The preferred chassis path remains a complete MBS Comp 95 donor plus V5 mechanical brake after the fit-pilot handoff. Standard Rockstar II hubs are not assumed to accept the optional T2 9-inch tire; the 9-inch path remains physically and compatibility gated.
+
+Storefront stock and prices can change faster than the repository. Refresh live availability before payment, but never use a storefront page to bypass a blocked repository item.
+
 ## Current development architecture
 
 ### Rider-fit path
@@ -38,7 +54,7 @@ The current reference split is explicit:
 - **Matrix III 400 mm brake-first geometry:** primary unpowered/brake measurement path.
 - **MBS V5 mechanical brake:** physical interface must be measured and bench-qualified.
 - **Matrix III 420 mm drive-clearance geometry:** comparison/reference only until brake/drive coexistence is demonstrated.
-- **8-inch donor pneumatic wheels:** default first physical wheelset; 9-inch is an optional measured upgrade, not an assumption.
+- **8-inch donor pneumatic wheels:** default first physical wheelset; 9-inch is an optional measured upgrade requiring a compatible hub architecture, not an assumed tire swap.
 
 No rider-specific permanent drilling is authorized from shoe-size labels, approximate web dimensions, or Wi-Fi pose.
 
