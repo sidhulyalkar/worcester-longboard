@@ -2,8 +2,8 @@
 
 This tranche defines packaging envelopes and manufacturing gates only. Vendor
 reference dimensions are useful for collision studies but do not make the
-chassis fabrication-ready until the selected physical components/drawings are
-verified.
+chassis fabrication-ready until selected physical components/drawings, brake
+interfaces, and the full motion sweep are verified.
 """
 from __future__ import annotations
 
@@ -59,6 +59,8 @@ class ChassisEnvelope:
     brake_rotor_reference_diameter_mm: float = 160.0
     finished_mass_target_kg: float = 18.0
     finished_mass_hard_review_kg: float = 20.0
+    brake_interface_verified: bool = False
+    motion_sweep_verified: bool = False
     wheel: WheelEnvelope = WheelEnvelope()
     truck: TruckEnvelope = TruckEnvelope()
 
@@ -84,10 +86,6 @@ class ChassisEnvelope:
     @property
     def rider_keepout_margin_each_end_mm(self) -> float:
         return (self.deck_length_mm - self.rider_interface_keepout_length_mm) / 2.0
-
-    @property
-    def nominal_underbody_height_above_ground_mm(self) -> float:
-        return self.static_ground_clearance_mm
 
     def validate(self) -> list[str]:
         errors: list[str] = []
@@ -121,15 +119,25 @@ class ChassisEnvelope:
 
     @property
     def fabrication_ready(self) -> bool:
-        # This tranche intentionally stays non-fabrication-authoritative until the
-        # chosen truck/wheel/brake interfaces are measured or backed by accepted drawings.
-        return self.vendor_envelopes_verified and not self.validate()
+        return (
+            self.vendor_envelopes_verified
+            and self.brake_interface_verified
+            and self.motion_sweep_verified
+            and not self.validate()
+        )
 
     def with_component_verification(self) -> "ChassisEnvelope":
         return replace(
             self,
             wheel=replace(self.wheel, physical_unit_verified=True),
             truck=replace(self.truck, physical_unit_verified=True),
+        )
+
+    def with_full_interface_verification(self) -> "ChassisEnvelope":
+        return replace(
+            self.with_component_verification(),
+            brake_interface_verified=True,
+            motion_sweep_verified=True,
         )
 
     def authority_report(self) -> dict:
@@ -146,6 +154,8 @@ class ChassisEnvelope:
             },
             "validation_errors": self.validate(),
             "vendor_envelopes_verified": self.vendor_envelopes_verified,
+            "brake_interface_verified": self.brake_interface_verified,
+            "motion_sweep_verified": self.motion_sweep_verified,
             "fabrication_ready": self.fabrication_ready,
             "reference_conflicts": {
                 "400mm_brake_first": {
@@ -161,8 +171,8 @@ class ChassisEnvelope:
                 "select truck width only after resolving mechanical-brake versus drive packaging",
                 "verify selected truck technical drawing or physical unit",
                 "verify selected wheel/hub/tire envelope",
-                "define selected mechanical brake rotor/caliper interface",
-                "perform full steering/suspension interference sweep",
+                "define and verify selected mechanical brake rotor/caliper interface",
+                "perform and record full steering/suspension interference sweep",
                 "preserve rider-interface keepout until Rev-B fit authority",
             ],
         }
