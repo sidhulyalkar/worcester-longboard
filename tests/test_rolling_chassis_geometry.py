@@ -1,5 +1,7 @@
 from dataclasses import replace
 
+import pytest
+
 from cad.rolling_chassis_geometry import BRAKE_FIRST, DRIVE_CLEARANCE
 
 
@@ -26,9 +28,15 @@ def test_rider_keepout_cannot_be_consumed_by_chassis_packaging():
     assert any("end packaging" in err for err in oversized.validate())
 
 
-def test_wheel_sweep_grows_with_steering_angle():
+def test_straight_wheel_plan_extent_uses_diameter_longitudinally_and_width_laterally():
     straight = replace(BRAKE_FIRST, truck=replace(BRAKE_FIRST.truck, max_steer_deg=0.0))
-    assert BRAKE_FIRST.steered_wheel_half_extent_x_mm > straight.steered_wheel_half_extent_x_mm
+    assert straight.steered_wheel_half_extent_x_mm == pytest.approx(straight.wheel_radius_mm)
+    assert straight.steered_wheel_half_extent_y_mm == pytest.approx(straight.wheel.width_mm / 2.0)
+
+
+def test_wheel_sweep_lateral_envelope_grows_with_steering_angle():
+    straight = replace(BRAKE_FIRST, truck=replace(BRAKE_FIRST.truck, max_steer_deg=0.0))
+    assert BRAKE_FIRST.steered_wheel_half_extent_y_mm > straight.steered_wheel_half_extent_y_mm
 
 
 def test_component_measurement_alone_does_not_unlock_fabrication():
