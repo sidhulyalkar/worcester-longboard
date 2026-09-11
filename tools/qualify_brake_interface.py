@@ -80,11 +80,13 @@ def qualify(data: dict) -> dict:
                 errors.append("static brake wheel radius inconsistent with measured inflated tire diameter")
 
     incoming_authority = data.get("authority", {})
-    if incoming_authority.get("powered_operation_authorized") is True:
+    if isinstance(incoming_authority, dict) and incoming_authority.get("powered_operation_authorized") is True:
         errors.append("brake qualification cannot authorize powered operation")
 
     return {
         "schema_version": 1,
+        "authority": "x1_mechanical_brake_interface",
+        "scope": "unpowered_mechanical_brake_interface_only",
         "qualified": not errors,
         "errors": errors,
         "brake_interface_verified": not errors,
