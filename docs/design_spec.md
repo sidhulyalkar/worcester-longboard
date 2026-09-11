@@ -1,97 +1,102 @@
-# Worcester X1 Alpha v0.1 — design specification
+# Worcester X1 current development authority
+
+## Purpose
+
+This document describes the **current engineering direction** for Worcester X1. It replaces the original “frozen Alpha v0.1” hardware table as the human-readable design authority.
+
+The original TRAMPA/14S architecture remains useful historical exploration, but it is no longer the current purchase or fabrication plan.
+
+## Authority precedence
+
+When two repository artifacts disagree, use the following precedence:
+
+1. real, fingerprinted physical qualification evidence;
+2. `hardware/build_authority.json`;
+3. `hardware/procurement_manifest.json`;
+4. current component/geometry authority documents and generated reports;
+5. historical Alpha notes and packaging snapshots.
+
+A public CI pass proves software behavior only. It never proves that a physical sensor, brake, chassis, battery, or rider interface has been measured or qualified.
 
 ## Mission
-A trail-first electric mountainboard optimized for control, low-speed authority and repeatable experimentation rather than headline top speed. Alpha is rear 2WD with hydraulic front braking and is mechanically/electrically provisioned for a later AWD front module.
 
-## Frozen Alpha hardware architecture
+Build a trail-first mountainboard that prioritizes low-speed control, predictable stopping, serviceability, rider-specific fit, and inspectable evidence over headline speed.
 
-| Item | Frozen target |
+The project should minimize expensive re-buys by freezing interfaces in the order that physical evidence becomes available.
+
+## Current mechanical reference
+
+| Subsystem | Current status |
 |---|---|
-| Deck | TRAMPA 35° HS11 9-69, factory-drilled |
-| Front axle | TRAMPA Vertigo/HS11 hydraulic brake truck |
-| Rear axle | TRAMPA channel/Vertigo-compatible truck integrated with 2WD spur kit |
-| Wheels | 4 × 8 in / ~200 × 50 mm SUPERSTAR 5-spoke pneumatic |
-| Rear drivetrain | sealed TRAMPA spur drive, 9:63 helical steel, 7.0:1 |
-| Motors | 2 × TRAMPA 6376 160 KV |
-| Motor controllers | 2 × VESC 6/75, separate units |
-| Battery | professionally built 14S4P Molicel P50B, 20 Ah / 1008 Wh nominal |
-| Remote | VESC WAND Magneto + NRF receiver |
-| Supervisor | ESP32-S3 Alpha ECU, 100 Hz vehicle control |
-| Braking | rear regenerative + front rider-controlled hydraulic |
-| Speed ceiling | 25 mph maximum software mode; Learn starts at 7 mph |
+| Chassis sourcing | MBS Comp 95 donor-first strategy is preferred for cost and interface coherence |
+| Brake-first truck | Matrix III 400 mm reference; physical unit still measurement-gated |
+| Mechanical stopping | MBS V5 reference; rotor/arm/cable geometry and stop performance require Issue #14 evidence |
+| Wheels | donor 8-inch pneumatics first; 9-inch upgrade only after measured need/clearance |
+| Drive-clearance study | Matrix III 420 mm reference only; coexistence with the brake-first path is not assumed |
+| Rider interface | adjustable/asymmetric Rev-B geometry is blocked on qualified fit evidence |
+| Permanent rider-specific drilling | blocked until full-scale template and Rev-B gate pass |
 
-## Published packaging references used in CAD
-The selected HS11 deck is published as 912 mm tip-to-tip, 228 mm maximum width, 690 mm crease-to-crease, 128 mm crease-to-tip, 35° truck mounting angle and 945 mm factory wheelbase. The assembly model is a packaging reference only, not a replacement for the manufacturer's deck geometry.
+The unpowered chassis must roll, steer, clear its motion envelope, stop mechanically, and survive post-test inspection before traction power is promoted.
 
-## Battery sizing
-Molicel P50B reference cell: 3.6 V nominal, 5.0 Ah typical, 18 Wh, 21.55 mm max diameter, 70.15 mm max height.
+## Rider-fit architecture
 
-14S4P:
-- 56 cells
-- 50.4 V nominal
-- 58.8 V at 4.20 V/cell
-- 20 Ah nominal
-- 1008 Wh nominal
+The rider-fit program is independent of the drivetrain:
 
-Pack construction is delegated to a qualified high-current battery builder. The CAD provides an envelope; it does not prescribe welding, busbar construction or cell-level assembly.
+1. qualify one Phidgets 3135 + HX711 zone with real known-mass evidence;
+2. duplicate the verified mechanical/electrical stack to four zones;
+3. collect repeated remount sessions with four-zone force and fixture-IMU coverage;
+4. record directly measured left/right foot dimensions and stance geometry privately;
+5. generate independent left/right Rev-B adapters with adjustment reserve;
+6. physically template the geometry before structural fabrication/drilling.
 
-## Enclosure
-Custom Alpha enclosure external body: **330 × 188 × 58 mm**. Battery-enclosure deck drilling and internal pack geometry remain measurement-gated until the finished pack and purchased deck are measured.
+Stable left/right asymmetry is data, not an error to be numerically forced toward 50/50. Truck geometry remains symmetric unless later mechanical evidence justifies otherwise.
 
-## Drivetrain calculations
-With 160 KV, 7.0:1 gearing and nominal 8 in / 203.2 mm wheel:
+## Power architecture status
 
-- motor no-load RPM at 50.4 V: 8064 rpm
-- motor no-load RPM at 58.8 V: 9408 rpm
-- theoretical wheel speed at nominal voltage: ~27.4 mph
-- theoretical wheel speed at full voltage: ~31.9 mph
-- using an 0.84 first-order load factor: ~23.0 mph nominal, ~26.8 mph full
+Power is intentionally **not frozen**.
 
-Motor torque constant: `Kt = 60/(2*pi*160) = 0.0597 N·m/A`.
+`hardware/procurement_manifest.json` currently carries comparison candidates including:
 
-At 55 A phase current per motor and 90% mechanical efficiency, combined longitudinal wheel force is approximately 407 N on 8 in tires. At a generic light-rider Alpha design mass of 70 kg rider+board, gravity along a 30% grade is ~197 N. Alpha is therefore expected to become traction-limited before motor-torque-limited on loose surfaces.
+- a professionally assembled high-drain 12S4P battery class;
+- a dual VESC-class controller;
+- two sensored 6374-class motors;
+- an MBS G1 dual-drive reference.
 
-## Ride modes — initial commissioning values
+These entries are cost/compatibility placeholders under `POWER_GATED`, not purchase instructions. Voltage, KV, ratio, controller limits, enclosure, BMS, fuse, precharge/service disconnect, and connector architecture must be selected together after the chassis/brake geometry is physically qualified.
 
-| Mode | speed cap | max accel | max decel request | phase current cap / motor |
-|---|---:|---:|---:|---:|
-| Learn | 7 mph | 0.8 m/s² | 1.2 m/s² | 26 A |
-| Trail | 14 mph | 1.4 m/s² | 1.9 m/s² | 48 A |
-| Flow | 20 mph | 2.0 m/s² | 2.4 m/s² | 65 A |
-| Sport | 25 mph | 2.7 m/s² | 2.8 m/s² | 75 A |
+The older 14S4P P50B + dual VESC 6/75 + TRAMPA 7:1 design is a historical v0.1 sizing study only.
 
-These are starting software limits, not evidence that the machine is qualified at those values. VESC battery-current, phase-current, voltage and temperature limits remain a separate hard layer and are set lower during early commissioning.
+## Braking philosophy
 
-## Traction control
-Vehicle velocity is estimated from the two undriven front wheels. Rear longitudinal slip estimate for each side:
+Mechanical stopping is an independent authority. Regenerative braking may later reduce brake heat or improve control, but it is never the sole stopping path.
 
-`s = (v_rear - v_vehicle) / max(abs(v_vehicle), 1 m/s)`
+Before powered hill work, the selected physical brake system must demonstrate at minimum:
 
-Initial threshold:
-- <= 10% slip: no intervention
-- 10–20%: progressive current reduction
-- >= 20%: strong reduction while retaining small crawl torque
+- released wheel free-spin;
+- no unintended contact at full application;
+- cable/housing exclusion from wheel sweep;
+- measured static brake torque tied to measured wheel radius;
+- controlled unpowered rolling stop;
+- post-test fastener/cable inspection.
 
-Below ~1 m/s, slip ratio is poorly conditioned; TC fades in with speed.
+Brake qualification explicitly cannot authorize powered operation.
 
-## Regen slip control
-During braking the same estimator detects a driven rear wheel decelerating below front-wheel vehicle speed. Regen is progressively reduced for roughly -12% to -25% slip. This is a supervisory traction feature, not a substitute for a certified automotive ABS system.
+## Build-state machine
 
-## Regen voltage envelope
-- normal daily charge target: 4.10 V/cell = 57.4 V pack
-- full pack: 58.8 V
-- supervisor starts tapering requested regen above 57.4 V
-- supervisor reaches zero regen request at 58.2 V
-- independent hydraulic braking remains available
+`hardware/build_authority.json` defines dependency gates and capabilities. `tools/evaluate_build_authority.py` composes that plan with the procurement manifest and optional local physical-evidence reports.
 
-## Failure philosophy
-- remote lost: smoothly ramp propulsion to zero; do not command an automatic hard brake
-- stale vehicle-speed data: propulsion to zero
-- high pack voltage: regen tapered; hydraulic brake remains available
-- CAN/BMS anomalies: fail passive, log fault, reduce operating envelope
+The public baseline deliberately allows only low-risk evidence acquisition. Later capabilities remain blocked until their upstream physical authorities exist.
 
-## Measurement-gated interfaces
-1. battery-enclosure deck drilling coordinates
-2. front Hall sensor bracket-to-hanger interface
-3. exact bulkhead connector cutouts
-4. final battery builder's internal pack/BMS geometry
+This separation matters: “we wrote the validator” is not the same statement as “the hardware passed the validator.”
+
+## First-order simulation
+
+`simulation/x1_dynamics.py` remains a provisional sizing model, not current drivetrain authority. When given a private schema-v2 rider profile it consumes both `mass_kg` and `board_mass_kg`; this keeps grade-force estimates tied to the selected profile rather than silently reverting to generic defaults.
+
+Drive voltage, gearing, KV, wheel diameter, and efficiency constants in that script are retained research parameters until the future power architecture is frozen.
+
+## Commissioning boundary
+
+Current repository authority stops before traction power. No present document, test fixture, CAD generator, procurement entry, or brake report authorizes powered riding.
+
+A future power tranche must introduce an explicit power-architecture qualification contract rather than inheriting permission from historical Alpha assumptions.

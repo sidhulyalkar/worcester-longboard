@@ -1,5 +1,7 @@
 # Worcester X1 Alpha purchasing notes
 
+> **HISTORICAL v0.1 REFERENCE ONLY.** Do not purchase from this list. The current purchasing authority is `hardware/procurement_manifest.json` plus the dated procurement snapshot. The TRAMPA/14S path below is retained for design history and comparison.
+
 ## Compatibility-defining mechanical order
 1. TRAMPA 35° HS11 9-69 deck, factory drilled. Select ply from the current manufacturer Flexometer and intended ride feel.
 2. Front hydraulic-brake truck configured for the selected 5-spoke wheel family.

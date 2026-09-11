@@ -2,6 +2,7 @@
 """Qualify the unpowered X1 mechanical-brake measurement authority."""
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import sys
@@ -28,6 +29,11 @@ REQUIRED_CHECKS = (
 
 def _finite_number(value) -> bool:
     return isinstance(value, (int, float)) and math.isfinite(float(value))
+
+
+def _authority_digest(report: dict) -> str:
+    payload = json.dumps(report, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
 
 
 def qualify(data: dict) -> dict:
@@ -80,17 +86,21 @@ def qualify(data: dict) -> dict:
                 errors.append("static brake wheel radius inconsistent with measured inflated tire diameter")
 
     incoming_authority = data.get("authority", {})
-    if incoming_authority.get("powered_operation_authorized") is True:
+    if isinstance(incoming_authority, dict) and incoming_authority.get("powered_operation_authorized") is True:
         errors.append("brake qualification cannot authorize powered operation")
 
-    return {
+    report = {
         "schema_version": 1,
+        "authority": "x1_mechanical_brake_interface",
+        "scope": "unpowered_mechanical_brake_interface_only",
         "qualified": not errors,
         "errors": errors,
         "brake_interface_verified": not errors,
         "powered_operation_authorized": False,
         "hardware_ids": data.get("hardware_ids", {}),
     }
+    report["authority_fingerprint_sha256"] = _authority_digest(report)
+    return report
 
 
 def main() -> None:

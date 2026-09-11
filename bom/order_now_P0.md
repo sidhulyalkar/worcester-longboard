@@ -1,6 +1,8 @@
 # P0 checkout configuration
 
-The first order defines the machine's physical interfaces.
+> **ARCHIVED v0.1 CHECKOUT, NOT A CURRENT ORDER LIST.** The present donor-first MBS/measurement strategy lives in `hardware/procurement_manifest.json` and `hardware/procurement_snapshot_2026-09-11.md`. Nothing below authorizes a TRAMPA, VESC, motor, or traction-power purchase.
+
+The historical first order defined the original Alpha physical interfaces.
 
 | Part | Configure as |
 |---|---|
@@ -14,4 +16,4 @@ The first order defines the machine's physical interfaces.
 | WAND | Magneto |
 | NRF | internal receiver option |
 
-Keep all four Alpha wheels in the compatible 5-spoke hub family so the front brake disks and rear drive interface remain coherent.
+Historical constraint: all four Alpha wheels were kept in the compatible 5-spoke hub family so the front brake disks and rear drive interface remained coherent.

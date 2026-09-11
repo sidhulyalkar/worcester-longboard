@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 from pathlib import Path
 
@@ -28,6 +29,15 @@ def resolve(base: Path, value: str) -> Path:
     return p if p.is_absolute() else (base / p).resolve()
 
 
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _authority_digest(report: dict) -> str:
+    payload = json.dumps(report, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("manifest", type=Path)
@@ -43,10 +53,18 @@ def main() -> None:
 
     summaries = []
     raw_quality = []
+    source_provenance = []
     for trial in manifest.get("trials", []):
         trial_id = trial.get("trial_id")
         geometry = trial["geometry"]
-        rows = read_csv(resolve(base, trial["csv"]))
+        csv_ref = trial["csv"]
+        csv_path = resolve(base, csv_ref)
+        rows = read_csv(csv_path)
+        source = {
+            "trial_id": trial_id,
+            "csv_ref": csv_ref,
+            "csv_sha256": _sha256(csv_path),
+        }
         summary = summarize_neutral_trial(
             rows,
             stance_width_mm=geometry["stance_width_mm"],
@@ -61,8 +79,11 @@ def main() -> None:
             raw_path = resolve(base, raw_ref)
             quality = quality_report(parse_text(raw_path.read_text(encoding="utf-8")))
             quality["trial_id"] = trial_id
-            quality["raw_log"] = str(raw_path)
+            quality["raw_log_ref"] = raw_ref
             raw_quality.append(quality)
+            source["raw_log_ref"] = raw_ref
+            source["raw_log_sha256"] = _sha256(raw_path)
+        source_provenance.append(source)
 
     if len(summaries) < 2:
         raise SystemExit("Need at least two trial CSVs to score a session")
@@ -71,13 +92,18 @@ def main() -> None:
     gate = evaluate(profile, score, raw_quality)
     report = {
         "schema_version": 2,
+        "authority": "x1_fit_session",
         "session_id": manifest.get("session_id"),
         "candidate_id": manifest.get("candidate_id"),
+        "manifest_sha256": _sha256(manifest_path),
+        "profile_sha256": _sha256(profile_path),
+        "source_provenance": source_provenance,
         "trial_summaries": summaries,
         "raw_quality": raw_quality,
         "score": score,
         "rev_b_gate": gate,
     }
+    report["authority_fingerprint_sha256"] = _authority_digest(report)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

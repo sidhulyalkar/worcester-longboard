@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "project": "Worcester X1",
+  "public_baseline": "unpowered_evidence_first",
+  "gates": {
+    "fit_pilot_qualified": {
+      "issue": 4,
+      "requires": [],
+      "evidence": [
+        {
+          "path": "qualified_for_four_zone_duplication",
+          "equals": true
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
+      ]
+    },
+    "rider_fit_qualified": {
+      "issue": 2,
+      "requires": [
+        "fit_pilot_qualified"
+      ],
+      "evidence": [
+        {
+          "path": "authority",
+          "equals": "x1_fit_session"
+        },
+        {
+          "path": "schema_version",
+          "equals": 2
+        },
+        {
+          "path": "rev_b_gate.ready_for_rev_b_fit_cad",
+          "equals": true
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
+      ]
+    },
+    "brake_interface_qualified": {
+      "issue": 14,
+      "requires": [],
+      "evidence": [
+        {
+          "path": "authority",
+          "equals": "x1_mechanical_brake_interface"
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "brake_interface_verified",
+          "equals": true
+        },
+        {
+          "path": "powered_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
+      ]
+    },
+    "rolling_chassis_physical_qualified": {
+      "issue": 12,
+      "requires": [
+        "brake_interface_qualified"
+      ],
+      "evidence": [
+        {
+          "path": "authority",
+          "equals": "x1_rolling_chassis_physical"
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "powered_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
+      ]
+    },
+    "rev_b_template_qualified": {
+      "issue": 3,
+      "requires": [
+        "rider_fit_qualified",
+        "rolling_chassis_physical_qualified"
+      ],
+      "evidence": [
+        {
+          "path": "authority",
+          "equals": "x1_rev_b_template"
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
+      ]
+    },
+    "power_architecture_frozen": {
+      "issue": null,
+      "requires": [
+        "rolling_chassis_physical_qualified",
+        "rev_b_template_qualified"
+      ],
+      "evidence": [
+        {
+          "path": "authority",
+          "equals": "x1_power_architecture"
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
+      ]
+    }
+  },
+  "capabilities": {
+    "order_fit_pilot_parts": {
+      "requires": [],
+      "procurement_stage": "BUY_NOW"
+    },
+    "order_measurement_chassis_parts": {
+      "requires": [],
+      "procurement_stage": "MEASURE_FIRST"
+    },
+    "duplicate_four_fit_zones": {
+      "requires": [
+        "fit_pilot_qualified"
+      ]
+    },
+    "generate_rev_b_rider_interface": {
+      "requires": [
+        "rider_fit_qualified"
+      ]
+    },
+    "fabricate_unpowered_chassis": {
+      "requires": [
+        "rolling_chassis_physical_qualified"
+      ]
+    },
+    "order_power_hardware": {
+      "requires": [
+        "power_architecture_frozen"
+      ],
+      "procurement_stage": "POWER_GATED"
+    },
+    "powered_operation": {
+      "requires": [
+        "power_architecture_frozen"
+      ],
+      "hard_blocked": true,
+      "block_reason": "No current Worcester X1 authority contract can authorize powered operation."
+    }
+  }
+}

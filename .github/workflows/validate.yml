@@ -21,6 +21,24 @@ jobs:
       - run: python -m pytest -q tests
       - name: Validate staged procurement authority
         run: python tools/validate_procurement_manifest.py hardware/procurement_manifest.json
+      - name: Evaluate public build authority
+        run: |
+          python tools/evaluate_build_authority.py \
+            hardware/build_authority.json \
+            hardware/procurement_manifest.json \
+            --out /tmp/x1-build-authority.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('/tmp/x1-build-authority.json').read_text())
+          assert report['capabilities']['order_fit_pilot_parts']['allowed'] is True
+          assert report['capabilities']['order_measurement_chassis_parts']['allowed'] is True
+          assert report['capabilities']['duplicate_four_fit_zones']['allowed'] is False
+          assert report['capabilities']['fabricate_unpowered_chassis']['allowed'] is False
+          assert report['capabilities']['order_power_hardware']['allowed'] is False
+          assert report['capabilities']['powered_operation']['allowed'] is False
+          print('Public authority is conservative: evidence acquisition open; physical/power gates remain closed.')
+          PY
       - name: Host-test controller core
         run: |
           g++ -std=c++17 -O2 -Ifirmware/include \

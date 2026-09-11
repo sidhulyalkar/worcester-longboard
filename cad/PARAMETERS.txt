@@ -1,5 +1,9 @@
 Worcester X1 Alpha CAD parameter snapshot
 
+HISTORICAL v0.1 PACKAGING REFERENCE ONLY.
+This file is not current fabrication or power-architecture authority.
+Use current generated fit/chassis authorities plus hardware/build_authority.json.
+
 Deck reference: 912.0 x 228.0 mm
 Factory wheelbase ref: 945.0 mm
 Wheel: 203.2 x 50.0 mm
@@ -7,7 +11,7 @@ Battery enclosure: 330.0 x 188.0 x 58.0 mm
 P50B max cell: 21.55 dia x 70.15 mm
 Reference 14S4P two-layer cell envelope: 286.0 x 161.7 x 44.9 mm
 
-MEASUREMENT-GATED:
+HISTORICAL MEASUREMENT GATES:
 - deck mount-hole placement / drilling
 - front wheel encoder physical truck interface
 - final battery pack busbar/BMS topology
