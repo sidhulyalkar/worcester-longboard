@@ -83,23 +83,57 @@ def _validate_plan(plan: dict) -> None:
         visit(name)
 
 
-def _stage_authority(procurement: dict) -> dict[str, bool]:
+def _procurement_authority(procurement: dict) -> tuple[dict[str, bool], dict[str, dict]]:
+    """Evaluate orderability per item, then summarize whether each stage has work open.
+
+    `measure_first_requires_issue` is deliberately an item-level rule. An optional
+    or deferred measurement candidate must not close the entire MEASURE_FIRST
+    stage when other issue-linked evidence hardware is ready to order.
+    """
     rules = procurement.get("rules", {})
     items = procurement.get("items", [])
-    measure_items = [x for x in items if x.get("stage") == "MEASURE_FIRST"]
-    measure_ok = True
-    if rules.get("measure_first_requires_issue") is True:
-        measure_ok = bool(measure_items) and all(bool(x.get("required_for")) for x in measure_items)
-    return {
-        "BUY_NOW": True,
-        "MEASURE_FIRST": measure_ok,
-        "POWER_GATED": rules.get("power_gated_authorized") is True,
+    item_state: dict[str, dict] = {}
+
+    for index, item in enumerate(items):
+        item_id = item.get("id")
+        if not isinstance(item_id, str) or not item_id.strip():
+            item_id = f"<invalid-item-{index}>"
+
+        stage = item.get("stage")
+        blockers: list[str] = []
+        if stage not in {"BUY_NOW", "MEASURE_FIRST", "POWER_GATED"}:
+            blockers.append(f"unknown procurement stage: {stage}")
+
+        if stage == "MEASURE_FIRST":
+            if rules.get("measure_first_requires_issue") is True and not item.get("required_for"):
+                blockers.append("MEASURE_FIRST item lacks required_for issue authority")
+            if item.get("defer_until"):
+                blockers.append(f"deferred until: {item['defer_until']}")
+
+        if stage == "POWER_GATED" and rules.get("power_gated_authorized") is not True:
+            blockers.append("POWER_GATED is not authorized")
+
+        item_state[item_id] = {
+            "stage": stage,
+            "orderable": not blockers,
+            "blockers": blockers,
+            "required_for": item.get("required_for"),
+            "defer_until": item.get("defer_until"),
+        }
+
+    stage_allowed = {
+        stage: any(
+            state["stage"] == stage and state["orderable"]
+            for state in item_state.values()
+        )
+        for stage in ("BUY_NOW", "MEASURE_FIRST", "POWER_GATED")
     }
+    return stage_allowed, item_state
 
 
 def evaluate(plan: dict, procurement: dict, evidence_docs: list[dict]) -> dict:
     _validate_plan(plan)
-    stage_allowed = _stage_authority(procurement)
+    stage_allowed, procurement_items = _procurement_authority(procurement)
     gates = plan["gates"]
 
     direct_match: dict[str, bool] = {}
@@ -156,6 +190,7 @@ def evaluate(plan: dict, procurement: dict, evidence_docs: list[dict]) -> dict:
         "public_baseline": plan.get("public_baseline"),
         "evidence_documents_supplied": len(evidence_docs),
         "procurement_stage_authorized": stage_allowed,
+        "procurement_items": procurement_items,
         "gates": gate_state,
         "capabilities": capability_state,
     }
