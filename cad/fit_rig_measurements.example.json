@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "coordinate_frame": {
+    "origin": "load-cell geometric center",
+    "+x": "loaded/free end",
+    "-x": "fixed/wire end",
+    "+y": "across narrow sensor width",
+    "units": "mm"
+  },
+  "load_cell": {
+    "fixed_holes_xy_mm": null,
+    "loaded_holes_xy_mm": null
+  },
+  "measurement_notes": [
+    "Measure physical hole centers with calipers; do not copy placeholder values from drawings.",
+    "Record at least two hole centers on the fixed/wire end and two on the loaded/free end.",
+    "Leave values null until measured. The CAD generator must remain measurement-gated otherwise."
+  ]
+}
