@@ -4,6 +4,8 @@
 #include <esp_timer.h>
 #include <math.h>
 
+#include "fit_rig_config.hpp"
+
 namespace {
 constexpr uint8_t kHxDout[4] = {4, 6, 8, 10};
 constexpr uint8_t kHxSck[4]  = {5, 7, 9, 11};
@@ -16,11 +18,6 @@ constexpr uint8_t kWhoAmI = 0x75;
 constexpr uint8_t kWhoAmIExpected = 0x47;
 constexpr uint8_t kPwrMgmt0 = 0x4E;
 constexpr uint8_t kAccelDataX1 = 0x1F;
-
-// Prefer simultaneous four-channel samples, but never let one failed ADC freeze
-// the entire rig.  At 80 SPS a healthy HX711 should update every ~12.5 ms.
-constexpr uint32_t kSampleWaitTimeoutUs = 30000;
-constexpr uint32_t kIdlePollDelayUs = 250;
 
 HX711 scales[4];
 uint8_t icmAddr = 0;
@@ -45,7 +42,6 @@ bool findAndStartIcm() {
   for (uint8_t addr : {kIcmAddrA, kIcmAddrB}) {
     uint8_t who = 0;
     if (readReg(addr, kWhoAmI, who) && who == kWhoAmIExpected) {
-      // Gyro low-noise (11b) + accel low-noise (11b).
       if (!writeReg(addr, kPwrMgmt0, 0x0F)) return false;
       delay(50);
       icmAddr = addr;
@@ -85,8 +81,9 @@ uint8_t readyMask() {
 uint8_t waitForChannels() {
   const int64_t startUs = esp_timer_get_time();
   uint8_t mask = readyMask();
-  while (mask != 0x0F && static_cast<uint32_t>(esp_timer_get_time() - startUs) < kSampleWaitTimeoutUs) {
-    delayMicroseconds(kIdlePollDelayUs);
+  while (mask != 0x0F &&
+         static_cast<uint32_t>(esp_timer_get_time() - startUs) < x1fit::kSampleWaitTimeoutUs) {
+    delayMicroseconds(x1fit::kIdlePollDelayUs);
     mask = readyMask();
   }
   return mask;
@@ -112,6 +109,9 @@ void setup() {
   const bool imuOk = findAndStartIcm();
 
   Serial.println("# Worcester X1 Fit Rig v0.3 raw logger");
+  Serial.print("# hx711_sps=");
+  Serial.println(x1fit::kHx711SamplesPerSecond);
+  Serial.println("# hx711_rate_contract=firmware value must match physical RATE jumper state");
   Serial.print("# imu_icm42688=");
   Serial.println(imuOk ? "ok" : "missing");
   Serial.println("t_us,left_heel_raw,left_forefoot_raw,right_heel_raw,right_forefoot_raw,load_valid_mask,roll_deg,imu_ok");
@@ -120,7 +120,6 @@ void setup() {
 void loop() {
   const uint8_t mask = waitForChannels();
   if (mask == 0) {
-    // Preserve serial responsiveness without emitting empty pseudo-samples.
     delay(1);
     return;
   }
