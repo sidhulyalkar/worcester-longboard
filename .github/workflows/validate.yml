@@ -3,14 +3,17 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   software:
     runs-on: ubuntu-latest
     env:
       PYTHONPATH: ${{ github.workspace }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - run: python simulation/x1_dynamics.py
@@ -40,3 +43,10 @@ jobs:
           assert len(data['measurement_gates']) == 3
           print('Fit-rig CAD generated: one-zone vendor-pattern pilot ready; four-pod duplication remains physically gated.')
           PY
+      - name: Upload fit-rig reference CAD
+        uses: actions/upload-artifact@v7
+        with:
+          name: x1-fit-rig-v03-reference-${{ github.sha }}
+          path: cad/generated_fit/
+          if-no-files-found: error
+          retention-days: 30
