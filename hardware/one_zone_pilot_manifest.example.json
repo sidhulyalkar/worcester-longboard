@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "channel": "left_heel",
+  "hx711_sps": 10,
+  "observations": [
+    {"kind": "zero_pre", "mass_kg": 0.0, "log": "pilot/zero_pre.csv"},
+    {"kind": "load_up", "mass_kg": 2.0, "log": "pilot/up_2kg.csv"},
+    {"kind": "load_up", "mass_kg": 5.0, "log": "pilot/up_5kg.csv"},
+    {"kind": "load_up", "mass_kg": 10.0, "log": "pilot/up_10kg.csv"},
+    {"kind": "load_down", "mass_kg": 5.0, "log": "pilot/down_5kg.csv"},
+    {"kind": "load_down", "mass_kg": 2.0, "log": "pilot/down_2kg.csv"},
+    {"kind": "zero_post", "mass_kg": 0.0, "log": "pilot/zero_post.csv"}
+  ],
+  "validation": [
+    {"mass_kg": 7.5, "log": "pilot/validation_7p5kg.csv"}
+  ],
+  "mechanical": {
+    "vendor_pattern_verified": false,
+    "fixed_loaded_orientation_verified": false,
+    "screw_stack_verified": false,
+    "stop_gap_unloaded_mm": null,
+    "stop_gap_min_loaded_mm": null
+  }
+}
