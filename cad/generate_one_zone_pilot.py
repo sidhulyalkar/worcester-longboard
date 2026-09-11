@@ -8,6 +8,7 @@ calibration up to the software-enforced pilot load ceiling, never for riding.
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -34,6 +35,28 @@ class PilotCarrierGeometry:
     bench_mount_x_mm: float = 55.0
     bench_mount_y_mm: float = 25.0
     bench_mount_clearance_diameter_mm: float = 6.5
+    min_carrier_edge_ligament_mm: float = 6.0
+    min_hole_edge_separation_mm: float = 6.0
+
+    @property
+    def pod_mount_centers(self) -> list[tuple[float, float]]:
+        return [
+            (sx * self.pod_mount_x_mm, sy * self.pod_mount_y_mm)
+            for sx in (-1, 1) for sy in (-1, 1)
+        ]
+
+    @property
+    def bench_mount_centers(self) -> list[tuple[float, float]]:
+        return [
+            (sx * self.bench_mount_x_mm, sy * self.bench_mount_y_mm)
+            for sx in (-1, 1) for sy in (-1, 1)
+        ]
+
+    def _edge_ligament(self, x: float, y: float, diameter: float) -> float:
+        return min(
+            self.carrier_length_mm / 2 - abs(x) - diameter / 2,
+            self.carrier_width_mm / 2 - abs(y) - diameter / 2,
+        )
 
     def validate(self, rig: FitRigGeometry = DEFAULT) -> list[str]:
         errors: list[str] = []
@@ -45,15 +68,32 @@ class PilotCarrierGeometry:
             errors.append("pilot pod mount holes are too close to the pod end")
         if self.pod_mount_y_mm >= rig.load_cell_pod_width_mm / 2 - 4:
             errors.append("pilot pod mount holes are too close to the pod side")
-        # Keep the auxiliary holes outside the sensor body envelope and away from
-        # the overload towers. These are reference-clearance rules, not a strength
-        # certification.
         if self.pod_mount_y_mm <= rig.load_cell.width_mm / 2 + 3:
             errors.append("pilot pod mount holes lack clearance from sensor body")
         tower_dx = abs(self.pod_mount_x_mm - rig.load_cell.loaded_hole_xy_mm[0])
         tower_min = rig.overload_stop_diameter_mm / 2 + self.pod_mount_clearance_diameter_mm / 2 + 2
         if tower_dx <= tower_min:
             errors.append("loaded-end pilot mount holes are too close to overload towers")
+
+        for label, centers, diameter in (
+            ("pod", self.pod_mount_centers, self.pod_mount_clearance_diameter_mm),
+            ("bench", self.bench_mount_centers, self.bench_mount_clearance_diameter_mm),
+        ):
+            if min(self._edge_ligament(x, y, diameter) for x, y in centers) < self.min_carrier_edge_ligament_mm:
+                errors.append(f"{label} mount holes lack carrier edge ligament")
+
+        min_center_distance = min(
+            math.hypot(px - bx, py - by)
+            for px, py in self.pod_mount_centers
+            for bx, by in self.bench_mount_centers
+        )
+        required_center_distance = (
+            self.pod_mount_clearance_diameter_mm / 2
+            + self.bench_mount_clearance_diameter_mm / 2
+            + self.min_hole_edge_separation_mm
+        )
+        if min_center_distance < required_center_distance:
+            errors.append("pod and bench mounting holes are too close together")
         return errors
 
 
@@ -70,14 +110,9 @@ def _cut_xy_holes(shape, centers, diameter: float, depth: float):
 
 def pilot_pod(rig: FitRigGeometry = DEFAULT, pilot: PilotCarrierGeometry = PILOT):
     """Fit-rig pod plus four auxiliary M4-class carrier mounting holes."""
-    pod = load_cell_pod(rig)
-    centers = [
-        (sx * pilot.pod_mount_x_mm, sy * pilot.pod_mount_y_mm)
-        for sx in (-1, 1) for sy in (-1, 1)
-    ]
     return _cut_xy_holes(
-        pod,
-        centers,
+        load_cell_pod(rig),
+        pilot.pod_mount_centers,
         pilot.pod_mount_clearance_diameter_mm,
         rig.load_cell_pod_thickness_mm + 2,
     )
@@ -94,26 +129,68 @@ def carrier_plate(pilot: PilotCarrierGeometry = PILOT):
         )
         .edges("|Z").fillet(4)
     )
-    pod_centers = [
-        (sx * pilot.pod_mount_x_mm, sy * pilot.pod_mount_y_mm)
-        for sx in (-1, 1) for sy in (-1, 1)
-    ]
     plate = _cut_xy_holes(
         plate,
-        pod_centers,
+        pilot.pod_mount_centers,
         pilot.pod_mount_clearance_diameter_mm,
         pilot.carrier_thickness_mm + 2,
     )
-    bench_centers = [
-        (sx * pilot.bench_mount_x_mm, sy * pilot.bench_mount_y_mm)
-        for sx in (-1, 1) for sy in (-1, 1)
-    ]
     return _cut_xy_holes(
         plate,
-        bench_centers,
+        pilot.bench_mount_centers,
         pilot.bench_mount_clearance_diameter_mm,
         pilot.carrier_thickness_mm + 2,
     )
+
+
+def cut_sheet(rig: FitRigGeometry, pilot: PilotCarrierGeometry) -> dict:
+    """Human/machine-readable dimensions for bench fabrication and inspection."""
+    return {
+        "schema_version": 1,
+        "units": "mm",
+        "scope": "unpowered_one_zone_pilot_reference_only",
+        "not_strength_certification": True,
+        "coordinate_frame": {
+            "origin": "carrier/pod geometric center",
+            "+x": "sensor loaded/free end",
+            "+y": "across sensor width",
+            "+z": "up from carrier bottom",
+        },
+        "carrier": {
+            "envelope": [pilot.carrier_length_mm, pilot.carrier_width_mm, pilot.carrier_thickness_mm],
+            "pod_mount_holes": {
+                "diameter": pilot.pod_mount_clearance_diameter_mm,
+                "centers_xy": pilot.pod_mount_centers,
+                "nominal_fastener_class": "M4 clearance",
+            },
+            "bench_mount_holes": {
+                "diameter": pilot.bench_mount_clearance_diameter_mm,
+                "centers_xy": pilot.bench_mount_centers,
+                "nominal_fastener_class": "M6 / 1/4-in class clearance",
+            },
+        },
+        "pod": {
+            "envelope": [rig.load_cell_pod_length_mm, rig.load_cell_pod_width_mm, rig.load_cell_pod_thickness_mm],
+            "pilot_auxiliary_mount_centers_xy": pilot.pod_mount_centers,
+            "pilot_auxiliary_mount_diameter": pilot.pod_mount_clearance_diameter_mm,
+        },
+        "zone_pad": {
+            "envelope": [rig.zone_pad_length_mm, rig.zone_pad_width_mm, rig.zone_pad_thickness_mm],
+        },
+        "load_cell_reference": {
+            "envelope": [rig.load_cell.length_mm, rig.load_cell.width_mm, rig.load_cell.height_mm],
+            "fixed_hole_xy": rig.load_cell.fixed_hole_xy_mm,
+            "loaded_hole_xy": rig.load_cell.loaded_hole_xy_mm,
+            "thread": rig.load_cell.thread,
+            "physical_unit_verified": rig.load_cell.physical_unit_verified,
+        },
+        "nominal_z_stack": rig.authority_report()["nominal_z_stack"],
+        "inspection_gates": [
+            "verify physical load-cell dimensions before final fastener selection",
+            "verify real M5 engagement and flexure clearance",
+            "measure real unloaded and loaded stop gaps",
+        ],
+    }
 
 
 def main() -> None:
@@ -131,6 +208,9 @@ def main() -> None:
     export(out, "x1_pilot_load_cell_reference", load_cell_reference(rig))
     export(out, "x1_pilot_alignment_jig", alignment_jig(rig))
 
+    (out / "one_zone_pilot_cut_sheet.json").write_text(
+        json.dumps(cut_sheet(rig, pilot), indent=2) + "\n", encoding="utf-8"
+    )
     authority = {
         "schema_version": 1,
         "fixture_type": "unpowered_one_zone_pilot_only",
