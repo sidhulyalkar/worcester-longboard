@@ -29,28 +29,49 @@ Use three buckets only:
 
 ## MEASURE_FIRST — chassis/brake evidence
 
-Do not buy the entire rolling chassis yet. The cheapest useful physical evidence purchase is the **brake interface itself**, because the public manual does not expose enough dimensions to CAD it faithfully.
+The preferred chassis sourcing strategy is now **donor-first**, because a complete compatible mountainboard is cheaper than reconstructing its major assemblies from individual retail parts.
+
+### Preferred donor: MBS Comp 95
+
+Snapshot direct price: **$499.95**.
+
+The current Comp 95 already provides:
+
+- two 400 mm Matrix III CNC trucks
+- Rockstar II hubs and 12x28 mm bearings
+- four 8 in T1 pneumatic wheels/tubes
+- Comp 95 PowerLam deck
+- F5 bindings and mounting hardware
+- a brake-compatible rolling chassis
+- Matrix III trucks explicitly upgradeable to 70 mm axles for MBS gear-drive compatibility
+
+At snapshot direct prices, reconstructing only the two trucks, deck, F5 bindings, four hubs, four 8 in tires/tubes and bearing set is roughly **$701 before miscellaneous hardware and duplicated shipping**. The complete Comp 95 therefore saves about **$200** while giving us a fully assembled reference platform.
+
+**Best value target:** a structurally healthy used Comp 95 with Matrix III trucks at **<=$350**. Inspect deck delamination/cracks, truck/axle damage, bearing play and stripped hardware before treating a used donor as authority.
+
+### 9-inch upgrade is optional, not default
+
+Do not replace the donor's complete 8-inch wheelset just because X1 was initially modeled around nominal 9-inch tires. A four-wheel T2 + 9-inch tube conversion is about **$171.60** at current direct prices. First characterize clearance/terrain needs with the donor 8-inch wheels; upgrade only if the extra obstacle clearance materially improves the intended trail use.
+
+### Brake evidence purchase
+
+The V5 brake remains the first specialized chassis part worth purchasing because its public manual does not expose enough dimensions to CAD the interface faithfully.
 
 | Part | Current reference | Snapshot price | Gate it closes |
 |---|---|---:|---|
 | MBS V5 Brake System | MBS 15006 | $89.95 | Issue #14 brake-arm/rotor/cable measurements |
-| Matrix III 400 mm truck | MBS 12300/12302 family | about $119.95–$124.95 each | selected brake-first truck envelope |
+| Complete MBS Comp 95 donor | MBS 10303 | $499.95 new | two Matrix III CNC trucks + complete rolling chassis |
 | 70 mm Matrix III axle | MBS 12342 | $24.95 each | later drive-clearance/coexistence study |
-| Rockstar II hub | MBS 1323x | $14.95 each | wheel/brake rotor interface reference |
-| 9 in T2 tire | MBS 13120 | $29.95 each | real tire envelope; nominal storefront page also reports loaded shape dimensions |
-| 9 in tube | MBS 13013 | $12.95 each | complete wheel measurement stack |
+| 9 in T2 tire | MBS 13120 | $29.95 each | optional real 9-inch terrain envelope |
+| 9 in tube | MBS 13013 | $12.95 each | optional complete 9-inch wheel stack |
 
-### Cheapest brake-measurement strategy
+### Cheapest measurement strategies
 
-Do **not** buy two trucks + four wheels immediately. Buy the smallest stack that can close dimensional uncertainty:
+**Strategy A, recommended if building the whole board:** buy one Comp 95 donor + V5 brake. This costs about **$589.90** new before shipping and immediately gives a complete unpowered chassis suitable for Issues #12/#14. A good used donor can reduce this dramatically.
 
-- 1 brake-compatible Matrix III 400 mm truck
-- 1 V5 brake kit
-- 1 Rockstar II hub
-- 1 T2 9 in tire
-- 1 tube
+**Strategy B, minimum laboratory-only spend:** one 400 mm Matrix III truck + V5 brake + one Rockstar II hub + one tire/tube. This remains useful if a donor cannot be sourced, but it produces less reusable hardware for nearly the same interface-measurement effort.
 
-This is enough to measure truck brake mounting, rotor/hub interface, wheel envelope, cable sweep and a single real wheel/brake assembly. Duplicate only after CAD + bench evidence pass.
+Do not buy 70 mm axles or a gear drive until the brake-first 50 mm axle configuration is measured and the coexistence question is modeled.
 
 ## POWER_GATED — do not order yet
 
@@ -71,10 +92,10 @@ The cheapest credible X1 is not the cheapest part in every row. It is the build 
 ### Low-cost development path
 
 - Stage A, one-zone sensing: **~$44–$120**
-- Stage B, one-wheel brake/truck measurement stack: **roughly $270–$300** before shipping, depending truck SKU and whether existing hardware/tools can be reused
-- Stage C, full unpowered rolling chassis: target **$550–$800** total cumulative spend, finalized only after Issues #12/#14
-- Stage D, 2WD belt-drive powered prototype: target **$1,300–$1,700** total build cost if mechanical evidence supports the inexpensive belt path
-- Stage E, sealed-gear premium version: likely **$1,700–$2,200+**, mainly because battery + G1 gear drive + ESC dominate cost
+- Stage B, donor chassis + brake measurement: **~$590 new**, ideally **~$300–$440** with a good used donor
+- Stage C, qualified unpowered chassis: little incremental cost if the donor survives qualification; custom guards/interfaces add material cost rather than replacing the chassis
+- Stage D, 2WD belt-drive powered prototype: target **$1,200–$1,600 total** if we preserve the donor chassis and use a well-engineered belt drive
+- Stage E, sealed-gear premium version: likely **$1,650–$2,100+ total**, mainly because battery + G1 gear drive + ESC dominate cost
 
 These are budget envelopes, not purchase authorizations.
 
@@ -82,19 +103,24 @@ These are budget envelopes, not purchase authorizations.
 
 Save aggressively on generic low-risk items: wire, heatshrink, bench plywood, ordinary M4/M5 hardware, printed pilot parts, feeler gauges and non-certified screening calipers.
 
+Save structurally by buying **compatible assemblies**, not mystery structural parts. A complete donor board can be cheaper than individually sourcing known-good trucks, deck, hubs, bearings, bindings and wheel hardware.
+
 Do **not** economize blindly on: lithium battery assembly, high-current connectors/fusing, ESC thermal design, motor shaft quality, brake hardware or structural truck/axle interfaces.
 
 ## Vendor strategy
 
 - **Phidgets direct** for the 3135_0 cells: direct geometry/source, very low unit price.
 - **SparkFun direct** for SEN-13879: direct design revision, documentation and 10/80 SPS behavior.
-- **MBS direct** for truck/brake/wheel interface parts: compatibility claims and technical drawings matter more than a small reseller discount.
+- **MBS direct** for truck/brake/wheel interface parts and the new-donor fallback: compatibility claims and technical drawings matter more than a small reseller discount.
+- **Used market** for a Comp 95 donor only when the exact truck generation and physical condition can be verified. A target <=$350 creates meaningful savings; a $450 used board is not attractive versus a $499.95 new reference.
 - **Digi-Key/Mouser/Adafruit or an already-owned genuine-compatible board** for ESP32-S3: avoid paying $30–$50 for a commodity MCU board unless shipping consolidation makes it rational.
 - **Local hardware store / McMaster only for critical known-grade fasteners**; generic assortments are fine for nonstructural pilot iteration.
+- **Flipsky/MakerX direct** are sensible future ESC/motor comparison points; choose only after the voltage/thermal architecture freezes.
 - **Professionally assembled reputable battery vendor** for the traction pack. Do not make the first high-current pack a DIY cost-saving exercise.
 
 ## Promotion gates
 
 - BUY_NOW -> MEASURE_FIRST only after Issue #4 produces real sensor evidence.
-- MEASURE_FIRST -> rolling chassis duplication only after Issues #12/#14 pass their physical geometry/brake gates.
+- Donor purchase does not imply final rider-interface drilling or powered use.
+- MEASURE_FIRST -> rolling chassis authority only after Issues #12/#14 pass their physical geometry/brake gates.
 - POWER_GATED -> orderable only after unpowered rolling chassis, mechanical braking, enclosure volume and final drivetrain ratio/voltage are frozen.
