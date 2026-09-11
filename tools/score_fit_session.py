@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 from pathlib import Path
 
@@ -26,6 +27,15 @@ def read_csv(path: Path):
 def resolve(base: Path, value: str) -> Path:
     p = Path(value)
     return p if p.is_absolute() else (base / p).resolve()
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _authority_digest(report: dict) -> str:
+    payload = json.dumps(report, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
 
 
 def main() -> None:
@@ -71,13 +81,17 @@ def main() -> None:
     gate = evaluate(profile, score, raw_quality)
     report = {
         "schema_version": 2,
+        "authority": "x1_fit_session",
         "session_id": manifest.get("session_id"),
         "candidate_id": manifest.get("candidate_id"),
+        "manifest_sha256": _sha256(manifest_path),
+        "profile_sha256": _sha256(profile_path),
         "trial_summaries": summaries,
         "raw_quality": raw_quality,
         "score": score,
         "rev_b_gate": gate,
     }
+    report["authority_fingerprint_sha256"] = _authority_digest(report)
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

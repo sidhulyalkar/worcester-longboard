@@ -24,26 +24,33 @@ def _all_physical_evidence():
             "authority_fingerprint_sha256": "a" * 64,
         },
         {
+            "authority": "x1_fit_session",
+            "schema_version": 2,
             "rev_b_gate": {"ready_for_rev_b_fit_cad": True},
+            "authority_fingerprint_sha256": "b" * 64,
         },
         {
             "authority": "x1_mechanical_brake_interface",
             "qualified": True,
             "brake_interface_verified": True,
             "powered_operation_authorized": False,
+            "authority_fingerprint_sha256": "c" * 64,
         },
         {
             "authority": "x1_rolling_chassis_physical",
             "qualified": True,
             "powered_operation_authorized": False,
+            "authority_fingerprint_sha256": "d" * 64,
         },
         {
             "authority": "x1_rev_b_template",
             "qualified": True,
+            "authority_fingerprint_sha256": "e" * 64,
         },
         {
             "authority": "x1_power_architecture",
             "qualified": True,
+            "authority_fingerprint_sha256": "f" * 64,
         },
     ]
 
@@ -63,6 +70,7 @@ def test_downstream_evidence_cannot_skip_upstream_gate():
         "authority": "x1_rolling_chassis_physical",
         "qualified": True,
         "powered_operation_authorized": False,
+        "authority_fingerprint_sha256": "d" * 64,
     }]
     report = evaluate(_plan(), _procurement(), evidence)
     state = report["gates"]["rolling_chassis_physical_qualified"]

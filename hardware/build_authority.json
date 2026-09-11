@@ -24,8 +24,20 @@
       ],
       "evidence": [
         {
+          "path": "authority",
+          "equals": "x1_fit_session"
+        },
+        {
+          "path": "schema_version",
+          "equals": 2
+        },
+        {
           "path": "rev_b_gate.ready_for_rev_b_fit_cad",
           "equals": true
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "nonempty_string"
         }
       ]
     },
@@ -48,6 +60,10 @@
         {
           "path": "powered_operation_authorized",
           "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "nonempty_string"
         }
       ]
     },
@@ -68,6 +84,10 @@
         {
           "path": "powered_operation_authorized",
           "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "nonempty_string"
         }
       ]
     },
@@ -85,6 +105,10 @@
         {
           "path": "qualified",
           "equals": true
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "nonempty_string"
         }
       ]
     },
@@ -102,6 +126,10 @@
         {
           "path": "qualified",
           "equals": true
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "nonempty_string"
         }
       ]
     }
