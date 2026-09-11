@@ -31,6 +31,7 @@ def _all_physical_evidence():
         _stamp({"authority": "x1_fit_session", "schema_version": 2, "rev_b_gate": {"ready_for_rev_b_fit_cad": True}}),
         _stamp({"authority": "x1_mechanical_brake_interface", "qualified": True, "brake_interface_verified": True, "powered_operation_authorized": False}),
         _stamp({"authority": "x1_rolling_chassis_physical", "qualified": True, "powered_operation_authorized": False}),
+        _stamp({"authority": "x1_brake_drive_topology", "schema_version": 1, "qualified": True, "selected_topology": "same_rear_axle_v5_plus_drive", "powered_operation_authorized": False}),
         _stamp({"authority": "x1_rev_b_template", "qualified": True}),
         _stamp({"authority": "x1_power_architecture", "qualified": True}),
     ]
@@ -42,6 +43,7 @@ def test_public_repo_defaults_are_conservative():
     assert report["capabilities"]["order_measurement_chassis_parts"]["allowed"] is True
     assert report["capabilities"]["duplicate_four_fit_zones"]["allowed"] is False
     assert report["capabilities"]["fabricate_unpowered_chassis"]["allowed"] is False
+    assert report["capabilities"]["qualify_brake_drive_topology"]["allowed"] is False
     assert report["capabilities"]["order_power_hardware"]["allowed"] is False
     assert report["capabilities"]["powered_operation"]["allowed"] is False
 
@@ -78,8 +80,32 @@ def test_downstream_evidence_cannot_skip_upstream_gate():
     assert any("brake_interface_qualified" in x for x in state["blockers"])
 
 
+def test_topology_evidence_cannot_skip_brake_or_chassis():
+    topology = _stamp({
+        "authority": "x1_brake_drive_topology",
+        "schema_version": 1,
+        "qualified": True,
+        "selected_topology": "same_rear_axle_v5_plus_drive",
+        "powered_operation_authorized": False,
+    })
+    report = evaluate(_plan(), _procurement(), [topology])
+    state = report["gates"]["brake_drive_topology_qualified"]
+    assert state["evidence_matched"] is True
+    assert state["satisfied"] is False
+    assert any("brake_interface_qualified" in x for x in state["blockers"])
+    assert any("rolling_chassis_physical_qualified" in x for x in state["blockers"])
+
+
+def test_power_architecture_cannot_freeze_without_topology_authority():
+    evidence = [x for x in _all_physical_evidence() if x.get("authority") != "x1_brake_drive_topology"]
+    report = evaluate(_plan(), _procurement(), evidence)
+    assert report["gates"]["power_architecture_frozen"]["satisfied"] is False
+    assert any("brake_drive_topology_qualified" in x for x in report["gates"]["power_architecture_frozen"]["blockers"])
+
+
 def test_power_ordering_stays_blocked_by_procurement_policy():
     report = evaluate(_plan(), _procurement(), _all_physical_evidence())
+    assert report["gates"]["brake_drive_topology_qualified"]["satisfied"] is True
     assert report["gates"]["power_architecture_frozen"]["satisfied"] is True
     assert report["capabilities"]["order_power_hardware"]["allowed"] is False
     assert "procurement stage blocked: POWER_GATED" in report["capabilities"]["order_power_hardware"]["blockers"]

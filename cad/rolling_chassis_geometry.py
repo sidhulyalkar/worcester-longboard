@@ -1,9 +1,9 @@
 """Pure-Python geometry authority for Worcester X1 unpowered rolling chassis.
 
-This tranche defines packaging envelopes and manufacturing gates only. Vendor
-reference dimensions are useful for collision studies but do not make the
-chassis fabrication-ready until selected physical components/drawings, brake
-interfaces, and the full motion sweep are verified.
+The default brake-first reference is now grounded in the published MBS Comp 95
+geometry because that is the preferred donor strategy. Published dimensions are
+still not a substitute for received-part measurements: physical_unit_verified
+remains false until the actual donor is measured.
 """
 from __future__ import annotations
 
@@ -13,10 +13,14 @@ import math
 
 @dataclass(frozen=True)
 class WheelEnvelope:
-    diameter_mm: float = 250.0
-    width_mm: float = 50.0
+    # MBS publishes the T1 as nominal 200x50 while the current product page
+    # gives 194 mm actual tire diameter and 51 mm width. Use the physical-size
+    # reference for collision packaging, not the nominal product name.
+    diameter_mm: float = 194.0
+    width_mm: float = 51.0
     axle_diameter_mm: float = 12.0
-    source: str = "MBS T2 9in tire 250x50 reference"
+    nominal_size: str = "200x50 (8-inch class)"
+    source: str = "MBS T1 8in 200x50; published tire diameter 194mm, width 51mm"
     physical_unit_verified: bool = False
 
 
@@ -39,18 +43,37 @@ class TruckEnvelope:
             axle_extension_each_mm=70.0,
             brake_reference_compatible=False,
             drive_reference_compatible=True,
-            source="MBS Matrix III CNC 420mm reference",
+            source="MBS Matrix III CNC 420mm / 70mm axle drive reference",
+        )
+
+    @classmethod
+    def brake_hanger_with_70mm_axles_reference(cls) -> "TruckEnvelope":
+        # Vendor text describes the 300 mm 400-series hanger upgraded with
+        # 70 mm axles as an ultra-wide 440 mm drivetrain-capable variant. Brake
+        # rotor alignment after this swap is intentionally UNKNOWN.
+        return cls(
+            total_width_mm=440.0,
+            nominal_hanger_mm=300.0,
+            axle_extension_each_mm=70.0,
+            brake_reference_compatible=False,
+            drive_reference_compatible=True,
+            source="Matrix III 300mm hanger + 70mm axle topology-study reference",
         )
 
 
 @dataclass(frozen=True)
 class ChassisEnvelope:
+    # Published Comp 95 references.
     deck_length_mm: float = 950.0
-    deck_max_width_mm: float = 260.0
+    deck_max_width_mm: float = 251.0
+    wheelbase_mm: float = 940.0
+    published_overall_length_mm: float = 1140.0
+    donor_unpowered_mass_reference_kg: float = 6.6
+
+    # Still-provisional packaging values. These remain measurement gates.
     deck_reference_thickness_mm: float = 16.0
-    wheelbase_mm: float = 820.0
     rider_interface_keepout_length_mm: float = 650.0
-    rider_interface_keepout_width_mm: float = 245.0
+    rider_interface_keepout_width_mm: float = 240.0
     static_ground_clearance_mm: float = 65.0
     minimum_compressed_clearance_mm: float = 45.0
     suspension_vertical_travel_allowance_mm: float = 20.0
@@ -65,12 +88,23 @@ class ChassisEnvelope:
     truck: TruckEnvelope = TruckEnvelope()
 
     @property
-    def half_track_mm(self) -> float:
-        return self.truck.total_width_mm / 2.0
-
-    @property
     def wheel_radius_mm(self) -> float:
         return self.wheel.diameter_mm / 2.0
+
+    @property
+    def wheel_center_lateral_mm(self) -> float:
+        """Reference wheel center from board centerline.
+
+        The truck width is hanger plus two axle extensions. Before a physical
+        hub stack is measured, place the wheel center approximately halfway
+        along each axle extension instead of incorrectly placing it at the axle
+        tip.
+        """
+        return self.truck.nominal_hanger_mm / 2.0 + self.truck.axle_extension_each_mm / 2.0
+
+    @property
+    def estimated_outer_wheel_envelope_width_mm(self) -> float:
+        return 2.0 * self.wheel_center_lateral_mm + self.wheel.width_mm
 
     @property
     def steered_wheel_half_extent_x_mm(self) -> float:
@@ -88,16 +122,24 @@ class ChassisEnvelope:
     def rider_keepout_margin_each_end_mm(self) -> float:
         return (self.deck_length_mm - self.rider_interface_keepout_length_mm) / 2.0
 
+    @property
+    def derived_overall_length_mm(self) -> float:
+        # Useful sanity check for the published donor geometry: axle-to-axle
+        # plus one tire diameter should be close to the board's overall length.
+        return self.wheelbase_mm + self.wheel.diameter_mm
+
     def validate(self) -> list[str]:
         errors: list[str] = []
-        if not 220.0 <= self.wheel.diameter_mm <= 270.0:
-            errors.append("wheel diameter outside X1 8.5-10in packaging range")
+        if not 185.0 <= self.wheel.diameter_mm <= 270.0:
+            errors.append("wheel diameter outside X1 8-10in physical packaging range")
         if self.wheel.width_mm < 45.0:
             errors.append("wheel width is too narrow for current off-road reference")
         if self.truck.total_width_mm < self.deck_max_width_mm + 100.0:
             errors.append("truck lacks lateral wheel/deck clearance budget")
-        if self.wheelbase_mm >= self.deck_length_mm:
-            errors.append("wheelbase must fit within deck reference envelope")
+        if self.wheelbase_mm > self.published_overall_length_mm:
+            errors.append("wheelbase cannot exceed published overall board length")
+        if abs(self.derived_overall_length_mm - self.published_overall_length_mm) > 20.0:
+            errors.append("wheelbase + tire-diameter sanity check disagrees with published donor length")
         if self.rider_interface_keepout_length_mm >= self.deck_length_mm:
             errors.append("rider interface keepout consumes entire deck")
         if self.rider_interface_keepout_width_mm > self.deck_max_width_mm:
@@ -143,14 +185,17 @@ class ChassisEnvelope:
 
     def authority_report(self) -> dict:
         return {
-            "schema_version": 1,
+            "schema_version": 2,
             "scope": "unpowered_rolling_chassis_geometry_only",
             "geometry": asdict(self),
             "derived": {
                 "wheel_radius_mm": self.wheel_radius_mm,
+                "wheel_center_lateral_mm": self.wheel_center_lateral_mm,
+                "estimated_outer_wheel_envelope_width_mm": self.estimated_outer_wheel_envelope_width_mm,
                 "steered_wheel_half_extent_x_mm": self.steered_wheel_half_extent_x_mm,
                 "steered_wheel_half_extent_y_mm": self.steered_wheel_half_extent_y_mm,
                 "rider_keepout_margin_each_end_mm": self.rider_keepout_margin_each_end_mm,
+                "derived_overall_length_mm": self.derived_overall_length_mm,
                 "compressed_clearance_after_travel_mm": self.static_ground_clearance_mm - self.suspension_vertical_travel_allowance_mm,
             },
             "validation_errors": self.validate(),
@@ -159,21 +204,25 @@ class ChassisEnvelope:
             "motion_sweep_verified": self.motion_sweep_verified,
             "fabrication_ready": self.fabrication_ready,
             "reference_conflicts": {
-                "400mm_brake_first": {
+                "400mm_50mm_axle_brake_first": {
                     "brake_reference_compatible": True,
                     "drive_reference_compatible": False,
                 },
-                "420mm_drive_clearance": {
+                "420mm_70mm_axle_drive_reference": {
                     "brake_reference_compatible": False,
+                    "drive_reference_compatible": True,
+                },
+                "300mm_hanger_70mm_axle_440mm_topology_study": {
+                    "brake_reference_compatible": "UNKNOWN_AFTER_AXLE_SWAP",
                     "drive_reference_compatible": True,
                 },
             },
             "gates": [
-                "select truck width only after resolving mechanical-brake versus drive packaging",
-                "verify selected truck technical drawing or physical unit",
-                "verify selected wheel/hub/tire envelope",
-                "define and verify selected mechanical brake rotor/caliper interface",
-                "perform and record full steering/suspension interference sweep",
+                "measure received Comp 95 tire/hub/truck/deck geometry",
+                "measure actual static/compressed clearance instead of promoting provisional Z values",
+                "qualify V5 brake interface on its received 400mm/50mm-axle configuration",
+                "resolve Issue #19 brake-drive topology before selecting drivetrain hardware",
+                "perform and record full steering/suspension/drive/brake interference sweep",
                 "preserve rider-interface keepout until Rev-B fit authority",
             ],
         }
@@ -181,3 +230,6 @@ class ChassisEnvelope:
 
 BRAKE_FIRST = ChassisEnvelope()
 DRIVE_CLEARANCE = replace(BRAKE_FIRST, truck=TruckEnvelope.drive_clearance_reference())
+BRAKE_HANGER_70MM_TOPOLOGY_STUDY = replace(
+    BRAKE_FIRST, truck=TruckEnvelope.brake_hanger_with_70mm_axles_reference()
+)

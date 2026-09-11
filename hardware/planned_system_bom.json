@@ -6,7 +6,8 @@
     "no_powered_operation_authorized": true,
     "professional_traction_battery_only": true,
     "physical_measurements_override_catalog_dimensions": true,
-    "do_not_freeze_tbd_parts_before_named_gate": true
+    "do_not_freeze_tbd_parts_before_named_gate": true,
+    "power_architecture_requires_brake_drive_topology": true
   },
   "subsystems": [
     {
@@ -54,7 +55,7 @@
         "8 inch T1 tires/tubes included with donor",
         "F5 bindings and mounting hardware included with donor"
       ],
-      "authority": "Donor-first. Used donor only after exact generation and condition inspection."
+      "authority": "Donor-first. Published 950/251/940 mm deck/wheelbase references are CAD inputs only until the received donor is measured."
     },
     {
       "id": "MECHANICAL-BRAKE",
@@ -66,7 +67,24 @@
         "rotor/hub hardware appropriate to Rockstar II",
         "replacement consumables only after exact received revision is identified"
       ],
-      "authority": "Issue #14 physical interface + stop-performance evidence required"
+      "authority": "Issue #14 qualifies the V5 measurement/stop interface only; it does not select the final powered-board topology."
+    },
+    {
+      "id": "BRAKE-DRIVE-TOPOLOGY",
+      "status": "PLAN_ONLY",
+      "freeze_gate": "brake_drive_topology_qualified",
+      "contents": [
+        "Candidate A: rear V5 plus rear drive on shared rear truck",
+        "Candidate B: documented rear V5 plus front 2WD",
+        "Candidate C: rear 2WD plus proven front friction-brake architecture",
+        "Candidate D: alternate rear drive preserving brake-first geometry",
+        "physical axial stack measurements",
+        "neutral/full-motion collision sweeps",
+        "wheel/tube service demonstration",
+        "drive retention/guard strategy",
+        "explicit rejection record for all non-selected candidates"
+      ],
+      "authority": "Issue #19 must select exactly one topology through a fingerprinted x1_brake_drive_topology report before power architecture can freeze."
     },
     {
       "id": "RIDER-INTERFACE",
@@ -98,12 +116,13 @@
       "freeze_gate": "power_architecture_frozen",
       "contents": [
         "MBS G1 dual gear-drive reference 16101 or qualified alternative",
-        "2x sensored 6374-class motors",
-        "exact motor KV, shaft, connector and mount pattern TBD",
-        "70 mm Matrix III axles only if physical brake/drive coexistence study requires them",
-        "motor/gear guards and service spares"
+        "2x sensored motor class selected only after topology/ratio/voltage freeze",
+        "exact motor size, KV, shaft, connector and mount pattern TBD",
+        "70 mm Matrix III axles only if the selected Issue #19 topology requires them",
+        "replaceable motor/gear/belt/chain guard or skid as appropriate",
+        "drive-specific service consumables"
       ],
-      "authority": "No purchase until ratio, wheel, voltage and brake coexistence freeze together"
+      "authority": "G1 is a comparison reference, not the chosen drive. No purchase until Issue #19 selects brake/drive topology and ratio/wheel/voltage freeze together."
     },
     {
       "id": "MOTOR-CONTROL",
@@ -116,14 +135,14 @@
         "CAN integration",
         "remote receiver interface"
       ],
-      "authority": "Exact vendor/model intentionally TBD"
+      "authority": "Exact vendor/model intentionally TBD until mechanical topology and voltage architecture freeze"
     },
     {
       "id": "TRACTION-BATTERY",
       "status": "POWER_GATED_TBD",
       "freeze_gate": "power_architecture_frozen",
       "contents": [
-        "professionally assembled high-drain 12S4P-class traction pack reference",
+        "professionally assembled high-drain traction pack sized after mission/topology freeze",
         "pack-builder-selected BMS with balancing and temperature monitoring",
         "matched charger",
         "DC-rated main fuse",
@@ -149,7 +168,7 @@
         "twisted-pair CAN cable",
         "abrasion sleeve and strain relief"
       ],
-      "authority": "Low-voltage bench development can proceed, but installation geometry waits for the physical chassis"
+      "authority": "Low-voltage bench development can proceed, but installation geometry waits for the physical chassis/topology"
     },
     {
       "id": "ENCLOSURES-HARNESS",
@@ -157,13 +176,14 @@
       "freeze_gate": "power_architecture_frozen",
       "contents": [
         "battery enclosure base/lid after pack-builder envelope signoff",
+        "inert dummy pack matching intended mass/CG for mechanical qualification",
         "ESC/ECU tray",
         "bulkhead connectors after exact connector selection",
         "elastomer/isolation hardware where justified",
         "service loops at steering trucks",
         "labeled harnesses and witness-marked structural fasteners"
       ],
-      "authority": "Fabrication dimensions follow received hardware, not catalog guesses"
+      "authority": "Fabrication dimensions follow received hardware; live battery is not used as the first enclosure mechanical test mass."
     },
     {
       "id": "SPARES",

@@ -8,15 +8,25 @@ from pathlib import Path
 import cadquery as cq
 
 from cad.generate_fit_rig import export
-from cad.rolling_chassis_geometry import BRAKE_FIRST, DRIVE_CLEARANCE, ChassisEnvelope
+from cad.rolling_chassis_geometry import (
+    BRAKE_FIRST,
+    DRIVE_CLEARANCE,
+    BRAKE_HANGER_70MM_TOPOLOGY_STUDY,
+    ChassisEnvelope,
+)
 
 
 def deck_reference(g: ChassisEnvelope):
     return (
         cq.Workplane("XY")
-        .box(g.deck_length_mm, g.deck_max_width_mm, g.deck_reference_thickness_mm,
-             centered=(True, True, False))
-        .edges("|Z").fillet(18)
+        .box(
+            g.deck_length_mm,
+            g.deck_max_width_mm,
+            g.deck_reference_thickness_mm,
+            centered=(True, True, False),
+        )
+        .edges("|Z")
+        .fillet(18)
         .translate((0, 0, g.static_ground_clearance_mm))
     )
 
@@ -32,8 +42,8 @@ def rider_keepout(g: ChassisEnvelope):
 
 def ground_reference(g: ChassisEnvelope):
     return cq.Workplane("XY").box(
-        g.deck_length_mm + 300.0,
-        g.truck.total_width_mm + g.wheel.width_mm + 100.0,
+        g.published_overall_length_mm + 300.0,
+        max(g.truck.total_width_mm, g.estimated_outer_wheel_envelope_width_mm) + 100.0,
         1.0,
         centered=(True, True, False),
     )
@@ -51,11 +61,7 @@ def truck_reference(g: ChassisEnvelope, x: float):
 def wheel_reference(g: ChassisEnvelope, x: float, y: float, steer_deg: float):
     # Ground is Z=0 and wheel center is one radius above ground. Wheel axis lies
     # along Y; yaw is a conservative plan-view packaging reference.
-    wheel = (
-        cq.Workplane("XZ")
-        .circle(g.wheel_radius_mm)
-        .extrude(g.wheel.width_mm / 2.0, both=True)
-    )
+    wheel = cq.Workplane("XZ").circle(g.wheel_radius_mm).extrude(g.wheel.width_mm / 2.0, both=True)
     return wheel.rotate((0, 0, 0), (0, 0, 1), steer_deg).translate((x, y, g.wheel_radius_mm))
 
 
@@ -72,14 +78,14 @@ def rotor_reference(g: ChassisEnvelope, x: float, y: float, steer_deg: float):
 def assembly(g: ChassisEnvelope, steer_deg: float = 0.0):
     result = ground_reference(g).union(deck_reference(g)).union(rider_keepout(g))
     axle_x = g.wheelbase_mm / 2.0
-    wheel_y = g.truck.total_width_mm / 2.0
+    wheel_y = g.wheel_center_lateral_mm
     for x in (-axle_x, axle_x):
         result = result.union(truck_reference(g, x))
         axle_sign = -1 if x < 0 else 1
         for y in (-wheel_y, wheel_y):
             wheel_steer = axle_sign * steer_deg
             result = result.union(wheel_reference(g, x, y, wheel_steer))
-            if g.truck.brake_reference_compatible:
+            if g.truck.brake_reference_compatible is True:
                 result = result.union(rotor_reference(g, x, y, wheel_steer))
     return result
 
@@ -99,6 +105,7 @@ def main() -> None:
     for name, geometry in (
         ("brake_first_400mm", BRAKE_FIRST),
         ("drive_clearance_420mm", DRIVE_CLEARANCE),
+        ("brake_hanger_70mm_topology_study", BRAKE_HANGER_70MM_TOPOLOGY_STUDY),
     ):
         errors = geometry.validate()
         if errors:
@@ -108,7 +115,10 @@ def main() -> None:
         (out / f"x1_chassis_{name}_authority.json").write_text(
             json.dumps(geometry.authority_report(), indent=2) + "\n", encoding="utf-8"
         )
-    print(f"Generated unpowered rolling-chassis references in {out} [NOT FABRICATION READY]")
+    print(
+        f"Generated donor-grounded unpowered rolling-chassis references in {out} "
+        "[NOT FABRICATION READY]"
+    )
 
 
 if __name__ == "__main__":
