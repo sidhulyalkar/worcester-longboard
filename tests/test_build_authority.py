@@ -67,6 +67,21 @@ def test_public_repo_defaults_are_conservative():
     assert report["capabilities"]["powered_operation"]["allowed"] is False
 
 
+def test_measurement_procurement_is_item_level_not_all_or_nothing():
+    report = evaluate(_plan(), _procurement(), [])
+    items = report["procurement_items"]
+
+    assert report["procurement_stage_authorized"]["MEASURE_FIRST"] is True
+    assert items["DONOR-COMP95"]["orderable"] is True
+    assert items["BRAKE-V5"]["orderable"] is True
+
+    assert items["TIRE-T2-9"]["orderable"] is False
+    assert "required_for issue authority" in items["TIRE-T2-9"]["blockers"][0]
+    assert items["TUBE-9"]["orderable"] is False
+    assert items["AXLE-M3-70"]["orderable"] is False
+    assert any("deferred until" in blocker for blocker in items["AXLE-M3-70"]["blockers"])
+
+
 def test_downstream_evidence_cannot_skip_upstream_gate():
     evidence = [_stamp({
         "authority": "x1_rolling_chassis_physical",
