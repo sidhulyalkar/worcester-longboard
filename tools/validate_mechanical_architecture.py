@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 from cad.rolling_chassis_geometry import (
@@ -66,6 +65,7 @@ def validate(
         errors.append("duplicate mechanical risk ids")
     if len(risk_ids) < 15:
         errors.append("mechanical risk register is unexpectedly incomplete")
+    risk_map = {x.get("id"): x for x in risk_items if isinstance(x, dict) and x.get("id")}
     for risk in risk_items:
         if not isinstance(risk, dict):
             errors.append("mechanical risk entry must be an object")
@@ -85,8 +85,15 @@ def validate(
         if not risk.get("must_close_before"):
             errors.append(f"risk {risk.get('id')} lacks release gate")
 
-    # The donor-grounded brake-first geometry must reflect current published
-    # Comp 95 / T1 references while remaining physically unverified.
+    for risk_id in ("M13", "M18"):
+        risk = risk_map.get(risk_id, {})
+        if risk.get("must_close_before") != "dummy_pack_mount_qualified":
+            errors.append(f"{risk_id} must close at dummy_pack_mount_qualified")
+    if risks.get("rules", {}).get("final_power_freeze_requires_dummy_pack_mount_authority") is not True:
+        errors.append("risk rules must require dummy-pack authority before final power freeze")
+
+    # Donor-grounded reference must reflect the selected Comp 95 family while
+    # remaining explicitly catalog-derived until the received board is measured.
     if BRAKE_FIRST.wheel.diameter_mm != 194.0:
         errors.append("brake-first wheel must use published 194 mm T1 diameter reference")
     if BRAKE_FIRST.wheel.width_mm != 51.0:
@@ -117,14 +124,46 @@ def validate(
         if not {"brake_interface_qualified", "rolling_chassis_physical_qualified"}.issubset(required):
             errors.append("brake-drive topology gate lacks physical brake/chassis prerequisites")
 
+    packaging = gates.get("power_packaging_candidate_defined")
+    if not isinstance(packaging, dict):
+        errors.append("build authority lacks power_packaging_candidate_defined gate")
+    else:
+        required = set(packaging.get("requires", []))
+        if not {"brake_drive_topology_qualified", "rev_b_template_qualified"}.issubset(required):
+            errors.append("power packaging candidate lacks topology/Rev-B prerequisites")
+
+    dummy = gates.get("dummy_pack_mount_qualified")
+    if not isinstance(dummy, dict):
+        errors.append("build authority lacks dummy_pack_mount_qualified gate")
+    else:
+        if dummy.get("issue") != 21:
+            errors.append("dummy-pack mount gate must point to Issue #21")
+        required = set(dummy.get("requires", []))
+        if not {"power_packaging_candidate_defined", "rolling_chassis_physical_qualified"}.issubset(required):
+            errors.append("dummy-pack mount gate lacks candidate/chassis prerequisites")
+
     power = gates.get("power_architecture_frozen", {})
-    if "brake_drive_topology_qualified" not in power.get("requires", []):
+    required_power = set(power.get("requires", []))
+    if "brake_drive_topology_qualified" not in required_power:
         errors.append("power architecture can freeze without brake-drive topology authority")
+    if "dummy_pack_mount_qualified" not in required_power:
+        errors.append("power architecture can freeze without inert dummy-pack mount authority")
+    if "rev_b_template_qualified" not in required_power:
+        errors.append("power architecture can freeze without Rev-B template authority")
 
     subsystems = {x.get("id"): x for x in planned_bom.get("subsystems", []) if isinstance(x, dict)}
     topology_subsystem = subsystems.get("BRAKE-DRIVE-TOPOLOGY")
     if not topology_subsystem or topology_subsystem.get("freeze_gate") != "brake_drive_topology_qualified":
         errors.append("planned BOM must preserve explicit BRAKE-DRIVE-TOPOLOGY subsystem")
+    packaging_subsystem = subsystems.get("POWER-PACKAGING-CANDIDATE")
+    if not packaging_subsystem or packaging_subsystem.get("freeze_gate") != "power_packaging_candidate_defined":
+        errors.append("planned BOM must preserve explicit POWER-PACKAGING-CANDIDATE subsystem")
+    dummy_subsystem = subsystems.get("DUMMY-PACK-MOUNT")
+    if not dummy_subsystem or dummy_subsystem.get("freeze_gate") != "dummy_pack_mount_qualified":
+        errors.append("planned BOM must preserve explicit DUMMY-PACK-MOUNT subsystem")
+    if planned_bom.get("rules", {}).get("final_power_freeze_requires_inert_dummy_pack_mount") is not True:
+        errors.append("planned BOM must require inert dummy-pack mount before final power freeze")
+
     for sid in ("DRIVE", "MOTOR-CONTROL", "TRACTION-BATTERY"):
         item = subsystems.get(sid)
         if not item or item.get("status") != "POWER_GATED_TBD":
@@ -141,7 +180,12 @@ def main() -> None:
     build = json.loads((ROOT / "hardware/build_authority.json").read_text())
     planned_bom = json.loads((ROOT / "hardware/planned_system_bom.json").read_text())
     errors = validate(benchmarks, risks, build, planned_bom)
-    report = {"valid": not errors, "errors": errors, "risk_count": len(risks.get("risks", [])), "benchmark_count": len(benchmarks.get("references", []))}
+    report = {
+        "valid": not errors,
+        "errors": errors,
+        "risk_count": len(risks.get("risks", [])),
+        "benchmark_count": len(benchmarks.get("references", [])),
+    }
     print(json.dumps(report, indent=2))
     if errors:
         raise SystemExit(1)
