@@ -74,15 +74,21 @@ def qualify(data: dict, candidate: dict, chassis: dict) -> dict:
             errors.append(f"missing dummy-pack hardware id: {key}")
 
     snapshot = data.get("candidate_snapshot", {})
-    for key in (
+    snapshot_keys = (
         "pack_mass_target_kg",
         "pack_mass_tolerance_kg",
         "enclosure_envelope_mm",
         "target_cg_local_mm",
         "cg_tolerance_mm",
+        "mounting_region",
+        "service_removal_direction",
+        "positive_retention_concept",
+        "load_spreading_concept",
+        "skid_guard_concept",
         "static_load_requirements",
         "minimum_vulnerable_component_ground_keepout_mm",
-    ):
+    )
+    for key in snapshot_keys:
         if snapshot.get(key) != candidate.get(key):
             errors.append(f"candidate snapshot drift: {key}")
 
@@ -173,8 +179,11 @@ def qualify(data: dict, candidate: dict, chassis: dict) -> dict:
     checks = data.get("checks", {})
     required_checks = (
         "dummy_contains_no_live_cells_or_high_energy_source",
+        "positive_retention_matches_candidate",
         "positive_retention_independent_of_adhesive",
         "load_spreading_matches_candidate",
+        "skid_guard_matches_candidate",
+        "service_direction_matches_candidate",
         "full_steer_clearance_passed",
         "full_lean_clearance_passed",
         "deck_flex_clearance_passed",
@@ -199,6 +208,13 @@ def qualify(data: dict, candidate: dict, chassis: dict) -> dict:
         "errors": errors,
         "powered_operation_authorized": False,
         "hardware_ids": ids,
+        "candidate_mechanical_concepts": {
+            "mounting_region": candidate.get("mounting_region"),
+            "service_removal_direction": candidate.get("service_removal_direction"),
+            "positive_retention_concept": candidate.get("positive_retention_concept"),
+            "load_spreading_concept": candidate.get("load_spreading_concept"),
+            "skid_guard_concept": candidate.get("skid_guard_concept"),
+        },
         "derived_static_loads": derived,
         "measured_dummy_mass_kg": dummy_mass,
         "measured_dummy_cg_local_mm": measured_cg,
