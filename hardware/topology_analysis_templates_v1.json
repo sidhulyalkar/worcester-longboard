@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "project": "Worcester X1",
+  "purpose": "Non-authoritative templates for pre-physical topology rejection/sensitivity analyses. Replace example values with measured or explicitly assumed values before use.",
+  "front_drive_traction_template": {
+    "schema_version": 1,
+    "scope": "front_drive_traction_sensitivity",
+    "total_mass_kg": null,
+    "wheelbase_m": null,
+    "cg_from_rear_m": null,
+    "cg_height_m": null,
+    "rolling_resistance_coeff": null,
+    "scenarios": [
+      {
+        "name": "example_grade_acceleration_case",
+        "grade": null,
+        "acceleration_mps2": null,
+        "compare_mu": []
+      }
+    ]
+  },
+  "axial_stack_template": {
+    "schema_version": 1,
+    "scope": "brake_drive_axial_stack_analysis",
+    "datum": "DEFINE ONE PHYSICAL DATUM AND USE IT FOR EVERY INTERVAL",
+    "components": [
+      {"id": "pad_window", "start_mm": null, "end_mm": null},
+      {"id": "rotor", "start_mm": null, "end_mm": null},
+      {"id": "brake_arm_sweep", "start_mm": null, "end_mm": null},
+      {"id": "wheel_hub_keepout", "start_mm": null, "end_mm": null},
+      {"id": "drive_coupler", "start_mm": null, "end_mm": null},
+      {"id": "drive_guard", "start_mm": null, "end_mm": null}
+    ],
+    "containment_rules": [
+      {"child": "rotor", "container": "pad_window", "minimum_edge_margin_mm": null}
+    ],
+    "separation_rules": [
+      {"a": "brake_arm_sweep", "b": "drive_coupler", "minimum_gap_mm": null},
+      {"a": "brake_arm_sweep", "b": "drive_guard", "minimum_gap_mm": null}
+    ]
+  },
+  "repeated_stop_template": {
+    "schema_version": 1,
+    "scope": "unpowered_repeated_stop_thermal_series",
+    "plan_frozen_before_data": false,
+    "powered_test": false,
+    "test_plan": {
+      "target_start_speed_mps": null,
+      "start_speed_tolerance_mps": null,
+      "baseline_stop_count": 2,
+      "minimum_stop_count": null,
+      "max_deceleration_loss_fraction": null,
+      "max_rotor_peak_temp_c": null
+    },
+    "stops": [
+      {
+        "start_speed_mps": null,
+        "stop_distance_m": null,
+        "ambient_temp_c": null,
+        "rotor_temp_start_c": null,
+        "rotor_temp_peak_c": null
+      }
+    ]
+  },
+  "rules": [
+    "These analyses can reject a candidate but cannot qualify a topology or authorize power.",
+    "Record whether every numeric input is measured, manufacturer-published, or an explicit sensitivity assumption.",
+    "Do not convert an example value in this template into authority evidence.",
+    "Freeze repeated-stop thresholds before collecting the stop series.",
+    "Use one shared physical datum for all axial intervals."
+  ]
+}
