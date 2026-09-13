@@ -2,10 +2,10 @@
 """Qualify Worcester X1 brake/drive topology without authorizing traction power."""
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import re
-import sys
 from pathlib import Path
 
 TOPOLOGIES = {
@@ -53,7 +53,23 @@ def _digest(report: dict) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def qualify(data: dict) -> dict:
+def _valid_authority(data: dict, expected_type: str) -> bool:
+    if data.get("authority") != expected_type or data.get("qualified") is not True:
+        return False
+    if data.get("powered_operation_authorized") is not False:
+        return False
+    actual = data.get("authority_fingerprint_sha256")
+    if not isinstance(actual, str):
+        return False
+    unsigned = dict(data)
+    unsigned.pop("authority_fingerprint_sha256", None)
+    try:
+        return actual == _digest(unsigned)
+    except (TypeError, ValueError):
+        return False
+
+
+def qualify(data: dict, brake_authority: dict | None = None, chassis_authority: dict | None = None) -> dict:
     errors: list[str] = []
     if data.get("scope") != "unpowered_brake_drive_topology_measurement":
         errors.append("wrong topology measurement scope")
@@ -99,6 +115,18 @@ def qualify(data: dict) -> dict:
         if not isinstance(value, str) or not _SHA256.fullmatch(value):
             errors.append(f"invalid sha256 evidence reference: {key}")
 
+    if brake_authority is not None:
+        if not _valid_authority(brake_authority, "x1_mechanical_brake_interface"):
+            errors.append("linked brake authority is invalid")
+        elif evidence.get("brake_authority_fingerprint_sha256") != brake_authority.get("authority_fingerprint_sha256"):
+            errors.append("topology manifest references a different brake authority")
+
+    if chassis_authority is not None:
+        if not _valid_authority(chassis_authority, "x1_rolling_chassis_physical"):
+            errors.append("linked rolling-chassis authority is invalid")
+        elif evidence.get("rolling_chassis_authority_fingerprint_sha256") != chassis_authority.get("authority_fingerprint_sha256"):
+            errors.append("topology manifest references a different rolling-chassis authority")
+
     if data.get("powered_operation_authorized") is True:
         errors.append("topology qualification cannot authorize powered operation")
 
@@ -118,14 +146,21 @@ def qualify(data: dict) -> dict:
 
 
 def main() -> None:
-    if len(sys.argv) < 2:
-        raise SystemExit("usage: qualify_brake_drive_topology.py manifest.json [out.json]")
-    src = Path(sys.argv[1])
-    out = Path(sys.argv[2]) if len(sys.argv) > 2 else None
-    report = qualify(json.loads(src.read_text(encoding="utf-8")))
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("manifest", type=Path)
+    p.add_argument("--brake-authority", type=Path, required=True)
+    p.add_argument("--chassis-authority", type=Path, required=True)
+    p.add_argument("--out", type=Path)
+    args = p.parse_args()
+    report = qualify(
+        json.loads(args.manifest.read_text(encoding="utf-8")),
+        json.loads(args.brake_authority.read_text(encoding="utf-8")),
+        json.loads(args.chassis_authority.read_text(encoding="utf-8")),
+    )
     text = json.dumps(report, indent=2) + "\n"
-    if out:
-        out.write_text(text, encoding="utf-8")
+    if args.out:
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(text, encoding="utf-8")
     print(text, end="")
     if not report["qualified"]:
         raise SystemExit(1)

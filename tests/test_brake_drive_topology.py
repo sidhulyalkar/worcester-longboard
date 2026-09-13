@@ -1,8 +1,37 @@
+import hashlib
+import json
+
 from tools.qualify_brake_drive_topology import qualify, TOPOLOGIES
 
 
 def _sha(char="a"):
     return char * 64
+
+
+def _stamp(doc):
+    payload = json.dumps(doc, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
+    out = dict(doc)
+    out["authority_fingerprint_sha256"] = hashlib.sha256(payload).hexdigest()
+    return out
+
+
+def _brake():
+    return _stamp({
+        "schema_version": 1,
+        "authority": "x1_mechanical_brake_interface",
+        "qualified": True,
+        "brake_interface_verified": True,
+        "powered_operation_authorized": False,
+    })
+
+
+def _chassis():
+    return _stamp({
+        "schema_version": 1,
+        "authority": "x1_rolling_chassis_physical",
+        "qualified": True,
+        "powered_operation_authorized": False,
+    })
 
 
 def _valid_manifest(selected="same_rear_axle_v5_plus_drive"):
@@ -89,3 +118,19 @@ def test_sha_evidence_refs_are_required():
     report = qualify(manifest)
     assert report["qualified"] is False
     assert any("collision_sweep_sha256" in error for error in report["errors"])
+
+
+def test_real_linked_authorities_must_match_manifest_refs():
+    brake = _brake()
+    chassis = _chassis()
+    manifest = _valid_manifest()
+    manifest["evidence_refs"]["brake_authority_fingerprint_sha256"] = brake["authority_fingerprint_sha256"]
+    manifest["evidence_refs"]["rolling_chassis_authority_fingerprint_sha256"] = chassis["authority_fingerprint_sha256"]
+    report = qualify(manifest, brake, chassis)
+    assert report["qualified"] is True
+
+    bad = dict(brake)
+    bad["qualified"] = False
+    report = qualify(manifest, bad, chassis)
+    assert report["qualified"] is False
+    assert any("linked brake authority" in error for error in report["errors"])

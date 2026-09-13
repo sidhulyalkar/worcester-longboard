@@ -63,10 +63,32 @@
         {"path": "authority_fingerprint_sha256", "type": "valid_authority_fingerprint"}
       ]
     },
+    "power_packaging_candidate_defined": {
+      "issue": null,
+      "requires": ["brake_drive_topology_qualified", "rev_b_template_qualified"],
+      "evidence": [
+        {"path": "authority", "equals": "x1_power_packaging_candidate"},
+        {"path": "schema_version", "equals": 1},
+        {"path": "qualified", "equals": true},
+        {"path": "powered_operation_authorized", "equals": false},
+        {"path": "authority_fingerprint_sha256", "type": "valid_authority_fingerprint"}
+      ]
+    },
+    "dummy_pack_mount_qualified": {
+      "issue": 21,
+      "requires": ["power_packaging_candidate_defined", "rolling_chassis_physical_qualified"],
+      "evidence": [
+        {"path": "authority", "equals": "x1_dummy_pack_mount"},
+        {"path": "schema_version", "equals": 1},
+        {"path": "qualified", "equals": true},
+        {"path": "powered_operation_authorized", "equals": false},
+        {"path": "authority_fingerprint_sha256", "type": "valid_authority_fingerprint"}
+      ]
+    },
     "power_architecture_frozen": {
       "issue": null,
       "requires": [
-        "rolling_chassis_physical_qualified",
+        "dummy_pack_mount_qualified",
         "brake_drive_topology_qualified",
         "rev_b_template_qualified"
       ],
@@ -97,6 +119,15 @@
     },
     "qualify_brake_drive_topology": {
       "requires": ["brake_interface_qualified", "rolling_chassis_physical_qualified"]
+    },
+    "define_power_packaging_candidate": {
+      "requires": ["brake_drive_topology_qualified", "rev_b_template_qualified"]
+    },
+    "build_inert_dummy_pack_fixture": {
+      "requires": ["power_packaging_candidate_defined"]
+    },
+    "qualify_dummy_pack_mount": {
+      "requires": ["power_packaging_candidate_defined", "rolling_chassis_physical_qualified"]
     },
     "order_power_hardware": {
       "requires": ["power_architecture_frozen"],
