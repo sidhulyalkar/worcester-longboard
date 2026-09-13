@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "project": "Worcester X1",
+  "scope": "unpowered_chassis_critical_joint_retention",
+  "rules": {
+    "no_invented_torque_values": true,
+    "manufacturer_torque_must_include_source": true,
+    "every_joint_requires_positive_retention_description": true,
+    "every_joint_requires_witness_mark_or_equivalent_inspection": true,
+    "any_detected_movement_fails_qualification": true,
+    "damaged_single_use_or_prevailing_locking_hardware_must_be_replaced": true
+  },
+  "required_joint_groups": [
+    {
+      "id": "wheel_fl",
+      "function": "front-left wheel axial retention",
+      "risk_ids": ["M01", "M17"]
+    },
+    {
+      "id": "wheel_fr",
+      "function": "front-right wheel axial retention",
+      "risk_ids": ["M01", "M17"]
+    },
+    {
+      "id": "wheel_rl",
+      "function": "rear-left wheel axial retention",
+      "risk_ids": ["M01", "M17"]
+    },
+    {
+      "id": "wheel_rr",
+      "function": "rear-right wheel axial retention",
+      "risk_ids": ["M01", "M17"]
+    },
+    {
+      "id": "front_truck_mount",
+      "function": "front truck-to-deck structural retention",
+      "risk_ids": ["M05", "M17"]
+    },
+    {
+      "id": "rear_truck_mount",
+      "function": "rear truck-to-deck structural retention",
+      "risk_ids": ["M05", "M17"]
+    },
+    {
+      "id": "front_steering_adjustment",
+      "function": "front Matrix III steering adjustment retention",
+      "risk_ids": ["M04", "M17"]
+    },
+    {
+      "id": "rear_steering_adjustment",
+      "function": "rear Matrix III steering adjustment retention",
+      "risk_ids": ["M04", "M17"]
+    },
+    {
+      "id": "brake_left_interface",
+      "function": "left friction-brake structural/actuation retention",
+      "risk_ids": ["M06", "M17"]
+    },
+    {
+      "id": "brake_right_interface",
+      "function": "right friction-brake structural/actuation retention",
+      "risk_ids": ["M06", "M17"]
+    },
+    {
+      "id": "brake_cable_anchor",
+      "function": "friction-brake cable/housing termination and strain retention",
+      "risk_ids": ["M06", "M14", "M17"]
+    }
+  ],
+  "joint_record_fields": [
+    "id",
+    "hardware_description",
+    "fastener_material_or_grade_if_known",
+    "manufacturer_torque_nm",
+    "torque_source",
+    "assembly_state",
+    "locking_method",
+    "witness_method",
+    "pre_test_inspection_passed",
+    "post_test_inspection_passed",
+    "movement_detected",
+    "notes"
+  ]
+}
