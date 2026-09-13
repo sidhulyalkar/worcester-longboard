@@ -50,6 +50,11 @@ def build_manifest(candidate: dict, chassis: dict, enclosure_id: str, mount_id: 
             "enclosure_envelope_mm": candidate["enclosure_envelope_mm"],
             "target_cg_local_mm": candidate["target_cg_local_mm"],
             "cg_tolerance_mm": candidate["cg_tolerance_mm"],
+            "mounting_region": candidate["mounting_region"],
+            "service_removal_direction": candidate["service_removal_direction"],
+            "positive_retention_concept": candidate["positive_retention_concept"],
+            "load_spreading_concept": candidate["load_spreading_concept"],
+            "skid_guard_concept": candidate["skid_guard_concept"],
             "static_load_requirements": candidate["static_load_requirements"],
             "minimum_vulnerable_component_ground_keepout_mm": candidate[
                 "minimum_vulnerable_component_ground_keepout_mm"
@@ -68,8 +73,11 @@ def build_manifest(candidate: dict, chassis: dict, enclosure_id: str, mount_id: 
         },
         "checks": {
             "dummy_contains_no_live_cells_or_high_energy_source": False,
+            "positive_retention_matches_candidate": False,
             "positive_retention_independent_of_adhesive": False,
             "load_spreading_matches_candidate": False,
+            "skid_guard_matches_candidate": False,
+            "service_direction_matches_candidate": False,
             "full_steer_clearance_passed": False,
             "full_lean_clearance_passed": False,
             "deck_flex_clearance_passed": False,
@@ -113,6 +121,7 @@ def main() -> None:
         "# Private X1 inert dummy-pack session\n\n"
         "Use inert ballast only. Do not install cells, BMS, charger, ESC, motors, or a traction connector for this test.\n"
         "Match candidate mass and local CG before structural testing.\n"
+        "Build the retention, load-spreading, skid/guard and service direction exactly from the signed candidate authority.\n"
         "Record four independent wheel loads on the same level surface, with the board settled identically between runs.\n"
         "Any witness movement, cracking, crushing, pull-through, fretting, or unrelated safety-system disassembly is a fail.\n",
         encoding="utf-8",
