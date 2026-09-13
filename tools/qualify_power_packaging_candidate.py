@@ -89,6 +89,15 @@ def qualify(data: dict) -> dict:
     if not _positive(keepout):
         errors.append("minimum vulnerable-component ground keepout must be positive")
 
+    load_req = data.get("static_load_requirements", {})
+    for axis in ("front_fraction", "left_fraction"):
+        low = load_req.get(f"{axis}_min")
+        high = load_req.get(f"{axis}_max")
+        if not _finite(low) or not _finite(high):
+            errors.append(f"missing static load requirement: {axis}")
+        elif not 0.0 < float(low) < float(high) < 1.0:
+            errors.append(f"invalid static load range: {axis}")
+
     report = {
         "schema_version": 1,
         "authority": "x1_power_packaging_candidate",
@@ -104,6 +113,7 @@ def qualify(data: dict) -> dict:
         "mounting_region": data.get("mounting_region"),
         "service_removal_direction": data.get("service_removal_direction"),
         "minimum_vulnerable_component_ground_keepout_mm": keepout,
+        "static_load_requirements": load_req,
         "brake_drive_topology_authority_fingerprint_sha256": topology_fp,
         "rev_b_template_authority_fingerprint_sha256": rev_b_fp,
     }
