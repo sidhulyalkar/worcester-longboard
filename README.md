@@ -2,7 +2,7 @@
 
 Experimental off-road electric mountainboard platform focused on controllability, rider-specific fit, redundant stopping authority, instrumentation, and evidence-driven commissioning.
 
-> **Status:** Alpha engineering development platform. No powered riding is authorized. The current physical program is deliberately low-energy: qualify one fit-rig force zone, measure/qualify an unpowered donor chassis and friction brake, resolve the brake/drive mechanical topology, then freeze personalized rider-interface and future power geometry. Traction power remains gated.
+> **Status:** Alpha engineering development platform. No powered riding is authorized. The current physical program is deliberately low-energy: qualify one fit-rig force zone, measure/qualify an unpowered donor chassis and friction brake, resolve the brake/drive mechanical topology, freeze the rider interface, qualify an inert battery-mass load path, and only then freeze the final power architecture.
 
 ## Current source of truth
 
@@ -10,11 +10,12 @@ X1 has moved beyond the original TRAMPA/14S Alpha sketch. Current build and purc
 
 1. machine-readable qualification reports produced from real physical evidence;
 2. `hardware/build_authority.json` and `hardware/procurement_manifest.json`;
-3. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
-4. dated benchmark/risk registries;
-5. older Alpha notes retained only as historical design exploration.
+3. the current execution plan in `docs/physical_commissioning_playbook.md`;
+4. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
+5. dated benchmark/risk registries;
+6. older Alpha notes retained only as historical design exploration.
 
-If an older document conflicts with a current manifest or qualified authority, the older document does **not** authorize a purchase, fabrication step, or ride test.
+If an older document conflicts with a current manifest, build gate, or qualified authority, the older document does **not** authorize a purchase, fabrication step, or ride test.
 
 ## Ordering and sourcing
 
@@ -34,14 +35,15 @@ Storefront stock and prices can change faster than the repository. Refresh live 
 
 ## Mechanical design review
 
-The complete benchmark/critique/build sequence is `docs/mechanical_architecture_review.md`.
+The broad benchmark/critique is `docs/mechanical_architecture_review.md`. The **current runnable build sequence** is `docs/physical_commissioning_playbook.md`.
 
-Two machine-readable companions keep that review from becoming stale prose:
+Machine-readable companions keep the review from becoming stale prose:
 
 - `hardware/mechanical_reference_benchmarks_2026-09-11.json` records comparable production/DIY mechanisms and the exact lessons X1 takes from them;
-- `hardware/mechanical_risk_register.json` tracks wheel retention, truck/axle structure, steering, brakes, brake fade, brake/drive packaging, drive mounts, guards, enclosure retention, cable routing, rider interface, serviceability and fastener migration.
+- `hardware/mechanical_risk_register.json` tracks wheel retention, truck/axle structure, steering, brakes, brake fade, brake/drive packaging, drive mounts, guards, enclosure retention, cable routing, rider interface, serviceability and fastener migration;
+- `hardware/critical_joint_register_v1.json` defines the minimum critical-joint retention evidence for the unpowered chassis.
 
-`tools/validate_mechanical_architecture.py` fails CI if the donor geometry, benchmark set, FMEA structure, power gating, or brake/drive topology boundary silently regresses.
+`tools/validate_mechanical_architecture.py` fails CI if the donor geometry, benchmark set, FMEA structure, staged packaging gates, power gating, or brake/drive topology boundary silently regresses.
 
 ## Current development architecture
 
@@ -61,7 +63,7 @@ The fit layer intentionally supports independent left/right foot dimensions, yaw
 
 The preferred cost-efficient reference is currently a complete **MBS Comp 95 donor chassis**, because it provides a coherent Matrix III / Rockstar II / pneumatic-wheel platform more cheaply than reconstructing the same mechanical interfaces piecemeal.
 
-The donor-grounded published reference is now explicit:
+The donor-grounded published reference is explicit:
 
 - **950 mm deck**, **251 mm max width**, **940 mm axle-to-axle**;
 - stock **T1 200x50** tires, with current MBS product reference about **194 mm diameter x 51 mm width**;
@@ -70,13 +72,15 @@ The donor-grounded published reference is now explicit:
 - **Matrix III 420 mm / 70 mm axle** drive-only reference;
 - **300 mm hanger + 70 mm axle / ~440 mm** topology-study reference where drive compatibility is plausible but V5 brake alignment stays explicitly unknown.
 
-The CAD now preserves those as separate branches. It no longer recombines brake and drive compatibility into an imaginary universal truck.
+The CAD preserves those as separate branches. It does not recombine brake and drive compatibility into an imaginary universal truck.
+
+`tools/init_chassis_session.py` and `tools/qualify_rolling_chassis.py` now make Issue #12 physically executable. The qualifier requires a valid linked V5 authority, real measured donor geometry, stock-baseline tests, serviceability checks, and zero detected movement across every critical retention joint.
 
 No rider-specific permanent drilling is authorized from shoe-size labels, approximate web dimensions, or Wi-Fi pose.
 
 ### Brake/drive topology path
 
-Issue **#19** is a new hard gate between the qualified unpowered chassis and the future power freeze.
+Issue **#19** is a hard gate between the qualified unpowered chassis and future power packaging.
 
 Candidates include:
 
@@ -85,13 +89,32 @@ Candidates include:
 - rear 2WD + a **proven** front friction-brake architecture, without improvised safety-critical adapters;
 - an alternate rear drive whose packaging preserves the brake-first layout and whose debris/tension/retention risks are acceptable.
 
-`tools/qualify_brake_drive_topology.py` requires exactly one passing topology and explicit rejection of the others. A topology report still cannot authorize power.
+`tools/init_brake_drive_topology_session.py` seeds the evidence package from the real Issue #14 and Issue #12 authorities. `tools/qualify_brake_drive_topology.py` requires exactly one passing topology, explicit rejection of the others, and verifies the linked authority fingerprints. A topology report still cannot authorize power.
 
-### Power path
+### Power packaging and inert-load path
 
-Power hardware is **provisional and `POWER_GATED`**. The current procurement manifest tracks candidates such as a 12S4P professionally built pack, VESC-class controller, 6374-class motors, and MBS G1 drive only to preserve cost/compatibility comparisons. None of these are frozen or order-authorized yet.
+The power path is deliberately split into two mechanical stages before final freeze:
 
-The G1 is a reference candidate, not the selected drive. Final drive type, ratio, wheel size, voltage, motor KV/shaft, controller, battery, enclosure and friction-brake topology freeze together only after Issue #19 and the upstream physical gates pass.
+```text
+qualified topology + qualified Rev-B
+        -> x1_power_packaging_candidate
+        -> Issue #21 inert dummy-pack mount
+        -> x1_power_architecture final freeze
+```
+
+The packaging candidate defines only the mechanical target needed to build a faithful inert surrogate: mass/tolerance, enclosure envelope, local CG/tolerance, mounting region, load-spreading/retention concepts, service direction, ground keep-out and acceptable static load-distribution windows.
+
+`tools/qualify_power_packaging_candidate.py` validates that definition. It is **not** a battery purchase authority.
+
+Issue **#21** then tests an inert dummy mass through `tools/init_dummy_pack_session.py` and `tools/qualify_dummy_pack_mount.py`. The qualifier reconciles four-corner wheel loads with independent mass measurements, checks dummy mass/CG tolerance, static load distribution, ground clearance, retention, tilt/inversion, steer/lean/deck-flex clearance, rough-surface behavior, serviceability and post-test structural condition.
+
+The live traction pack is never the first enclosure mechanical test mass.
+
+### Final power path
+
+Power hardware remains **provisional and `POWER_GATED`**. The current procurement manifest carries comparison candidates only to preserve cost/compatibility analysis. None are frozen or order-authorized yet.
+
+The G1 is a reference candidate, not the selected drive. Final drive type, ratio, axle state, wheel size, voltage, motor KV/shaft, controller, professionally built battery, BMS/charger, enclosure and harness freeze together only after Issue #19, Rev-B and Issue #21 pass.
 
 Regenerative braking remains supplemental.
 
@@ -105,19 +128,19 @@ python tools/evaluate_build_authority.py \
   hardware/procurement_manifest.json
 ```
 
-With no private physical-evidence reports, the public repository must remain conservative: inexpensive pilot parts and measurement-stage chassis parts can be considered, but four-zone duplication, chassis fabrication authority, brake/drive topology qualification, power ordering, and powered operation stay blocked.
+With no private physical-evidence reports, the public repository must remain conservative: inexpensive pilot parts and measurement-stage chassis parts can be considered, but four-zone duplication, chassis fabrication authority, brake/drive topology qualification, power-packaging definition, dummy-pack qualification, power ordering, and powered operation stay blocked.
 
 Local/private authority reports can be supplied with repeated `--evidence` arguments. CI tests the gate machinery with synthetic fixtures, but synthetic CI data never becomes physical authority.
 
 ## Repository map
 
-- `hardware/` procurement, mechanical benchmarks/FMEA, fit-rig interfaces, and build-state authority
+- `hardware/` procurement, mechanical benchmarks/FMEA, critical-joint retention, fit-rig interfaces, and build-state authority
 - `cad/` parametric fit-rig and donor-grounded rolling-chassis reference geometry
 - `fit/` calibration, provenance, stance scoring, and Rev-B data gates
 - `tools/` capture, qualification, procurement, mechanical and authority evaluators
 - `firmware/` fit-rig logger plus provisional vehicle-control research
 - `simulation/` first-order sizing models
-- `docs/` current rationale, mechanical review, measurement contracts, ordering, and commissioning boundaries
+- `docs/` ordering, mechanical review, physical commissioning, measurement contracts and safety boundaries
 - `rider/` public schemas only; private measurements belong under `rider/private/`
 - `bom/` historical Alpha BOM notes plus procurement snapshots
 
@@ -129,6 +152,7 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 - **#12** qualify the donor-grounded unpowered rolling chassis
 - **#19** resolve and qualify final brake/drive mechanical topology
 - **#3** generate measurement-qualified Rev-B rider-interface CAD after fit evidence
+- **#21** qualify inert dummy-pack enclosure/mount and mass distribution before final power freeze
 
 These tracks can advance in parallel only where their evidence dependencies allow.
 
