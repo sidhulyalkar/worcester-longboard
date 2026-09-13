@@ -91,6 +91,14 @@ Candidates include:
 
 `tools/init_brake_drive_topology_session.py` seeds the evidence package from the real Issue #14 and Issue #12 authorities. `tools/qualify_brake_drive_topology.py` requires exactly one passing topology, explicit rejection of the others, and verifies the linked authority fingerprints. A topology report still cannot authorize power.
 
+`docs/topology_decision_tools.md` documents three non-authoritative rejection/sensitivity tools that can reduce wasted physical work before Issue #19:
+
+- `tools/analyze_brake_drive_axial_stack.py` detects measured rotor/pad/brake-arm/drive interval conflicts from one shared axial datum;
+- `simulation/front_drive_traction.py` reports front/rear load transfer and the tire/terrain friction coefficient required by front, rear and AWD layouts across grade/acceleration scenarios;
+- `tools/analyze_brake_repeat_stops.py` analyzes a predeclared low-energy repeated-stop series for equivalent-deceleration loss and rotor-temperature growth.
+
+These analyses may reject a bad idea cheaply. They are explicitly marked `physical_authority=false` and cannot promote a topology.
+
 ### Power packaging and inert-load path
 
 The power path is deliberately split into two mechanical stages before final freeze:
@@ -134,13 +142,13 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 
 ## Repository map
 
-- `hardware/` procurement, mechanical benchmarks/FMEA, critical-joint retention, fit-rig interfaces, and build-state authority
+- `hardware/` procurement, mechanical benchmarks/FMEA, critical-joint retention, fit-rig interfaces, analysis templates, and build-state authority
 - `cad/` parametric fit-rig and donor-grounded rolling-chassis reference geometry
 - `fit/` calibration, provenance, stance scoring, and Rev-B data gates
-- `tools/` capture, qualification, procurement, mechanical and authority evaluators
+- `tools/` capture, qualification, procurement, topology analysis, mechanical and authority evaluators
 - `firmware/` fit-rig logger plus provisional vehicle-control research
-- `simulation/` first-order sizing models
-- `docs/` ordering, mechanical review, physical commissioning, measurement contracts and safety boundaries
+- `simulation/` first-order sizing and topology sensitivity models
+- `docs/` ordering, mechanical review, topology decision support, physical commissioning, measurement contracts and safety boundaries
 - `rider/` public schemas only; private measurements belong under `rider/private/`
 - `bom/` historical Alpha BOM notes plus procurement snapshots
 
