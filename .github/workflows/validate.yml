@@ -18,6 +18,8 @@ jobs:
           python-version: '3.12'
       - run: python simulation/x1_dynamics.py
       - run: python -m pip install pytest trimesh numpy platformio cadquery
+      - name: Compile Python sources
+        run: python -m compileall -q tools cad fit simulation
       - run: python -m pytest -q tests
       - name: Validate staged procurement authority
         run: python tools/validate_procurement_manifest.py hardware/procurement_manifest.json
@@ -40,10 +42,16 @@ jobs:
           assert report['capabilities']['duplicate_four_fit_zones']['allowed'] is False
           assert report['capabilities']['fabricate_unpowered_chassis']['allowed'] is False
           assert report['capabilities']['qualify_brake_drive_topology']['allowed'] is False
+          assert report['capabilities']['define_power_packaging_candidate']['allowed'] is False
+          assert report['capabilities']['build_inert_dummy_pack_fixture']['allowed'] is False
+          assert report['capabilities']['qualify_dummy_pack_mount']['allowed'] is False
           assert report['capabilities']['order_power_hardware']['allowed'] is False
           assert report['capabilities']['powered_operation']['allowed'] is False
           assert report['gates']['brake_drive_topology_qualified']['satisfied'] is False
-          print('Public authority is conservative: evidence acquisition open; topology/physical/power gates remain closed.')
+          assert report['gates']['power_packaging_candidate_defined']['satisfied'] is False
+          assert report['gates']['dummy_pack_mount_qualified']['satisfied'] is False
+          assert report['gates']['power_architecture_frozen']['satisfied'] is False
+          print('Public authority is conservative: evidence acquisition open; topology, packaging, dummy-pack and power gates remain closed.')
           PY
       - name: Host-test controller core
         run: |
