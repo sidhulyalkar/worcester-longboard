@@ -11,7 +11,8 @@
     "severity_5_requires_physical_test": true,
     "no_unverified_custom_safety_critical_brake_adapter": true,
     "all_structural_or_retention_items_require_post_test_inspection": true,
-    "power_freeze_requires_brake_drive_topology_authority": true
+    "power_freeze_requires_brake_drive_topology_authority": true,
+    "final_power_freeze_requires_dummy_pack_mount_authority": true
   },
   "risks": [
     {
@@ -191,10 +192,10 @@
       "likelihood": 3,
       "detectability": 4,
       "priority_score": 60,
-      "status": "POWER_GATED",
-      "prevention": ["received pack envelope before enclosure fabrication", "positive retention independent of adhesive", "load-spreading mount", "impact/skid isolation", "service access"],
-      "verification": ["dummy-mass shake/rough-surface fixture before live pack", "fastener/pull-through inspection", "service removal test"],
-      "must_close_before": "power_architecture_frozen"
+      "status": "OPEN_DUMMY_PACK",
+      "prevention": ["candidate pack mass/CG/envelope before enclosure fabrication", "positive retention independent of adhesive", "load-spreading mount", "impact/skid isolation", "service access"],
+      "verification": ["Issue #21 inert dummy-mass tilt/rough-surface fixture", "fastener/pull-through/fretting inspection", "service removal/reinstallation test"],
+      "must_close_before": "dummy_pack_mount_qualified"
     },
     {
       "id": "M14",
@@ -261,10 +262,10 @@
       "likelihood": 3,
       "detectability": 3,
       "priority_score": 36,
-      "status": "POWER_GATED",
-      "prevention": ["weigh complete unpowered chassis", "measure front/rear static wheel loads with dummy power mass", "avoid copying production battery size beyond mission need"],
-      "verification": ["four-corner static load measurement", "dummy-mass low-speed coast/turn test", "compare candidate pack locations before enclosure drilling"],
-      "must_close_before": "power_architecture_frozen"
+      "status": "OPEN_DUMMY_PACK",
+      "prevention": ["weigh complete unpowered chassis", "define candidate front/left load-fraction windows", "measure four-corner wheel loads with inert dummy mass", "avoid copying production battery size beyond mission need"],
+      "verification": ["Issue #21 four-corner static load measurement", "dummy-mass low-speed unpowered coast/turn test", "compare candidate pack locations before final enclosure freeze"],
+      "must_close_before": "dummy_pack_mount_qualified"
     }
   ]
 }
