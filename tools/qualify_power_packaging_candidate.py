@@ -75,6 +75,7 @@ def qualify(data: dict) -> dict:
             if abs(float(cg[axis])) > half[axis]:
                 errors.append(f"target CG {axis} lies outside enclosure envelope")
 
+    concepts = {}
     for field in (
         "mounting_region",
         "service_removal_direction",
@@ -82,7 +83,9 @@ def qualify(data: dict) -> dict:
         "load_spreading_concept",
         "skid_guard_concept",
     ):
-        if not isinstance(data.get(field), str) or not data[field].strip():
+        value = data.get(field)
+        concepts[field] = value
+        if not isinstance(value, str) or not value.strip():
             errors.append(f"missing candidate field: {field}")
 
     keepout = data.get("minimum_vulnerable_component_ground_keepout_mm")
@@ -110,8 +113,11 @@ def qualify(data: dict) -> dict:
         "enclosure_envelope_mm": envelope,
         "target_cg_local_mm": cg,
         "cg_tolerance_mm": cg_tol,
-        "mounting_region": data.get("mounting_region"),
-        "service_removal_direction": data.get("service_removal_direction"),
+        "mounting_region": concepts["mounting_region"],
+        "service_removal_direction": concepts["service_removal_direction"],
+        "positive_retention_concept": concepts["positive_retention_concept"],
+        "load_spreading_concept": concepts["load_spreading_concept"],
+        "skid_guard_concept": concepts["skid_guard_concept"],
         "minimum_vulnerable_component_ground_keepout_mm": keepout,
         "static_load_requirements": load_req,
         "brake_drive_topology_authority_fingerprint_sha256": topology_fp,
