@@ -7,7 +7,8 @@
     "professional_traction_battery_only": true,
     "physical_measurements_override_catalog_dimensions": true,
     "do_not_freeze_tbd_parts_before_named_gate": true,
-    "power_architecture_requires_brake_drive_topology": true
+    "power_architecture_requires_brake_drive_topology": true,
+    "final_power_freeze_requires_inert_dummy_pack_mount": true
   },
   "subsystems": [
     {
@@ -84,7 +85,7 @@
         "drive retention/guard strategy",
         "explicit rejection record for all non-selected candidates"
       ],
-      "authority": "Issue #19 must select exactly one topology through a fingerprinted x1_brake_drive_topology report before power architecture can freeze."
+      "authority": "Issue #19 must select exactly one topology through a fingerprinted x1_brake_drive_topology report before power packaging can be defined."
     },
     {
       "id": "RIDER-INTERFACE",
@@ -98,6 +99,37 @@
         "physical full-scale template before permanent drilling"
       ],
       "authority": "No permanent rider-specific structural drilling before Rev-B template authority"
+    },
+    {
+      "id": "POWER-PACKAGING-CANDIDATE",
+      "status": "PLAN_ONLY",
+      "freeze_gate": "power_packaging_candidate_defined",
+      "contents": [
+        "target inert-pack mass and tolerance",
+        "enclosure length/width/height envelope",
+        "target local center of mass and tolerance",
+        "candidate deck mounting region",
+        "positive-retention and load-spreading concepts",
+        "service-removal direction",
+        "minimum vulnerable-component ground keep-out",
+        "allowed front and left static-load fraction ranges"
+      ],
+      "authority": "Defines only the mechanical dummy-pack target after brake/drive topology and Rev-B geometry are known. It is not a battery purchase specification."
+    },
+    {
+      "id": "DUMMY-PACK-MOUNT",
+      "status": "PLAN_ONLY",
+      "freeze_gate": "dummy_pack_mount_qualified",
+      "contents": [
+        "inert dummy enclosure and ballast matching candidate mass/CG",
+        "candidate mount/load-spreader hardware",
+        "four-corner wheel-load measurement setup",
+        "witness-marked retention hardware",
+        "tilt/inversion retention test",
+        "unpowered rough-surface push/coast test",
+        "service removal/reinstallation dry-run"
+      ],
+      "authority": "Issue #21 must qualify the structural battery/enclosure load path with inert mass before final power architecture can freeze."
     },
     {
       "id": "WHEELS-OPTIONAL-9IN",
@@ -122,7 +154,7 @@
         "replaceable motor/gear/belt/chain guard or skid as appropriate",
         "drive-specific service consumables"
       ],
-      "authority": "G1 is a comparison reference, not the chosen drive. No purchase until Issue #19 selects brake/drive topology and ratio/wheel/voltage freeze together."
+      "authority": "G1 is a comparison reference, not the chosen drive. No purchase until Issue #19, dummy-pack mechanics, ratio, wheel and voltage freeze together."
     },
     {
       "id": "MOTOR-CONTROL",
@@ -135,14 +167,14 @@
         "CAN integration",
         "remote receiver interface"
       ],
-      "authority": "Exact vendor/model intentionally TBD until mechanical topology and voltage architecture freeze"
+      "authority": "Exact vendor/model intentionally TBD until mechanical topology, dummy-pack load path and voltage architecture freeze"
     },
     {
       "id": "TRACTION-BATTERY",
       "status": "POWER_GATED_TBD",
       "freeze_gate": "power_architecture_frozen",
       "contents": [
-        "professionally assembled high-drain traction pack sized after mission/topology freeze",
+        "professionally assembled high-drain traction pack sized after mission/topology/dummy-mount qualification",
         "pack-builder-selected BMS with balancing and temperature monitoring",
         "matched charger",
         "DC-rated main fuse",
@@ -151,7 +183,7 @@
         "high-current connectors and conductors",
         "crash-protected sealed enclosure with service access"
       ],
-      "authority": "Do not DIY the first traction battery as a cost-saving shortcut; exact voltage/cell/current architecture TBD"
+      "authority": "Do not DIY the first traction battery as a cost-saving shortcut; exact voltage/cell/current architecture remains blocked until the inert load path passes."
     },
     {
       "id": "SUPERVISORY-ELECTRONICS",
@@ -168,22 +200,21 @@
         "twisted-pair CAN cable",
         "abrasion sleeve and strain relief"
       ],
-      "authority": "Low-voltage bench development can proceed, but installation geometry waits for the physical chassis/topology"
+      "authority": "Low-voltage bench development can proceed, but installation geometry waits for the physical chassis/topology/dummy-mount evidence"
     },
     {
       "id": "ENCLOSURES-HARNESS",
       "status": "PLAN_ONLY",
       "freeze_gate": "power_architecture_frozen",
       "contents": [
-        "battery enclosure base/lid after pack-builder envelope signoff",
-        "inert dummy pack matching intended mass/CG for mechanical qualification",
+        "final battery enclosure base/lid derived from the qualified dummy envelope",
         "ESC/ECU tray",
         "bulkhead connectors after exact connector selection",
         "elastomer/isolation hardware where justified",
         "service loops at steering trucks",
         "labeled harnesses and witness-marked structural fasteners"
       ],
-      "authority": "Fabrication dimensions follow received hardware; live battery is not used as the first enclosure mechanical test mass."
+      "authority": "Final fabrication inherits the qualified inert load path; live battery is never the first enclosure mechanical test mass."
     },
     {
       "id": "SPARES",
