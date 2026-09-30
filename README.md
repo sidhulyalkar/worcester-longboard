@@ -13,7 +13,8 @@ X1 has moved beyond the original TRAMPA/14S Alpha sketch. Current build and purc
 1. machine-readable qualification reports produced from real physical evidence;
 2. `hardware/build_authority.json` and `hardware/procurement_manifest.json`;
 3. the Rev-C mission and purchase boundary in `hardware/rev_c_requirements.json` and `docs/rev_c_trail_carver_architecture.md`;
-4. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;\n5. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
+4. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;
+5. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
 6. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
 7. dated benchmark/risk registries;
 8. older Alpha notes retained only as historical design exploration.
@@ -158,6 +159,7 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 ## Current physical milestones
 
 - **#4** qualify one load-cell/HX711/pod zone before four-zone duplication
+- **#25** qualify Rev-C pre-purchase chassis release from deck/topology/inert-envelope evidence
 - **#2** build and qualify X1 Fit Rig v0.3
 - **#14** measure and qualify the V5 mechanical-brake interface
 - **#12** qualify the donor-grounded unpowered rolling chassis
