@@ -9,7 +9,8 @@
     "preferred_chassis_strategy": "REV_C_HOLD_COMPACT_MATRIX_REFERENCE",
     "preferred_chassis_item_id": "DONOR-COMP95",
     "rev_c_expensive_procurement_hold": true,
-    "rev_c_requirements_path": "hardware/rev_c_requirements.json"
+    "rev_c_requirements_path": "hardware/rev_c_requirements.json",
+    "source_snapshot_as_of": "2026-09-11"
   },
   "items": [
     {
