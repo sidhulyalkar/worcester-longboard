@@ -5,11 +5,14 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
+import sys
 from pathlib import Path
 
-from cad.generate_rev_c_deck_templates import generate as generate_deck_templates
-
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from cad.generate_rev_c_deck_templates import generate as generate_deck_templates
 
 TEMPLATES = {
     "deck_comparison.json": ROOT / "hardware/rev_c_deck_comparison_private_template.json",
