@@ -23,6 +23,19 @@ REQUIRED_SELECTIONS = (
     "selected_topology_for_measurement",
 )
 
+DECK_TO_CHASSIS = {
+    "comp95_class": "COMP95_BASELINE",
+    "pro_warren_iii_class": "PRO_WARREN_III_REFERENCE",
+    "agent_class": "AGENT_AIR_REFERENCE",
+}
+
+TOPOLOGY_TO_BRAKE = {
+    "REAR_V5_FRONT_2WD": "MBS_V5_REAR",
+    "REAR_V5_REAR_2WD_SHARED": "MBS_V5_REAR",
+    "REAR_2WD_FRONT_VENDOR_HYDRAULIC": "VENDOR_FRONT_HYDRAULIC",
+    "ALTERNATE_REAR_DRIVE_PRESERVING_V5": "MBS_V5_REAR",
+}
+
 REQUIRED_CHECKS = (
     "deck_envelope_comparison_completed",
     "traction_trade_study_reviewed",
@@ -92,6 +105,28 @@ def qualify(
         if not _nonempty(data.get(key)):
             errors.append(f"missing selection: {key}")
 
+    selected_deck = data.get("selected_deck_candidate_id")
+    selected_chassis = data.get("selected_chassis_family")
+    expected_chassis = DECK_TO_CHASSIS.get(selected_deck)
+    if expected_chassis is None:
+        errors.append("selected_deck_candidate_id is not a current Rev-C deck candidate")
+    elif selected_chassis != expected_chassis:
+        errors.append(
+            "selected chassis family disagrees with selected deck candidate: "
+            f"expected {expected_chassis}"
+        )
+
+    selected_topology = data.get("selected_topology_for_measurement")
+    selected_brake = data.get("selected_brake_architecture")
+    expected_brake = TOPOLOGY_TO_BRAKE.get(selected_topology)
+    if expected_brake is None:
+        errors.append("selected_topology_for_measurement is not a current Rev-C topology")
+    elif selected_brake != expected_brake:
+        errors.append(
+            "selected brake architecture disagrees with selected topology: "
+            f"expected {expected_brake}"
+        )
+
     checks = data.get("checks", {})
     if not isinstance(checks, dict):
         errors.append("checks must be an object")
@@ -154,6 +189,12 @@ def qualify(
             errors.append("release references a different inert-pack envelope authority")
         elif inert_pack_authority.get("range_pack_inert_envelope_plausible") is not True:
             errors.append("linked inert-pack authority does not qualify the range envelope")
+        elif inert_pack_authority.get("chassis_candidate_id") != data.get(
+            "selected_chassis_family"
+        ):
+            errors.append(
+                "release chassis disagrees with inert-pack envelope authority"
+            )
 
     rejected = data.get("rejected_alternatives")
     if not isinstance(rejected, list) or not rejected:
