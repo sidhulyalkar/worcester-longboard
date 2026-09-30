@@ -28,6 +28,19 @@ def _stamp(doc):
 def _all_physical_evidence():
     return [
         _stamp({"qualified_for_four_zone_duplication": True}),
+        _stamp({
+            "authority": "x1_rev_c_chassis_release",
+            "schema_version": 1,
+            "qualified": True,
+            "deck_envelope_comparison_completed": True,
+            "selected_chassis_family": "compact_matrix_reference",
+            "selected_wheel_family": "200x50_pneumatic",
+            "selected_brake_architecture": "rear_v5_reference",
+            "selected_topology_for_measurement": "rear_v5_rear_2wd_shared",
+            "range_pack_inert_envelope_plausible": True,
+            "no_unqualified_safety_critical_adapter": True,
+            "powered_operation_authorized": False,
+        }),
         _stamp({"authority": "x1_fit_session", "schema_version": 2, "rev_b_gate": {"ready_for_rev_b_fit_cad": True}}),
         _stamp({"authority": "x1_mechanical_brake_interface", "qualified": True, "brake_interface_verified": True, "powered_operation_authorized": False}),
         _stamp({"authority": "x1_rolling_chassis_physical", "qualified": True, "powered_operation_authorized": False}),
@@ -59,7 +72,7 @@ def test_rev_c_blocks_measurement_chassis_procurement_until_release_conditions_c
     assert report["procurement_stage_authorized"]["MEASURE_FIRST"] is False
     assert items["DONOR-COMP95"]["orderable"] is False
     assert items["BRAKE-V5"]["orderable"] is False
-    assert any("Rev-C chassis release conditions" in x for x in items["DONOR-COMP95"]["blockers"])
+    assert any("rev_c_chassis_release_qualified" in x for x in items["DONOR-COMP95"]["blockers"])
     assert items["TRUCK-M3-400"]["orderable"] is False
     assert items["HUB-RSII"]["orderable"] is False
     assert items["TIRE-T2-9"]["orderable"] is False
@@ -68,17 +81,42 @@ def test_rev_c_blocks_measurement_chassis_procurement_until_release_conditions_c
     assert any("deferred until" in blocker for blocker in items["AXLE-M3-70"]["blockers"])
 
 
-def test_fallback_requires_strategy_change_and_rev_c_hold_release():
-    procurement = copy.deepcopy(_procurement())
-    procurement["rules"]["preferred_chassis_item_id"] = None
-    report = evaluate(_plan(), procurement, [])
+def test_rev_c_release_requires_fit_pilot_and_then_opens_preferred_measurement_items():
+    fit = _stamp({"qualified_for_four_zone_duplication": True})
+    release = _stamp({
+        "authority": "x1_rev_c_chassis_release",
+        "schema_version": 1,
+        "qualified": True,
+        "deck_envelope_comparison_completed": True,
+        "selected_chassis_family": "compact_matrix_reference",
+        "selected_wheel_family": "200x50_pneumatic",
+        "selected_brake_architecture": "rear_v5_reference",
+        "selected_topology_for_measurement": "rear_v5_rear_2wd_shared",
+        "range_pack_inert_envelope_plausible": True,
+        "no_unqualified_safety_critical_adapter": True,
+        "powered_operation_authorized": False,
+    })
+
+    report = evaluate(_plan(), _procurement(), [release])
+    assert report["gates"]["rev_c_chassis_release_qualified"]["satisfied"] is False
+    assert report["procurement_items"]["DONOR-COMP95"]["orderable"] is False
+
+    report = evaluate(_plan(), _procurement(), [fit, release])
+    assert report["gates"]["rev_c_chassis_release_qualified"]["satisfied"] is True
+    assert report["procurement_items"]["DONOR-COMP95"]["orderable"] is True
+    assert report["procurement_items"]["BRAKE-V5"]["orderable"] is True
     assert report["procurement_items"]["TRUCK-M3-400"]["orderable"] is False
     assert report["procurement_items"]["HUB-RSII"]["orderable"] is False
+    assert report["capabilities"]["order_measurement_chassis_parts"]["allowed"] is True
+    assert report["capabilities"]["order_power_hardware"]["allowed"] is False
+    assert report["capabilities"]["powered_operation"]["allowed"] is False
 
-    for item in procurement["items"]:
-        if item["id"] in {"TRUCK-M3-400", "HUB-RSII"}:
-            item.pop("defer_until", None)
-    report = evaluate(_plan(), procurement, [])
+
+def test_fallback_requires_strategy_change_after_rev_c_release():
+    procurement = copy.deepcopy(_procurement())
+    procurement["rules"]["preferred_chassis_item_id"] = None
+    fit, release = _all_physical_evidence()[:2]
+    report = evaluate(_plan(), procurement, [fit, release])
     assert report["procurement_items"]["TRUCK-M3-400"]["orderable"] is True
     assert report["procurement_items"]["HUB-RSII"]["orderable"] is True
 
@@ -160,7 +198,7 @@ def test_future_power_ordering_requires_explicit_manifest_promotion():
 
 def test_tampered_evidence_fingerprint_is_rejected():
     evidence = _all_physical_evidence()
-    evidence[2]["brake_interface_verified"] = False
+    evidence[3]["brake_interface_verified"] = False
     report = evaluate(_plan(), _procurement(), evidence)
     assert report["gates"]["brake_interface_qualified"]["satisfied"] is False
 
