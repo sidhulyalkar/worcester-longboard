@@ -83,11 +83,14 @@ def _validate_plan(plan: dict) -> None:
         visit(name)
 
 
-def _procurement_authority(procurement: dict) -> tuple[dict[str, bool], dict[str, dict]]:
-    """Evaluate orderability per item, then summarize whether each stage has work open."""
+def _procurement_authority(
+    procurement: dict, gate_state: dict[str, dict] | None = None
+) -> tuple[dict[str, bool], dict[str, dict]]:
+    """Evaluate orderability per item, including evidence-backed release gates."""
     rules = procurement.get("rules", {})
     items = procurement.get("items", [])
     preferred_item_id = rules.get("preferred_chassis_item_id")
+    gate_state = gate_state or {}
     item_state: dict[str, dict] = {}
 
     for index, item in enumerate(items):
@@ -103,6 +106,12 @@ def _procurement_authority(procurement: dict) -> tuple[dict[str, bool], dict[str
         if stage == "MEASURE_FIRST":
             if rules.get("measure_first_requires_issue") is True and not item.get("required_for"):
                 blockers.append("MEASURE_FIRST item lacks required_for issue authority")
+            required_gate = item.get("requires_gate")
+            if required_gate:
+                if required_gate not in gate_state:
+                    blockers.append(f"unknown procurement release gate: {required_gate}")
+                elif not gate_state[required_gate]["satisfied"]:
+                    blockers.append(f"required release gate blocked: {required_gate}")
             if item.get("defer_until"):
                 blockers.append(f"deferred until: {item['defer_until']}")
             if preferred_item_id and item.get("alternative_to") == preferred_item_id:
@@ -118,6 +127,7 @@ def _procurement_authority(procurement: dict) -> tuple[dict[str, bool], dict[str
             "orderable": not blockers,
             "blockers": blockers,
             "required_for": item.get("required_for"),
+            "requires_gate": item.get("requires_gate"),
             "defer_until": item.get("defer_until"),
             "alternative_to": item.get("alternative_to"),
         }
@@ -134,7 +144,6 @@ def _procurement_authority(procurement: dict) -> tuple[dict[str, bool], dict[str
 
 def evaluate(plan: dict, procurement: dict, evidence_docs: list[dict]) -> dict:
     _validate_plan(plan)
-    stage_allowed, procurement_items = _procurement_authority(procurement)
     gates = plan["gates"]
 
     direct_match: dict[str, bool] = {}
@@ -166,6 +175,8 @@ def evaluate(plan: dict, procurement: dict, evidence_docs: list[dict]) -> dict:
 
     for name in gates:
         resolve(name)
+
+    stage_allowed, procurement_items = _procurement_authority(procurement, gate_state)
 
     capability_state: dict[str, dict] = {}
     for name, cap in plan["capabilities"].items():
