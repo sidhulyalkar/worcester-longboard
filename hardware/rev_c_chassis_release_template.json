@@ -27,5 +27,22 @@
   ],
   "open_questions": [],
   "powered_operation_authorized": false,
-  "selected_deck_candidate_id": ""
+  "selected_deck_candidate_id": "",
+  "selection_options": {
+    "deck_to_chassis": {
+      "comp95_class": "COMP95_BASELINE",
+      "pro_warren_iii_class": "PRO_WARREN_III_REFERENCE",
+      "agent_class": "AGENT_AIR_REFERENCE"
+    },
+    "wheel_families": [
+      "MBS_RSII_200X50",
+      "MBS_PROIIXL_200X70_EXPLORER"
+    ],
+    "topology_to_brake": {
+      "REAR_V5_FRONT_2WD": "MBS_V5_REAR",
+      "REAR_V5_REAR_2WD_SHARED": "MBS_V5_REAR",
+      "REAR_2WD_FRONT_VENDOR_HYDRAULIC": "VENDOR_FRONT_HYDRAULIC",
+      "ALTERNATE_REAR_DRIVE_PRESERVING_V5": "MBS_V5_REAR"
+    }
+  }
 }
