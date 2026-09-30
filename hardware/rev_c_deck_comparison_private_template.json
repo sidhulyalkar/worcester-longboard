@@ -40,10 +40,45 @@
       "private_notes": "store exact stance/yaw/foot measurements here only if this file remains under rider/private/"
     },
     {
+      "id": "pro_warren_iii_class",
+      "reference_envelope_mm": {
+        "length": 980,
+        "width": 244
+      },
+      "remount_trials": [
+        {
+          "natural_stance_recorded": false,
+          "heel_toe_leverage_checked": false,
+          "bilateral_step_off_checked": false,
+          "deep_knee_position_checked": false
+        },
+        {
+          "natural_stance_recorded": false,
+          "heel_toe_leverage_checked": false,
+          "bilateral_step_off_checked": false,
+          "deep_knee_position_checked": false
+        },
+        {
+          "natural_stance_recorded": false,
+          "heel_toe_leverage_checked": false,
+          "bilateral_step_off_checked": false,
+          "deep_knee_position_checked": false
+        }
+      ],
+      "summary_checks": {
+        "bilateral_emergency_step_off_pass": false,
+        "deep_knee_carve_position_pass": false,
+        "heel_toe_leverage_accepted": false,
+        "remount_repeatability_accepted": false,
+        "subjective_comfort_accepted": false
+      },
+      "private_notes": "store exact stance/yaw/foot measurements here only if this file remains under rider/private/"
+    },
+    {
       "id": "agent_class",
       "reference_envelope_mm": {
         "length": 1020,
-        "width": 280
+        "width": 284
       },
       "remount_trials": [
         {
