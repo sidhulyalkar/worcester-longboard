@@ -61,3 +61,17 @@ def test_rev_c_vendor_front_brake_reference_is_not_a_custom_adapter():
     assert trampa["known"]["mounting_position"] == "front"
     assert trampa["known"]["complete_vendor_architecture"] is True
     assert any("not permission to adapt" in x for x in trampa["lessons"])
+
+
+def test_rev_c_mass_goals_are_explicitly_aspirational_against_current_pack_benchmarks():
+    data = _requirements()
+    ride = data["ride_targets"]
+    assert ride["trail_configuration_mass_goal_lb"] == 35
+    assert ride["range_configuration_mass_goal_lb"] == 45
+    assert ride["mass_goals_status"] == "ASPIRATIONAL_UNTIL_COMPONENT_MASS_BUDGET_CLOSES"
+
+    refs = {x["id"]: x for x in data["benchmark_only"]}
+    mass = refs["MBS_AGENT_BATTERY_MASS_REFERENCE"]["known"]
+    assert mass["battery_540_weight_lb"] == 15
+    assert mass["battery_1080_weight_lb"] == 20
+    assert mass["comp95_unpowered_weight_lb"] == 14.6
