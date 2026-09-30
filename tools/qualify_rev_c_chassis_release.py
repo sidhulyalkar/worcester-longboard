@@ -16,6 +16,7 @@ from pathlib import Path
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 
 REQUIRED_SELECTIONS = (
+    "selected_deck_candidate_id",
     "selected_chassis_family",
     "selected_wheel_family",
     "selected_brake_architecture",
@@ -32,9 +33,9 @@ REQUIRED_CHECKS = (
 )
 
 REQUIRED_EVIDENCE = (
-    "deck_envelope_record_sha256",
-    "topology_trade_record_sha256",
-    "inert_pack_envelope_record_sha256",
+    "deck_comparison_authority_fingerprint_sha256",
+    "topology_trade_authority_fingerprint_sha256",
+    "inert_pack_envelope_authority_fingerprint_sha256",
     "fit_pilot_authority_fingerprint_sha256",
 )
 
@@ -58,11 +59,26 @@ def _valid_fingerprint(doc: dict) -> bool:
         return False
 
 
+def _valid_authority(doc: dict, expected_authority: str) -> bool:
+    return (
+        doc.get("authority") == expected_authority
+        and doc.get("qualified") is True
+        and doc.get("powered_operation_authorized") is False
+        and _valid_fingerprint(doc)
+    )
+
+
 def _nonempty(value: object) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
 
-def qualify(data: dict, fit_pilot_authority: dict | None = None) -> dict:
+def qualify(
+    data: dict,
+    fit_pilot_authority: dict | None = None,
+    deck_authority: dict | None = None,
+    topology_authority: dict | None = None,
+    inert_pack_authority: dict | None = None,
+) -> dict:
     errors: list[str] = []
 
     if data.get("schema_version") != 1:
@@ -103,6 +119,42 @@ def qualify(data: dict, fit_pilot_authority: dict | None = None) -> dict:
         ):
             errors.append("release references a different fit-pilot authority")
 
+    if deck_authority is not None:
+        if not _valid_authority(deck_authority, "x1_rev_c_deck_comparison"):
+            errors.append("linked deck-comparison authority is invalid")
+        elif refs.get(
+            "deck_comparison_authority_fingerprint_sha256"
+        ) != deck_authority.get("authority_fingerprint_sha256"):
+            errors.append("release references a different deck-comparison authority")
+        elif data.get("selected_deck_candidate_id") != deck_authority.get(
+            "selected_candidate_id"
+        ):
+            errors.append("release selected deck disagrees with deck-comparison authority")
+
+    if topology_authority is not None:
+        if not _valid_authority(topology_authority, "x1_rev_c_topology_trade"):
+            errors.append("linked topology-trade authority is invalid")
+        elif refs.get(
+            "topology_trade_authority_fingerprint_sha256"
+        ) != topology_authority.get("authority_fingerprint_sha256"):
+            errors.append("release references a different topology-trade authority")
+        elif data.get("selected_topology_for_measurement") != topology_authority.get(
+            "selected_topology_for_measurement"
+        ):
+            errors.append("release topology disagrees with topology-trade authority")
+
+    if inert_pack_authority is not None:
+        if not _valid_authority(
+            inert_pack_authority, "x1_rev_c_inert_pack_envelope"
+        ):
+            errors.append("linked inert-pack envelope authority is invalid")
+        elif refs.get(
+            "inert_pack_envelope_authority_fingerprint_sha256"
+        ) != inert_pack_authority.get("authority_fingerprint_sha256"):
+            errors.append("release references a different inert-pack envelope authority")
+        elif inert_pack_authority.get("range_pack_inert_envelope_plausible") is not True:
+            errors.append("linked inert-pack authority does not qualify the range envelope")
+
     rejected = data.get("rejected_alternatives")
     if not isinstance(rejected, list) or not rejected:
         errors.append("rejected_alternatives must record at least one rejected branch")
@@ -133,6 +185,7 @@ def qualify(data: dict, fit_pilot_authority: dict | None = None) -> dict:
         "deck_envelope_comparison_completed": checks.get(
             "deck_envelope_comparison_completed"
         ) is True,
+        "selected_deck_candidate_id": data.get("selected_deck_candidate_id"),
         "selected_chassis_family": data.get("selected_chassis_family"),
         "selected_wheel_family": data.get("selected_wheel_family"),
         "selected_brake_architecture": data.get("selected_brake_architecture"),
@@ -158,12 +211,18 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("manifest", type=Path)
     parser.add_argument("--fit-pilot-authority", type=Path, required=True)
+    parser.add_argument("--deck-authority", type=Path, required=True)
+    parser.add_argument("--topology-authority", type=Path, required=True)
+    parser.add_argument("--inert-pack-authority", type=Path, required=True)
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
 
     report = qualify(
         json.loads(args.manifest.read_text(encoding="utf-8")),
         json.loads(args.fit_pilot_authority.read_text(encoding="utf-8")),
+        json.loads(args.deck_authority.read_text(encoding="utf-8")),
+        json.loads(args.topology_authority.read_text(encoding="utf-8")),
+        json.loads(args.inert_pack_authority.read_text(encoding="utf-8")),
     )
     text = json.dumps(report, indent=2, sort_keys=True) + "\n"
     if args.out:
