@@ -209,6 +209,33 @@ Why it is no longer automatically orderable:
 - Rev-C must first decide whether its deck width/flex is better for the rider than the snowboard-composite options;
 - the future powered topology could force wheel/hub/truck changes that erase the donor savings.
 
+### Pro Warren III reference
+
+Current published facts:
+
+- 980 mm deck length;
+- 244 mm maximum deck width;
+- 910-970 mm adjustable axle-to-axle range;
+- 15.9 lb complete unpowered mass;
+- 5.8 lb deck mass;
+- snowboard-composite construction;
+- published stiff/high-pop deck character;
+- Matrix III CNC / Rockstar II / T1 200x50 architecture;
+- brake-compatible complete board;
+- direct F5X snowboard-style binding support.
+
+Why it matters:
+
+This candidate breaks the previous Comp-vs-Agent trade in a useful way. It is **narrower than the Comp 95 while retaining snowboard-composite construction**, and the multiple truck positions give us an unusually large wheelbase-tuning experiment without fabricating a new deck.
+
+Why it is not automatically selected:
+
+- the stiff/high-pop construction could be too lively or fatiguing for the desired low-speed rough-trail feel;
+- it adds 1.3 lb over the Comp 95 before electrification;
+- its current product page is waitlisted;
+- the current page exposes a 10407 page heading but a 10406 embedded spec identifier, so the exact received revision must be verified;
+- battery packaging remains less integrated than the Agent ecosystem.
+
 ### Agent Air reference
 
 Current published facts:
@@ -278,7 +305,8 @@ Rev-C handling development should proceed in five layers.
 Before buying the chassis, make full-scale deck envelopes for:
 
 - Comp 95 class: 950 x 251 mm max envelope;
-- Agent class: 1020 x 280 mm max envelope.
+- Pro Warren III class: 980 x 244 mm max envelope;
+- Agent class: 1020 x 284 mm max envelope.
 
 These are not deck-shape CAD. They are stance/leverage proxies.
 
@@ -288,7 +316,8 @@ Evaluate:
 - natural front/rear foot yaw;
 - heel/toe leverage;
 - emergency step-off;
-- whether the 280 mm envelope feels needlessly wide;
+- whether the 284 mm Agent envelope feels needlessly wide;
+- whether the Warren's 244 mm envelope improves useful edge leverage without feeling cramped;
 - whether a narrower effective foot platform should be created even if a wider structural deck is selected.
 
 ### Layer 1: rolling chassis
@@ -466,7 +495,7 @@ At that point the repository should deliberately select one chassis family and r
 
 ## Current recommendation
 
-Rev-C keeps the **Comp-95-sized / Matrix-III / pneumatic** concept as the leading compact reference, with rear V5 braking preferred when it packages cleanly. A vendor-engineered front hydraulic brake architecture is now a live alternative when it materially improves rear-drive traction and packaging.
+Rev-C now treats the **Comp 95 and Pro Warren III as the two strongest compact Matrix/RSII hypotheses** pending the three-way physical stance test. The Comp minimizes known mass and cost; the Warren offers the narrowest envelope, snowboard-composite construction, and adjustable wheelbase. The Agent remains the electric-native/wide-deck reference. Rear V5 braking remains attractive when it packages cleanly, while vendor-engineered front hydraulic braking remains a live alternative when it materially improves rear-drive traction and packaging.
 
 The most promising product architecture to prove is:
 
