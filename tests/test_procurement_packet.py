@@ -16,7 +16,7 @@ def test_public_packet_is_actionable_and_fail_closed():
     assert "DONOR-COMP95" in text
     assert "BRAKE-V5" in text
     assert "TRUCK-M3-400 | MEASURE_FIRST" in text
-    assert "Rev-C chassis release conditions" in text
+    assert "required release gate blocked: rev_c_chassis_release_qualified" in text
     assert "TIRE-T2-9 | MEASURE_FIRST | MEASURE_FIRST item lacks required_for issue authority" in text
     assert "DRIVE-G1-DUAL | POWER_GATED | POWER_GATED is not authorized" in text
     assert "four-zone duplication: **BLOCKED**" in text
