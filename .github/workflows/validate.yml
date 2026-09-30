@@ -54,6 +54,14 @@ jobs:
           assert report['gates']['power_architecture_frozen']['satisfied'] is False
           print('Public authority is conservative: fit-pilot ordering open; Rev-C chassis, topology, packaging, dummy-pack and power gates remain closed.')
           PY
+      - name: Smoke-test Rev-C pre-purchase tools
+        run: |
+          python simulation/rev_c_mass_budget.py --configuration trail
+          python simulation/rev_c_mass_budget.py --configuration range
+          python simulation/rev_c_topology_traction_sweep.py --grades 0 0.10 0.20 0.30
+          python tools/init_rev_c_chassis_release_session.py /tmp/x1-rev-c-release
+          test -f /tmp/x1-rev-c-release/deck_templates/rev_c_comp95_deck_envelope.svg
+          test -f /tmp/x1-rev-c-release/deck_templates/rev_c_agent_deck_envelope.svg
       - name: Host-test controller core
         run: |
           g++ -std=c++17 -O2 -Ifirmware/include \
