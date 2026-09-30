@@ -22,7 +22,7 @@ The target is not a Onewheel clone, a suspension buggy, or a conventional high-p
 
 The target is:
 
-> a light-ish four-wheel pneumatic mountainboard with a rider-scaled deck, progressive Matrix steering, independent rear friction braking, modular energy capacity, sacrificial trail armor, and optional bounded traction/carve assistance.
+> a light-ish four-wheel pneumatic mountainboard with a rider-scaled deck, progressive steering, an independent friction-or-hydraulic stopping system, modular energy capacity, sacrificial trail armor, and optional bounded traction/carve assistance.
 
 Rev-C borrows product lessons from three distinct families without importing their whole architecture:
 
@@ -79,13 +79,15 @@ That is why the MBS Explorer 200x70 architecture is now a first-class Rev-C stud
 
 Important limitation: the current MBS Explorer tire requires Rockstar Pro II XL hubs, while MBS currently lists the V5 brake as compatible with Rockstar/Rockstar II rather than Pro II XL. This is an unresolved interface, not permission to fabricate a spacer.
 
-### 4. Independent friction braking remains mandatory
+### 4. Independent friction or hydraulic braking remains mandatory
 
 Regenerative/motor braking is useful but not independent stopping authority.
 
-The current V5 documentation places the brake on the rear of the board. Rev-C therefore does not casually move the V5 to the front to make drivetrain packaging easier.
+The current MBS V5 documentation places that specific brake on the rear of the board. Rev-C therefore does not casually move the V5 to the front to make drivetrain packaging easier.
 
-Three live topology branches remain:
+However, a vendor-engineered **front** mountainboard brake architecture also exists: TRAMPA's Infinity truck integrates Magura HS11 hydraulics with custom wheel discs and explicitly mounts the brakes at the front. That does not make TRAMPA brakes a drop-in Matrix/Rockstar solution. It does prove that "rear 2WD + independent front braking" is a legitimate architecture family worth studying rather than dismissing.
+
+Four live topology branches remain:
 
 #### A. Rear V5 + front 2WD
 
@@ -101,7 +103,15 @@ Three live topology branches remain:
 
 The vendor statement that a 400 mm Matrix III can accept 70 mm axles for Agent gear-drive compatibility does **not** prove that V5 geometry still works after the wheel is moved outward.
 
-#### C. Alternate rear drive preserving the V5 envelope
+#### C. Rear 2WD + vendor-engineered front hydraulic braking
+
+**Why it exists:** rear drive preserves favorable uphill traction and leaves the front axle responsible for independent stopping. TRAMPA demonstrates this as a complete commercial truck/wheel/brake system.
+
+**What could kill it:** the TRAMPA front-brake ecosystem is not mechanically interchangeable with Matrix/Rockstar hardware. Mixing truck families may create steering geometry, track-width, wheel-bearing, spare-part and service problems. Front brake balance also needs controlled low-energy testing.
+
+This branch is permission to study a complete proven subsystem or compatible chassis family, **not** permission to invent a safety-critical adapter between unrelated systems.
+
+#### D. Alternate rear drive preserving the V5 envelope
 
 A belt or other compact drive may win if it provides a cleaner safety-critical mechanical stack than the sealed G1 path.
 
@@ -425,7 +435,7 @@ Do not yet buy:
 The chassis/brake purchasing hold can close when all of the following are true:
 
 1. rider-scale Comp-vs-Agent deck envelope comparison is complete;
-2. selected wheel family has a credible rear mechanical-brake path;
+2. selected chassis/wheel family has a credible independent friction-or-hydraulic stopping path;
 3. one drive/brake topology has a physical measurement plan without an unqualified safety-critical adapter;
 4. the range-pack inert envelope can be placed without violating ground-clearance, steering, deck-flex or rider-interface keep-outs.
 
@@ -433,10 +443,10 @@ At that point the repository should deliberately select one chassis family and r
 
 ## Current recommendation
 
-Rev-C keeps the **Comp-95-sized / Matrix-III / pneumatic / rear-friction-brake concept** as the leading compact reference, but no longer treats the exact Comp 95 donor as frozen.
+Rev-C keeps the **Comp-95-sized / Matrix-III / pneumatic** concept as the leading compact reference, with rear V5 braking preferred when it packages cleanly. A vendor-engineered front hydraulic brake architecture is now a live alternative when it materially improves rear-drive traction and packaging.
 
 The most promising product architecture to prove is:
 
-> compact rider-scaled Matrix chassis + high-air-volume pneumatic option + rear independent friction brake + 2WD topology selected by physical packaging evidence + modular 500-650 / 950-1150 Wh energy classes + bounded traction/ride shaping.
+> compact rider-scaled pneumatic chassis + high-air-volume tire option + independent friction/hydraulic stopping + 2WD topology selected by physical packaging and traction evidence + modular 500-650 / 950-1150 Wh energy classes + bounded traction/ride shaping.
 
 That is the shortest path to a board that feels closer to a snowboard without becoming a 50-60 lb electric buggy.
