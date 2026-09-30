@@ -75,3 +75,23 @@ def test_rev_c_mass_goals_are_explicitly_aspirational_against_current_pack_bench
     assert mass["battery_540_weight_lb"] == 15
     assert mass["battery_1080_weight_lb"] == 20
     assert mass["comp95_unpowered_weight_lb"] == 14.6
+
+
+def test_pro_warren_iii_is_a_first_class_rev_c_chassis_candidate():
+    data = _requirements()
+    candidates = {x["id"]: x for x in data["candidate_architectures"]}
+    warren = candidates["PRO_WARREN_III_REFERENCE"]
+    known = warren["known"]
+    assert known["deck_length_mm"] == 980
+    assert known["deck_max_width_mm"] == 244
+    assert known["axle_to_axle_mm_range"] == [910, 970]
+    assert known["unpowered_mass_lb"] == 15.9
+    assert known["deck_construction"] == "snowboard composite"
+    assert known["v5_brake_listed_compatible"] is True
+    assert known["availability_snapshot"] == "COMING_SOON_WAITLIST_2026-09-30"
+
+
+def test_agent_deck_reference_uses_published_284mm_max_deck_width():
+    data = _requirements()
+    candidates = {x["id"]: x for x in data["candidate_architectures"]}
+    assert candidates["AGENT_AIR_REFERENCE"]["known"]["deck_max_width_mm"] == 284
