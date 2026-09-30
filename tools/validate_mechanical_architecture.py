@@ -114,6 +114,15 @@ def validate(
         errors.append("70 mm axle brake alignment must remain unqualified, never assumed true")
 
     gates = build.get("gates", {})
+    rev_c_release = gates.get("rev_c_chassis_release_qualified")
+    if not isinstance(rev_c_release, dict):
+        errors.append("build authority lacks rev_c_chassis_release_qualified gate")
+    else:
+        if rev_c_release.get("issue") != 25:
+            errors.append("Rev-C chassis release gate must point to Issue #25")
+        if "fit_pilot_qualified" not in set(rev_c_release.get("requires", [])):
+            errors.append("Rev-C chassis release must require fit-pilot authority")
+
     topology = gates.get("brake_drive_topology_qualified")
     if not isinstance(topology, dict):
         errors.append("build authority lacks brake_drive_topology_qualified gate")
@@ -152,6 +161,14 @@ def validate(
         errors.append("power architecture can freeze without Rev-B template authority")
 
     subsystems = {x.get("id"): x for x in planned_bom.get("subsystems", []) if isinstance(x, dict)}
+    release_subsystem = subsystems.get("REV-C-CHASSIS-RELEASE")
+    if not release_subsystem or release_subsystem.get("freeze_gate") != "rev_c_chassis_release_qualified":
+        errors.append("planned BOM must preserve explicit REV-C-CHASSIS-RELEASE subsystem")
+    for sid in ("CHASSIS", "MECHANICAL-BRAKE"):
+        item = subsystems.get(sid)
+        if not item or item.get("freeze_gate") != "rev_c_chassis_release_qualified":
+            errors.append(f"{sid} must freeze at rev_c_chassis_release_qualified")
+
     topology_subsystem = subsystems.get("BRAKE-DRIVE-TOPOLOGY")
     if not topology_subsystem or topology_subsystem.get("freeze_gate") != "brake_drive_topology_qualified":
         errors.append("planned BOM must preserve explicit BRAKE-DRIVE-TOPOLOGY subsystem")
