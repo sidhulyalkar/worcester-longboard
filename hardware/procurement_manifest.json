@@ -124,11 +124,13 @@
       "required_for": "issues-12-14",
       "notes": "Rev-C keeps the Comp 95 as the leading compact/brake-compatible reference but no longer authorizes purchase before rider-scale deck comparison and wheel/brake/drive topology review.",
       "requires_gate": "rev_c_chassis_release_qualified",
-      "requires_gate_selection": {
-        "gate": "rev_c_chassis_release_qualified",
-        "path": "selected_chassis_family",
-        "equals": "COMP95_BASELINE"
-      }
+      "requires_gate_selections": [
+        {
+          "gate": "rev_c_chassis_release_qualified",
+          "path": "selected_chassis_family",
+          "equals": "COMP95_BASELINE"
+        }
+      ]
     },
     {
       "id": "BRAKE-V5",
@@ -141,11 +143,18 @@
       "required_for": "issue-14",
       "notes": "Vendor documentation keeps V5 as the rear friction-brake reference. Purchase is held until Rev-C confirms the chassis/wheel topology.",
       "requires_gate": "rev_c_chassis_release_qualified",
-      "requires_gate_selection": {
-        "gate": "rev_c_chassis_release_qualified",
-        "path": "selected_brake_architecture",
-        "equals": "MBS_V5_REAR"
-      }
+      "requires_gate_selections": [
+        {
+          "gate": "rev_c_chassis_release_qualified",
+          "path": "selected_chassis_family",
+          "equals": "COMP95_BASELINE"
+        },
+        {
+          "gate": "rev_c_chassis_release_qualified",
+          "path": "selected_brake_architecture",
+          "equals": "MBS_V5_REAR"
+        }
+      ]
     },
     {
       "id": "TRUCK-M3-400",
@@ -158,11 +167,13 @@
       "alternative_to": "DONOR-COMP95",
       "required_for": "issue-14",
       "requires_gate": "rev_c_chassis_release_qualified",
-      "requires_gate_selection": {
-        "gate": "rev_c_chassis_release_qualified",
-        "path": "selected_chassis_family",
-        "equals": "COMP95_BASELINE"
-      }
+      "requires_gate_selections": [
+        {
+          "gate": "rev_c_chassis_release_qualified",
+          "path": "selected_chassis_family",
+          "equals": "COMP95_BASELINE"
+        }
+      ]
     },
     {
       "id": "HUB-RSII",
@@ -175,11 +186,13 @@
       "alternative_to": "DONOR-COMP95",
       "required_for": "issue-14",
       "requires_gate": "rev_c_chassis_release_qualified",
-      "requires_gate_selection": {
-        "gate": "rev_c_chassis_release_qualified",
-        "path": "selected_chassis_family",
-        "equals": "COMP95_BASELINE"
-      }
+      "requires_gate_selections": [
+        {
+          "gate": "rev_c_chassis_release_qualified",
+          "path": "selected_chassis_family",
+          "equals": "COMP95_BASELINE"
+        }
+      ]
     },
     {
       "id": "TIRE-T2-9",
