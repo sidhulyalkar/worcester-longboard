@@ -77,6 +77,23 @@ This changes the development order:
 
 The Explorer remains a valuable option, but not a free comfort upgrade.
 
+### What about 9-inch T2?
+
+The current 9-inch T2 reference is:
+
+- 219 mm published diameter;
+- 67 mm width;
+- 581 g per tire;
+- not compatible with Rockstar II hubs.
+
+Relative to the 194 mm T1 reference, that buys roughly **25 mm more tire diameter**, or only **12.5 mm of nominal axle-height/ground-clearance gain**.
+
+Four T2 tires alone add about **1396 g / 3.08 lb** versus four T1 tires, before the hub conversion. They are also 13 mm narrower than the 200×70 Explorer tire.
+
+Therefore 9-inch is now a measured-failure fallback:
+
+> keep the 194 mm wheel architecture unless real trail testing shows ground clearance is inadequate enough that ~12.5 mm nominal extra axle height is worth the mass, inertia, hub and brake-interface costs.
+
 ## Brake and drive constraints that cannot be averaged away
 
 ### Matrix III CNC 400 mm
