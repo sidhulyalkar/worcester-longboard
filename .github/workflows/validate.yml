@@ -39,6 +39,7 @@ jobs:
           report = json.loads(Path('/tmp/x1-build-authority.json').read_text())
           assert report['capabilities']['order_fit_pilot_parts']['allowed'] is True
           assert report['capabilities']['order_measurement_chassis_parts']['allowed'] is False
+          assert report['gates']['rev_c_chassis_release_qualified']['satisfied'] is False
           assert report['capabilities']['duplicate_four_fit_zones']['allowed'] is False
           assert report['capabilities']['fabricate_unpowered_chassis']['allowed'] is False
           assert report['capabilities']['qualify_brake_drive_topology']['allowed'] is False
