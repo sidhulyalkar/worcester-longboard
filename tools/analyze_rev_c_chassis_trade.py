@@ -132,6 +132,15 @@ def analyze(snapshot: dict) -> dict:
                 "deck_length_mm": deck["length_mm"],
                 "deck_length_delta_mm_vs_comp95": round(float(deck["length_mm"]) - comp_length, 1),
                 "deck_area_proxy_mm2": round(float(deck["length_mm"]) * float(deck["max_width_mm"]), 1),
+                "deck_area_proxy_delta_pct_vs_comp95": round(
+                    (
+                        float(deck["length_mm"]) * float(deck["max_width_mm"])
+                        / (comp_length * comp_width)
+                        - 1.0
+                    )
+                    * 100.0,
+                    2,
+                ),
                 "deck_mass_lb": deck["weight_lb"],
                 "deck_mass_delta_lb_vs_comp95": round(float(deck["weight_lb"]) - comp_deck_mass, 2),
                 "complete_unpowered_mass_lb": complete_mass,
@@ -164,6 +173,32 @@ def analyze(snapshot: dict) -> dict:
 
     explorer_vs_t1_g = (float(explorer["tire_mass_g_each"]) - float(t1["tire_mass_g_each"])) * 4
     explorer_vs_t3_g = (float(explorer["tire_mass_g_each"]) - float(t3["tire_mass_g_each"])) * 4
+
+    warren = candidates["PRO_WARREN_III_REFERENCE"]
+    warren_min = float(warren["chassis"]["wheelbase_mm_min"])
+    warren_max = float(warren["chassis"]["wheelbase_mm_max"])
+    comp_wheelbase = float(comp["chassis"]["wheelbase_mm_min"])
+    wheelbase_experiment = {
+        "comp95_reference_mm": comp_wheelbase,
+        "warren_min_mm": warren_min,
+        "warren_max_mm": warren_max,
+        "warren_midpoint_mm": round((warren_min + warren_max) / 2.0, 1),
+        "comp95_matches_warren_midpoint": abs(
+            comp_wheelbase - (warren_min + warren_max) / 2.0
+        )
+        < 1e-9,
+        "warren_short_delta_vs_comp95_mm": round(warren_min - comp_wheelbase, 1),
+        "warren_long_delta_vs_comp95_mm": round(warren_max - comp_wheelbase, 1),
+        "same_steer_curvature_ratio_short_vs_long_bicycle_proxy": round(
+            warren_max / warren_min, 3
+        ),
+        "interpretation": (
+            "At the same effective steer angle, a first-order bicycle model makes "
+            "turning curvature inverse to wheelbase. The Warren range therefore "
+            "supports a controlled wheelbase experiment around the Comp 95 reference; "
+            "this is a sensitivity proxy, not mountainboard steering qualification."
+        ),
+    }
 
     wheel_trade = {
         "same_published_diameter_mm": (
@@ -205,6 +240,7 @@ def analyze(snapshot: dict) -> dict:
         "procurement_authority": False,
         "snapshot_as_of": snapshot["as_of"],
         "candidate_rows": candidate_rows,
+        "wheelbase_experiment": wheelbase_experiment,
         "wheel_trade": wheel_trade,
         "decision_boundaries": [
             "cardboard/foam envelopes can qualify stance geometry, not real deck flex",
