@@ -1,38 +1,240 @@
 {
   "schema_version": 1,
-  "as_of": "2026-09-11",
+  "as_of": "2026-09-30",
   "currency": "USD",
   "rules": {
-    "buy_now_max_total_usd": 125.0,
+    "buy_now_max_total_usd": 125,
     "measure_first_requires_issue": true,
     "power_gated_authorized": false,
-    "preferred_chassis_strategy": "DONOR_COMP95",
-    "preferred_chassis_item_id": "DONOR-COMP95"
+    "preferred_chassis_strategy": "REV_C_HOLD_COMPACT_MATRIX_REFERENCE",
+    "preferred_chassis_item_id": "DONOR-COMP95",
+    "rev_c_expensive_procurement_hold": true,
+    "rev_c_requirements_path": "hardware/rev_c_requirements.json"
   },
   "items": [
-    {"id":"LC-3135","stage":"BUY_NOW","qty":2,"vendor":"Phidgets","sku":"3135_0","unit_price_usd":7.0,"required_for":"issue-4"},
-    {"id":"ADC-HX711","stage":"BUY_NOW","qty":2,"vendor":"SparkFun","sku":"SEN-13879","unit_price_usd":4.95,"required_for":"issue-4"},
-    {"id":"MCU-ESP32S3","stage":"BUY_NOW","qty":1,"vendor":"reputable-electronics-supplier","sku":"ESP32-S3-DevKitC-1-compatible","unit_price_ceiling_usd":20.0,"optional_if_owned":true,"required_for":"issue-4"},
-    {"id":"USB-DATA","stage":"BUY_NOW","qty":1,"vendor":"owned-or-local","sku":"known-good-usb-data-cable","unit_price_ceiling_usd":5.0,"optional_if_owned":true,"required_for":"issue-4"},
-    {"id":"HW-M5-PILOT","stage":"BUY_NOW","qty":1,"vendor":"local-hardware-or-McMaster","sku":"M5-screw-washer-assortment","unit_price_ceiling_usd":12.0,"optional_if_owned":true,"required_for":"issue-4"},
-    {"id":"HW-M4-PILOT","stage":"BUY_NOW","qty":1,"vendor":"local-hardware","sku":"M4-screw-washer-nyloc-assortment","unit_price_ceiling_usd":10.0,"optional_if_owned":true,"required_for":"issue-4"},
-    {"id":"WIRE-HEATSHRINK","stage":"BUY_NOW","qty":1,"vendor":"electronics-supplier","sku":"flexible-4-conductor-wire-plus-heatshrink","unit_price_ceiling_usd":10.0,"optional_if_owned":true,"required_for":"issue-4"},
-    {"id":"CALIPER-SCREENING","stage":"BUY_NOW","qty":1,"vendor":"owned-or-generic","sku":"digital-caliper-0.01mm-display-class","unit_price_ceiling_usd":20.0,"optional_if_owned":true,"required_for":"issue-4","notes":"Geometry screening only; not metrology certification."},
-    {"id":"FEELER-GAUGE","stage":"BUY_NOW","qty":1,"vendor":"owned-or-generic","sku":"metric-feeler-gauge-set","unit_price_ceiling_usd":10.0,"optional_if_owned":true,"required_for":"issue-4"},
-    {"id":"PILOT-BASE","stage":"BUY_NOW","qty":1,"vendor":"scrap-or-local","sku":"rigid-plywood-or-aluminum-base","unit_price_ceiling_usd":10.0,"optional_if_owned":true,"required_for":"issue-4"},
-
-    {"id":"DONOR-COMP95","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"10303","unit_price_usd":499.95,"purchase_strategy":"preferred_complete_chassis","required_for":"issues-12-14","notes":"Preferred new fallback; used current-generation Matrix III donor is attractive only after condition and exact truck generation are verified."},
-    {"id":"BRAKE-V5","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"15006","unit_price_usd":89.95,"purchase_strategy":"required_with_donor_or_fallback","required_for":"issue-14"},
-
-    {"id":"TRUCK-M3-400","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"12300-or-12302-family","unit_price_ceiling_usd":124.95,"purchase_strategy":"fallback_piecemeal_measurement","alternative_to":"DONOR-COMP95","required_for":"issue-14"},
-    {"id":"HUB-RSII","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"1323x","unit_price_usd":14.95,"purchase_strategy":"fallback_piecemeal_measurement","alternative_to":"DONOR-COMP95","required_for":"issue-14"},
-    {"id":"TIRE-T2-9","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"13120","unit_price_usd":29.95,"purchase_strategy":"optional_9in_measurement_or_upgrade","defer_until":"donor 8in terrain/clearance need is measured and a T2-compatible 9in hub family is selected; MBS does not list standard Rockstar II as compatible with 13120","notes":"Direct MBS page lists FiveStar, Tri-Spoke and Rockstar Pro II XL compatibility. Do not infer a drop-in Rockstar II conversion or real inflated diameter from the nominal product name."},
-    {"id":"TUBE-9","stage":"MEASURE_FIRST","qty":1,"vendor":"MBS","sku":"13013","unit_price_usd":12.95,"purchase_strategy":"optional_9in_measurement_or_upgrade","defer_until":"T2-compatible 9in hub/tire architecture selected"},
-    {"id":"AXLE-M3-70","stage":"MEASURE_FIRST","qty":2,"vendor":"MBS","sku":"12342","unit_price_usd":24.95,"purchase_strategy":"deferred_interface_study","defer_until":"brake-first 50mm axle geometry measured"},
-
-    {"id":"DRIVE-G1-DUAL","stage":"POWER_GATED","qty":1,"vendor":"MBS","sku":"16101","unit_price_usd":399.95,"required_for":"future-drive-qualification"},
-    {"id":"ESC-DUAL","stage":"POWER_GATED","qty":1,"vendor":"TBD","sku":"VESC-class-dual","unit_price_range_usd":[160.0,245.0],"required_for":"future-power-architecture"},
-    {"id":"MOTOR-6374","stage":"POWER_GATED","qty":2,"vendor":"TBD","sku":"sensored-6374-class","unit_price_range_usd":[79.0,129.0],"required_for":"future-drive-qualification"},
-    {"id":"BATTERY-12S4P","stage":"POWER_GATED","qty":1,"vendor":"reputable-professional-builder","sku":"high-drain-12S4P","unit_price_range_usd":[490.0,600.0],"required_for":"future-power-architecture"}
+    {
+      "id": "LC-3135",
+      "stage": "BUY_NOW",
+      "qty": 2,
+      "vendor": "Phidgets",
+      "sku": "3135_0",
+      "unit_price_usd": 7,
+      "required_for": "issue-4"
+    },
+    {
+      "id": "ADC-HX711",
+      "stage": "BUY_NOW",
+      "qty": 2,
+      "vendor": "SparkFun",
+      "sku": "SEN-13879",
+      "unit_price_usd": 4.95,
+      "required_for": "issue-4"
+    },
+    {
+      "id": "MCU-ESP32S3",
+      "stage": "BUY_NOW",
+      "qty": 1,
+      "vendor": "reputable-electronics-supplier",
+      "sku": "ESP32-S3-DevKitC-1-compatible",
+      "unit_price_ceiling_usd": 20,
+      "optional_if_owned": true,
+      "required_for": "issue-4"
+    },
+    {
+      "id": "USB-DATA",
+      "stage": "BUY_NOW",
+      "qty": 1,
+      "vendor": "owned-or-local",
+      "sku": "known-good-usb-data-cable",
+      "unit_price_ceiling_usd": 5,
+      "optional_if_owned": true,
+      "required_for": "issue-4"
+    },
+    {
+      "id": "HW-M5-PILOT",
+      "stage": "BUY_NOW",
+      "qty": 1,
+      "vendor": "local-hardware-or-McMaster",
+      "sku": "M5-screw-washer-assortment",
+      "unit_price_ceiling_usd": 12,
+      "optional_if_owned": true,
+      "required_for": "issue-4"
+    },
+    {
+      "id": "HW-M4-PILOT",
+      "stage": "BUY_NOW",
+      "qty": 1,
+      "vendor": "local-hardware",
+      "sku": "M4-screw-washer-nyloc-assortment",
+      "unit_price_ceiling_usd": 10,
+      "optional_if_owned": true,
+      "required_for": "issue-4"
+    },
+    {
+      "id": "WIRE-HEATSHRINK",
+      "stage": "BUY_NOW",
+      "qty": 1,
+      "vendor": "electronics-supplier",
+      "sku": "flexible-4-conductor-wire-plus-heatshrink",
+      "unit_price_ceiling_usd": 10,
+      "optional_if_owned": true,
+      "required_for": "issue-4"
+    },
+    {
+      "id": "CALIPER-SCREENING",
+      "stage": "BUY_NOW",
+      "qty": 1,
+      "vendor": "owned-or-generic",
+      "sku": "digital-caliper-0.01mm-display-class",
+      "unit_price_ceiling_usd": 20,
+      "optional_if_owned": true,
+      "required_for": "issue-4",
+      "notes": "Geometry screening only; not metrology certification."
+    },
+    {
+      "id": "FEELER-GAUGE",
+      "stage": "BUY_NOW",
+      "qty": 1,
+      "vendor": "owned-or-generic",
+      "sku": "metric-feeler-gauge-set",
+      "unit_price_ceiling_usd": 10,
+      "optional_if_owned": true,
+      "required_for": "issue-4"
+    },
+    {
+      "id": "PILOT-BASE",
+      "stage": "BUY_NOW",
+      "qty": 1,
+      "vendor": "scrap-or-local",
+      "sku": "rigid-plywood-or-aluminum-base",
+      "unit_price_ceiling_usd": 10,
+      "optional_if_owned": true,
+      "required_for": "issue-4"
+    },
+    {
+      "id": "DONOR-COMP95",
+      "stage": "MEASURE_FIRST",
+      "qty": 1,
+      "vendor": "MBS",
+      "sku": "10303",
+      "unit_price_usd": 499.95,
+      "purchase_strategy": "leading_compact_reference_not_yet_authorized",
+      "required_for": "issues-12-14",
+      "notes": "Rev-C keeps the Comp 95 as the leading compact/brake-compatible reference but no longer authorizes purchase before rider-scale deck comparison and wheel/brake/drive topology review.",
+      "defer_until": "Rev-C chassis release conditions in hardware/rev_c_requirements.json are closed"
+    },
+    {
+      "id": "BRAKE-V5",
+      "stage": "MEASURE_FIRST",
+      "qty": 1,
+      "vendor": "MBS",
+      "sku": "15006",
+      "unit_price_usd": 89.95,
+      "purchase_strategy": "rear_brake_reference_not_yet_authorized",
+      "required_for": "issue-14",
+      "defer_until": "Rev-C chassis release conditions in hardware/rev_c_requirements.json are closed",
+      "notes": "Vendor documentation keeps V5 as the rear friction-brake reference. Purchase is held until Rev-C confirms the chassis/wheel topology."
+    },
+    {
+      "id": "TRUCK-M3-400",
+      "stage": "MEASURE_FIRST",
+      "qty": 1,
+      "vendor": "MBS",
+      "sku": "12300-or-12302-family",
+      "unit_price_ceiling_usd": 124.95,
+      "purchase_strategy": "fallback_piecemeal_measurement",
+      "alternative_to": "DONOR-COMP95",
+      "required_for": "issue-14",
+      "defer_until": "Rev-C chassis release conditions in hardware/rev_c_requirements.json are closed"
+    },
+    {
+      "id": "HUB-RSII",
+      "stage": "MEASURE_FIRST",
+      "qty": 1,
+      "vendor": "MBS",
+      "sku": "1323x",
+      "unit_price_usd": 14.95,
+      "purchase_strategy": "fallback_piecemeal_measurement",
+      "alternative_to": "DONOR-COMP95",
+      "required_for": "issue-14",
+      "defer_until": "Rev-C chassis release conditions in hardware/rev_c_requirements.json are closed"
+    },
+    {
+      "id": "TIRE-T2-9",
+      "stage": "MEASURE_FIRST",
+      "qty": 1,
+      "vendor": "MBS",
+      "sku": "13120",
+      "unit_price_usd": 29.95,
+      "purchase_strategy": "optional_9in_measurement_or_upgrade",
+      "defer_until": "donor 8in terrain/clearance need is measured and a T2-compatible 9in hub family is selected; MBS does not list standard Rockstar II as compatible with 13120",
+      "notes": "Direct MBS page lists FiveStar, Tri-Spoke and Rockstar Pro II XL compatibility. Do not infer a drop-in Rockstar II conversion or real inflated diameter from the nominal product name."
+    },
+    {
+      "id": "TUBE-9",
+      "stage": "MEASURE_FIRST",
+      "qty": 1,
+      "vendor": "MBS",
+      "sku": "13013",
+      "unit_price_usd": 12.95,
+      "purchase_strategy": "optional_9in_measurement_or_upgrade",
+      "defer_until": "T2-compatible 9in hub/tire architecture selected"
+    },
+    {
+      "id": "AXLE-M3-70",
+      "stage": "MEASURE_FIRST",
+      "qty": 2,
+      "vendor": "MBS",
+      "sku": "12342",
+      "unit_price_usd": 24.95,
+      "purchase_strategy": "deferred_interface_study",
+      "defer_until": "brake-first 50mm axle geometry measured"
+    },
+    {
+      "id": "DRIVE-G1-DUAL",
+      "stage": "POWER_GATED",
+      "qty": 1,
+      "vendor": "MBS",
+      "sku": "16101",
+      "unit_price_usd": 399.95,
+      "required_for": "future-drive-qualification"
+    },
+    {
+      "id": "ESC-DUAL",
+      "stage": "POWER_GATED",
+      "qty": 1,
+      "vendor": "TBD",
+      "sku": "VESC-class-dual",
+      "unit_price_range_usd": [
+        160,
+        245
+      ],
+      "required_for": "future-power-architecture"
+    },
+    {
+      "id": "MOTOR-6374",
+      "stage": "POWER_GATED",
+      "qty": 2,
+      "vendor": "TBD",
+      "sku": "sensored-6374-class",
+      "unit_price_range_usd": [
+        79,
+        129
+      ],
+      "required_for": "future-drive-qualification"
+    },
+    {
+      "id": "BATTERY-PRO-MODULAR",
+      "stage": "POWER_GATED",
+      "qty": 1,
+      "vendor": "qualified-professional-builder-or-qualified-integrated-system",
+      "sku": "500-650Wh-trail-or-950-1150Wh-range-class",
+      "unit_price_range_usd": [
+        800,
+        1400
+      ],
+      "required_for": "future-rev-c-power-architecture",
+      "notes": "Budget band is a planning placeholder informed by current integrated-market battery references; exact voltage/cell/BMS architecture remains blocked."
+    }
   ]
 }
