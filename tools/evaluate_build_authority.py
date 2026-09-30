@@ -115,32 +115,36 @@ def _procurement_authority(
                     blockers.append(f"unknown procurement release gate: {required_gate}")
                 elif not gate_state[required_gate]["satisfied"]:
                     blockers.append(f"required release gate blocked: {required_gate}")
-            selection = item.get("requires_gate_selection")
-            if selection:
+            raw_selections = item.get("requires_gate_selections")
+            if raw_selections is None and item.get("requires_gate_selection") is not None:
+                raw_selections = [item["requires_gate_selection"]]
+            for selection in raw_selections or []:
                 selection_gate = selection.get("gate") or required_gate
                 if not isinstance(selection_gate, str) or not selection_gate:
                     blockers.append("requires_gate_selection lacks gate")
-                elif selection_gate not in gate_state:
+                    continue
+                if selection_gate not in gate_state:
                     blockers.append(
                         f"unknown procurement selection gate: {selection_gate}"
                     )
-                elif not gate_state[selection_gate]["satisfied"]:
+                    continue
+                if not gate_state[selection_gate]["satisfied"]:
                     blockers.append(
                         f"selection gate blocked: {selection_gate}"
                     )
-                else:
-                    authority_doc = gate_evidence.get(selection_gate)
-                    expected = selection.get("equals")
-                    actual = (
-                        _value_at(authority_doc, selection.get("path", ""))
-                        if authority_doc is not None
-                        else None
+                    continue
+                authority_doc = gate_evidence.get(selection_gate)
+                expected = selection.get("equals")
+                actual = (
+                    _value_at(authority_doc, selection.get("path", ""))
+                    if authority_doc is not None
+                    else None
+                )
+                if actual != expected:
+                    blockers.append(
+                        "release selection mismatch: "
+                        f"{selection.get('path')}={actual!r}, expected {expected!r}"
                     )
-                    if actual != expected:
-                        blockers.append(
-                            "release selection mismatch: "
-                            f"{selection.get('path')}={actual!r}, expected {expected!r}"
-                        )
             if item.get("defer_until"):
                 blockers.append(f"deferred until: {item['defer_until']}")
             if preferred_item_id and item.get("alternative_to") == preferred_item_id:
@@ -157,7 +161,12 @@ def _procurement_authority(
             "blockers": blockers,
             "required_for": item.get("required_for"),
             "requires_gate": item.get("requires_gate"),
-            "requires_gate_selection": item.get("requires_gate_selection"),
+            "requires_gate_selections": item.get("requires_gate_selections")
+            or (
+                [item["requires_gate_selection"]]
+                if item.get("requires_gate_selection") is not None
+                else []
+            ),
             "defer_until": item.get("defer_until"),
             "alternative_to": item.get("alternative_to"),
         }
