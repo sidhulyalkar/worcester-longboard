@@ -12,8 +12,9 @@ X1 has moved beyond the original TRAMPA/14S Alpha sketch. Current build and purc
 
 1. machine-readable qualification reports produced from real physical evidence;
 2. `hardware/build_authority.json` and `hardware/procurement_manifest.json`;
-3. the Rev-C mission and purchase boundary in `hardware/rev_c_requirements.json` and `docs/rev_c_trail_carver_architecture.md`;\n4. the current execution plan in `docs/physical_commissioning_playbook.md`;
-4. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
+3. the Rev-C mission and purchase boundary in `hardware/rev_c_requirements.json` and `docs/rev_c_trail_carver_architecture.md`;
+4. the current execution plan in `docs/physical_commissioning_playbook.md`;
+5. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
 6. dated benchmark/risk registries;
 7. older Alpha notes retained only as historical design exploration.
 
