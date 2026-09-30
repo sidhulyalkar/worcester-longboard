@@ -300,7 +300,10 @@ The full board will eventually require the categories below. Exact powered parts
 
 ### Traction power
 
-- professionally assembled or qualified integrated traction pack;\n- Rev-C trail energy class target roughly 500-650 Wh;\n- Rev-C range energy class target roughly 950-1150 Wh;\n- exact voltage/cell topology intentionally TBD;
+- professionally assembled or qualified integrated traction pack;
+- Rev-C trail energy class target roughly 500-650 Wh;
+- Rev-C range energy class target roughly 950-1150 Wh;
+- exact voltage/cell topology intentionally TBD;
 - pack-builder-selected BMS with balancing and temperature monitoring;
 - matched charger;
 - DC-rated main fuse;
