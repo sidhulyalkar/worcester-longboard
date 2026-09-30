@@ -24,7 +24,7 @@ from simulation.front_drive_traction import analyze_scenario
 @dataclass(frozen=True)
 class SweepConfig:
     wheelbase_m: float = 0.94
-    total_mass_kg: float = 70.0
+    total_mass_kg: float = 1.0
     cg_from_rear_fraction: float = 0.50
     cg_height_to_wheelbase: float = 0.75
     rolling_resistance_coeff: float = 0.04
@@ -101,7 +101,7 @@ def sweep(config: SweepConfig, grades: list[float]) -> dict:
         ),
         "inputs": {
             "wheelbase_m": config.wheelbase_m,
-            "total_mass_kg": config.total_mass_kg,
+            "normalization_mass_kg": config.total_mass_kg,
             "cg_from_rear_fraction": config.cg_from_rear_fraction,
             "cg_height_to_wheelbase": config.cg_height_to_wheelbase,
             "rolling_resistance_coeff": config.rolling_resistance_coeff,
@@ -114,7 +114,7 @@ def sweep(config: SweepConfig, grades: list[float]) -> dict:
 def _parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--wheelbase-m", type=float, default=0.94)
-    p.add_argument("--mass-kg", type=float, default=70.0)
+    p.add_argument("--mass-kg", type=float, default=1.0, help="normalization mass; required-mu ratios are mass invariant")
     p.add_argument("--cg-from-rear-fraction", type=float, default=0.50)
     p.add_argument("--cg-height-to-wheelbase", type=float, default=0.75)
     p.add_argument("--rolling-resistance", type=float, default=0.04)
