@@ -34,10 +34,10 @@ def _all_physical_evidence():
             "qualified": True,
             "deck_envelope_comparison_completed": True,
             "selected_deck_candidate_id": "comp95_class",
-            "selected_chassis_family": "compact_matrix_reference",
-            "selected_wheel_family": "200x50_pneumatic",
-            "selected_brake_architecture": "rear_v5_reference",
-            "selected_topology_for_measurement": "rear_v5_rear_2wd_shared",
+            "selected_chassis_family": "COMP95_BASELINE",
+            "selected_wheel_family": "MBS_RSII_200X50",
+            "selected_brake_architecture": "MBS_V5_REAR",
+            "selected_topology_for_measurement": "REAR_V5_REAR_2WD_SHARED",
             "range_pack_inert_envelope_plausible": True,
             "no_unqualified_safety_critical_adapter": True,
             "powered_operation_authorized": False,
@@ -90,10 +90,10 @@ def test_rev_c_release_requires_fit_pilot_and_then_opens_preferred_measurement_i
         "qualified": True,
         "deck_envelope_comparison_completed": True,
         "selected_deck_candidate_id": "comp95_class",
-        "selected_chassis_family": "compact_matrix_reference",
-        "selected_wheel_family": "200x50_pneumatic",
-        "selected_brake_architecture": "rear_v5_reference",
-        "selected_topology_for_measurement": "rear_v5_rear_2wd_shared",
+        "selected_chassis_family": "COMP95_BASELINE",
+        "selected_wheel_family": "MBS_RSII_200X50",
+        "selected_brake_architecture": "MBS_V5_REAR",
+        "selected_topology_for_measurement": "REAR_V5_REAR_2WD_SHARED",
         "range_pack_inert_envelope_plausible": True,
         "no_unqualified_safety_critical_adapter": True,
         "powered_operation_authorized": False,
@@ -112,6 +112,33 @@ def test_rev_c_release_requires_fit_pilot_and_then_opens_preferred_measurement_i
     assert report["capabilities"]["order_measurement_chassis_parts"]["allowed"] is True
     assert report["capabilities"]["order_power_hardware"]["allowed"] is False
     assert report["capabilities"]["powered_operation"]["allowed"] is False
+
+
+def test_release_for_warren_does_not_unlock_comp95_or_v5_items():
+    fit = _stamp({"qualified_for_four_zone_duplication": True})
+    release = _stamp({
+        "authority": "x1_rev_c_chassis_release",
+        "schema_version": 1,
+        "qualified": True,
+        "deck_envelope_comparison_completed": True,
+        "selected_deck_candidate_id": "pro_warren_iii_class",
+        "selected_chassis_family": "PRO_WARREN_III_REFERENCE",
+        "selected_wheel_family": "MBS_RSII_200X50",
+        "selected_brake_architecture": "MBS_V5_REAR",
+        "selected_topology_for_measurement": "REAR_V5_REAR_2WD_SHARED",
+        "range_pack_inert_envelope_plausible": True,
+        "no_unqualified_safety_critical_adapter": True,
+        "powered_operation_authorized": False,
+    })
+    report = evaluate(_plan(), _procurement(), [fit, release])
+    assert report["gates"]["rev_c_chassis_release_qualified"]["satisfied"] is True
+    assert report["procurement_items"]["DONOR-COMP95"]["orderable"] is False
+    assert report["procurement_items"]["BRAKE-V5"]["orderable"] is False
+    assert any(
+        "selected_chassis_family='PRO_WARREN_III_REFERENCE'" in blocker
+        for blocker in report["procurement_items"]["DONOR-COMP95"]["blockers"]
+    )
+    assert report["capabilities"]["order_measurement_chassis_parts"]["allowed"] is False
 
 
 def test_fallback_requires_strategy_change_after_rev_c_release():
