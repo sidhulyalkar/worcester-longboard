@@ -27,6 +27,7 @@ def test_warren_is_narrower_than_comp95_but_slightly_heavier():
     assert warren["deck_width_delta_mm_vs_comp95"] == -7.0
     assert warren["complete_mass_delta_lb_vs_comp95"] == 1.3
     assert warren["wheelbase_adjustment_span_mm"] == 60.0
+    assert warren["deck_area_proxy_delta_pct_vs_comp95"] == 0.28
     assert warren["deck_construction"] == "Snowboard composite"
 
 
@@ -58,3 +59,16 @@ def test_missing_candidate_fails_closed():
     ]
     errors = validate(snapshot)
     assert any("PRO_WARREN_III_REFERENCE" in e for e in errors)
+
+
+def test_warren_wheelbase_range_is_centered_on_comp95_reference():
+    report = analyze(_snapshot())
+    wb = report["wheelbase_experiment"]
+    assert wb["comp95_reference_mm"] == 940.0
+    assert wb["warren_min_mm"] == 910.0
+    assert wb["warren_max_mm"] == 970.0
+    assert wb["warren_midpoint_mm"] == 940.0
+    assert wb["comp95_matches_warren_midpoint"] is True
+    assert wb["warren_short_delta_vs_comp95_mm"] == -30.0
+    assert wb["warren_long_delta_vs_comp95_mm"] == 30.0
+    assert wb["same_steer_curvature_ratio_short_vs_long_bicycle_proxy"] == 1.066
