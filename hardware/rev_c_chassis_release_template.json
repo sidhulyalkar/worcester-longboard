@@ -14,9 +14,9 @@
     "rejected_alternatives_recorded": false
   },
   "evidence_refs": {
-    "deck_envelope_record_sha256": "",
-    "topology_trade_record_sha256": "",
-    "inert_pack_envelope_record_sha256": "",
+    "deck_comparison_authority_fingerprint_sha256": "",
+    "topology_trade_authority_fingerprint_sha256": "",
+    "inert_pack_envelope_authority_fingerprint_sha256": "",
     "fit_pilot_authority_fingerprint_sha256": ""
   },
   "rejected_alternatives": [
@@ -26,5 +26,6 @@
     }
   ],
   "open_questions": [],
-  "powered_operation_authorized": false
+  "powered_operation_authorized": false,
+  "selected_deck_candidate_id": ""
 }
