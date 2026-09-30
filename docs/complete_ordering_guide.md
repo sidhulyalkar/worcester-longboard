@@ -1,5 +1,9 @@
 # Worcester X1 complete staged ordering guide
 
+> **REV-C PROCUREMENT OVERRIDE — 2026-09-30**
+>
+> The Comp 95, V5 brake, wheel/axle upgrades, drivetrain, ESC and traction-battery sections below are reference material only during the Rev-C trade study. The only intentionally orderable hardware is the inexpensive Issue #4 fit-pilot stack. Chassis release conditions live in `hardware/rev_c_requirements.json`; architecture rationale lives in `docs/rev_c_trail_carver_architecture.md`.
+
 This guide answers one question: **what should I buy, from whom, in what order, and what must remain unbought until evidence opens the next gate?**
 
 It is intentionally conservative. Ordering a part is not fabrication authority, and fabrication authority is not powered-operation authority.
@@ -296,7 +300,7 @@ The full board will eventually require the categories below. Exact powered parts
 
 ### Traction power
 
-- professionally assembled high-drain 12S4P-class reference pack;
+- professionally assembled or qualified integrated traction pack;\n- Rev-C trail energy class target roughly 500-650 Wh;\n- Rev-C range energy class target roughly 950-1150 Wh;\n- exact voltage/cell topology intentionally TBD;
 - pack-builder-selected BMS with balancing and temperature monitoring;
 - matched charger;
 - DC-rated main fuse;
@@ -357,19 +361,21 @@ A storefront description is evidence about what was sold. The received physical 
 5. fabricate one pilot stack;
 6. collect real Issue #4 evidence.
 
-**While parts are shipping:**
+**While fit-pilot parts are shipping:**
 
-1. watch for a current-generation used Comp 95 <=$350;
-2. keep the new Comp 95 + V5 brake pair as the $589.90 fallback;
-3. do not buy standalone Matrix III trucks/hubs;
-4. do not buy 9-inch wheels;
-5. do not buy drivetrain, motors, ESC or battery.
+1. generate the Comp 95-class and Agent-class full-scale deck envelopes;
+2. compare stance width, heel/toe leverage and emergency step-off on the two envelopes;
+3. monitor chassis availability only as market information, not purchase authority;
+4. do not buy chassis, brake, standalone trucks/hubs, wheel upgrades, drivetrain, motors, ESC or battery.
 
 **After Issue #4 passes:**
 
 1. complete the four-zone sensing rig;
-2. place the donor/brake order if not already captured;
-3. qualify rider fit and the unpowered chassis;
-4. only then freeze the powered architecture.
+2. close the Rev-C rider-scale deck comparison;
+3. close the wheel/brake/drive topology release conditions;
+4. deliberately select one chassis family and update the procurement manifest;
+5. only then place the chassis/brake order;
+6. qualify rider fit and the unpowered chassis;
+7. only then freeze the powered architecture.
 
 That sequence is cheaper because every expensive purchase closes a measured interface rather than opening a new compatibility question.
