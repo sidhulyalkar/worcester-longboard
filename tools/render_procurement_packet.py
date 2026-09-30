@@ -66,6 +66,8 @@ def render_packet(plan: dict, procurement: dict) -> str:
         lines.append(
             f"| {item['id']} | {item['qty']} | {item['vendor']} / {item['sku']} | ${_max_cost(item):.2f} | {item.get('required_for', '')} |"
         )
+    if not measure:
+        lines.append("| _none released_ |  |  |  | Rev-C chassis/brake hold remains active |")
 
     lines.extend([
         "",
