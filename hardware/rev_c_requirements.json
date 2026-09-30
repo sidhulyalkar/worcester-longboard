@@ -73,7 +73,7 @@
   },
   "control_architecture": {
     "required_signals": [
-      "front non-driven wheel speed or equivalent ground-speed reference",
+      "at least one non-driven wheel speed or equivalent independent ground-speed reference",
       "driven wheel/motor speed",
       "IMU roll/pitch/yaw-rate",
       "pack current/voltage/temperature",
