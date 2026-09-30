@@ -21,10 +21,12 @@ def test_rev_c_holds_expensive_chassis_while_retaining_comp95_reference():
     data = _manifest()
     assert data["rules"]["preferred_chassis_strategy"] == "REV_C_HOLD_COMPACT_MATRIX_REFERENCE"
     assert data["rules"]["preferred_chassis_item_id"] == "DONOR-COMP95"
-    assert data["rules"]["rev_c_expensive_procurement_hold"] is True
+    assert data["rules"]["rev_c_expensive_procurement_hold"] == "evidence_gated"
+    assert data["rules"]["rev_c_chassis_release_gate"] == "rev_c_chassis_release_qualified"
     items = {item["id"]: item for item in data["items"]}
     assert items["DONOR-COMP95"]["purchase_strategy"] == "leading_compact_reference_not_yet_authorized"
-    assert "Rev-C chassis release conditions" in items["DONOR-COMP95"]["defer_until"]
+    assert items["DONOR-COMP95"]["requires_gate"] == "rev_c_chassis_release_qualified"
+    assert items["BRAKE-V5"]["requires_gate"] == "rev_c_chassis_release_qualified"
     assert items["TRUCK-M3-400"]["alternative_to"] == "DONOR-COMP95"
     assert items["HUB-RSII"]["alternative_to"] == "DONOR-COMP95"
     assert items["AXLE-M3-70"]["purchase_strategy"] == "deferred_interface_study"
