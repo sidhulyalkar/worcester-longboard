@@ -13,10 +13,10 @@ X1 has moved beyond the original TRAMPA/14S Alpha sketch. Current build and purc
 1. machine-readable qualification reports produced from real physical evidence;
 2. `hardware/build_authority.json` and `hardware/procurement_manifest.json`;
 3. the Rev-C mission and purchase boundary in `hardware/rev_c_requirements.json` and `docs/rev_c_trail_carver_architecture.md`;
-4. the current execution plan in `docs/physical_commissioning_playbook.md`;
-5. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
-6. dated benchmark/risk registries;
-7. older Alpha notes retained only as historical design exploration.
+4. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;\n5. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
+6. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
+7. dated benchmark/risk registries;
+8. older Alpha notes retained only as historical design exploration.
 
 If an older document conflicts with a current manifest, build gate, or qualified authority, the older document does **not** authorize a purchase, fabrication step, or ride test.
 
@@ -64,7 +64,7 @@ The fit layer intentionally supports independent left/right foot dimensions, yaw
 
 ### Chassis/brake path
 
-The leading compact reference remains a complete **MBS Comp 95 donor chassis** because it combines a narrow rider envelope, Matrix III / Rockstar II / pneumatic hardware and a documented V5 brake path. Rev-C no longer treats that donor as purchase-authorized until the deck, wheel, brake and drive release conditions are closed.
+The leading compact reference remains a complete **MBS Comp 95 donor chassis** because it combines a narrow rider envelope, Matrix III / Rockstar II / pneumatic hardware and a documented V5 brake path. Rev-C no longer treats that donor as purchase-authorized until fingerprinted Issue **#25** chassis-release evidence closes the deck, wheel, brake, topology and inert-pack-envelope pre-purchase questions.
 
 The donor-grounded published reference is explicit:
 
