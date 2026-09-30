@@ -8,7 +8,9 @@
     "physical_measurements_override_catalog_dimensions": true,
     "do_not_freeze_tbd_parts_before_named_gate": true,
     "power_architecture_requires_brake_drive_topology": true,
-    "final_power_freeze_requires_inert_dummy_pack_mount": true
+    "final_power_freeze_requires_inert_dummy_pack_mount": true,
+    "rev_c_requirements_path": "hardware/rev_c_requirements.json",
+    "chassis_procurement_requires_rev_c_release": true
   },
   "subsystems": [
     {
@@ -46,8 +48,8 @@
     },
     {
       "id": "CHASSIS",
-      "status": "SOURCE_NOW_BUY_LATER",
-      "freeze_gate": "rolling_chassis_physical_qualified",
+      "status": "REV_C_HOLD",
+      "freeze_gate": "rev_c_chassis_release",
       "contents": [
         "Preferred MBS Comp 95 donor (10303)",
         "Matrix III CNC 400 mm trucks included with donor",
@@ -56,19 +58,19 @@
         "8 inch T1 tires/tubes included with donor",
         "F5 bindings and mounting hardware included with donor"
       ],
-      "authority": "Donor-first. Published 950/251/940 mm deck/wheelbase references are CAD inputs only until the received donor is measured."
+      "authority": "Comp 95 remains the leading compact reference, not purchase authority. Release only after rider-scale deck comparison plus wheel/brake/drive topology review."
     },
     {
       "id": "MECHANICAL-BRAKE",
-      "status": "SOURCE_NOW_BUY_WITH_CHASSIS",
-      "freeze_gate": "brake_interface_qualified",
+      "status": "REV_C_HOLD",
+      "freeze_gate": "rev_c_chassis_release",
       "contents": [
         "MBS V5 brake system (15006)",
         "cable/housing supplied or selected to the physical kit",
         "rotor/hub hardware appropriate to Rockstar II",
         "replacement consumables only after exact received revision is identified"
       ],
-      "authority": "Issue #14 qualifies the V5 measurement/stop interface only; it does not select the final powered-board topology."
+      "authority": "V5 remains the rear friction-brake reference, but purchase is coupled to the Rev-C chassis/wheel topology."
     },
     {
       "id": "BRAKE-DRIVE-TOPOLOGY",
@@ -133,14 +135,14 @@
     },
     {
       "id": "WHEELS-OPTIONAL-9IN",
-      "status": "BLOCKED_OPTION",
+      "status": "REV_C_HOLD",
       "freeze_gate": "rolling_chassis_physical_qualified",
       "contents": [
         "MBS T2 9 inch tire 13120",
         "MBS 9 inch tube 13013",
         "compatible 9 inch hub choice only after exact measured need"
       ],
-      "authority": "Characterize donor 8 inch wheels first; nominal product names are not geometry authority"
+      "authority": "Rev-C studies tire air volume before diameter. No wheel upgrade is purchase-authorized until the brake/hub path is credible."
     },
     {
       "id": "DRIVE",
@@ -174,16 +176,19 @@
       "status": "POWER_GATED_TBD",
       "freeze_gate": "power_architecture_frozen",
       "contents": [
-        "professionally assembled high-drain traction pack sized after mission/topology/dummy-mount qualification",
+        "professionally assembled or qualified integrated traction pack only",
+        "trail energy class target roughly 500-650 Wh",
+        "range energy class target roughly 950-1150 Wh",
         "pack-builder-selected BMS with balancing and temperature monitoring",
-        "matched charger",
+        "matched charger with moderate normal-charge path",
         "DC-rated main fuse",
         "service disconnect",
         "precharge / anti-spark strategy",
         "high-current connectors and conductors",
-        "crash-protected sealed enclosure with service access"
+        "positive-retention crash-protected enclosure",
+        "cold-swap service concept until a qualified system explicitly supports otherwise"
       ],
-      "authority": "Do not DIY the first traction battery as a cost-saving shortcut; exact voltage/cell/current architecture remains blocked until the inert load path passes."
+      "authority": "Rev-C energy classes replace the old implicit 12S4P assumption. Exact voltage, cells, BMS, connector and enclosure remain blocked until inert packaging and drive topology qualify."
     },
     {
       "id": "SUPERVISORY-ELECTRONICS",
