@@ -476,10 +476,12 @@ Only after the Issue #25 report passes should the procurement packet be regenera
 
 ```bash
 python tools/render_procurement_packet.py \
+  --evidence <ACTUAL_ISSUE_4_AUTHORITY.json> \
+  --evidence rider/private/rev_c_release/chassis_release_authority.json \
   --out rider/private/rev_c_release/current_procurement_packet.md
 ```
 
-Note: the public packet without private evidence remains intentionally fail-closed. The evidence-aware authority report is the source for confirming the gate has opened.
+The public packet without private evidence remains intentionally fail-closed. Supplying the two private authority files above renders the evidence-aware measurement-stage checkout packet without changing repository policy.
 
 Do not substitute a vendor sale, low used price, or shipping deadline for the release evidence.
 
