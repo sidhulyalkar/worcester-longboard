@@ -40,6 +40,10 @@
           "equals": true
         },
         {
+          "path": "selected_deck_candidate_id",
+          "type": "nonempty_string"
+        },
+        {
           "path": "selected_chassis_family",
           "type": "nonempty_string"
         },
