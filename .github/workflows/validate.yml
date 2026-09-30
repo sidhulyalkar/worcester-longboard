@@ -38,7 +38,7 @@ jobs:
           from pathlib import Path
           report = json.loads(Path('/tmp/x1-build-authority.json').read_text())
           assert report['capabilities']['order_fit_pilot_parts']['allowed'] is True
-          assert report['capabilities']['order_measurement_chassis_parts']['allowed'] is True
+          assert report['capabilities']['order_measurement_chassis_parts']['allowed'] is False
           assert report['capabilities']['duplicate_four_fit_zones']['allowed'] is False
           assert report['capabilities']['fabricate_unpowered_chassis']['allowed'] is False
           assert report['capabilities']['qualify_brake_drive_topology']['allowed'] is False
@@ -51,7 +51,7 @@ jobs:
           assert report['gates']['power_packaging_candidate_defined']['satisfied'] is False
           assert report['gates']['dummy_pack_mount_qualified']['satisfied'] is False
           assert report['gates']['power_architecture_frozen']['satisfied'] is False
-          print('Public authority is conservative: evidence acquisition open; topology, packaging, dummy-pack and power gates remain closed.')
+          print('Public authority is conservative: fit-pilot ordering open; Rev-C chassis, topology, packaging, dummy-pack and power gates remain closed.')
           PY
       - name: Host-test controller core
         run: |
