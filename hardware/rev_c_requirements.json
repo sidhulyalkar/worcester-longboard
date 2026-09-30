@@ -38,7 +38,8 @@
     "range_configuration_mass_goal_lb": 45,
     "wheel_architecture": "pneumatic",
     "steering": "progressive rider-tunable",
-    "rider_interface": "independent left/right fit with easy emergency step-off"
+    "rider_interface": "independent left/right fit with easy emergency step-off",
+    "mass_goals_status": "ASPIRATIONAL_UNTIL_COMPONENT_MASS_BUDGET_CLOSES"
   },
   "energy_architecture": {
     "trail_pack_nominal_wh_target": [
@@ -219,6 +220,26 @@
         "complete_vendor_architecture": true
       },
       "source": "https://trampaboards.com/infinity-truck-wearing-magura-hydraulic-brakes-with-custom-disks-to-fit-any-5-spoke-trampa-wheels-p-10769.html"
+    },
+    {
+      "id": "MBS_AGENT_BATTERY_MASS_REFERENCE",
+      "lessons": [
+        "current integrated high-voltage battery references consume a large fraction of the desired total vehicle mass",
+        "trail and range mass goals must be treated as aspirational until drive, ESC, guard, enclosure and mounting masses are budgeted",
+        "quick-swap smaller packs remain attractive when a large installed pack harms handling or carryability"
+      ],
+      "known": {
+        "battery_540_wh": 540,
+        "battery_540_weight_lb": 15,
+        "battery_1080_product_energy_wh": 1089,
+        "battery_1080_weight_lb": 20,
+        "comp95_unpowered_weight_lb": 14.6
+      },
+      "sources": [
+        "https://www.mbs.com/shop/p/mbs-540-battery-pack",
+        "https://www.mbs.com/shop/p/mbs-1080-battery-pack",
+        "https://www.mbs.com/shop/p/comp-95-mountainboard-silver-hex"
+      ]
     }
   ],
   "topology_branches": [
