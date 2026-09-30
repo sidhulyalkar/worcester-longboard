@@ -17,15 +17,20 @@ def test_manifest_is_valid_and_power_hardware_stays_blocked():
     assert report["buy_now_maximum_usd"] <= report["buy_now_ceiling_usd"]
 
 
-def test_comp95_is_preferred_chassis_and_piecemeal_parts_are_fallbacks():
+def test_rev_c_holds_expensive_chassis_while_retaining_comp95_reference():
     data = _manifest()
-    assert data["rules"]["preferred_chassis_strategy"] == "DONOR_COMP95"
+    assert data["rules"]["preferred_chassis_strategy"] == "REV_C_HOLD_COMPACT_MATRIX_REFERENCE"
     assert data["rules"]["preferred_chassis_item_id"] == "DONOR-COMP95"
+    assert data["rules"]["rev_c_expensive_procurement_hold"] == "evidence_gated"
+    assert data["rules"]["rev_c_chassis_release_gate"] == "rev_c_chassis_release_qualified"
     items = {item["id"]: item for item in data["items"]}
-    assert items["DONOR-COMP95"]["purchase_strategy"] == "preferred_complete_chassis"
+    assert items["DONOR-COMP95"]["purchase_strategy"] == "leading_compact_reference_not_yet_authorized"
+    assert items["DONOR-COMP95"]["requires_gate"] == "rev_c_chassis_release_qualified"
+    assert items["BRAKE-V5"]["requires_gate"] == "rev_c_chassis_release_qualified"
     assert items["TRUCK-M3-400"]["alternative_to"] == "DONOR-COMP95"
     assert items["HUB-RSII"]["alternative_to"] == "DONOR-COMP95"
     assert items["AXLE-M3-70"]["purchase_strategy"] == "deferred_interface_study"
+    assert "BATTERY-PRO-MODULAR" in items
 
 
 def test_power_gate_cannot_be_promoted_in_this_tranche():

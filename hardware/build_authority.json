@@ -7,82 +7,262 @@
       "issue": 4,
       "requires": [],
       "evidence": [
-        {"path": "qualified_for_four_zone_duplication", "equals": true},
-        {"path": "authority_fingerprint_sha256", "type": "valid_authority_fingerprint"}
+        {
+          "path": "qualified_for_four_zone_duplication",
+          "equals": true
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
+      ]
+    },
+    "rev_c_chassis_release_qualified": {
+      "issue": 25,
+      "requires": [
+        "fit_pilot_qualified"
+      ],
+      "evidence": [
+        {
+          "path": "authority",
+          "equals": "x1_rev_c_chassis_release"
+        },
+        {
+          "path": "schema_version",
+          "equals": 1
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "deck_envelope_comparison_completed",
+          "equals": true
+        },
+        {
+          "path": "selected_deck_candidate_id",
+          "type": "nonempty_string"
+        },
+        {
+          "path": "selected_chassis_family",
+          "type": "nonempty_string"
+        },
+        {
+          "path": "selected_wheel_family",
+          "type": "nonempty_string"
+        },
+        {
+          "path": "selected_brake_architecture",
+          "type": "nonempty_string"
+        },
+        {
+          "path": "selected_topology_for_measurement",
+          "type": "nonempty_string"
+        },
+        {
+          "path": "range_pack_inert_envelope_plausible",
+          "equals": true
+        },
+        {
+          "path": "no_unqualified_safety_critical_adapter",
+          "equals": true
+        },
+        {
+          "path": "powered_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
       ]
     },
     "rider_fit_qualified": {
       "issue": 2,
-      "requires": ["fit_pilot_qualified"],
+      "requires": [
+        "fit_pilot_qualified"
+      ],
       "evidence": [
-        {"path": "authority", "equals": "x1_fit_session"},
-        {"path": "schema_version", "equals": 2},
-        {"path": "rev_b_gate.ready_for_rev_b_fit_cad", "equals": true},
-        {"path": "authority_fingerprint_sha256", "type": "valid_authority_fingerprint"}
+        {
+          "path": "authority",
+          "equals": "x1_fit_session"
+        },
+        {
+          "path": "schema_version",
+          "equals": 2
+        },
+        {
+          "path": "rev_b_gate.ready_for_rev_b_fit_cad",
+          "equals": true
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
       ]
     },
     "brake_interface_qualified": {
       "issue": 14,
-      "requires": [],
+      "requires": [
+        "rev_c_chassis_release_qualified"
+      ],
       "evidence": [
-        {"path": "authority", "equals": "x1_mechanical_brake_interface"},
-        {"path": "qualified", "equals": true},
-        {"path": "brake_interface_verified", "equals": true},
-        {"path": "powered_operation_authorized", "equals": false},
-        {"path": "authority_fingerprint_sha256", "type": "valid_authority_fingerprint"}
+        {
+          "path": "authority",
+          "equals": "x1_mechanical_brake_interface"
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "brake_interface_verified",
+          "equals": true
+        },
+        {
+          "path": "powered_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
       ]
     },
     "rolling_chassis_physical_qualified": {
       "issue": 12,
-      "requires": ["brake_interface_qualified"],
+      "requires": [
+        "brake_interface_qualified"
+      ],
       "evidence": [
-        {"path": "authority", "equals": "x1_rolling_chassis_physical"},
-        {"path": "qualified", "equals": true},
-        {"path": "powered_operation_authorized", "equals": false},
-        {"path": "authority_fingerprint_sha256", "type": "valid_authority_fingerprint"}
+        {
+          "path": "authority",
+          "equals": "x1_rolling_chassis_physical"
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "powered_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
       ]
     },
     "brake_drive_topology_qualified": {
       "issue": 19,
-      "requires": ["brake_interface_qualified", "rolling_chassis_physical_qualified"],
+      "requires": [
+        "brake_interface_qualified",
+        "rolling_chassis_physical_qualified"
+      ],
       "evidence": [
-        {"path": "authority", "equals": "x1_brake_drive_topology"},
-        {"path": "schema_version", "equals": 1},
-        {"path": "qualified", "equals": true},
-        {"path": "selected_topology", "type": "nonempty_string"},
-        {"path": "powered_operation_authorized", "equals": false},
-        {"path": "authority_fingerprint_sha256", "type": "valid_authority_fingerprint"}
+        {
+          "path": "authority",
+          "equals": "x1_brake_drive_topology"
+        },
+        {
+          "path": "schema_version",
+          "equals": 1
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "selected_topology",
+          "type": "nonempty_string"
+        },
+        {
+          "path": "powered_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
       ]
     },
     "rev_b_template_qualified": {
       "issue": 3,
-      "requires": ["rider_fit_qualified", "rolling_chassis_physical_qualified"],
+      "requires": [
+        "rider_fit_qualified",
+        "rolling_chassis_physical_qualified"
+      ],
       "evidence": [
-        {"path": "authority", "equals": "x1_rev_b_template"},
-        {"path": "qualified", "equals": true},
-        {"path": "authority_fingerprint_sha256", "type": "valid_authority_fingerprint"}
+        {
+          "path": "authority",
+          "equals": "x1_rev_b_template"
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
       ]
     },
     "power_packaging_candidate_defined": {
       "issue": null,
-      "requires": ["brake_drive_topology_qualified", "rev_b_template_qualified"],
+      "requires": [
+        "brake_drive_topology_qualified",
+        "rev_b_template_qualified"
+      ],
       "evidence": [
-        {"path": "authority", "equals": "x1_power_packaging_candidate"},
-        {"path": "schema_version", "equals": 1},
-        {"path": "qualified", "equals": true},
-        {"path": "powered_operation_authorized", "equals": false},
-        {"path": "authority_fingerprint_sha256", "type": "valid_authority_fingerprint"}
+        {
+          "path": "authority",
+          "equals": "x1_power_packaging_candidate"
+        },
+        {
+          "path": "schema_version",
+          "equals": 1
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "powered_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
       ]
     },
     "dummy_pack_mount_qualified": {
       "issue": 21,
-      "requires": ["power_packaging_candidate_defined", "rolling_chassis_physical_qualified"],
+      "requires": [
+        "power_packaging_candidate_defined",
+        "rolling_chassis_physical_qualified"
+      ],
       "evidence": [
-        {"path": "authority", "equals": "x1_dummy_pack_mount"},
-        {"path": "schema_version", "equals": 1},
-        {"path": "qualified", "equals": true},
-        {"path": "powered_operation_authorized", "equals": false},
-        {"path": "authority_fingerprint_sha256", "type": "valid_authority_fingerprint"}
+        {
+          "path": "authority",
+          "equals": "x1_dummy_pack_mount"
+        },
+        {
+          "path": "schema_version",
+          "equals": 1
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "powered_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
       ]
     },
     "power_architecture_frozen": {
@@ -93,9 +273,18 @@
         "rev_b_template_qualified"
       ],
       "evidence": [
-        {"path": "authority", "equals": "x1_power_architecture"},
-        {"path": "qualified", "equals": true},
-        {"path": "authority_fingerprint_sha256", "type": "valid_authority_fingerprint"}
+        {
+          "path": "authority",
+          "equals": "x1_power_architecture"
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
       ]
     }
   },
@@ -105,36 +294,59 @@
       "procurement_stage": "BUY_NOW"
     },
     "order_measurement_chassis_parts": {
-      "requires": [],
+      "requires": [
+        "rev_c_chassis_release_qualified"
+      ],
       "procurement_stage": "MEASURE_FIRST"
     },
     "duplicate_four_fit_zones": {
-      "requires": ["fit_pilot_qualified"]
+      "requires": [
+        "fit_pilot_qualified"
+      ]
     },
     "generate_rev_b_rider_interface": {
-      "requires": ["rider_fit_qualified"]
+      "requires": [
+        "rider_fit_qualified"
+      ]
     },
     "fabricate_unpowered_chassis": {
-      "requires": ["rolling_chassis_physical_qualified"]
+      "requires": [
+        "rolling_chassis_physical_qualified"
+      ]
     },
     "qualify_brake_drive_topology": {
-      "requires": ["brake_interface_qualified", "rolling_chassis_physical_qualified"]
+      "requires": [
+        "brake_interface_qualified",
+        "rolling_chassis_physical_qualified"
+      ]
     },
     "define_power_packaging_candidate": {
-      "requires": ["brake_drive_topology_qualified", "rev_b_template_qualified"]
+      "requires": [
+        "brake_drive_topology_qualified",
+        "rev_b_template_qualified"
+      ]
     },
     "build_inert_dummy_pack_fixture": {
-      "requires": ["power_packaging_candidate_defined"]
+      "requires": [
+        "power_packaging_candidate_defined"
+      ]
     },
     "qualify_dummy_pack_mount": {
-      "requires": ["power_packaging_candidate_defined", "rolling_chassis_physical_qualified"]
+      "requires": [
+        "power_packaging_candidate_defined",
+        "rolling_chassis_physical_qualified"
+      ]
     },
     "order_power_hardware": {
-      "requires": ["power_architecture_frozen"],
+      "requires": [
+        "power_architecture_frozen"
+      ],
       "procurement_stage": "POWER_GATED"
     },
     "powered_operation": {
-      "requires": ["power_architecture_frozen"],
+      "requires": [
+        "power_architecture_frozen"
+      ],
       "hard_blocked": true,
       "block_reason": "No current Worcester X1 authority contract can authorize powered operation."
     }

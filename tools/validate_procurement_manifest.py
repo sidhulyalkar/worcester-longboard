@@ -68,6 +68,17 @@ def validate_manifest(data: dict) -> dict:
             elif alternative_to not in ids:
                 errors.append(f"{item.get('id')}: alternative target does not exist: {alternative_to}")
 
+    rev_c_gate = rules.get("rev_c_chassis_release_gate")
+    if rules.get("rev_c_expensive_procurement_hold") == "evidence_gated":
+        if rev_c_gate != "rev_c_chassis_release_qualified":
+            errors.append("Rev-C evidence-gated procurement requires rev_c_chassis_release_qualified")
+        for item_id in ("DONOR-COMP95", "BRAKE-V5", "TRUCK-M3-400", "HUB-RSII"):
+            item = items_by_id.get(item_id)
+            if item is None:
+                errors.append(f"Rev-C required manifest item missing: {item_id}")
+            elif item.get("requires_gate") != rev_c_gate:
+                errors.append(f"{item_id}: must require the Rev-C chassis release gate")
+
     ceiling = float(rules.get("buy_now_max_total_usd", 0))
     if buy_now_total > ceiling:
         errors.append(f"BUY_NOW ceiling exceeded: ${buy_now_total:.2f} > ${ceiling:.2f}")

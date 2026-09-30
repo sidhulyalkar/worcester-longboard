@@ -1,5 +1,9 @@
 # Worcester X1 complete staged ordering guide
 
+> **REV-C PROCUREMENT OVERRIDE — 2026-09-30**
+>
+> The Comp 95, V5 brake, wheel/axle upgrades, drivetrain, ESC and traction-battery sections below are reference material only until Issue #25 produces a qualified `x1_rev_c_chassis_release` authority. The only intentionally orderable hardware before that is the inexpensive Issue #4 fit-pilot stack. The executable handoff is `docs/rev_c_chassis_release_playbook.md`.
+
 This guide answers one question: **what should I buy, from whom, in what order, and what must remain unbought until evidence opens the next gate?**
 
 It is intentionally conservative. Ordering a part is not fabrication authority, and fabrication authority is not powered-operation authority.
@@ -184,7 +188,7 @@ PYTHONPATH=. python tools/init_one_zone_pilot_session.py \
   --validation-mass-kg <VALIDATION>
 ```
 
-## 4. Cart B: watch/source now, normally buy after Issue #4 passes
+## 4. Cart B: REV-C HOLD — source/watch only
 
 ### Preferred donor: MBS Comp 95, part 10303
 
@@ -230,7 +234,7 @@ MBS lists Matrix truck and Rockstar/Rockstar II hub compatibility. That makes it
 - V5 brake: `$89.95`
 - combined: `$589.90` before shipping/tax
 
-For minimum cash burn, normally close Issue #4 first and then place Cart B. A verified used donor <=$350 is the main reason to buy the chassis earlier.
+Do not place Cart B during the Rev-C trade study. A good used listing may be monitored, but low price is not permission to bypass the chassis release conditions.
 
 ## 5. Do not order the piecemeal fallback while donor-first is active
 
@@ -296,7 +300,10 @@ The full board will eventually require the categories below. Exact powered parts
 
 ### Traction power
 
-- professionally assembled high-drain 12S4P-class reference pack;
+- professionally assembled or qualified integrated traction pack;
+- Rev-C trail energy class target roughly 500-650 Wh;
+- Rev-C range energy class target roughly 950-1150 Wh;
+- exact voltage/cell topology intentionally TBD;
 - pack-builder-selected BMS with balancing and temperature monitoring;
 - matched charger;
 - DC-rated main fuse;
@@ -357,19 +364,24 @@ A storefront description is evidence about what was sold. The received physical 
 5. fabricate one pilot stack;
 6. collect real Issue #4 evidence.
 
-**While parts are shipping:**
+**While fit-pilot parts are shipping:**
 
-1. watch for a current-generation used Comp 95 <=$350;
-2. keep the new Comp 95 + V5 brake pair as the $589.90 fallback;
-3. do not buy standalone Matrix III trucks/hubs;
-4. do not buy 9-inch wheels;
-5. do not buy drivetrain, motors, ESC or battery.
+1. generate the Comp 95-class and Agent-class full-scale deck envelopes;
+2. compare stance width, heel/toe leverage and emergency step-off on the two envelopes;
+3. monitor chassis availability only as market information, not purchase authority;
+4. do not buy chassis, brake, standalone trucks/hubs, wheel upgrades, drivetrain, motors, ESC or battery.
 
 **After Issue #4 passes:**
 
-1. complete the four-zone sensing rig;
-2. place the donor/brake order if not already captured;
-3. qualify rider fit and the unpowered chassis;
-4. only then freeze the powered architecture.
+1. complete the Rev-C full-scale deck comparison;
+2. run the front-vs-rear traction sweep and four-branch pre-purchase topology trade;
+3. qualify trail/range inert pack-envelope plausibility;
+4. close Issue #25 and emit the chained `x1_rev_c_chassis_release` authority;
+5. regenerate the procurement packet with the Issue #4 + Issue #25 evidence files;
+6. only then place the released chassis/brake measurement order;
+7. complete the four-zone sensing rig and qualify rider fit;
+8. physically qualify the brake and unpowered chassis;
+9. resolve final Issue #19 brake/drive topology;
+10. only then continue toward the power freeze.
 
 That sequence is cheaper because every expensive purchase closes a measured interface rather than opening a new compatibility question.

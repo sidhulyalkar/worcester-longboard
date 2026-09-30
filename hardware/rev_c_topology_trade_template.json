@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "scope": "rev_c_pre_purchase_topology_trade",
+  "selected_topology_for_measurement": "",
+  "traction_sweep_record_sha256": "",
+  "candidate_evaluations": {
+    "REAR_V5_FRONT_2WD": {
+      "status": "KEEP_LIVE",
+      "reason": "",
+      "known_catalog_or_safety_blocker": false
+    },
+    "REAR_V5_REAR_2WD_SHARED": {
+      "status": "KEEP_LIVE",
+      "reason": "",
+      "known_catalog_or_safety_blocker": false
+    },
+    "REAR_2WD_FRONT_VENDOR_HYDRAULIC": {
+      "status": "KEEP_LIVE",
+      "reason": "",
+      "known_catalog_or_safety_blocker": false
+    },
+    "ALTERNATE_REAR_DRIVE_PRESERVING_V5": {
+      "status": "KEEP_LIVE",
+      "reason": "",
+      "known_catalog_or_safety_blocker": false
+    }
+  },
+  "checks": {
+    "manufacturer_constraints_recorded": false,
+    "traction_sweep_reviewed": false,
+    "independent_stopping_path_credible": false,
+    "front_hydraulic_reference_treated_as_complete_system_not_adapter": false,
+    "no_unqualified_safety_critical_adapter": false,
+    "physical_measurement_plan_defined": false
+  },
+  "powered_operation_authorized": false
+}

@@ -19,12 +19,12 @@ def _max_cost(item: dict) -> float:
     return qty * float(item["unit_price_range_usd"][1])
 
 
-def render_packet(plan: dict, procurement: dict) -> str:
+def render_packet(plan: dict, procurement: dict, evidence_docs: list[dict] | None = None) -> str:
     validation = validate_manifest(procurement)
     if not validation["valid"]:
         raise ValueError("invalid procurement manifest: " + "; ".join(validation["errors"]))
 
-    authority = evaluate(plan, procurement, [])
+    authority = evaluate(plan, procurement, evidence_docs or [])
     states = authority["procurement_items"]
     items = procurement["items"]
     buy_now = [x for x in items if x["stage"] == "BUY_NOW" and states[x["id"]]["orderable"]]
@@ -37,7 +37,7 @@ def render_packet(plan: dict, procurement: dict) -> str:
         "",
         f"Manifest date: {procurement.get('as_of')}",
         "",
-        "This packet is generated from repository authority. It is not ride or fabrication authorization.",
+        f"This packet is generated from repository authority using {len(evidence_docs or [])} supplied evidence document(s). It is not ride or fabrication authorization.",
         "",
         "## Issue #4 bench checkout",
         "",
@@ -66,6 +66,8 @@ def render_packet(plan: dict, procurement: dict) -> str:
         lines.append(
             f"| {item['id']} | {item['qty']} | {item['vendor']} / {item['sku']} | ${_max_cost(item):.2f} | {item.get('required_for', '')} |"
         )
+    if not measure:
+        lines.append("| _none released_ |  |  |  | Rev-C chassis/brake hold remains active |")
 
     lines.extend([
         "",
@@ -95,11 +97,15 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--plan", type=Path, default=Path("hardware/build_authority.json"))
     p.add_argument("--procurement", type=Path, default=Path("hardware/procurement_manifest.json"))
+    p.add_argument("--evidence", action="append", default=[], type=Path)
     p.add_argument("--out", type=Path)
     args = p.parse_args()
     plan = json.loads(args.plan.read_text(encoding="utf-8"))
     procurement = json.loads(args.procurement.read_text(encoding="utf-8"))
-    text = render_packet(plan, procurement) + "\n"
+    evidence_docs = [
+        json.loads(path.read_text(encoding="utf-8")) for path in args.evidence
+    ]
+    text = render_packet(plan, procurement, evidence_docs) + "\n"
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(text, encoding="utf-8")

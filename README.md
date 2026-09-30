@@ -2,6 +2,8 @@
 
 Experimental off-road electric mountainboard platform focused on controllability, rider-specific fit, redundant stopping authority, instrumentation, and evidence-driven commissioning.
 
+> **Rev-C update (2026-09-30):** the product target is now a snowboard-inspired trail-carver with modular long-range energy, high-volume pneumatic study, low-jerk dog-accompanied riding mode, and a renewed brake/drive topology review. Expensive chassis, brake, wheel, drive and traction-power purchases are on hold. See `docs/rev_c_trail_carver_architecture.md` and `hardware/rev_c_requirements.json`.
+
 > **Status:** Alpha engineering development platform. No powered riding is authorized. The current physical program is deliberately low-energy: qualify one fit-rig force zone, measure/qualify an unpowered donor chassis and friction brake, resolve the brake/drive mechanical topology, freeze the rider interface, qualify an inert battery-mass load path, and only then freeze the final power architecture.
 
 ## Current source of truth
@@ -10,10 +12,12 @@ X1 has moved beyond the original TRAMPA/14S Alpha sketch. Current build and purc
 
 1. machine-readable qualification reports produced from real physical evidence;
 2. `hardware/build_authority.json` and `hardware/procurement_manifest.json`;
-3. the current execution plan in `docs/physical_commissioning_playbook.md`;
-4. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
-5. dated benchmark/risk registries;
-6. older Alpha notes retained only as historical design exploration.
+3. the Rev-C mission and purchase boundary in `hardware/rev_c_requirements.json` and `docs/rev_c_trail_carver_architecture.md`;
+4. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;
+5. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
+6. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
+7. dated benchmark/risk registries;
+8. older Alpha notes retained only as historical design exploration.
 
 If an older document conflicts with a current manifest, build gate, or qualified authority, the older document does **not** authorize a purchase, fabrication step, or ride test.
 
@@ -29,7 +33,7 @@ The ordering stack is deliberately split by function:
 - `tools/render_procurement_packet.py` renders the currently authorized checkout packet;
 - `tools/validate_ordering_spec.py` detects source/price/compatibility drift against repository authority.
 
-The current complete Issue #4 convenience ceiling is **$120.90 before shipping/tax**, and optional owned tools/materials should be skipped. The preferred chassis path remains a complete MBS Comp 95 donor plus V5 mechanical brake after the fit-pilot handoff. Standard Rockstar II hubs are not assumed to accept the optional T2 9-inch tire; the 9-inch path remains physically and compatibility gated.
+The current complete Issue #4 convenience ceiling remains **$120.90 before shipping/tax**, and optional owned tools/materials should be skipped. Rev-C now holds the previously preferred Comp 95 + V5 chassis purchase until rider-scale deck comparison and wheel/brake/drive topology release conditions close. Standard Rockstar II hubs are not assumed to accept the optional T2 9-inch tire; the 9-inch path remains physically and compatibility gated.
 
 Storefront stock and prices can change faster than the repository. Refresh live availability before payment, but never use a storefront page to bypass a blocked repository item.
 
@@ -61,7 +65,7 @@ The fit layer intentionally supports independent left/right foot dimensions, yaw
 
 ### Chassis/brake path
 
-The preferred cost-efficient reference is currently a complete **MBS Comp 95 donor chassis**, because it provides a coherent Matrix III / Rockstar II / pneumatic-wheel platform more cheaply than reconstructing the same mechanical interfaces piecemeal.
+The leading compact reference remains a complete **MBS Comp 95 donor chassis** because it combines a narrow rider envelope, Matrix III / Rockstar II / pneumatic hardware and a documented V5 brake path. Rev-C no longer treats that donor as purchase-authorized until fingerprinted Issue **#25** chassis-release evidence closes the deck, wheel, brake, topology and inert-pack-envelope pre-purchase questions.
 
 The donor-grounded published reference is explicit:
 
@@ -136,7 +140,7 @@ python tools/evaluate_build_authority.py \
   hardware/procurement_manifest.json
 ```
 
-With no private physical-evidence reports, the public repository must remain conservative: inexpensive pilot parts and measurement-stage chassis parts can be considered, but four-zone duplication, chassis fabrication authority, brake/drive topology qualification, power-packaging definition, dummy-pack qualification, power ordering, and powered operation stay blocked.
+With no private physical-evidence reports, the public repository must remain conservative: inexpensive fit-pilot parts can be considered, while Rev-C keeps measurement-stage chassis/brake purchases, four-zone duplication, chassis fabrication authority, brake/drive topology qualification, power-packaging definition, dummy-pack qualification, power ordering, and powered operation blocked.
 
 Local/private authority reports can be supplied with repeated `--evidence` arguments. CI tests the gate machinery with synthetic fixtures, but synthetic CI data never becomes physical authority.
 
@@ -155,6 +159,7 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 ## Current physical milestones
 
 - **#4** qualify one load-cell/HX711/pod zone before four-zone duplication
+- **#25** qualify Rev-C pre-purchase chassis release from deck/topology/inert-envelope evidence
 - **#2** build and qualify X1 Fit Rig v0.3
 - **#14** measure and qualify the V5 mechanical-brake interface
 - **#12** qualify the donor-grounded unpowered rolling chassis

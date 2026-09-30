@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "project": "Worcester X1",
+  "revision": "Rev-C Trail-Carver",
+  "as_of": "2026-09-30",
+  "status": "ARCHITECTURE_TRADE_STUDY",
+  "mission": {
+    "primary": "low-speed trail carving with snowboard-like progressive handling",
+    "secondary": "quiet long-range mixed-surface cruising",
+    "tertiary": "very-low-jerk dog-accompanied neighborhood riding",
+    "non_goal": "headline top speed"
+  },
+  "hard_requirements": {
+    "independent_mechanical_stopping": true,
+    "professional_traction_battery_only": true,
+    "live_pack_not_first_mechanical_test_mass": true,
+    "no_unqualified_safety_critical_spacers_or_brake_adapters": true,
+    "fail_safe_control_bias": "any traction/carve assist must fall back to symmetric bounded torque",
+    "dog_mode_initial_speed_cap_mps": 2.7,
+    "dog_mode_low_jerk_required": true,
+    "battery_service_disconnect_required": true,
+    "positive_battery_retention_required": true,
+    "independent_friction_or_hydraulic_stopping": true,
+    "rear_v5_reference_preferred_if_compatible": true
+  },
+  "ride_targets": {
+    "useful_speed_envelope_mph": [
+      0,
+      20
+    ],
+    "priority_speed_envelope_mph": [
+      0,
+      15
+    ],
+    "trail_range_min_miles_with_range_pack": 20,
+    "mixed_surface_range_goal_miles_with_range_pack": 30,
+    "trail_configuration_mass_goal_lb": 35,
+    "range_configuration_mass_goal_lb": 45,
+    "wheel_architecture": "pneumatic",
+    "steering": "progressive rider-tunable",
+    "rider_interface": "independent left/right fit with easy emergency step-off",
+    "mass_goals_status": "ASPIRATIONAL_UNTIL_COMPONENT_MASS_BUDGET_CLOSES"
+  },
+  "energy_architecture": {
+    "trail_pack_nominal_wh_target": [
+      500,
+      650
+    ],
+    "range_pack_nominal_wh_target": [
+      950,
+      1150
+    ],
+    "planning_consumption_wh_per_mile": {
+      "efficient_mixed_surface": [
+        22,
+        30
+      ],
+      "trail": [
+        32,
+        45
+      ]
+    },
+    "planning_reserve_fraction": 0.2,
+    "charging": {
+      "normal_charge_mode": "battery-builder-approved moderate rate",
+      "daily_soc_target_fraction": [
+        0.8,
+        0.9
+      ],
+      "trip_soc_target_fraction": 1,
+      "dock_goal": "protected alignment dock or stand with no exposed traction contacts",
+      "pack_swap": "power-off/cold-swap only until a qualified battery system explicitly supports otherwise"
+    }
+  },
+  "control_architecture": {
+    "required_signals": [
+      "at least one non-driven wheel speed or equivalent independent ground-speed reference",
+      "driven wheel/motor speed",
+      "IMU roll/pitch/yaw-rate",
+      "pack current/voltage/temperature",
+      "motor/controller temperature"
+    ],
+    "modes": {
+      "powder": "soft jerk, progressive carve response, conservative slip limiting",
+      "trail": "responsive low-speed torque with bounded slip",
+      "range": "soft acceleration and efficiency-biased power limits",
+      "shasta": "very-low jerk, low speed cap, predictable symmetric torque and braking"
+    },
+    "carve_assist": {
+      "default": "OFF_UNTIL_LOW_SPEED_QUALIFIED",
+      "method": "small bounded left/right drive torque bias",
+      "initial_max_bias_fraction": 0.1,
+      "must_disable_on_sensor_fault": true
+    }
+  },
+  "candidate_architectures": [
+    {
+      "id": "COMP95_BASELINE",
+      "role": "primary compact donor reference",
+      "known": {
+        "deck_length_mm": 950,
+        "deck_max_width_mm": 251,
+        "axle_to_axle_mm": 940,
+        "unpowered_mass_kg": 6.6,
+        "truck": "Matrix III CNC 400mm",
+        "hub": "Rockstar II",
+        "tire": "T1 200x50",
+        "v5_brake_listed_compatible": true
+      },
+      "strengths": [
+        "narrower rider envelope",
+        "low unpowered mass",
+        "rear V5 brake compatibility",
+        "Matrix III tuning range"
+      ],
+      "open_questions": [
+        "whether 70mm axle + Agent G1 drive can coexist with V5 geometry on the same rear truck",
+        "whether 200x50 tire compliance is sufficient after rider-specific pressure tuning",
+        "whether PowerLam deck ride feel is preferable to snowboard-composite alternatives for this rider"
+      ],
+      "source": "https://www.mbs.com/shop/p/comp-95-mountainboard-silver-hex"
+    },
+    {
+      "id": "AGENT_AIR_REFERENCE",
+      "role": "electric-ready snowboard-composite benchmark",
+      "known": {
+        "deck_length_mm": 1020,
+        "deck_max_width_mm": 280,
+        "truck": "Matrix III",
+        "hub": "Rockstar II",
+        "tire": "T3 200x50",
+        "electric_component_ecosystem": true
+      },
+      "strengths": [
+        "snowboard-composite deck",
+        "electric-ready ecosystem",
+        "Rockstar II wheel family",
+        "Matrix III steering"
+      ],
+      "open_questions": [
+        "whether 280mm deck is unnecessarily wide for rider leverage",
+        "whether brake-first architecture can be retained after electric conversion",
+        "received-board mass and exact electric truck configuration"
+      ],
+      "source": "https://www.mbs.com/shop/p/10412"
+    },
+    {
+      "id": "AGENT_EXPLORER_REFERENCE",
+      "role": "high-volume tire benchmark",
+      "known": {
+        "deck_length_mm": 1020,
+        "deck_max_width_mm": 280,
+        "tire_nominal_mm": "200x70",
+        "tire_measured_diameter_mm": 194,
+        "tire_inflated_width_mm": 80,
+        "hub": "Rockstar Pro II XL",
+        "electric_component_ecosystem": true
+      },
+      "strengths": [
+        "much wider pneumatic footprint",
+        "same nominal diameter class as 8-inch architecture",
+        "electric-ready ecosystem"
+      ],
+      "open_questions": [
+        "V5 brake is not currently listed by MBS as directly compatible with Rockstar Pro II XL",
+        "wheel mass/inertia penalty versus 200x50",
+        "whether extra width materially improves this rider's loose-surface control"
+      ],
+      "source": "https://www.mbs.com/shop/p/agent-explorer-mountainboard"
+    }
+  ],
+  "benchmark_only": [
+    {
+      "id": "ONEWHEEL_RALLY_XL",
+      "lessons": [
+        "large pneumatic air volume can improve bump absorption and traction",
+        "low ride height matters even with a larger tire",
+        "ride shaping is a product-level feature, not just throttle scaling"
+      ],
+      "known": {
+        "tire": "12x7-6",
+        "range_miles": [
+          18,
+          28
+        ],
+        "weight_lb": 34,
+        "standard_charge_minutes": 165,
+        "hypercharge_minutes": 85
+      },
+      "source": "https://onewheel.com/pages/onewheel-gt-s-series-rally-xl"
+    },
+    {
+      "id": "PROPEL_ENDEAVOR_4GT",
+      "lessons": [
+        "independent suspension can dramatically increase rough-terrain isolation",
+        "suspension and large battery capacity impose a substantial mass penalty",
+        "sealed gear drive is a useful durability benchmark"
+      ],
+      "known": {
+        "battery_wh": 1080,
+        "belt_weight_lb": 48,
+        "gear_weight_lb": 53,
+        "claimed_range_miles_belt": 44,
+        "claimed_range_miles_gear": 42
+      },
+      "source": "https://www.ridepropel.com/electric-skateboard/propel-endeavor-gt/"
+    },
+    {
+      "id": "TRAMPA_INFINITY_MAGURA_FRONT_BRAKE",
+      "lessons": [
+        "a complete vendor-engineered front hydraulic brake architecture exists for mountainboards",
+        "front braking can preserve rear axle volume for a conventional rear 2WD drivetrain",
+        "the lesson is the integrated truck/hub/disc/brake system, not permission to adapt Magura hardware onto Matrix trucks"
+      ],
+      "known": {
+        "brake": "Magura HS11 hydraulic rim-brake actuator adapted by TRAMPA to custom wheel discs",
+        "mounting_position": "front",
+        "truck": "TRAMPA Infinity",
+        "dedicated_brake_mounting": true,
+        "complete_vendor_architecture": true
+      },
+      "source": "https://trampaboards.com/infinity-truck-wearing-magura-hydraulic-brakes-with-custom-disks-to-fit-any-5-spoke-trampa-wheels-p-10769.html"
+    },
+    {
+      "id": "MBS_AGENT_BATTERY_MASS_REFERENCE",
+      "lessons": [
+        "current integrated high-voltage battery references consume a large fraction of the desired total vehicle mass",
+        "trail and range mass goals must be treated as aspirational until drive, ESC, guard, enclosure and mounting masses are budgeted",
+        "quick-swap smaller packs remain attractive when a large installed pack harms handling or carryability"
+      ],
+      "known": {
+        "battery_540_wh": 540,
+        "battery_540_weight_lb": 15,
+        "battery_1080_product_energy_wh": 1089,
+        "battery_1080_weight_lb": 20,
+        "comp95_unpowered_weight_lb": 14.6
+      },
+      "sources": [
+        "https://www.mbs.com/shop/p/mbs-540-battery-pack",
+        "https://www.mbs.com/shop/p/mbs-1080-battery-pack",
+        "https://www.mbs.com/shop/p/comp-95-mountainboard-silver-hex"
+      ]
+    }
+  ],
+  "topology_branches": [
+    {
+      "id": "REAR_V5_FRONT_2WD",
+      "status": "LIVE",
+      "benefit": "preserves vendor-documented rear V5 architecture",
+      "risks": [
+        "front-drive traction decreases under uphill acceleration",
+        "front electric truck width may differ from rear brake truck",
+        "drive torque interacts with steering"
+      ]
+    },
+    {
+      "id": "REAR_V5_REAR_2WD_SHARED",
+      "status": "PHYSICAL_PROOF_REQUIRED",
+      "benefit": "conventional rear-drive traction and rear mechanical brake",
+      "risks": [
+        "V5 rotor/arm/cable and drive occupy overlapping wheel-end packaging",
+        "70mm axle changes wheel axial position",
+        "vendor compatibility statements do not prove simultaneous coexistence"
+      ]
+    },
+    {
+      "id": "REAR_2WD_FRONT_VENDOR_HYDRAULIC",
+      "status": "LIVE_REFERENCE_TO_STUDY",
+      "benefit": "preserves conventional rear-drive traction while moving independent stopping to a vendor-engineered front brake axle",
+      "risks": [
+        "TRAMPA brake architecture is not a drop-in Matrix/Rockstar subsystem",
+        "mixed truck/wheel ecosystems may create steering, track-width, bearing and service incompatibilities",
+        "front brake balance must avoid abrupt lock or excessive pitch response",
+        "changing chassis family could invalidate current Comp 95 donor assumptions"
+      ]
+    },
+    {
+      "id": "ALTERNATE_REAR_DRIVE_PRESERVING_V5",
+      "status": "LIVE_FALLBACK",
+      "benefit": "may preserve rear brake with simpler or more compact drive packaging",
+      "risks": [
+        "custom mount retention",
+        "debris exposure",
+        "service complexity"
+      ]
+    }
+  ],
+  "rev_c_purchase_gate": {
+    "fit_pilot_parts": "ORDERABLE",
+    "chassis_and_brake": "HOLD",
+    "wheel_upgrades": "HOLD",
+    "drive": "HOLD",
+    "battery_and_esc": "HOLD",
+    "release_conditions": [
+      "rider-scale deck envelope comparison completed",
+      "selected chassis/wheel family preserves a credible independent friction-or-hydraulic stopping path",
+      "one drive/brake topology has a physical measurement plan with no unqualified safety-critical adapter",
+      "range-pack envelope can be represented by inert mass without violating ground-clearance and rider-interface keep-outs"
+    ]
+  }
+}
