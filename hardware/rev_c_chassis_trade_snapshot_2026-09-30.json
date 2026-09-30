@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-09-30",
+  "scope": "rev_c_chassis_candidate_trade_snapshot",
+  "facts_only": true,
+  "candidates": [
+    {
+      "id": "COMP95_BASELINE",
+      "deck_candidate_id": "comp95_class",
+      "product": "MBS Comp 95",
+      "product_page_sku": "10303",
+      "price_usd": 499.95,
+      "availability_snapshot": "PRODUCT_PAGE_LISTED_NO_WAITLIST_MARKER_CAPTURED",
+      "deck": {
+        "length_mm": 950,
+        "max_width_mm": 251,
+        "weight_lb": 5,
+        "construction": "Power Lam maple/fiberglass",
+        "stiffness": "Medium"
+      },
+      "chassis": {
+        "complete_unpowered_weight_lb": 14.6,
+        "wheelbase_mm_min": 940,
+        "wheelbase_mm_max": 940,
+        "truck": "Matrix III CNC 400mm",
+        "brake_compatible": true
+      },
+      "wheel": {
+        "hub": "Rockstar II",
+        "tire": "T1 200x50",
+        "diameter_mm": 194,
+        "width_mm": 51,
+        "tire_mass_g_each": 232
+      },
+      "electric_native": false,
+      "published_electric_paths": [
+        "400mm Matrix III can upgrade to 70mm axles for AGENT gear-drive compatibility",
+        "Matrix III motor-mount hardware is commercially available"
+      ],
+      "unresolved": [
+        "V5 plus rear drive simultaneous wheel-end coexistence remains unqualified",
+        "custom battery/enclosure integration required",
+        "Power Lam ride feel versus snowboard-composite alternatives requires physical comparison"
+      ],
+      "sources": [
+        "https://www.mbs.com/shop/p/comp-95-mountainboard-silver-hex",
+        "https://www.mbs.com/shop/p/mbs-matrix-iii-mountain-board-truck-12mmx400mm",
+        "https://www.mbs.com/shop/p/16060-mbs-motor-mount-arm-ea"
+      ]
+    },
+    {
+      "id": "PRO_WARREN_III_REFERENCE",
+      "deck_candidate_id": "pro_warren_iii_class",
+      "product": "MBS Pro Warren III Switch",
+      "product_page_sku": "10407",
+      "embedded_specs_sku": "10406",
+      "price_usd": 649.95,
+      "availability_snapshot": "COMING_SOON_WAITLIST",
+      "deck": {
+        "length_mm": 980,
+        "max_width_mm": 244,
+        "weight_lb": 5.8,
+        "construction": "Snowboard composite",
+        "stiffness": "Stiff with High Pop"
+      },
+      "chassis": {
+        "complete_unpowered_weight_lb": 15.9,
+        "wheelbase_mm_min": 910,
+        "wheelbase_mm_max": 970,
+        "truck": "Matrix III CNC 400mm-class published 40cm axle width",
+        "brake_compatible": true
+      },
+      "wheel": {
+        "hub": "Rockstar II",
+        "tire": "T1 200x50",
+        "diameter_mm": 194,
+        "width_mm": 51,
+        "tire_mass_g_each": 232
+      },
+      "electric_native": false,
+      "published_electric_paths": [
+        "Matrix III motor-mount hardware is listed compatible with Pro Warren III",
+        "F5X snowboard-style binding hardware is directly supported"
+      ],
+      "unresolved": [
+        "stiff/high-pop deck may be too reactive for desired rough low-speed trail feel",
+        "battery/enclosure integration is not electric-native",
+        "current product page exposes 10407 title versus 10406 embedded spec revision",
+        "current waitlist blocks immediate donor purchase"
+      ],
+      "sources": [
+        "https://www.mbs.com/shop/p/pro-warren-3-mountainboard-switch",
+        "https://www.mbs.com/shop/p/mbs-f5x-bindings",
+        "https://www.mbs.com/shop/p/16060-mbs-motor-mount-arm-ea"
+      ]
+    },
+    {
+      "id": "AGENT_AIR_REFERENCE",
+      "deck_candidate_id": "agent_class",
+      "product": "MBS AGENT AIR",
+      "product_page_sku": "10412",
+      "price_usd_from": 599.95,
+      "availability_snapshot": "CURRENT_STOCK_STATE_NOT_USED_AS_AUTHORITY",
+      "deck": {
+        "length_mm": 1020,
+        "max_width_mm": 284,
+        "weight_lb": 7.2,
+        "construction": "Snowboard composite",
+        "stiffness": "NOT_PUBLISHED_IN_CAPTURE"
+      },
+      "chassis": {
+        "complete_unpowered_weight_lb": null,
+        "wheelbase_mm_min": null,
+        "wheelbase_mm_max": null,
+        "truck": "Matrix III exact unpowered width not published in captured page",
+        "brake_compatible": null
+      },
+      "wheel": {
+        "hub": "Rockstar II",
+        "tire": "T3 200x50",
+        "diameter_mm": 194,
+        "width_mm": 51,
+        "tire_mass_g_each": 235
+      },
+      "electric_native": true,
+      "published_electric_paths": [
+        "AGENT chassis family is advertised compatible with AGENT batteries, ESCs, gear drives and motors",
+        "F5X snowboard-style binding hardware is directly supported"
+      ],
+      "unresolved": [
+        "284mm maximum deck width may reduce useful edge leverage for the target rider",
+        "complete unpowered mass is not published in the captured product page",
+        "exact unpowered truck width must be verified before assuming V5 brake compatibility"
+      ],
+      "sources": [
+        "https://www.mbs.com/shop/p/10412",
+        "https://www.mbs.com/shop/p/mbs-agent-mountainboard-deck",
+        "https://www.mbs.com/shop/p/mbs-f5x-bindings"
+      ]
+    }
+  ],
+  "wheel_references": [
+    {
+      "id": "T1_200X50",
+      "diameter_mm": 194,
+      "width_mm": 51,
+      "tire_mass_g_each": 232,
+      "hub_family": "Rockstar II",
+      "source": "https://www.mbs.com/shop/p/13111-mbs-t1-tire-8-black-1"
+    },
+    {
+      "id": "T3_200X50",
+      "diameter_mm": 194,
+      "width_mm": 51,
+      "tire_mass_g_each": 235,
+      "hub_family": "Rockstar II",
+      "source": "https://www.mbs.com/shop/p/13131-8-mbs-roadie-tire-black-1"
+    },
+    {
+      "id": "EXPLORER_200X70",
+      "diameter_mm": 194,
+      "width_mm": 80,
+      "tire_mass_g_each": 540,
+      "hub_family": "Rockstar Pro II XL",
+      "compatible_only_with_hub_family": "Rockstar Pro II XL",
+      "hub_mass_g_each": 370,
+      "source": "https://www.mbs.com/shop/p/explorer-tire",
+      "hub_source": "https://www.mbs.com/shop/p/mbs-rockstar-pro-ii-xl-hub-bronze"
+    }
+  ],
+  "interface_constraints": [
+    {
+      "id": "MATRIXIII_400",
+      "fact": "400mm CNC truck is brake-compatible; G1 is not directly compatible unless 70mm axles are installed, producing an ultra-wide 440mm configuration.",
+      "source": "https://www.mbs.com/shop/p/mbs-matrix-iii-mountain-board-truck-12mmx400mm"
+    },
+    {
+      "id": "MATRIXIII_420",
+      "fact": "420mm CNC truck ships with 70mm axles and is AGENT gear-drive compatible, but MBS explicitly lists it as not brake-compatible.",
+      "source": "https://www.mbs.com/shop/p/mbs-matrix-iii-mountain-board-truck-12mmx420mm"
+    },
+    {
+      "id": "G1",
+      "fact": "G1 requires Matrix III 70mm axles and supports wheel couplers for Rockstar II and Rockstar Pro II XL hubs.",
+      "source": "https://www.mbs.com/shop/p/gear-drive-system"
+    },
+    {
+      "id": "V5",
+      "fact": "MBS brake system is listed compatible with MBS ATS/Matrix trucks and Rockstar/Rockstar II hubs; Pro II XL is not listed in the captured compatibility statement.",
+      "source": "https://www.mbs.com/shop/p/15006-mbs-v5-brake-system"
+    }
+  ]
+}
