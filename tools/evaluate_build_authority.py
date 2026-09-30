@@ -163,7 +163,7 @@ def evaluate(plan: dict, procurement: dict, evidence_docs: list[dict]) -> dict:
         satisfied = evidence_matched and not missing_dependencies
         blockers: list[str] = []
         if not evidence_matched:
-            blockers.append("matching physical authority evidence not supplied")
+            blockers.append("matching authority evidence not supplied")
         blockers.extend(f"upstream gate blocked: {dep}" for dep in missing_dependencies)
         gate_state[name] = {
             "satisfied": satisfied,
