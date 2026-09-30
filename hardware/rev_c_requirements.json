@@ -121,11 +121,56 @@
       "source": "https://www.mbs.com/shop/p/comp-95-mountainboard-silver-hex"
     },
     {
+      "id": "PRO_WARREN_III_REFERENCE",
+      "role": "narrow snowboard-composite chassis candidate",
+      "known": {
+        "product_page_pt": "10407",
+        "page_embedded_specs_pt": "10406",
+        "price_usd": 649.95,
+        "availability_snapshot": "COMING_SOON_WAITLIST_2026-09-30",
+        "deck_length_mm": 980,
+        "deck_max_width_mm": 244,
+        "axle_to_axle_mm_range": [
+          910,
+          970
+        ],
+        "unpowered_mass_kg": 7.2,
+        "unpowered_mass_lb": 15.9,
+        "deck_weight_lb": 5.8,
+        "deck_construction": "snowboard composite",
+        "deck_stiffness": "stiff with high pop",
+        "truck": "Matrix III CNC 400mm-class",
+        "hub": "Rockstar II",
+        "tire": "T1 200x50",
+        "v5_brake_listed_compatible": true,
+        "f5x_binding_mounts_supported": true
+      },
+      "strengths": [
+        "narrowest published deck envelope among the three Rev-C stance candidates",
+        "snowboard-composite construction without Agent-class width",
+        "adjustable 910-970mm axle-to-axle reference",
+        "brake-compatible Matrix III and Rockstar II architecture",
+        "only 1.3lb heavier complete than the Comp 95 reference",
+        "F5X snowboard-style binding angle adjustment is directly supported"
+      ],
+      "open_questions": [
+        "whether stiff high-pop construction is too reactive or fatiguing for low-speed trail carving",
+        "whether current waitlist availability makes it practical as the first donor",
+        "exact received product/SKU revision because the current page title and embedded specs expose 10407 versus 10406",
+        "whether battery and drivetrain packaging requires more custom work than the electric-native Agent deck"
+      ],
+      "sources": [
+        "https://www.mbs.com/shop/p/pro-warren-3-mountainboard-switch",
+        "https://www.mbs.com/shop/p/mbs-f5x-bindings",
+        "https://www.mbs.com/shop/p/16060-mbs-motor-mount-arm-ea"
+      ]
+    },
+    {
       "id": "AGENT_AIR_REFERENCE",
       "role": "electric-ready snowboard-composite benchmark",
       "known": {
         "deck_length_mm": 1020,
-        "deck_max_width_mm": 280,
+        "deck_max_width_mm": 284,
         "truck": "Matrix III",
         "hub": "Rockstar II",
         "tire": "T3 200x50",

@@ -43,7 +43,7 @@ This creates:
 - `topology_trade.json`;
 - `inert_pack_envelope.json`;
 - `chassis_release.json`;
-- both full-scale deck-envelope SVGs;
+- all three full-scale deck-envelope SVGs;
 - a non-authoritative workspace manifest.
 
 The initializer refuses to overwrite a non-empty session directory.
@@ -77,9 +77,9 @@ is a placeholder. Use the actual authority path produced by the Issue #4 workflo
 
 ---
 
-## 2. Generate the two full-scale deck envelopes
+## 2. Generate the three full-scale deck envelopes
 
-The initializer already generates both SVGs. To regenerate them manually:
+The initializer already generates all three SVGs. To regenerate them manually:
 
 ```bash
 python cad/generate_rev_c_deck_templates.py \
@@ -91,11 +91,12 @@ Current candidate maximum envelopes are:
 | Candidate | Length | Max width |
 |---|---:|---:|
 | Comp 95 class | 950 mm | 251 mm |
-| Agent class | 1020 mm | 280 mm |
+| Pro Warren III class | 980 mm | 244 mm |
+| Agent class | 1020 mm | 284 mm |
 
 These are stance/leverage envelopes only.
 
-They are **not** exact deck outlines, structural CAD, hole patterns or fabrication templates.
+They are **not** exact deck outlines, structural CAD, hole patterns or fabrication templates. They also cannot reproduce real deck flex. In particular, the cardboard/foam comparison can test whether the Warren's narrower envelope helps stance leverage, but it cannot tell us whether its published stiff/high-pop snowboard construction feels better or worse on trail chatter. That remains a received-chassis physical question.
 
 ### Physical construction
 
@@ -346,24 +347,38 @@ Issue #21 later performs the real inert **mass + CG + retention** test on the re
 Run both commercial-reference lower bounds:
 
 ```bash
-python simulation/rev_c_mass_budget.py --configuration trail
-python simulation/rev_c_mass_budget.py --configuration range
+python simulation/rev_c_mass_budget.py --configuration trail --chassis comp95
+python simulation/rev_c_mass_budget.py --configuration trail --chassis pro_warren_iii
+python simulation/rev_c_mass_budget.py --configuration range --chassis comp95
+python simulation/rev_c_mass_budget.py --configuration range --chassis pro_warren_iii
 ```
 
 Current reference arithmetic:
 
 ```
-Trail:
+Comp 95 trail reference:
 35.0 lb target
--14.6 lb Comp 95 reference
--15.0 lb 540 Wh MBS battery reference
+-14.6 lb chassis
+-15.0 lb 540 Wh battery reference
 = 5.4 lb headroom before drive/ESC/guards/etc.
 
-Range:
+Pro Warren III trail reference:
+35.0 lb target
+-15.9 lb chassis
+-15.0 lb 540 Wh battery reference
+= 4.1 lb headroom before drive/ESC/guards/etc.
+
+Comp 95 range reference:
 45.0 lb target
--14.6 lb Comp 95 reference
--20.0 lb 1089 Wh MBS battery reference
+-14.6 lb chassis
+-20.0 lb 1089 Wh battery reference
 = 10.4 lb headroom before drive/ESC/guards/etc.
+
+Pro Warren III range reference:
+45.0 lb target
+-15.9 lb chassis
+-20.0 lb 1089 Wh battery reference
+= 9.1 lb headroom before drive/ESC/guards/etc.
 ```
 
 Positive headroom is **not** proof the target can be met.

@@ -12,7 +12,7 @@ X1 has moved beyond the original TRAMPA/14S Alpha sketch. Current build and purc
 
 1. machine-readable qualification reports produced from real physical evidence;
 2. `hardware/build_authority.json` and `hardware/procurement_manifest.json`;
-3. the Rev-C mission and purchase boundary in `hardware/rev_c_requirements.json` and `docs/rev_c_trail_carver_architecture.md`;
+3. the Rev-C mission and purchase boundary in `hardware/rev_c_requirements.json`, `docs/rev_c_trail_carver_architecture.md`, and `docs/rev_c_chassis_trade.md`;
 4. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;
 5. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
 6. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
@@ -65,7 +65,7 @@ The fit layer intentionally supports independent left/right foot dimensions, yaw
 
 ### Chassis/brake path
 
-The leading compact reference remains a complete **MBS Comp 95 donor chassis** because it combines a narrow rider envelope, Matrix III / Rockstar II / pneumatic hardware and a documented V5 brake path. Rev-C no longer treats that donor as purchase-authorized until fingerprinted Issue **#25** chassis-release evidence closes the deck, wheel, brake, topology and inert-pack-envelope pre-purchase questions.
+Rev-C now has **two compact Matrix/RSII chassis hypotheses** plus the wider Agent reference: Comp 95 minimizes known mass/cost, while Pro Warren III adds a narrower snowboard-composite deck and adjustable 910–970 mm wheelbase at a 1.3 lb complete-mass penalty. The Agent remains the electric-native reference. None is purchase-authorized until fingerprinted Issue **#25** evidence selects a matching chassis/brake path.
 
 The donor-grounded published reference is explicit:
 
@@ -78,7 +78,7 @@ The donor-grounded published reference is explicit:
 
 The CAD preserves those as separate branches. It does not recombine brake and drive compatibility into an imaginary universal truck.
 
-`tools/init_chassis_session.py` and `tools/qualify_rolling_chassis.py` now make Issue #12 physically executable. The qualifier requires a valid linked V5 authority, real measured donor geometry, stock-baseline tests, serviceability checks, and zero detected movement across every critical retention joint.
+`hardware/rev_c_chassis_trade_snapshot_2026-09-30.json` and `tools/analyze_rev_c_chassis_trade.py` preserve the current three-way pre-purchase trade without inventing unknown Agent mass/truck data. The existing donor-grounded Comp CAD remains a **reference**, not permission to skip Issue #25. `tools/init_chassis_session.py` and `tools/qualify_rolling_chassis.py` make Issue #12 physically executable after a chassis family is deliberately released. The qualifier requires a valid linked V5 authority, real measured donor geometry, stock-baseline tests, serviceability checks, and zero detected movement across every critical retention joint.
 
 No rider-specific permanent drilling is authorized from shoe-size labels, approximate web dimensions, or Wi-Fi pose.
 

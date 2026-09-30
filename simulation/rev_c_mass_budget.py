@@ -18,6 +18,7 @@ LB_PER_KG = 2.2046226218
 
 REFERENCE_MASS_LB = {
     "comp95_unpowered": 14.6,
+    "pro_warren_iii_unpowered": 15.9,
     "mbs_agent_540_battery": 15.0,
     "mbs_agent_1080_battery": 20.0,
 }
@@ -61,24 +62,27 @@ class MassBudget:
         }
 
 
-def reference_budget(configuration: str) -> MassBudget:
+def reference_budget(configuration: str, chassis: str = "comp95") -> MassBudget:
+    chassis_key = {
+        "comp95": "comp95_unpowered",
+        "pro_warren_iii": "pro_warren_iii_unpowered",
+    }.get(chassis)
+    if chassis_key is None:
+        raise ValueError("chassis must be 'comp95' or 'pro_warren_iii'")
+
     if configuration == "trail":
-        components = {
-            "unpowered_comp95_reference": REFERENCE_MASS_LB["comp95_unpowered"],
-            "mbs_540_battery_reference": REFERENCE_MASS_LB[
-                "mbs_agent_540_battery"
-            ],
-        }
+        battery_key = "mbs_agent_540_battery"
+        battery_label = "mbs_540_battery_reference"
     elif configuration == "range":
-        components = {
-            "unpowered_comp95_reference": REFERENCE_MASS_LB["comp95_unpowered"],
-            "mbs_1080_battery_reference": REFERENCE_MASS_LB[
-                "mbs_agent_1080_battery"
-            ],
-        }
+        battery_key = "mbs_agent_1080_battery"
+        battery_label = "mbs_1080_battery_reference"
     else:
         raise ValueError("configuration must be 'trail' or 'range'")
 
+    components = {
+        f"unpowered_{chassis}_reference": REFERENCE_MASS_LB[chassis_key],
+        battery_label: REFERENCE_MASS_LB[battery_key],
+    }
     return MassBudget(
         target_mass_lb=TARGET_MASS_LB[configuration],
         known_components_lb=components,
@@ -103,6 +107,12 @@ def main() -> None:
         choices=("trail", "range"),
         help="emit the current commercial-reference lower-bound budget",
     )
+    parser.add_argument(
+        "--chassis",
+        choices=("comp95", "pro_warren_iii"),
+        default="comp95",
+        help="published complete unpowered chassis mass reference",
+    )
     parser.add_argument("--target-lb", type=float)
     parser.add_argument(
         "--component",
@@ -113,7 +123,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.configuration:
-        budget = reference_budget(args.configuration)
+        budget = reference_budget(args.configuration, args.chassis)
     else:
         if args.target_lb is None or not args.component:
             parser.error("use --configuration or provide --target-lb plus --component")

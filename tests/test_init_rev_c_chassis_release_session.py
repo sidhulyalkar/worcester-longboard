@@ -21,6 +21,7 @@ def test_initializer_creates_complete_private_workspace(tmp_path: Path):
     assert expected.issubset({p.name for p in session.iterdir()})
     deck_dir = session / "deck_templates"
     assert (deck_dir / "rev_c_comp95_deck_envelope.svg").exists()
+    assert (deck_dir / "rev_c_pro_warren_iii_deck_envelope.svg").exists()
     assert (deck_dir / "rev_c_agent_deck_envelope.svg").exists()
 
 

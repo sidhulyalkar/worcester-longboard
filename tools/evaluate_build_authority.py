@@ -84,13 +84,16 @@ def _validate_plan(plan: dict) -> None:
 
 
 def _procurement_authority(
-    procurement: dict, gate_state: dict[str, dict] | None = None
+    procurement: dict,
+    gate_state: dict[str, dict] | None = None,
+    gate_evidence: dict[str, dict] | None = None,
 ) -> tuple[dict[str, bool], dict[str, dict]]:
     """Evaluate orderability per item, including evidence-backed release gates."""
     rules = procurement.get("rules", {})
     items = procurement.get("items", [])
     preferred_item_id = rules.get("preferred_chassis_item_id")
     gate_state = gate_state or {}
+    gate_evidence = gate_evidence or {}
     item_state: dict[str, dict] = {}
 
     for index, item in enumerate(items):
@@ -112,6 +115,36 @@ def _procurement_authority(
                     blockers.append(f"unknown procurement release gate: {required_gate}")
                 elif not gate_state[required_gate]["satisfied"]:
                     blockers.append(f"required release gate blocked: {required_gate}")
+            raw_selections = item.get("requires_gate_selections")
+            if raw_selections is None and item.get("requires_gate_selection") is not None:
+                raw_selections = [item["requires_gate_selection"]]
+            for selection in raw_selections or []:
+                selection_gate = selection.get("gate") or required_gate
+                if not isinstance(selection_gate, str) or not selection_gate:
+                    blockers.append("requires_gate_selection lacks gate")
+                    continue
+                if selection_gate not in gate_state:
+                    blockers.append(
+                        f"unknown procurement selection gate: {selection_gate}"
+                    )
+                    continue
+                if not gate_state[selection_gate]["satisfied"]:
+                    blockers.append(
+                        f"selection gate blocked: {selection_gate}"
+                    )
+                    continue
+                authority_doc = gate_evidence.get(selection_gate)
+                expected = selection.get("equals")
+                actual = (
+                    _value_at(authority_doc, selection.get("path", ""))
+                    if authority_doc is not None
+                    else None
+                )
+                if actual != expected:
+                    blockers.append(
+                        "release selection mismatch: "
+                        f"{selection.get('path')}={actual!r}, expected {expected!r}"
+                    )
             if item.get("defer_until"):
                 blockers.append(f"deferred until: {item['defer_until']}")
             if preferred_item_id and item.get("alternative_to") == preferred_item_id:
@@ -128,6 +161,12 @@ def _procurement_authority(
             "blockers": blockers,
             "required_for": item.get("required_for"),
             "requires_gate": item.get("requires_gate"),
+            "requires_gate_selections": item.get("requires_gate_selections")
+            or (
+                [item["requires_gate_selection"]]
+                if item.get("requires_gate_selection") is not None
+                else []
+            ),
             "defer_until": item.get("defer_until"),
             "alternative_to": item.get("alternative_to"),
         }
@@ -147,10 +186,19 @@ def evaluate(plan: dict, procurement: dict, evidence_docs: list[dict]) -> dict:
     gates = plan["gates"]
 
     direct_match: dict[str, bool] = {}
+    gate_evidence: dict[str, dict] = {}
     for name, gate in gates.items():
-        direct_match[name] = any(
-            _evidence_matches(doc, gate["evidence"]) for doc in evidence_docs
+        matched = next(
+            (
+                doc
+                for doc in evidence_docs
+                if _evidence_matches(doc, gate["evidence"])
+            ),
+            None,
         )
+        direct_match[name] = matched is not None
+        if matched is not None:
+            gate_evidence[name] = matched
 
     gate_state: dict[str, dict] = {}
 
@@ -176,7 +224,9 @@ def evaluate(plan: dict, procurement: dict, evidence_docs: list[dict]) -> dict:
     for name in gates:
         resolve(name)
 
-    stage_allowed, procurement_items = _procurement_authority(procurement, gate_state)
+    stage_allowed, procurement_items = _procurement_authority(
+        procurement, gate_state, gate_evidence
+    )
 
     capability_state: dict[str, dict] = {}
     for name, cap in plan["capabilities"].items():

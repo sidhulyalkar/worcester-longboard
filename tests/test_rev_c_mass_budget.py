@@ -41,3 +41,17 @@ def test_custom_budget_can_show_target_overrun():
 def test_invalid_custom_mass_budget_fails_closed(target, components):
     with pytest.raises(ValueError):
         custom_budget(target, components)
+
+
+def test_warren_reference_budget_is_tighter_but_explicit():
+    trail = reference_budget("trail", "pro_warren_iii").as_dict()
+    range_case = reference_budget("range", "pro_warren_iii").as_dict()
+    assert trail["known_mass_lb"] == 30.9
+    assert trail["remaining_headroom_lb"] == 4.1
+    assert range_case["known_mass_lb"] == 35.9
+    assert range_case["remaining_headroom_lb"] == 9.1
+
+
+def test_unknown_chassis_reference_is_rejected():
+    with pytest.raises(ValueError, match="chassis"):
+        reference_budget("trail", "unknown")

@@ -79,6 +79,34 @@ def validate_manifest(data: dict) -> dict:
             elif item.get("requires_gate") != rev_c_gate:
                 errors.append(f"{item_id}: must require the Rev-C chassis release gate")
 
+        expected_selection_paths = {
+            "DONOR-COMP95": {
+                ("selected_chassis_family", "COMP95_BASELINE"),
+            },
+            "BRAKE-V5": {
+                ("selected_chassis_family", "COMP95_BASELINE"),
+                ("selected_brake_architecture", "MBS_V5_REAR"),
+            },
+            "TRUCK-M3-400": {
+                ("selected_chassis_family", "COMP95_BASELINE"),
+            },
+            "HUB-RSII": {
+                ("selected_chassis_family", "COMP95_BASELINE"),
+            },
+        }
+        for item_id, expected in expected_selection_paths.items():
+            item = items_by_id.get(item_id, {})
+            actual = {
+                (rule.get("path"), rule.get("equals"))
+                for rule in item.get("requires_gate_selections", [])
+                if isinstance(rule, dict)
+                and rule.get("gate") == rev_c_gate
+            }
+            if actual != expected:
+                errors.append(
+                    f"{item_id}: Rev-C release selection constraints mismatch"
+                )
+
     ceiling = float(rules.get("buy_now_max_total_usd", 0))
     if buy_now_total > ceiling:
         errors.append(f"BUY_NOW ceiling exceeded: ${buy_now_total:.2f} > ${ceiling:.2f}")

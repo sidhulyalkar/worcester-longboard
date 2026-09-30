@@ -61,7 +61,7 @@ def _inert():
             "scope": "pre_purchase_inert_pack_envelope_only",
             "qualified": True,
             "errors": [],
-            "chassis_candidate_id": "compact_matrix_reference",
+            "chassis_candidate_id": "COMP95_BASELINE",
             "pack_summaries": {},
             "range_pack_inert_envelope_plausible": True,
             "private_or_local_source_sha256": "3" * 64,
@@ -79,9 +79,9 @@ def _manifest(pilot=None, deck=None, topology=None, inert=None):
         "schema_version": 1,
         "scope": "rev_c_chassis_purchase_release",
         "selected_deck_candidate_id": "comp95_class",
-        "selected_chassis_family": "compact_matrix_reference",
-        "selected_wheel_family": "200x50_pneumatic",
-        "selected_brake_architecture": "rear_v5_reference",
+        "selected_chassis_family": "COMP95_BASELINE",
+        "selected_wheel_family": "MBS_RSII_200X50",
+        "selected_brake_architecture": "MBS_V5_REAR",
         "selected_topology_for_measurement": "REAR_V5_REAR_2WD_SHARED",
         "checks": {
             "deck_envelope_comparison_completed": True,
@@ -208,3 +208,33 @@ def test_release_cannot_authorize_power():
     report = qualify(manifest, pilot, deck, topology, inert)
     assert report["qualified"] is False
     assert report["powered_operation_authorized"] is False
+
+
+def test_selected_chassis_must_match_selected_deck_candidate():
+    pilot, deck, topology, inert = _fit_pilot(), _deck(), _topology(), _inert()
+    manifest = _manifest(pilot, deck, topology, inert)
+    manifest["selected_chassis_family"] = "PRO_WARREN_III_REFERENCE"
+    report = qualify(manifest, pilot, deck, topology, inert)
+    assert report["qualified"] is False
+    assert any("selected chassis family disagrees" in e for e in report["errors"])
+
+
+def test_selected_brake_must_match_selected_topology():
+    pilot, deck, topology, inert = _fit_pilot(), _deck(), _topology(), _inert()
+    manifest = _manifest(pilot, deck, topology, inert)
+    manifest["selected_brake_architecture"] = "VENDOR_FRONT_HYDRAULIC"
+    report = qualify(manifest, pilot, deck, topology, inert)
+    assert report["qualified"] is False
+    assert any("selected brake architecture disagrees" in e for e in report["errors"])
+
+
+def test_inert_pack_authority_must_target_selected_chassis():
+    pilot, deck, topology, inert = _fit_pilot(), _deck(), _topology(), _inert()
+    unsigned = dict(inert)
+    unsigned.pop("authority_fingerprint_sha256")
+    unsigned["chassis_candidate_id"] = "PRO_WARREN_III_REFERENCE"
+    inert = _stamp(unsigned)
+    manifest = _manifest(pilot, deck, topology, inert)
+    report = qualify(manifest, pilot, deck, topology, inert)
+    assert report["qualified"] is False
+    assert any("inert-pack envelope authority" in e for e in report["errors"])

@@ -56,11 +56,15 @@ jobs:
           PY
       - name: Smoke-test Rev-C pre-purchase tools
         run: |
-          python simulation/rev_c_mass_budget.py --configuration trail
-          python simulation/rev_c_mass_budget.py --configuration range
+          python simulation/rev_c_mass_budget.py --configuration trail --chassis comp95
+          python simulation/rev_c_mass_budget.py --configuration trail --chassis pro_warren_iii
+          python simulation/rev_c_mass_budget.py --configuration range --chassis comp95
+          python simulation/rev_c_mass_budget.py --configuration range --chassis pro_warren_iii
+          python tools/analyze_rev_c_chassis_trade.py
           python simulation/rev_c_topology_traction_sweep.py --grades 0 0.10 0.20 0.30
           python tools/init_rev_c_chassis_release_session.py /tmp/x1-rev-c-release
           test -f /tmp/x1-rev-c-release/deck_templates/rev_c_comp95_deck_envelope.svg
+          test -f /tmp/x1-rev-c-release/deck_templates/rev_c_pro_warren_iii_deck_envelope.svg
           test -f /tmp/x1-rev-c-release/deck_templates/rev_c_agent_deck_envelope.svg
       - name: Host-test controller core
         run: |

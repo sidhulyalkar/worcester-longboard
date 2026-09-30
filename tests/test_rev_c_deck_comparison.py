@@ -29,12 +29,20 @@ def _manifest():
         "scope": "rev_c_full_scale_deck_envelope_comparison",
         "selected_candidate_id": "comp95_class",
         "selection_reason": "preferred leverage and step-off behavior",
-        "candidates": [_candidate("comp95_class"), _candidate("agent_class")],
+        "candidates": [
+            _candidate("comp95_class"),
+            _candidate("pro_warren_iii_class"),
+            _candidate("agent_class"),
+        ],
         "rejected_candidates": [
+            {
+                "id": "pro_warren_iii_class",
+                "reason": "comparison fixture rejection reason",
+            },
             {
                 "id": "agent_class",
                 "reason": "wider envelope did not justify the leverage tradeoff",
-            }
+            },
         ],
         "powered_operation_authorized": False,
     }
