@@ -2,7 +2,7 @@
 
 > **REV-C PROCUREMENT OVERRIDE — 2026-09-30**
 >
-> The Comp 95, V5 brake, wheel/axle upgrades, drivetrain, ESC and traction-battery sections below are reference material only during the Rev-C trade study. The only intentionally orderable hardware is the inexpensive Issue #4 fit-pilot stack. Chassis release conditions live in `hardware/rev_c_requirements.json`; architecture rationale lives in `docs/rev_c_trail_carver_architecture.md`.
+> The Comp 95, V5 brake, wheel/axle upgrades, drivetrain, ESC and traction-battery sections below are reference material only until Issue #25 produces a qualified `x1_rev_c_chassis_release` authority. The only intentionally orderable hardware before that is the inexpensive Issue #4 fit-pilot stack. The executable handoff is `docs/rev_c_chassis_release_playbook.md`.
 
 This guide answers one question: **what should I buy, from whom, in what order, and what must remain unbought until evidence opens the next gate?**
 
@@ -373,12 +373,15 @@ A storefront description is evidence about what was sold. The received physical 
 
 **After Issue #4 passes:**
 
-1. complete the four-zone sensing rig;
-2. close the Rev-C rider-scale deck comparison;
-3. close the wheel/brake/drive topology release conditions;
-4. deliberately select one chassis family and update the procurement manifest;
-5. only then place the chassis/brake order;
-6. qualify rider fit and the unpowered chassis;
-7. only then freeze the powered architecture.
+1. complete the Rev-C full-scale deck comparison;
+2. run the front-vs-rear traction sweep and four-branch pre-purchase topology trade;
+3. qualify trail/range inert pack-envelope plausibility;
+4. close Issue #25 and emit the chained `x1_rev_c_chassis_release` authority;
+5. regenerate the procurement packet with the Issue #4 + Issue #25 evidence files;
+6. only then place the released chassis/brake measurement order;
+7. complete the four-zone sensing rig and qualify rider fit;
+8. physically qualify the brake and unpowered chassis;
+9. resolve final Issue #19 brake/drive topology;
+10. only then continue toward the power freeze.
 
 That sequence is cheaper because every expensive purchase closes a measured interface rather than opening a new compatibility question.
