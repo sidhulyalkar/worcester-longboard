@@ -27,6 +27,20 @@ def test_rev_c_holds_expensive_chassis_while_retaining_comp95_reference():
     assert items["DONOR-COMP95"]["purchase_strategy"] == "leading_compact_reference_not_yet_authorized"
     assert items["DONOR-COMP95"]["requires_gate"] == "rev_c_chassis_release_qualified"
     assert items["BRAKE-V5"]["requires_gate"] == "rev_c_chassis_release_qualified"
+    assert items["DONOR-COMP95"]["requires_gate_selections"] == [
+        {
+            "gate": "rev_c_chassis_release_qualified",
+            "path": "selected_chassis_family",
+            "equals": "COMP95_BASELINE",
+        }
+    ]
+    assert {
+        (rule["path"], rule["equals"])
+        for rule in items["BRAKE-V5"]["requires_gate_selections"]
+    } == {
+        ("selected_chassis_family", "COMP95_BASELINE"),
+        ("selected_brake_architecture", "MBS_V5_REAR"),
+    }
     assert items["TRUCK-M3-400"]["alternative_to"] == "DONOR-COMP95"
     assert items["HUB-RSII"]["alternative_to"] == "DONOR-COMP95"
     assert items["AXLE-M3-70"]["purchase_strategy"] == "deferred_interface_study"
