@@ -123,7 +123,12 @@
       "purchase_strategy": "leading_compact_reference_not_yet_authorized",
       "required_for": "issues-12-14",
       "notes": "Rev-C keeps the Comp 95 as the leading compact/brake-compatible reference but no longer authorizes purchase before rider-scale deck comparison and wheel/brake/drive topology review.",
-      "requires_gate": "rev_c_chassis_release_qualified"
+      "requires_gate": "rev_c_chassis_release_qualified",
+      "requires_gate_selection": {
+        "gate": "rev_c_chassis_release_qualified",
+        "path": "selected_chassis_family",
+        "equals": "COMP95_BASELINE"
+      }
     },
     {
       "id": "BRAKE-V5",
@@ -135,7 +140,12 @@
       "purchase_strategy": "rear_brake_reference_not_yet_authorized",
       "required_for": "issue-14",
       "notes": "Vendor documentation keeps V5 as the rear friction-brake reference. Purchase is held until Rev-C confirms the chassis/wheel topology.",
-      "requires_gate": "rev_c_chassis_release_qualified"
+      "requires_gate": "rev_c_chassis_release_qualified",
+      "requires_gate_selection": {
+        "gate": "rev_c_chassis_release_qualified",
+        "path": "selected_brake_architecture",
+        "equals": "MBS_V5_REAR"
+      }
     },
     {
       "id": "TRUCK-M3-400",
@@ -147,7 +157,12 @@
       "purchase_strategy": "fallback_piecemeal_measurement",
       "alternative_to": "DONOR-COMP95",
       "required_for": "issue-14",
-      "requires_gate": "rev_c_chassis_release_qualified"
+      "requires_gate": "rev_c_chassis_release_qualified",
+      "requires_gate_selection": {
+        "gate": "rev_c_chassis_release_qualified",
+        "path": "selected_chassis_family",
+        "equals": "COMP95_BASELINE"
+      }
     },
     {
       "id": "HUB-RSII",
@@ -159,7 +174,12 @@
       "purchase_strategy": "fallback_piecemeal_measurement",
       "alternative_to": "DONOR-COMP95",
       "required_for": "issue-14",
-      "requires_gate": "rev_c_chassis_release_qualified"
+      "requires_gate": "rev_c_chassis_release_qualified",
+      "requires_gate_selection": {
+        "gate": "rev_c_chassis_release_qualified",
+        "path": "selected_chassis_family",
+        "equals": "COMP95_BASELINE"
+      }
     },
     {
       "id": "TIRE-T2-9",
