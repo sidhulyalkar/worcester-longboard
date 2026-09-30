@@ -2,7 +2,7 @@
 
 Experimental off-road electric mountainboard platform focused on controllability, rider-specific fit, redundant stopping authority, instrumentation, and evidence-driven commissioning.
 
-> **Status:** Alpha engineering development platform. No powered riding is authorized. The current physical program is deliberately low-energy: qualify one fit-rig force zone, measure/qualify an unpowered donor chassis and friction brake, resolve the brake/drive mechanical topology, freeze the rider interface, qualify an inert battery-mass load path, and only then freeze the final power architecture.
+> **Rev-C update (2026-09-30):** the product target is now a snowboard-inspired trail-carver with modular long-range energy, high-volume pneumatic study, low-jerk dog-accompanied riding mode, and a renewed brake/drive topology review. Expensive chassis, brake, wheel, drive and traction-power purchases are on hold. See `docs/rev_c_trail_carver_architecture.md` and `hardware/rev_c_requirements.json`.\n\n> **Status:** Alpha engineering development platform. No powered riding is authorized. The current physical program is deliberately low-energy: qualify one fit-rig force zone, measure/qualify an unpowered donor chassis and friction brake, resolve the brake/drive mechanical topology, freeze the rider interface, qualify an inert battery-mass load path, and only then freeze the final power architecture.
 
 ## Current source of truth
 
@@ -29,7 +29,7 @@ The ordering stack is deliberately split by function:
 - `tools/render_procurement_packet.py` renders the currently authorized checkout packet;
 - `tools/validate_ordering_spec.py` detects source/price/compatibility drift against repository authority.
 
-The current complete Issue #4 convenience ceiling is **$120.90 before shipping/tax**, and optional owned tools/materials should be skipped. The preferred chassis path remains a complete MBS Comp 95 donor plus V5 mechanical brake after the fit-pilot handoff. Standard Rockstar II hubs are not assumed to accept the optional T2 9-inch tire; the 9-inch path remains physically and compatibility gated.
+The current complete Issue #4 convenience ceiling remains **$120.90 before shipping/tax**, and optional owned tools/materials should be skipped. Rev-C now holds the previously preferred Comp 95 + V5 chassis purchase until rider-scale deck comparison and wheel/brake/drive topology release conditions close. Standard Rockstar II hubs are not assumed to accept the optional T2 9-inch tire; the 9-inch path remains physically and compatibility gated.
 
 Storefront stock and prices can change faster than the repository. Refresh live availability before payment, but never use a storefront page to bypass a blocked repository item.
 
