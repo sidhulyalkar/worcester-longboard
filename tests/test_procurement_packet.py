@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 
@@ -20,5 +21,44 @@ def test_public_packet_is_actionable_and_fail_closed():
     assert "TIRE-T2-9 | MEASURE_FIRST | MEASURE_FIRST item lacks required_for issue authority" in text
     assert "DRIVE-G1-DUAL | POWER_GATED | POWER_GATED is not authorized" in text
     assert "four-zone duplication: **BLOCKED**" in text
+    assert "power ordering: **BLOCKED**" in text
+    assert "powered operation: **BLOCKED**" in text
+
+
+def _stamp(doc):
+    payload = json.dumps(
+        doc, sort_keys=True, separators=(",", ":"), allow_nan=False
+    ).encode("utf-8")
+    stamped = dict(doc)
+    stamped["authority_fingerprint_sha256"] = hashlib.sha256(payload).hexdigest()
+    return stamped
+
+
+def test_private_packet_can_open_only_preferred_measurement_items_with_release_evidence():
+    plan = json.loads((ROOT / "hardware/build_authority.json").read_text())
+    procurement = json.loads((ROOT / "hardware/procurement_manifest.json").read_text())
+    fit = _stamp({"qualified_for_four_zone_duplication": True})
+    release = _stamp(
+        {
+            "authority": "x1_rev_c_chassis_release",
+            "schema_version": 1,
+            "qualified": True,
+            "deck_envelope_comparison_completed": True,
+            "selected_deck_candidate_id": "comp95_class",
+            "selected_chassis_family": "compact_matrix_reference",
+            "selected_wheel_family": "200x50_pneumatic",
+            "selected_brake_architecture": "rear_v5_reference",
+            "selected_topology_for_measurement": "REAR_V5_REAR_2WD_SHARED",
+            "range_pack_inert_envelope_plausible": True,
+            "no_unqualified_safety_critical_adapter": True,
+            "powered_operation_authorized": False,
+        }
+    )
+    text = render_packet(plan, procurement, [fit, release])
+    assert "using 2 supplied evidence document(s)" in text
+    assert "| DONOR-COMP95 | 1 | MBS / 10303 | $499.95 | issues-12-14 |" in text
+    assert "| BRAKE-V5 | 1 | MBS / 15006 | $89.95 | issue-14 |" in text
+    assert "TRUCK-M3-400 | MEASURE_FIRST | fallback blocked" in text
+    assert "DRIVE-G1-DUAL | POWER_GATED | POWER_GATED is not authorized" in text
     assert "power ordering: **BLOCKED**" in text
     assert "powered operation: **BLOCKED**" in text
