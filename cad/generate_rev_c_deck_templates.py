@@ -11,8 +11,21 @@ import argparse
 from pathlib import Path
 
 CANDIDATES = {
-    "comp95": {"length_mm": 950.0, "width_mm": 251.0, "label": "Comp 95 max deck envelope"},
-    "agent": {"length_mm": 1020.0, "width_mm": 280.0, "label": "Agent max deck envelope"},
+    "comp95": {
+        "length_mm": 950.0,
+        "width_mm": 251.0,
+        "label": "Comp 95 max deck envelope",
+    },
+    "pro_warren_iii": {
+        "length_mm": 980.0,
+        "width_mm": 244.0,
+        "label": "Pro Warren III max deck envelope",
+    },
+    "agent": {
+        "length_mm": 1020.0,
+        "width_mm": 284.0,
+        "label": "Agent max deck envelope",
+    },
 }
 
 
