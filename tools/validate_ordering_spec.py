@@ -27,8 +27,11 @@ def validate(procurement: dict, sources: dict, planned: dict) -> dict:
     if planned.get("schema_version") != 1:
         errors.append("planned BOM schema_version must be 1")
 
-    if sources.get("as_of") != procurement.get("as_of"):
-        errors.append("source snapshot date must match procurement snapshot date")
+    expected_source_date = procurement.get("rules", {}).get(
+        "source_snapshot_as_of", procurement.get("as_of")
+    )
+    if sources.get("as_of") != expected_source_date:
+        errors.append("source snapshot date must match procurement source_snapshot_as_of")
     if sources.get("currency") != procurement.get("currency"):
         errors.append("source snapshot currency must match procurement currency")
     if sources.get("refresh_live_price_and_stock_before_checkout") is not True:
