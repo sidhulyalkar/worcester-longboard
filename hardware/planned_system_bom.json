@@ -47,9 +47,23 @@
       "authority": "Do not order/duplicate until the fingerprinted one-zone report passes"
     },
     {
+      "id": "REV-C-CHASSIS-RELEASE",
+      "status": "PRE_PURCHASE_EVIDENCE",
+      "freeze_gate": "rev_c_chassis_release_qualified",
+      "contents": [
+        "qualified Issue #4 fit-pilot authority",
+        "full-scale Comp 95-class versus Agent-class deck-envelope comparison authority",
+        "pre-purchase four-branch brake/drive topology trade authority",
+        "mass-normalized front-versus-rear traction sweep record",
+        "trail and range inert pack-envelope plausibility authority",
+        "explicit chassis/wheel/brake/topology selection and rejected alternatives"
+      ],
+      "authority": "Issue #25 releases only the preferred MEASURE_FIRST chassis/brake path. It cannot qualify physical interfaces or authorize power."
+    },
+    {
       "id": "CHASSIS",
       "status": "REV_C_HOLD",
-      "freeze_gate": "rev_c_chassis_release",
+      "freeze_gate": "rev_c_chassis_release_qualified",
       "contents": [
         "Preferred MBS Comp 95 donor (10303)",
         "Matrix III CNC 400 mm trucks included with donor",
@@ -63,7 +77,7 @@
     {
       "id": "MECHANICAL-BRAKE",
       "status": "REV_C_HOLD",
-      "freeze_gate": "rev_c_chassis_release",
+      "freeze_gate": "rev_c_chassis_release_qualified",
       "contents": [
         "MBS V5 brake system (15006)",
         "cable/housing supplied or selected to the physical kit",
