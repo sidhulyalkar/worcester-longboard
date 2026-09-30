@@ -72,3 +72,17 @@ def test_warren_wheelbase_range_is_centered_on_comp95_reference():
     assert wb["warren_short_delta_vs_comp95_mm"] == -30.0
     assert wb["warren_long_delta_vs_comp95_mm"] == 30.0
     assert wb["same_steer_curvature_ratio_short_vs_long_bicycle_proxy"] == 1.066
+
+
+def test_nine_inch_trade_quantifies_small_clearance_gain_and_large_tire_mass_penalty():
+    report = analyze(_snapshot())
+    t2 = report["nine_inch_trade"]
+    assert t2["diameter_gain_mm_vs_t1"] == 25.0
+    assert t2["nominal_axle_height_gain_mm_vs_t1"] == 12.5
+    assert t2["width_gain_mm_vs_t1"] == 16.0
+    assert t2["width_delta_mm_vs_explorer"] == -13.0
+    assert t2["tire_only_added_mass_four_wheels_vs_t1_g"] == 1396.0
+    assert t2["tire_only_added_mass_four_wheels_vs_t1_lb"] == 3.08
+    assert t2["tire_only_added_mass_four_wheels_vs_explorer_g"] == 164.0
+    assert t2["tire_only_added_mass_four_wheels_vs_explorer_lb"] == 0.36
+    assert t2["rockstar_ii_compatible"] is False
