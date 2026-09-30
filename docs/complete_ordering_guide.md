@@ -184,7 +184,7 @@ PYTHONPATH=. python tools/init_one_zone_pilot_session.py \
   --validation-mass-kg <VALIDATION>
 ```
 
-## 4. Cart B: watch/source now, normally buy after Issue #4 passes
+## 4. Cart B: REV-C HOLD — source/watch only
 
 ### Preferred donor: MBS Comp 95, part 10303
 
@@ -230,7 +230,7 @@ MBS lists Matrix truck and Rockstar/Rockstar II hub compatibility. That makes it
 - V5 brake: `$89.95`
 - combined: `$589.90` before shipping/tax
 
-For minimum cash burn, normally close Issue #4 first and then place Cart B. A verified used donor <=$350 is the main reason to buy the chassis earlier.
+Do not place Cart B during the Rev-C trade study. A good used listing may be monitored, but low price is not permission to bypass the chassis release conditions.
 
 ## 5. Do not order the piecemeal fallback while donor-first is active
 
