@@ -111,6 +111,8 @@ The vendor statement that a 400 mm Matrix III can accept 70 mm axles for Agent g
 
 This branch is permission to study a complete proven subsystem or compatible chassis family, **not** permission to invent a safety-critical adapter between unrelated systems.
 
+The non-authoritative `simulation/rev_c_topology_traction_sweep.py` now sweeps grade, normalized CG position/height and acceleration to compare the friction coefficient demanded by front versus rear 2WD. Its job is to cheaply reject a traction-poor topology before we spend money on packaging. It deliberately uses normalized geometry rather than rider-specific measurements and cannot qualify real tire/terrain grip.
+
 #### D. Alternate rear drive preserving the V5 envelope
 
 A belt or other compact drive may win if it provides a cleaner safety-critical mechanical stack than the sealed G1 path.
