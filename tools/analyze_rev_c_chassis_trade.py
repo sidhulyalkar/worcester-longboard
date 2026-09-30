@@ -20,7 +20,12 @@ REQUIRED_CANDIDATES = {
     "PRO_WARREN_III_REFERENCE",
     "AGENT_AIR_REFERENCE",
 }
-REQUIRED_WHEELS = {"T1_200X50", "T3_200X50", "EXPLORER_200X70"}
+REQUIRED_WHEELS = {
+    "T1_200X50",
+    "T3_200X50",
+    "EXPLORER_200X70",
+    "T2_250X50_9IN",
+}
 
 
 def _candidate_map(snapshot: dict) -> dict[str, dict]:
@@ -170,6 +175,7 @@ def analyze(snapshot: dict) -> dict:
     t1 = wheels["T1_200X50"]
     t3 = wheels["T3_200X50"]
     explorer = wheels["EXPLORER_200X70"]
+    t2 = wheels["T2_250X50_9IN"]
 
     explorer_vs_t1_g = (float(explorer["tire_mass_g_each"]) - float(t1["tire_mass_g_each"])) * 4
     explorer_vs_t3_g = (float(explorer["tire_mass_g_each"]) - float(t3["tire_mass_g_each"])) * 4
@@ -231,6 +237,44 @@ def analyze(snapshot: dict) -> dict:
         ),
     }
 
+    t2_vs_t1_g = (
+        float(t2["tire_mass_g_each"]) - float(t1["tire_mass_g_each"])
+    ) * 4
+    t2_vs_explorer_g = (
+        float(t2["tire_mass_g_each"]) - float(explorer["tire_mass_g_each"])
+    ) * 4
+    nine_inch_trade = {
+        "diameter_gain_mm_vs_t1": round(
+            float(t2["diameter_mm"]) - float(t1["diameter_mm"]), 1
+        ),
+        "nominal_axle_height_gain_mm_vs_t1": round(
+            (float(t2["diameter_mm"]) - float(t1["diameter_mm"])) / 2.0, 1
+        ),
+        "width_gain_mm_vs_t1": round(
+            float(t2["width_mm"]) - float(t1["width_mm"]), 1
+        ),
+        "width_delta_mm_vs_explorer": round(
+            float(t2["width_mm"]) - float(explorer["width_mm"]), 1
+        ),
+        "tire_only_added_mass_four_wheels_vs_t1_g": round(t2_vs_t1_g, 1),
+        "tire_only_added_mass_four_wheels_vs_t1_lb": round(
+            t2_vs_t1_g / G_PER_LB, 2
+        ),
+        "tire_only_added_mass_four_wheels_vs_explorer_g": round(
+            t2_vs_explorer_g, 1
+        ),
+        "tire_only_added_mass_four_wheels_vs_explorer_lb": round(
+            t2_vs_explorer_g / G_PER_LB, 2
+        ),
+        "rockstar_ii_compatible": False,
+        "interpretation": (
+            "The 9-inch T2 buys about 12.5 mm of nominal axle-height gain over "
+            "the 194 mm 8-inch references, while adding about 3.1 lb across four "
+            "tires versus T1 before the required hub conversion. Require a measured "
+            "ground-clearance failure before paying this penalty."
+        ),
+    }
+
     return {
         "schema_version": 1,
         "scope": "rev_c_chassis_candidate_trade_analysis",
@@ -242,6 +286,7 @@ def analyze(snapshot: dict) -> dict:
         "candidate_rows": candidate_rows,
         "wheelbase_experiment": wheelbase_experiment,
         "wheel_trade": wheel_trade,
+        "nine_inch_trade": nine_inch_trade,
         "decision_boundaries": [
             "cardboard/foam envelopes can qualify stance geometry, not real deck flex",
             "published brake compatibility does not prove simultaneous brake plus drivetrain coexistence",
