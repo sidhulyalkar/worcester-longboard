@@ -44,8 +44,8 @@ def qualify(data: dict) -> dict:
         errors.append("deck comparison cannot authorize powered operation")
 
     candidates = data.get("candidates")
-    if not isinstance(candidates, list) or len(candidates) < 2:
-        errors.append("at least two deck-envelope candidates are required")
+    if not isinstance(candidates, list) or len(candidates) < 3:
+        errors.append("at least three deck-envelope candidates are required")
         candidates = []
 
     ids: list[str] = []
