@@ -12,7 +12,6 @@
   },
   "hard_requirements": {
     "independent_mechanical_stopping": true,
-    "rear_friction_brake_preferred": true,
     "professional_traction_battery_only": true,
     "live_pack_not_first_mechanical_test_mass": true,
     "no_unqualified_safety_critical_spacers_or_brake_adapters": true,
@@ -20,11 +19,19 @@
     "dog_mode_initial_speed_cap_mps": 2.7,
     "dog_mode_low_jerk_required": true,
     "battery_service_disconnect_required": true,
-    "positive_battery_retention_required": true
+    "positive_battery_retention_required": true,
+    "independent_friction_or_hydraulic_stopping": true,
+    "rear_v5_reference_preferred_if_compatible": true
   },
   "ride_targets": {
-    "useful_speed_envelope_mph": [0, 20],
-    "priority_speed_envelope_mph": [0, 15],
+    "useful_speed_envelope_mph": [
+      0,
+      20
+    ],
+    "priority_speed_envelope_mph": [
+      0,
+      15
+    ],
     "trail_range_min_miles_with_range_pack": 20,
     "mixed_surface_range_goal_miles_with_range_pack": 30,
     "trail_configuration_mass_goal_lb": 35,
@@ -34,17 +41,32 @@
     "rider_interface": "independent left/right fit with easy emergency step-off"
   },
   "energy_architecture": {
-    "trail_pack_nominal_wh_target": [500, 650],
-    "range_pack_nominal_wh_target": [950, 1150],
+    "trail_pack_nominal_wh_target": [
+      500,
+      650
+    ],
+    "range_pack_nominal_wh_target": [
+      950,
+      1150
+    ],
     "planning_consumption_wh_per_mile": {
-      "efficient_mixed_surface": [22, 30],
-      "trail": [32, 45]
+      "efficient_mixed_surface": [
+        22,
+        30
+      ],
+      "trail": [
+        32,
+        45
+      ]
     },
     "planning_reserve_fraction": 0.2,
     "charging": {
       "normal_charge_mode": "battery-builder-approved moderate rate",
-      "daily_soc_target_fraction": [0.8, 0.9],
-      "trip_soc_target_fraction": 1.0,
+      "daily_soc_target_fraction": [
+        0.8,
+        0.9
+      ],
+      "trip_soc_target_fraction": 1,
       "dock_goal": "protected alignment dock or stand with no exposed traction contacts",
       "pack_swap": "power-off/cold-swap only until a qualified battery system explicitly supports otherwise"
     }
@@ -156,7 +178,10 @@
       ],
       "known": {
         "tire": "12x7-6",
-        "range_miles": [18, 28],
+        "range_miles": [
+          18,
+          28
+        ],
         "weight_lb": 34,
         "standard_charge_minutes": 165,
         "hypercharge_minutes": 85
@@ -178,6 +203,22 @@
         "claimed_range_miles_gear": 42
       },
       "source": "https://www.ridepropel.com/electric-skateboard/propel-endeavor-gt/"
+    },
+    {
+      "id": "TRAMPA_INFINITY_MAGURA_FRONT_BRAKE",
+      "lessons": [
+        "a complete vendor-engineered front hydraulic brake architecture exists for mountainboards",
+        "front braking can preserve rear axle volume for a conventional rear 2WD drivetrain",
+        "the lesson is the integrated truck/hub/disc/brake system, not permission to adapt Magura hardware onto Matrix trucks"
+      ],
+      "known": {
+        "brake": "Magura HS11 hydraulic rim-brake actuator adapted by TRAMPA to custom wheel discs",
+        "mounting_position": "front",
+        "truck": "TRAMPA Infinity",
+        "dedicated_brake_mounting": true,
+        "complete_vendor_architecture": true
+      },
+      "source": "https://trampaboards.com/infinity-truck-wearing-magura-hydraulic-brakes-with-custom-disks-to-fit-any-5-spoke-trampa-wheels-p-10769.html"
     }
   ],
   "topology_branches": [
@@ -202,6 +243,17 @@
       ]
     },
     {
+      "id": "REAR_2WD_FRONT_VENDOR_HYDRAULIC",
+      "status": "LIVE_REFERENCE_TO_STUDY",
+      "benefit": "preserves conventional rear-drive traction while moving independent stopping to a vendor-engineered front brake axle",
+      "risks": [
+        "TRAMPA brake architecture is not a drop-in Matrix/Rockstar subsystem",
+        "mixed truck/wheel ecosystems may create steering, track-width, bearing and service incompatibilities",
+        "front brake balance must avoid abrupt lock or excessive pitch response",
+        "changing chassis family could invalidate current Comp 95 donor assumptions"
+      ]
+    },
+    {
       "id": "ALTERNATE_REAR_DRIVE_PRESERVING_V5",
       "status": "LIVE_FALLBACK",
       "benefit": "may preserve rear brake with simpler or more compact drive packaging",
@@ -220,7 +272,7 @@
     "battery_and_esc": "HOLD",
     "release_conditions": [
       "rider-scale deck envelope comparison completed",
-      "selected wheel family preserves a credible rear mechanical-brake path",
+      "selected chassis/wheel family preserves a credible independent friction-or-hydraulic stopping path",
       "one drive/brake topology has a physical measurement plan with no unqualified safety-critical adapter",
       "range-pack envelope can be represented by inert mass without violating ground-clearance and rider-interface keep-outs"
     ]
