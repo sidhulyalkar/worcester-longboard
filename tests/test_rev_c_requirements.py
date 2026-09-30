@@ -12,7 +12,8 @@ def test_rev_c_keeps_independent_braking_and_professional_battery():
     data = _requirements()
     hard = data["hard_requirements"]
     assert hard["independent_mechanical_stopping"] is True
-    assert hard["rear_friction_brake_preferred"] is True
+    assert hard["independent_friction_or_hydraulic_stopping"] is True
+    assert hard["rear_v5_reference_preferred_if_compatible"] is True
     assert hard["professional_traction_battery_only"] is True
     assert hard["no_unqualified_safety_critical_spacers_or_brake_adapters"] is True
 
@@ -49,4 +50,14 @@ def test_all_live_topology_branches_preserve_a_brake_question():
     branches = {x["id"]: x for x in _requirements()["topology_branches"]}
     assert branches["REAR_V5_FRONT_2WD"]["status"] == "LIVE"
     assert branches["REAR_V5_REAR_2WD_SHARED"]["status"] == "PHYSICAL_PROOF_REQUIRED"
+    assert branches["REAR_2WD_FRONT_VENDOR_HYDRAULIC"]["status"] == "LIVE_REFERENCE_TO_STUDY"
     assert branches["ALTERNATE_REAR_DRIVE_PRESERVING_V5"]["status"] == "LIVE_FALLBACK"
+
+
+def test_rev_c_vendor_front_brake_reference_is_not_a_custom_adapter():
+    data = _requirements()
+    refs = {x["id"]: x for x in data["benchmark_only"]}
+    trampa = refs["TRAMPA_INFINITY_MAGURA_FRONT_BRAKE"]
+    assert trampa["known"]["mounting_position"] == "front"
+    assert trampa["known"]["complete_vendor_architecture"] is True
+    assert any("not permission to adapt" in x for x in trampa["lessons"])
