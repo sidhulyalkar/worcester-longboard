@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "scope": "rev_c_pre_purchase_inert_pack_envelope",
+  "chassis_candidate_id": "",
+  "available_mount_envelope_mm": {
+    "length": 0,
+    "width": 0,
+    "height": 0
+  },
+  "minimum_vulnerable_component_ground_keepout_mm": 0,
+  "pack_candidates": {
+    "trail": {
+      "nominal_wh": 575,
+      "envelope_mm": {
+        "length": 0,
+        "width": 0,
+        "height": 0
+      },
+      "inert_target_mass_kg": 0,
+      "placement": "other_measured"
+    },
+    "range": {
+      "nominal_wh": 1050,
+      "envelope_mm": {
+        "length": 0,
+        "width": 0,
+        "height": 0
+      },
+      "inert_target_mass_kg": 0,
+      "placement": "other_measured"
+    }
+  },
+  "checks": {
+    "rider_stance_keepout_clear": false,
+    "steering_sweep_keepout_clear": false,
+    "deck_flex_keepout_clear": false,
+    "service_removal_direction_defined": false,
+    "positive_retention_concept_defined": false,
+    "sacrificial_skid_or_impact_path_defined": false,
+    "no_live_battery_used": true
+  },
+  "powered_operation_authorized": false
+}
