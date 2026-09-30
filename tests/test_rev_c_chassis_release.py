@@ -208,3 +208,33 @@ def test_release_cannot_authorize_power():
     report = qualify(manifest, pilot, deck, topology, inert)
     assert report["qualified"] is False
     assert report["powered_operation_authorized"] is False
+
+
+def test_selected_chassis_must_match_selected_deck_candidate():
+    pilot, deck, topology, inert = _fit_pilot(), _deck(), _topology(), _inert()
+    manifest = _manifest(pilot, deck, topology, inert)
+    manifest["selected_chassis_family"] = "PRO_WARREN_III_REFERENCE"
+    report = qualify(manifest, pilot, deck, topology, inert)
+    assert report["qualified"] is False
+    assert any("selected chassis family disagrees" in e for e in report["errors"])
+
+
+def test_selected_brake_must_match_selected_topology():
+    pilot, deck, topology, inert = _fit_pilot(), _deck(), _topology(), _inert()
+    manifest = _manifest(pilot, deck, topology, inert)
+    manifest["selected_brake_architecture"] = "VENDOR_FRONT_HYDRAULIC"
+    report = qualify(manifest, pilot, deck, topology, inert)
+    assert report["qualified"] is False
+    assert any("selected brake architecture disagrees" in e for e in report["errors"])
+
+
+def test_inert_pack_authority_must_target_selected_chassis():
+    pilot, deck, topology, inert = _fit_pilot(), _deck(), _topology(), _inert()
+    unsigned = dict(inert)
+    unsigned.pop("authority_fingerprint_sha256")
+    unsigned["chassis_candidate_id"] = "PRO_WARREN_III_REFERENCE"
+    inert = _stamp(unsigned)
+    manifest = _manifest(pilot, deck, topology, inert)
+    report = qualify(manifest, pilot, deck, topology, inert)
+    assert report["qualified"] is False
+    assert any("inert-pack envelope authority" in e for e in report["errors"])
