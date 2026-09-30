@@ -13,6 +13,12 @@ import hashlib
 import json
 from pathlib import Path
 
+REQUIRED_CANDIDATE_IDS = {
+    "comp95_class",
+    "pro_warren_iii_class",
+    "agent_class",
+}
+
 REQUIRED_SELECTED_CHECKS = (
     "bilateral_emergency_step_off_pass",
     "deep_knee_carve_position_pass",
@@ -113,6 +119,12 @@ def qualify(data: dict) -> dict:
                 )
                 is True,
             }
+        )
+
+    if set(ids) != REQUIRED_CANDIDATE_IDS:
+        errors.append(
+            "deck comparison must evaluate exactly the current Rev-C candidate set: "
+            + ", ".join(sorted(REQUIRED_CANDIDATE_IDS))
         )
 
     if not _nonempty(selected_id) or selected_id not in ids:
