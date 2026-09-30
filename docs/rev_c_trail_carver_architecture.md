@@ -144,6 +144,27 @@ The board interface should support both without redesigning the chassis.
 
 A pack change is initially a powered-off cold swap. Hot swapping is out of scope unless the eventual battery/ESC system explicitly supports and qualifies it.
 
+### 6A. Finished mass is now an explicit feasibility gate
+
+Current commercial reference masses make the original 35 lb trail / 45 lb range goals aggressive:
+
+- Comp 95 unpowered reference: 14.6 lb;
+- MBS AGENT 540 battery reference: 15 lb;
+- MBS AGENT 1080 battery reference: 20 lb.
+
+That creates a simple lower-bound warning:
+
+```
+trail target: 35.0 - 14.6 - 15.0 = 5.4 lb remaining
+range target: 45.0 - 14.6 - 20.0 = 10.4 lb remaining
+```
+
+Those remaining budgets still have to cover drivetrain, motors, controller, guards, mounting hardware, harness changes and any structural additions. Positive headroom therefore does **not** prove either target is achievable.
+
+`simulation/rev_c_mass_budget.py` makes this accounting executable. Rev-C should prefer reducing installed energy, duplicated structure and enclosure mass before sacrificing independent braking, trail armor or positive battery retention merely to hit a cosmetic weight number.
+
+A two-pack strategy remains especially attractive if one small installed pack plus a carried/swapped spare preserves handling better than permanently carrying the full range mass.
+
 ### 7. Charging must be mundane
 
 A successful daily vehicle should not need a ritual involving exposed high-current connectors.
