@@ -7,7 +7,7 @@ import math
 import sys
 from pathlib import Path
 
-POWER_TBD_IDS = {"ESC-DUAL", "MOTOR-6374", "BATTERY-12S4P"}
+POWER_TBD_IDS = {"ESC-DUAL", "MOTOR-6374", "BATTERY-PRO-MODULAR"}
 
 
 def _price(item: dict) -> float | None:
