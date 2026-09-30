@@ -30,15 +30,27 @@ Rev-B + inert dummy-pack + power architecture
 
 ## 0. Workspace
 
-Keep rider measurements and raw notes private:
+Initialize the complete private workspace in one command:
 
 ```bash
-mkdir -p rider/private/rev_c_release
+python tools/init_rev_c_chassis_release_session.py \
+  rider/private/rev_c_release
 ```
+
+This creates:
+
+- `deck_comparison.json`;
+- `topology_trade.json`;
+- `inert_pack_envelope.json`;
+- `chassis_release.json`;
+- both full-scale deck-envelope SVGs;
+- a non-authoritative workspace manifest.
+
+The initializer refuses to overwrite a non-empty session directory.
 
 Do not commit exact stance, body, foot, comfort or remount measurements.
 
-Public templates and tools are allowed to operate on private files because the emitted authorities are sanitized.
+Public tools may operate on private files because the emitted authorities are intentionally sanitized.
 
 ---
 
@@ -67,7 +79,7 @@ is a placeholder. Use the actual authority path produced by the Issue #4 workflo
 
 ## 2. Generate the two full-scale deck envelopes
 
-Generate:
+The initializer already generates both SVGs. To regenerate them manually:
 
 ```bash
 python cad/generate_rev_c_deck_templates.py \
@@ -103,12 +115,7 @@ Keep both templates on the same floor/surface and use the same shoes for the com
 
 ## 3. Perform the deck comparison
 
-Copy the private template:
-
-```bash
-cp hardware/rev_c_deck_comparison_private_template.json \
-  rider/private/rev_c_release/deck_comparison.json
-```
+The initializer already copied `deck_comparison.json` from the public template.
 
 For **each** candidate perform at least three independent remount trials.
 
@@ -195,12 +202,7 @@ Copy that digest into the topology-trade manifest.
 
 ## 5. Complete the topology trade
 
-Copy:
-
-```bash
-cp hardware/rev_c_topology_trade_template.json \
-  rider/private/rev_c_release/topology_trade.json
-```
+The initializer already copied `topology_trade.json`.
 
 Evaluate all four Rev-C branches:
 
@@ -299,12 +301,7 @@ The goal is not to prove final battery construction.
 
 The goal is to reject a chassis concept where the required energy volume obviously consumes the stance area, steering sweep or trail-clearance envelope.
 
-Copy:
-
-```bash
-cp hardware/rev_c_inert_pack_envelope_template.json \
-  rider/private/rev_c_release/inert_pack_envelope.json
-```
+The initializer already copied `inert_pack_envelope.json`.
 
 Fill in:
 
@@ -386,12 +383,7 @@ merely to hit a round weight number.
 
 ## 8. Assemble the final Issue #25 release manifest
 
-Copy:
-
-```bash
-cp hardware/rev_c_chassis_release_template.json \
-  rider/private/rev_c_release/chassis_release.json
-```
+The initializer already copied `chassis_release.json`.
 
 Use the authority fingerprints from:
 
