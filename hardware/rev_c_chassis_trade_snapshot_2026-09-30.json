@@ -166,6 +166,15 @@
       "hub_mass_g_each": 370,
       "source": "https://www.mbs.com/shop/p/explorer-tire",
       "hub_source": "https://www.mbs.com/shop/p/mbs-rockstar-pro-ii-xl-hub-bronze"
+    },
+    {
+      "id": "T2_250X50_9IN",
+      "diameter_mm": 219,
+      "width_mm": 67,
+      "tire_mass_g_each": 581,
+      "hub_family": "FiveStar, TriSpoke, or Rockstar Pro II XL",
+      "incompatible_with_hub_family": "Rockstar II",
+      "source": "https://www.mbs.com/shop/p/13120-9-mbs-t2-tires-1"
     }
   ],
   "interface_constraints": [
