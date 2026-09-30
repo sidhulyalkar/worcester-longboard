@@ -8,9 +8,10 @@
     "power_gated_authorized": false,
     "preferred_chassis_strategy": "REV_C_HOLD_COMPACT_MATRIX_REFERENCE",
     "preferred_chassis_item_id": "DONOR-COMP95",
-    "rev_c_expensive_procurement_hold": true,
+    "rev_c_expensive_procurement_hold": "evidence_gated",
     "rev_c_requirements_path": "hardware/rev_c_requirements.json",
-    "source_snapshot_as_of": "2026-09-11"
+    "source_snapshot_as_of": "2026-09-11",
+    "rev_c_chassis_release_gate": "rev_c_chassis_release_qualified"
   },
   "items": [
     {
@@ -122,7 +123,7 @@
       "purchase_strategy": "leading_compact_reference_not_yet_authorized",
       "required_for": "issues-12-14",
       "notes": "Rev-C keeps the Comp 95 as the leading compact/brake-compatible reference but no longer authorizes purchase before rider-scale deck comparison and wheel/brake/drive topology review.",
-      "defer_until": "Rev-C chassis release conditions in hardware/rev_c_requirements.json are closed"
+      "requires_gate": "rev_c_chassis_release_qualified"
     },
     {
       "id": "BRAKE-V5",
@@ -133,8 +134,8 @@
       "unit_price_usd": 89.95,
       "purchase_strategy": "rear_brake_reference_not_yet_authorized",
       "required_for": "issue-14",
-      "defer_until": "Rev-C chassis release conditions in hardware/rev_c_requirements.json are closed",
-      "notes": "Vendor documentation keeps V5 as the rear friction-brake reference. Purchase is held until Rev-C confirms the chassis/wheel topology."
+      "notes": "Vendor documentation keeps V5 as the rear friction-brake reference. Purchase is held until Rev-C confirms the chassis/wheel topology.",
+      "requires_gate": "rev_c_chassis_release_qualified"
     },
     {
       "id": "TRUCK-M3-400",
@@ -146,7 +147,7 @@
       "purchase_strategy": "fallback_piecemeal_measurement",
       "alternative_to": "DONOR-COMP95",
       "required_for": "issue-14",
-      "defer_until": "Rev-C chassis release conditions in hardware/rev_c_requirements.json are closed"
+      "requires_gate": "rev_c_chassis_release_qualified"
     },
     {
       "id": "HUB-RSII",
@@ -158,7 +159,7 @@
       "purchase_strategy": "fallback_piecemeal_measurement",
       "alternative_to": "DONOR-COMP95",
       "required_for": "issue-14",
-      "defer_until": "Rev-C chassis release conditions in hardware/rev_c_requirements.json are closed"
+      "requires_gate": "rev_c_chassis_release_qualified"
     },
     {
       "id": "TIRE-T2-9",
