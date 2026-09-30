@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "scope": "rev_c_chassis_purchase_release",
+  "selected_chassis_family": "",
+  "selected_wheel_family": "",
+  "selected_brake_architecture": "",
+  "selected_topology_for_measurement": "",
+  "checks": {
+    "deck_envelope_comparison_completed": false,
+    "traction_trade_study_reviewed": false,
+    "independent_stopping_path_credible": false,
+    "range_pack_inert_envelope_plausible": false,
+    "no_unqualified_safety_critical_adapter": false,
+    "rejected_alternatives_recorded": false
+  },
+  "evidence_refs": {
+    "deck_envelope_record_sha256": "",
+    "topology_trade_record_sha256": "",
+    "inert_pack_envelope_record_sha256": "",
+    "fit_pilot_authority_fingerprint_sha256": ""
+  },
+  "rejected_alternatives": [
+    {
+      "id": "",
+      "reason": ""
+    }
+  ],
+  "open_questions": [],
+  "powered_operation_authorized": false
+}
