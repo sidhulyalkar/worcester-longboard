@@ -23,6 +23,19 @@ REQUIRED_COLUMNS = (
     "gyro_yaw_dps",
 )
 
+REQUIRED_OBSERVATION_COLUMNS = (
+    "run_id",
+    "config_id",
+    "carve_response",
+    "trail_chatter",
+    "recentering",
+    "steering_effort",
+    "stability",
+    "foot_fatigue",
+    "confidence",
+    "emergency_stepoff_ok",
+)
+
 SETTING_KEYS = (
     "chassis_id",
     "tire_family",
@@ -122,6 +135,41 @@ def _load_csv(path: Path) -> tuple[list[dict[str, float]], list[str]]:
     except OSError as exc:
         errors.append(f"{path}: {exc}")
     return rows, errors
+
+
+def _load_observations(path: Path) -> tuple[dict[str, dict[str, str]], list[str]]:
+    errors: list[str] = []
+    observations: dict[str, dict[str, str]] = {}
+    try:
+        with path.open(newline="", encoding="utf-8") as handle:
+            reader = csv.DictReader(handle)
+            if reader.fieldnames is None:
+                return {}, [f"{path}: missing CSV header"]
+            missing = [
+                column
+                for column in REQUIRED_OBSERVATION_COLUMNS
+                if column not in reader.fieldnames
+            ]
+            if missing:
+                return {}, [
+                    f"{path}: missing observation columns {', '.join(missing)}"
+                ]
+            for line_no, row in enumerate(reader, start=2):
+                run_id = str(row.get("run_id", "")).strip()
+                if not run_id:
+                    errors.append(f"{path}:{line_no}: missing run_id")
+                    continue
+                if run_id in observations:
+                    errors.append(f"{path}:{line_no}: duplicate run_id {run_id}")
+                    continue
+                observations[run_id] = {
+                    key: str(row.get(key, "")).strip()
+                    for key in reader.fieldnames
+                    if key is not None
+                }
+    except OSError as exc:
+        errors.append(f"{path}: {exc}")
+    return observations, errors
 
 
 def _analyze_run(
@@ -230,10 +278,22 @@ def analyze(manifest: dict, base_dir: Path) -> dict:
     if manifest.get("dog_or_leash_present") is not False:
         errors.append("dog_or_leash_present must be false")
 
-    for key in ("session_id", "course_id", "surface_description", "imu_mount_id"):
+    for key in (
+        "session_id",
+        "course_id",
+        "surface_description",
+        "imu_source_id",
+        "imu_mount_id",
+        "speed_source_id",
+        "rider_observations_csv",
+    ):
         value = manifest.get(key)
         if not isinstance(value, str) or not value.strip():
             errors.append(f"{key} must be a nonempty string")
+    if manifest.get("speed_source_calibrated") is not True:
+        errors.append("speed_source_calibrated must be true")
+    if manifest.get("sensor_timebase_aligned") is not True:
+        errors.append("sensor_timebase_aligned must be true")
     if manifest.get("same_course_for_all_runs") is not True:
         errors.append("same_course_for_all_runs must be true")
     if manifest.get("imu_mount_unchanged") is not True:
@@ -443,6 +503,52 @@ def analyze(manifest: dict, base_dir: Path) -> dict:
                 f"run {run.get('id')}: rider_observation_recorded must be true"
             )
 
+    observation_path = base_dir / str(manifest.get("rider_observations_csv", ""))
+    observations, observation_errors = _load_observations(observation_path)
+    errors.extend(observation_errors)
+
+    expected_run_ids = set(run_ids)
+    actual_observation_ids = set(observations)
+    if expected_run_ids != actual_observation_ids:
+        missing = sorted(expected_run_ids - actual_observation_ids)
+        extra = sorted(actual_observation_ids - expected_run_ids)
+        if missing:
+            errors.append(
+                "rider observations missing runs: " + ", ".join(missing)
+            )
+        if extra:
+            errors.append(
+                "rider observations contain unknown runs: " + ", ".join(extra)
+            )
+
+    for run in runs:
+        if not isinstance(run, dict):
+            continue
+        run_id = run.get("id")
+        observation = observations.get(run_id)
+        if observation is None:
+            continue
+        if observation.get("config_id") != run.get("config_id"):
+            errors.append(
+                f"run {run_id}: rider observation config_id does not match"
+            )
+        for key in REQUIRED_OBSERVATION_COLUMNS:
+            if key in {"run_id", "config_id"}:
+                continue
+            if not observation.get(key):
+                errors.append(
+                    f"run {run_id}: rider observation missing {key}"
+                )
+        if observation.get("emergency_stepoff_ok", "").lower() not in {
+            "true",
+            "yes",
+            "pass",
+            "1",
+        }:
+            errors.append(
+                f"run {run_id}: emergency step-off was not accepted"
+            )
+
     if errors:
         return {
             "schema_version": 1,
@@ -556,6 +662,13 @@ def analyze(manifest: dict, base_dir: Path) -> dict:
         "procurement_authority": False,
         "powered_operation_authorized": False,
         "baseline_config_id": baseline_id,
+        "sensor_provenance": {
+            "imu_source_id": manifest.get("imu_source_id"),
+            "imu_mount_id": manifest.get("imu_mount_id"),
+            "speed_source_id": manifest.get("speed_source_id"),
+            "speed_source_calibrated": manifest.get("speed_source_calibrated") is True,
+            "sensor_timebase_aligned": manifest.get("sensor_timebase_aligned") is True,
+        },
         "run_results": analyzed_runs,
         "config_results": aggregate,
         "interpretation_boundary": (
