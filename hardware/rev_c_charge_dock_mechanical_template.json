@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "scope": "rev_c_passive_charge_cradle_mechanical_trial",
+  "session_id": "",
+  "selected_pack_reference_id": "",
+  "selected_charger_reference_id": "",
+  "charger_compatibility_source": "",
+  "inert_pack_fixture_id": "",
+  "inert_connector_fixture_id": "",
+  "electrical_energy_present": false,
+  "board_powered": false,
+  "charger_energized": false,
+  "exposed_traction_voltage_contacts": false,
+  "dock_design": {
+    "supports_board_without_loading_brake_hardware": false,
+    "supports_board_without_loading_drive_hardware": false,
+    "supports_board_without_connector_as_structural_member": false,
+    "self_centering_guides_present": false,
+    "connector_carriage_has_compliance_or_alignment_relief": false,
+    "charger_cable_strain_relief_present": false,
+    "charge_connector_protected_when_board_absent": false,
+    "service_access_preserved": false
+  },
+  "stability_check": {
+    "method": "",
+    "board_remained_stable": false,
+    "connector_not_used_as_retention": false
+  },
+  "cable_check": {
+    "manufacturer_or_system_source": "",
+    "bend_radius_and_strain_requirements_checked": false,
+    "no_sharp_edge_contact": false,
+    "no_wheel_or_steering_sweep_contact": false
+  },
+  "alignment_trials": [
+    {
+      "id": "trial-01",
+      "board_set_down_without_lifting": false,
+      "guides_centered_board": false,
+      "inert_connector_aligned_without_forced_side_load": false,
+      "inert_connector_reached_intended_seated_state": false,
+      "cable_remained_strain_relieved": false,
+      "no_interference_with_brake_drive_or_steering": false
+    },
+    {
+      "id": "trial-02",
+      "board_set_down_without_lifting": false,
+      "guides_centered_board": false,
+      "inert_connector_aligned_without_forced_side_load": false,
+      "inert_connector_reached_intended_seated_state": false,
+      "cable_remained_strain_relieved": false,
+      "no_interference_with_brake_drive_or_steering": false
+    },
+    {
+      "id": "trial-03",
+      "board_set_down_without_lifting": false,
+      "guides_centered_board": false,
+      "inert_connector_aligned_without_forced_side_load": false,
+      "inert_connector_reached_intended_seated_state": false,
+      "cable_remained_strain_relieved": false,
+      "no_interference_with_brake_drive_or_steering": false
+    },
+    {
+      "id": "trial-04",
+      "board_set_down_without_lifting": false,
+      "guides_centered_board": false,
+      "inert_connector_aligned_without_forced_side_load": false,
+      "inert_connector_reached_intended_seated_state": false,
+      "cable_remained_strain_relieved": false,
+      "no_interference_with_brake_drive_or_steering": false
+    },
+    {
+      "id": "trial-05",
+      "board_set_down_without_lifting": false,
+      "guides_centered_board": false,
+      "inert_connector_aligned_without_forced_side_load": false,
+      "inert_connector_reached_intended_seated_state": false,
+      "cable_remained_strain_relieved": false,
+      "no_interference_with_brake_drive_or_steering": false
+    }
+  ],
+  "post_trial_inspection": {
+    "dock_shifted_or_loosened": null,
+    "connector_fixture_damage": null,
+    "cable_or_strain_relief_damage": null,
+    "board_or_chassis_damage": null
+  },
+  "electrical_charge_authorized": false,
+  "powered_operation_authorized": false
+}
