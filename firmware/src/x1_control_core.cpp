@@ -32,12 +32,13 @@ float kt_from_kv(float kv) { return 60.0f / (2.0f * 3.14159265358979323846f * kv
 
 Limits limits_for_mode(RideMode mode) {
     switch (mode) {
-        case RideMode::Learn: return {3.13f, 0.8f, 1.2f, 26.0f};
-        case RideMode::Trail: return {6.26f, 1.4f, 1.9f, 48.0f};
-        case RideMode::Flow:  return {8.94f, 2.0f, 2.4f, 65.0f};
-        case RideMode::Sport: return {11.18f,2.7f, 2.8f, 75.0f};
+        case RideMode::Learn:  return {3.13f, 0.8f, 1.2f, 26.0f, 140.0f, 140.0f, 140.0f};
+        case RideMode::Trail:  return {6.26f, 1.4f, 1.9f, 48.0f, 140.0f, 140.0f, 140.0f};
+        case RideMode::Flow:   return {8.94f, 2.0f, 2.4f, 65.0f, 140.0f, 140.0f, 140.0f};
+        case RideMode::Sport:  return {11.18f,2.7f, 2.8f, 75.0f, 140.0f, 140.0f, 140.0f};
+        case RideMode::Shasta: return {2.70f, 0.45f,0.80f,18.0f, 20.0f, 30.0f, 60.0f};
     }
-    return {3.13f, 0.8f, 1.2f, 26.0f};
+    return {3.13f, 0.8f, 1.2f, 26.0f, 140.0f, 140.0f, 140.0f};
 }
 
 State estimate_state(const Config& cfg, const SensorFrame& s) {
@@ -47,6 +48,7 @@ State estimate_state(const Config& cfg, const SensorFrame& s) {
     st.slip_l = (s.rear_left_mps - st.speed_mps) / denom;
     st.slip_r = (s.rear_right_mps - st.speed_mps) / denom;
     if (s.remote_age_s > cfg.remote_timeout_s) st.faults |= FAULT_REMOTE_LOST;
+    if (!s.remote_deadman_active) st.faults |= FAULT_DEADMAN_RELEASED;
     if (s.sensor_age_s > 0.10f) st.faults |= FAULT_SENSOR_STALE;
     if (s.batt_temp_c >= cfg.batt_derate_zero_c) st.faults |= FAULT_BATT_HOT;
     if (s.motor_temp_l_c >= cfg.motor_derate_zero_c) st.faults |= FAULT_MOTOR_HOT_L;
@@ -63,11 +65,45 @@ Command step_controller(const Config& cfg, RideMode mode, const SensorFrame& s,
     const State st = estimate_state(cfg, s);
     Command out;
     out.faults = st.faults;
+    out.lights_requested = (mode == RideMode::Shasta);
 
-    if ((st.faults & (FAULT_REMOTE_LOST | FAULT_SENSOR_STALE)) != 0) {
-        out.drive_current_l_a = slew(0.0f, previous.drive_current_l_a, cfg.current_slew_a_per_s, s.dt_s);
-        out.drive_current_r_a = slew(0.0f, previous.drive_current_r_a, cfg.current_slew_a_per_s, s.dt_s);
+    const float drive_current_slew = std::min(
+        cfg.current_slew_a_per_s, lim.drive_current_slew_max_a_per_s
+    );
+    const float brake_current_slew = std::min(
+        cfg.current_slew_a_per_s, lim.brake_current_slew_max_a_per_s
+    );
+    const float fault_release_current_slew = std::min(
+        cfg.current_slew_a_per_s, lim.fault_release_current_slew_a_per_s
+    );
+
+    if ((st.faults & (FAULT_REMOTE_LOST | FAULT_SENSOR_STALE |
+                      FAULT_DEADMAN_RELEASED)) != 0) {
+        out.drive_current_l_a = slew(
+            0.0f, previous.drive_current_l_a, fault_release_current_slew, s.dt_s
+        );
+        out.drive_current_r_a = slew(
+            0.0f, previous.drive_current_r_a, fault_release_current_slew, s.dt_s
+        );
         out.mechanical_brake_recommended = true;
+        return out;
+    }
+
+    const bool overspeed = st.speed_mps > lim.speed_cap_mps;
+    if (overspeed) {
+        out.faults |= FAULT_OVERSPEED;
+        out.mechanical_brake_recommended = true;
+    }
+
+    if (overspeed && s.throttle >= 0.0f) {
+        out.drive_current_l_a = slew(
+            0.0f, previous.drive_current_l_a,
+            fault_release_current_slew, s.dt_s
+        );
+        out.drive_current_r_a = slew(
+            0.0f, previous.drive_current_r_a,
+            fault_release_current_slew, s.dt_s
+        );
         return out;
     }
 
@@ -96,8 +132,8 @@ Command step_controller(const Config& cfg, RideMode mode, const SensorFrame& s,
 
         const float target_l = base_current * out.tc_scale_l * thermal_l;
         const float target_r = base_current * out.tc_scale_r * thermal_r;
-        out.drive_current_l_a = slew(target_l, previous.drive_current_l_a, cfg.current_slew_a_per_s, s.dt_s);
-        out.drive_current_r_a = slew(target_r, previous.drive_current_r_a, cfg.current_slew_a_per_s, s.dt_s);
+        out.drive_current_l_a = slew(target_l, previous.drive_current_l_a, drive_current_slew, s.dt_s);
+        out.drive_current_r_a = slew(target_r, previous.drive_current_r_a, drive_current_slew, s.dt_s);
     } else {
         const float brake = -s.throttle;
         float decel = brake * lim.decel_max_mps2;
@@ -114,10 +150,28 @@ Command step_controller(const Config& cfg, RideMode mode, const SensorFrame& s,
                      (cfg.regen_zero_voltage - cfg.regen_soft_voltage);
         vscale = clampf(vscale,0.0f,1.0f);
 
-        out.brake_current_l_a = base_brake * out.regen_scale_l * vscale * thermal_l;
-        out.brake_current_r_a = base_brake * out.regen_scale_r * vscale * thermal_r;
-        out.mechanical_brake_recommended = (vscale < 0.75f) ||
-            (out.regen_scale_l < 0.5f) || (out.regen_scale_r < 0.5f);
+        const float target_brake_l =
+            base_brake * out.regen_scale_l * vscale * thermal_l;
+        const float target_brake_r =
+            base_brake * out.regen_scale_r * vscale * thermal_r;
+        if (vscale <= 0.0f) {
+            out.brake_current_l_a = 0.0f;
+            out.brake_current_r_a = 0.0f;
+        } else {
+            out.brake_current_l_a = slew(
+                target_brake_l, previous.brake_current_l_a,
+                brake_current_slew, s.dt_s
+            );
+            out.brake_current_r_a = slew(
+                target_brake_r, previous.brake_current_r_a,
+                brake_current_slew, s.dt_s
+            );
+        }
+        out.mechanical_brake_recommended =
+            out.mechanical_brake_recommended ||
+            (vscale < 0.75f) ||
+            (out.regen_scale_l < 0.5f) ||
+            (out.regen_scale_r < 0.5f);
     }
     return out;
 }

@@ -151,3 +151,32 @@ def test_issue_30_charge_dock_is_passive_and_cannot_authorize_live_charging():
     assert charging["universal_daily_soc_assumption"] == (
         "NONE_FOLLOW_SELECTED_BATTERY_SYSTEM"
     )
+
+
+def test_issue_33_shasta_program_is_research_only_and_dog_free_initially():
+    program = _requirements()["control_architecture"]["shasta_companion_program"]
+    assert program["issue"] == 33
+    assert program["phase"] == "RESEARCH_ONLY_UNTIL_FUTURE_POWERED_AUTHORITY"
+    assert program["powered_operation_authorized"] is False
+    assert program["dog_accompanied_operation_authorized"] is False
+    assert "board-mounted leash attachment prohibited" in program["hard_boundaries"]
+    assert (
+        "no dog in software, bench, or initial rider-only powered qualification"
+        in program["hard_boundaries"]
+    )
+    assert "current slew is not physical jerk authority" in program["hard_boundaries"]
+
+
+def test_issue_33_provisional_envelope_matches_control_research_target():
+    env = _requirements()["control_architecture"]["shasta_companion_program"][
+        "provisional_envelope"
+    ]
+    assert env == {
+        "speed_cap_mps": 2.7,
+        "accel_max_mps2": 0.45,
+        "regen_decel_max_mps2": 0.8,
+        "phase_current_max_a": 18.0,
+        "drive_current_slew_max_a_per_s": 20.0,
+        "brake_current_slew_max_a_per_s": 30.0,
+        "fault_release_current_slew_a_per_s": 60.0,
+    }

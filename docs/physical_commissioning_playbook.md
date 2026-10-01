@@ -35,6 +35,12 @@ Issue #28 ride compliance    Issue #19 brake/drive topology
                                                    |
                                                    v
                                        future powered commissioning
+                                                   |
+                                                   v
+                                  Issue #33 rider-only Shasta qualification
+                                                   |
+                                                   v
+                                 future explicit companion release
 ```
 
 No current gate authorizes powered operation.
@@ -359,6 +365,47 @@ Mechanical commissioning order:
 9. inspect mount angle, bearings and temperature after every run.
 
 A future powered-operation authority must add its own incremental speed/load/failsafe/thermal test ladder. Current repository authority remains hard-blocked from powered riding.
+
+## 10A. Issue #33 Shasta companion-mode qualification
+
+Issue #33 begins in software now but cannot reach physical companion testing until a future powered-operation authority exists.
+
+Current Stage 0 is host-only:
+
+- validate `hardware/rev_c_shasta_mode_requirements.json`;
+- compile and run `firmware/test/test_control_core.cpp`;
+- keep `tools/validate_shasta_control_contract.py` green;
+- preserve `powered_operation_authorized=false`.
+
+Future Stage 1 is bench/no-rider only.
+
+Future Stage 2 is rider-only closed-course low-speed testing after the overall vehicle has independent powered authority. Shasta must not be present.
+
+That rider-only stage must measure actual:
+
+- ground speed;
+- longitudinal acceleration;
+- longitudinal jerk;
+- deadman/remote-release propulsion decay;
+- regen-to-mechanical-brake transition behavior;
+- stopping response;
+- wheel slip and left/right current;
+- thermal state;
+- fault logs.
+
+Current-slew limits are not accepted as a substitute for those measurements.
+
+Only after Stage 2 is independently accepted may a separate explicit companion authority consider Stage 3.
+
+Stage 3 still prohibits:
+
+- leash attachment to the board;
+- towing;
+- dog-follow steering;
+- autonomous pace matching;
+- deliberate differential carve assist.
+
+See `docs/rev_c_shasta_companion_mode.md`.
 
 ## 11. Stop rules
 

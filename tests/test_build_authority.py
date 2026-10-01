@@ -65,6 +65,7 @@ def test_public_repo_defaults_are_conservative():
     assert report["capabilities"]["qualify_dummy_pack_mount"]["allowed"] is False
     assert report["capabilities"]["order_power_hardware"]["allowed"] is False
     assert report["capabilities"]["powered_operation"]["allowed"] is False
+    assert report["capabilities"]["dog_accompanied_operation"]["allowed"] is False
 
 
 def test_rev_c_blocks_measurement_chassis_procurement_until_release_conditions_close():
@@ -243,6 +244,17 @@ def test_power_ordering_stays_blocked_by_procurement_policy():
     assert report["capabilities"]["order_power_hardware"]["allowed"] is False
     assert "procurement stage blocked: POWER_GATED" in report["capabilities"]["order_power_hardware"]["blockers"]
     assert report["capabilities"]["powered_operation"]["allowed"] is False
+
+
+def test_even_complete_existing_evidence_cannot_authorize_dog_accompanied_operation():
+    report = evaluate(_plan(), _procurement(), _all_physical_evidence())
+    assert report["gates"]["power_architecture_frozen"]["satisfied"] is True
+    companion = report["capabilities"]["dog_accompanied_operation"]
+    assert companion["allowed"] is False
+    assert any(
+        "Issue #33 has no current physical companion authority contract" in blocker
+        for blocker in companion["blockers"]
+    )
 
 
 def test_future_power_ordering_requires_explicit_manifest_promotion():
