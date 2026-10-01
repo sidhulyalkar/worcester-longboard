@@ -74,6 +74,20 @@ def _median(values: list[float]) -> float:
     return float(statistics.median(values))
 
 
+def _correlation(a: list[float], b: list[float]) -> float | None:
+    if len(a) != len(b) or len(a) < 2:
+        return None
+    mean_a = statistics.fmean(a)
+    mean_b = statistics.fmean(b)
+    da = [x - mean_a for x in a]
+    db = [x - mean_b for x in b]
+    denom_a = math.sqrt(sum(x * x for x in da))
+    denom_b = math.sqrt(sum(x * x for x in db))
+    if denom_a == 0 or denom_b == 0:
+        return None
+    return sum(x * y for x, y in zip(da, db)) / (denom_a * denom_b)
+
+
 def _pct_delta(value: float, baseline: float) -> float | None:
     if baseline == 0:
         return None
@@ -174,6 +188,10 @@ def _analyze_run(
     accel_abs = [abs(value) for value in accel_centered]
     roll = [row["gyro_roll_dps"] for row in rows]
     yaw = [row["gyro_yaw_dps"] for row in rows]
+    roll_rms = _rms(roll)
+    yaw_rms = _rms(yaw)
+    yaw_to_roll = None if roll_rms == 0 else yaw_rms / roll_rms
+    roll_yaw_corr = _correlation(roll, yaw)
 
     return {
         "id": run.get("id"),
@@ -187,8 +205,14 @@ def _analyze_run(
         "vertical_accel_rms_mps2": round(_rms(accel_centered), 4),
         "vertical_accel_p95_abs_mps2": round(_percentile(accel_abs, 0.95), 4),
         "vertical_accel_peak_abs_mps2": round(max(accel_abs), 4),
-        "roll_rate_rms_dps": round(_rms(roll), 4),
-        "yaw_rate_rms_dps": round(_rms(yaw), 4),
+        "roll_rate_rms_dps": round(roll_rms, 4),
+        "yaw_rate_rms_dps": round(yaw_rms, 4),
+        "yaw_to_roll_rms_ratio": (
+            None if yaw_to_roll is None else round(yaw_to_roll, 4)
+        ),
+        "roll_yaw_correlation": (
+            None if roll_yaw_corr is None else round(roll_yaw_corr, 4)
+        ),
     }
 
 
@@ -411,6 +435,8 @@ def analyze(manifest: dict, base_dir: Path) -> dict:
         "vertical_accel_peak_abs_mps2",
         "roll_rate_rms_dps",
         "yaw_rate_rms_dps",
+        "yaw_to_roll_rms_ratio",
+        "roll_yaw_correlation",
     )
     for config_id in config_ids:
         valid_runs = [
@@ -485,10 +511,10 @@ def analyze(manifest: dict, base_dir: Path) -> dict:
         "run_results": analyzed_runs,
         "config_results": aggregate,
         "interpretation_boundary": (
-            "Lower vibration metrics do not automatically mean better handling, "
-            "and higher roll/yaw activity does not automatically mean better carve. "
-            "Use these results alongside separate rider-control observations; do not "
-            "collapse them into a single winner score."
+            "Lower vibration metrics do not automatically mean better handling. "
+            "Yaw-to-roll ratio and roll/yaw correlation are only descriptive lean-to-turn "
+            "proxies, not stability or quality scores. Use them alongside separate "
+            "rider-control observations; do not collapse the outputs into a single winner score."
         ),
     }
 
