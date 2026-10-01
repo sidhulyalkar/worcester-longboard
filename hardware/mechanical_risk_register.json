@@ -25,8 +25,17 @@
       "detectability": 3,
       "priority_score": 30,
       "status": "OPEN_PHYSICAL",
-      "prevention": ["manufacturer-correct bearing spacer stack", "defined nut/retention method", "witness marks", "no spacer improvisation"],
-      "verification": ["wheel free-spin after torque", "axial-play check", "witness-mark inspection before and after rough-surface test"],
+      "prevention": [
+        "manufacturer-correct bearing spacer stack",
+        "defined nut/retention method",
+        "witness marks",
+        "no spacer improvisation"
+      ],
+      "verification": [
+        "wheel free-spin after torque",
+        "axial-play check",
+        "witness-mark inspection before and after rough-surface test"
+      ],
       "must_close_before": "rolling_chassis_physical_qualified"
     },
     {
@@ -39,8 +48,17 @@
       "detectability": 2,
       "priority_score": 24,
       "status": "OPEN_PHYSICAL",
-      "prevention": ["stock donor 8-inch wheelset first", "deflate before hub disassembly", "record installed tire/hub/tube IDs", "do not treat 9-inch tire as drop-in"],
-      "verification": ["cold pressure record", "loaded circumference/diameter measurement", "post-assembly leak and fastener inspection"],
+      "prevention": [
+        "stock donor 8-inch wheelset first",
+        "deflate before hub disassembly",
+        "record installed tire/hub/tube IDs",
+        "do not treat 9-inch tire as drop-in"
+      ],
+      "verification": [
+        "cold pressure record",
+        "loaded circumference/diameter measurement",
+        "post-assembly leak and fastener inspection"
+      ],
       "must_close_before": "rolling_chassis_physical_qualified"
     },
     {
@@ -53,8 +71,16 @@
       "detectability": 3,
       "priority_score": 30,
       "status": "OPEN_PHYSICAL",
-      "prevention": ["current-generation Matrix III CNC donor", "no unqualified axle swap", "guards take impacts before axle/drive where possible"],
-      "verification": ["incoming straightness/runout screen", "full-steer static load inspection", "rough-surface post-test inspection"],
+      "prevention": [
+        "current-generation Matrix III CNC donor",
+        "no unqualified axle swap",
+        "guards take impacts before axle/drive where possible"
+      ],
+      "verification": [
+        "incoming straightness/runout screen",
+        "full-steer static load inspection",
+        "rough-surface post-test inspection"
+      ],
       "must_close_before": "rolling_chassis_physical_qualified"
     },
     {
@@ -67,8 +93,18 @@
       "detectability": 2,
       "priority_score": 30,
       "status": "OPEN_PHYSICAL",
-      "prevention": ["start from manufacturer stable configuration", "record shockblock position/hardness", "record kingpin adjustment state", "front/rear symmetry unless evidence says otherwise"],
-      "verification": ["static steer effort", "walking-speed return-to-center", "jogging-speed oscillation check", "post-test adjustment witness inspection"],
+      "prevention": [
+        "start from manufacturer stable configuration",
+        "record shockblock position/hardness",
+        "record kingpin adjustment state",
+        "front/rear symmetry unless evidence says otherwise"
+      ],
+      "verification": [
+        "static steer effort",
+        "walking-speed return-to-center",
+        "jogging-speed oscillation check",
+        "post-test adjustment witness inspection"
+      ],
       "must_close_before": "rolling_chassis_physical_qualified"
     },
     {
@@ -81,8 +117,16 @@
       "detectability": 3,
       "priority_score": 30,
       "status": "OPEN_PHYSICAL",
-      "prevention": ["retain donor structural mount pattern", "no rider-interface drilling before Rev-B authority", "defined fastener inspection and witness marks"],
-      "verification": ["incoming deck visual/tap inspection", "mount torque/seat check", "post-rough-surface crack/loosening inspection"],
+      "prevention": [
+        "retain donor structural mount pattern",
+        "no rider-interface drilling before Rev-B authority",
+        "defined fastener inspection and witness marks"
+      ],
+      "verification": [
+        "incoming deck visual/tap inspection",
+        "mount torque/seat check",
+        "post-rough-surface crack/loosening inspection"
+      ],
       "must_close_before": "rolling_chassis_physical_qualified"
     },
     {
@@ -95,8 +139,19 @@
       "detectability": 2,
       "priority_score": 30,
       "status": "OPEN_PHYSICAL",
-      "prevention": ["use measured V5 interface", "equal released clearance", "positive cable termination", "routine pad/cable inspection"],
-      "verification": ["free-spin", "static brake torque", "progressive lever test", "unpowered rolling stop", "post-test cable/pad inspection"],
+      "prevention": [
+        "use measured V5 interface",
+        "equal released clearance",
+        "positive cable termination",
+        "routine pad/cable inspection"
+      ],
+      "verification": [
+        "free-spin",
+        "static brake torque",
+        "progressive lever test",
+        "unpowered rolling stop",
+        "post-test cable/pad inspection"
+      ],
       "must_close_before": "brake_interface_qualified"
     },
     {
@@ -109,8 +164,16 @@
       "detectability": 4,
       "priority_score": 40,
       "status": "OPEN_TOPOLOGY",
-      "prevention": ["do not size stopping system from one cold stop", "retain regenerative braking only as supplemental heat relief", "define descent duty cycle before power freeze"],
-      "verification": ["repeat-stop temperature and stopping-distance test in future low-energy commissioning", "cool-down criteria", "pad/rotor inspection"],
+      "prevention": [
+        "do not size stopping system from one cold stop",
+        "retain regenerative braking only as supplemental heat relief",
+        "define descent duty cycle before power freeze"
+      ],
+      "verification": [
+        "repeat-stop temperature and stopping-distance test in future low-energy commissioning",
+        "cool-down criteria",
+        "pad/rotor inspection"
+      ],
       "must_close_before": "powered_operation_future"
     },
     {
@@ -123,8 +186,17 @@
       "detectability": 2,
       "priority_score": 40,
       "status": "OPEN_TOPOLOGY",
-      "prevention": ["explicit Issue #19 topology gate", "keep 400 mm brake and 420 mm drive references separate", "no custom safety-critical brake spacer unless independently engineered and qualified"],
-      "verification": ["physical axial measurements", "CAD neutral/full-motion sweep", "wheel-service demonstration", "selected-topology authority"],
+      "prevention": [
+        "explicit Issue #19 topology gate",
+        "keep 400 mm brake and 420 mm drive references separate",
+        "no custom safety-critical brake spacer unless independently engineered and qualified"
+      ],
+      "verification": [
+        "physical axial measurements",
+        "CAD neutral/full-motion sweep",
+        "wheel-service demonstration",
+        "selected-topology authority"
+      ],
       "must_close_before": "brake_drive_topology_qualified"
     },
     {
@@ -137,8 +209,18 @@
       "detectability": 3,
       "priority_score": 45,
       "status": "POWER_GATED",
-      "prevention": ["qualified clamp/interface", "positive anti-rotation where vendor design provides it", "guard as sacrificial impact path", "witness marks"],
-      "verification": ["static torque reaction fixture", "low-energy spin fixture", "fastener witness inspection", "post-impact/rough-surface inspection"],
+      "prevention": [
+        "qualified clamp/interface",
+        "positive anti-rotation where vendor design provides it",
+        "guard as sacrificial impact path",
+        "witness marks"
+      ],
+      "verification": [
+        "static torque reaction fixture",
+        "low-energy spin fixture",
+        "fastener witness inspection",
+        "post-impact/rough-surface inspection"
+      ],
       "must_close_before": "power_architecture_frozen"
     },
     {
@@ -151,8 +233,18 @@
       "detectability": 3,
       "priority_score": 36,
       "status": "POWER_GATED",
-      "prevention": ["select one drive architecture after topology freeze", "document final assembly-state backlash/tension", "debris/guard strategy", "service spare strategy"],
-      "verification": ["hand-rotation full revolution", "runout/backlash/tension measurement", "low-energy spin", "post-run wear inspection"],
+      "prevention": [
+        "select one drive architecture after topology freeze",
+        "document final assembly-state backlash/tension",
+        "debris/guard strategy",
+        "service spare strategy"
+      ],
+      "verification": [
+        "hand-rotation full revolution",
+        "runout/backlash/tension measurement",
+        "low-energy spin",
+        "post-run wear inspection"
+      ],
       "must_close_before": "power_architecture_frozen"
     },
     {
@@ -165,8 +257,16 @@
       "detectability": 3,
       "priority_score": 36,
       "status": "POWER_GATED",
-      "prevention": ["select motor and drive shaft interface together", "prefer positive key/D-flat vendor-supported interface", "no single-grub-screw torque path for trail use"],
-      "verification": ["static torque proof", "witness marks", "low-energy spin and thermal inspection"],
+      "prevention": [
+        "select motor and drive shaft interface together",
+        "prefer positive key/D-flat vendor-supported interface",
+        "no single-grub-screw torque path for trail use"
+      ],
+      "verification": [
+        "static torque proof",
+        "witness marks",
+        "low-energy spin and thermal inspection"
+      ],
       "must_close_before": "power_architecture_frozen"
     },
     {
@@ -178,10 +278,24 @@
       "likelihood": 3,
       "detectability": 2,
       "priority_score": 30,
-      "status": "POWER_GATED",
-      "prevention": ["stock 8-inch wheel geometry first", "replaceable skid/guard below vulnerable drive", "measured compressed/steered clearance"],
-      "verification": ["full-motion ground-plane sweep", "curb/root surrogate clearance check at low energy", "guard replacement/service test"],
-      "must_close_before": "power_architecture_frozen"
+      "status": "OPEN_ARMOR",
+      "prevention": [
+        "stock 8-inch wheel geometry first",
+        "Issue #37 replaceable wear shoe / guard below vulnerable drive or enclosure zone",
+        "explicit wear-shoe -> carrier/vendor-guard -> structural-mount -> protected-component load path",
+        "quantify skid clearance and rigid 2D breakover loss before fabrication",
+        "no forward-facing terrain hook or debris scoop",
+        "measured compressed/steered/lean/deck-flex clearance"
+      ],
+      "verification": [
+        "simulation/rev_c_skid_geometry.py clearance study from measured geometry",
+        "full-motion ground-plane sweep",
+        "at least three low-energy curb/root surrogate contacts with inert protected component",
+        "guard replacement/service dry-run",
+        "post-contact retention/witness and protected-component inspection",
+        "later topology-specific impact-energy qualification before powered trail exposure"
+      ],
+      "must_close_before": "powered_trail_operation_future"
     },
     {
       "id": "M13",
@@ -193,8 +307,19 @@
       "detectability": 4,
       "priority_score": 60,
       "status": "OPEN_DUMMY_PACK",
-      "prevention": ["candidate pack mass/CG/envelope before enclosure fabrication", "positive retention independent of adhesive", "load-spreading mount", "impact/skid isolation", "service access"],
-      "verification": ["Issue #21 inert dummy-mass tilt/rough-surface fixture", "fastener/pull-through/fretting inspection", "service removal/reinstallation test"],
+      "prevention": [
+        "candidate pack mass/CG/envelope before enclosure fabrication",
+        "positive retention independent of adhesive",
+        "load-spreading mount",
+        "Issue #37 impact/skid path that does not use the battery shell as primary armor structure",
+        "service access"
+      ],
+      "verification": [
+        "Issue #21 inert dummy-mass tilt/rough-surface fixture",
+        "Issue #37 inert enclosure-zone armor geometry/service trial",
+        "fastener/pull-through/fretting inspection",
+        "service removal/reinstallation test"
+      ],
       "must_close_before": "dummy_pack_mount_qualified"
     },
     {
@@ -207,8 +332,19 @@
       "detectability": 2,
       "priority_score": 30,
       "status": "OPEN_PHYSICAL",
-      "prevention": ["full steering/service loops", "strain relief before connectors", "abrasion sleeve", "fixed keep-outs", "brake cable/hose routed independently of traction harness"],
-      "verification": ["full steering sweep", "deck flex/compression sweep", "tug test", "post-rough-surface chafe inspection"],
+      "prevention": [
+        "full steering/service loops",
+        "strain relief before connectors",
+        "abrasion sleeve",
+        "fixed keep-outs",
+        "brake cable/hose routed independently of traction harness"
+      ],
+      "verification": [
+        "full steering sweep",
+        "deck flex/compression sweep",
+        "tug test",
+        "post-rough-surface chafe inspection"
+      ],
       "must_close_before": "brake_drive_topology_qualified"
     },
     {
@@ -221,8 +357,18 @@
       "detectability": 2,
       "priority_score": 30,
       "status": "OPEN_FIT",
-      "prevention": ["independent left/right Rev-B geometry", "full-scale template before drilling", "adjustment reserve", "do not copy generic binding angles"],
-      "verification": ["unpowered remount repeatability", "pressure/fit evidence", "step-off/release rehearsal", "low-speed coast test"],
+      "prevention": [
+        "independent left/right Rev-B geometry",
+        "full-scale template before drilling",
+        "adjustment reserve",
+        "do not copy generic binding angles"
+      ],
+      "verification": [
+        "unpowered remount repeatability",
+        "pressure/fit evidence",
+        "step-off/release rehearsal",
+        "low-speed coast test"
+      ],
       "must_close_before": "rev_b_template_qualified"
     },
     {
@@ -235,8 +381,17 @@
       "detectability": 1,
       "priority_score": 9,
       "status": "OPEN_TOPOLOGY",
-      "prevention": ["wheel removal without battery-enclosure opening", "replaceable guards", "labeled hardware", "installed-size spares"],
-      "verification": ["timed wheel/tube service dry-run", "brake adjustment dry-run", "guard replacement dry-run"],
+      "prevention": [
+        "wheel removal without battery-enclosure opening",
+        "replaceable guards",
+        "labeled hardware",
+        "installed-size spares"
+      ],
+      "verification": [
+        "timed wheel/tube service dry-run",
+        "brake adjustment dry-run",
+        "guard replacement dry-run"
+      ],
       "must_close_before": "brake_drive_topology_qualified"
     },
     {
@@ -249,8 +404,17 @@
       "detectability": 2,
       "priority_score": 40,
       "status": "OPEN_PHYSICAL",
-      "prevention": ["hardware-specific locking method", "torque/seat procedure where manufacturer values exist", "witness marks", "no indiscriminate threadlocker where service/nylon/heat constraints conflict"],
-      "verification": ["pre/post-test witness check", "re-torque investigation if any mark moves", "replace damaged locking hardware"],
+      "prevention": [
+        "hardware-specific locking method",
+        "torque/seat procedure where manufacturer values exist",
+        "witness marks",
+        "no indiscriminate threadlocker where service/nylon/heat constraints conflict"
+      ],
+      "verification": [
+        "pre/post-test witness check",
+        "re-torque investigation if any mark moves",
+        "replace damaged locking hardware"
+      ],
       "must_close_before": "rolling_chassis_physical_qualified"
     },
     {
@@ -263,8 +427,17 @@
       "detectability": 3,
       "priority_score": 36,
       "status": "OPEN_DUMMY_PACK",
-      "prevention": ["weigh complete unpowered chassis", "define candidate front/left load-fraction windows", "measure four-corner wheel loads with inert dummy mass", "avoid copying production battery size beyond mission need"],
-      "verification": ["Issue #21 four-corner static load measurement", "dummy-mass low-speed unpowered coast/turn test", "compare candidate pack locations before final enclosure freeze"],
+      "prevention": [
+        "weigh complete unpowered chassis",
+        "define candidate front/left load-fraction windows",
+        "measure four-corner wheel loads with inert dummy mass",
+        "avoid copying production battery size beyond mission need"
+      ],
+      "verification": [
+        "Issue #21 four-corner static load measurement",
+        "dummy-mass low-speed unpowered coast/turn test",
+        "compare candidate pack locations before final enclosure freeze"
+      ],
       "must_close_before": "dummy_pack_mount_qualified"
     }
   ]
