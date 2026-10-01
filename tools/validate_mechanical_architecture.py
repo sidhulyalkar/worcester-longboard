@@ -188,6 +188,25 @@ def validate(
         elif item.get("freeze_gate") != "power_architecture_frozen":
             errors.append(f"{sid} must freeze only after power_architecture_frozen")
 
+    dock = subsystems.get("CHARGE-DOCK")
+    if not dock:
+        errors.append("planned BOM must preserve explicit CHARGE-DOCK subsystem")
+    else:
+        if dock.get("status") != "PLAN_ONLY":
+            errors.append("CHARGE-DOCK must remain PLAN_ONLY")
+        if dock.get("freeze_gate") != "power_architecture_frozen":
+            errors.append("CHARGE-DOCK must freeze only after power_architecture_frozen")
+        authority = str(dock.get("authority", ""))
+        for phrase in (
+            "Issue #30",
+            "inert mechanical alignment",
+            "cannot authorize live charging",
+        ):
+            if phrase not in authority:
+                errors.append(
+                    f"CHARGE-DOCK authority must preserve boundary: {phrase}"
+                )
+
     return errors
 
 
