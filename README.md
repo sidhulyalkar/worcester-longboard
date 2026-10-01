@@ -78,7 +78,7 @@ The donor-grounded published reference is explicit:
 
 The CAD preserves those as separate branches. It does not recombine brake and drive compatibility into an imaginary universal truck.
 
-`hardware/rev_c_chassis_trade_snapshot_2026-09-30.json` and `tools/analyze_rev_c_chassis_trade.py` preserve the current three-way pre-purchase trade without inventing unknown Agent mass/truck data. The existing donor-grounded Comp CAD remains a **reference**, not permission to skip Issue #25. `tools/init_chassis_session.py` and `tools/qualify_rolling_chassis.py` make Issue #12 physically executable after a chassis family is deliberately released. The qualifier requires a valid linked V5 authority, real measured donor geometry, stock-baseline tests, serviceability checks, and zero detected movement across every critical retention joint.
+`hardware/rev_c_chassis_trade_snapshot_2026-10-01.json` and `tools/analyze_rev_c_chassis_trade.py` preserve the current three-way pre-purchase trade without inventing unknown Agent mass/truck data. The existing donor-grounded Comp CAD remains a **reference**, not permission to skip Issue #25. `tools/init_chassis_session.py` and `tools/qualify_rolling_chassis.py` make Issue #12 physically executable after a chassis family is deliberately released. The qualifier requires a valid linked V5 authority, real measured donor geometry, stock-baseline tests, serviceability checks, and zero detected movement across every critical retention joint.
 
 No rider-specific permanent drilling is authorized from shoe-size labels, approximate web dimensions, or Wi-Fi pose.
 
