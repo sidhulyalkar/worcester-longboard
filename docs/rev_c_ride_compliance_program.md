@@ -45,6 +45,22 @@ This creates `ride_compliance_manifest.json`, six empty sensor CSV files, `rider
 
 Actual ride data stays under `rider/private/`.
 
+## Sensor and observation provenance
+
+Before collecting runs, fill these manifest fields with the actual setup:
+
+- `imu_source_id`;
+- `imu_mount_id`;
+- `speed_source_id`;
+- `speed_source_calibrated=true` only after the chosen speed reference has been checked;
+- `sensor_timebase_aligned=true` only after speed and IMU timestamps are demonstrably aligned;
+- `tire_pressure_approved_range_kpa` from the selected tire/wheel manufacturer's documentation;
+- `course_id` and `surface_description`.
+
+The analyzer will not accept placeholder provenance.
+
+The separate `rider_observations.csv` must contain exactly one row per sensor run. It is evidence, not an optional diary.
+
 ## Sensor data contract
 
 Each run CSV uses:
