@@ -65,6 +65,7 @@ Command step_controller(const Config& cfg, RideMode mode, const SensorFrame& s,
     const State st = estimate_state(cfg, s);
     Command out;
     out.faults = st.faults;
+    out.lights_requested = (mode == RideMode::Shasta);
 
     const float drive_current_slew = std::min(
         cfg.current_slew_a_per_s, lim.drive_current_slew_max_a_per_s
