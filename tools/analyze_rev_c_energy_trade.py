@@ -69,24 +69,37 @@ def analyze(snapshot: dict) -> dict:
         dual_small_energy = 2 * small["nominal_energy_wh"]
         dual_small_mass = 2 * small["weight_lb"]
         comparison = {
-            "two_540_reference": {
-                "nominal_energy_wh": dual_small_energy,
-                "battery_mass_lb": dual_small_mass,
+            "two_540_inventory_reference": {
+                "nominal_trip_energy_wh": dual_small_energy,
+                "total_battery_inventory_mass_lb": dual_small_mass,
+                "installed_battery_mass_lb_during_cold_swap_operation": small[
+                    "weight_lb"
+                ],
+                "simultaneous_on_board_installation_assumed": False,
+                "safe_spare_location_required": True,
+                "rider_body_carry_default": False,
             },
             "one_1080_reference": {
-                "nominal_energy_wh": large["nominal_energy_wh"],
-                "battery_mass_lb": large["weight_lb"],
+                "nominal_trip_energy_wh": large["nominal_energy_wh"],
+                "total_battery_inventory_mass_lb": large["weight_lb"],
+                "installed_battery_mass_lb": large["weight_lb"],
             },
             "energy_delta_wh_two_540_minus_1080": round(
                 dual_small_energy - large["nominal_energy_wh"], 1
             ),
-            "mass_delta_lb_two_540_minus_1080": round(
+            "inventory_mass_delta_lb_two_540_minus_1080": round(
                 dual_small_mass - large["weight_lb"], 1
             ),
+            "installed_mass_delta_lb_one_540_minus_1080": round(
+                small["weight_lb"] - large["weight_lb"], 1
+            ),
             "interpretation": (
-                "Near-equal nominal energy does not imply equal vehicle mass. "
-                "Treat installed pack class as a mission configuration, not a "
-                "reason to permanently carry duplicate small packs."
+                "Cold swapping separates installed board mass from total battery "
+                "inventory mass. One 540 reference would keep 15 lb installed while "
+                "a second pack exists only at a safe logistics point; one 1089 Wh "
+                "reference installs 20 lb continuously. Near-equal trip energy therefore "
+                "creates a handling-versus-logistics trade, not a simple 30-versus-20 lb "
+                "vehicle-mass comparison."
             ),
         }
 
