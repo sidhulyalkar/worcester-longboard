@@ -225,10 +225,35 @@ def analyze(manifest: dict, base_dir: Path) -> dict:
         errors.append("wrong trial scope")
     if manifest.get("powered_operation_authorized") is not False:
         errors.append("ride-compliance analysis cannot authorize powered operation")
+    if manifest.get("unpowered_test") is not True:
+        errors.append("unpowered_test must be true")
+    if manifest.get("dog_or_leash_present") is not False:
+        errors.append("dog_or_leash_present must be false")
+
+    for key in ("session_id", "course_id", "surface_description", "imu_mount_id"):
+        value = manifest.get(key)
+        if not isinstance(value, str) or not value.strip():
+            errors.append(f"{key} must be a nonempty string")
     if manifest.get("same_course_for_all_runs") is not True:
         errors.append("same_course_for_all_runs must be true")
     if manifest.get("imu_mount_unchanged") is not True:
         errors.append("imu_mount_unchanged must be true")
+
+    pressure_range = manifest.get("tire_pressure_approved_range_kpa")
+    pressure_min = pressure_max = None
+    if (
+        not isinstance(pressure_range, list)
+        or len(pressure_range) != 2
+        or not all(_finite(value) for value in pressure_range)
+        or float(pressure_range[0]) <= 0
+        or float(pressure_range[1]) <= float(pressure_range[0])
+    ):
+        errors.append(
+            "tire_pressure_approved_range_kpa must contain positive [min, max]"
+        )
+    else:
+        pressure_min = float(pressure_range[0])
+        pressure_max = float(pressure_range[1])
 
     target_speed = manifest.get("target_speed_mps")
     tolerance = manifest.get("speed_tolerance_fraction")
@@ -315,11 +340,32 @@ def analyze(manifest: dict, base_dir: Path) -> dict:
             value = settings.get(key)
             if value is not None and (not _finite(value) or float(value) <= 0):
                 errors.append(f"{config_id}: {key} must be positive when provided")
+        if pressure_min is not None and pressure_max is not None:
+            for key in ("tire_pressure_front_kpa", "tire_pressure_rear_kpa"):
+                value = settings.get(key)
+                if _finite(value) and not pressure_min <= float(value) <= pressure_max:
+                    errors.append(
+                        f"{config_id}: {key} lies outside approved pressure range"
+                    )
 
         for key in ("chassis_id", "tire_family", "shock_block_id", "shock_block_position", "deck_id", "footbed_id"):
             value = settings.get(key)
             if not isinstance(value, str) or not value.strip():
                 errors.append(f"{config_id}: {key} must be a nonempty string")
+
+    experiment_blocks = {
+        config.get("experiment_block")
+        for config in config_map.values()
+        if isinstance(config.get("experiment_block"), str)
+        and config.get("experiment_block").strip()
+    }
+    if len(experiment_blocks) != 1 or len(experiment_blocks) != len(
+        {
+            config.get("experiment_block")
+            for config in config_map.values()
+        }
+    ):
+        errors.append("all configs must share one nonempty experiment_block")
 
     baseline_config = config_map.get(baseline_id)
     if baseline_config is not None and isinstance(baseline_config.get("settings"), dict):
@@ -355,10 +401,12 @@ def analyze(manifest: dict, base_dir: Path) -> dict:
             if primary == "tire_pressure":
                 front = settings.get("tire_pressure_front_kpa")
                 rear = settings.get("tire_pressure_rear_kpa")
-                if front != rear:
+                baseline_front = baseline_settings.get("tire_pressure_front_kpa")
+                baseline_rear = baseline_settings.get("tire_pressure_rear_kpa")
+                if front != rear or baseline_front != baseline_rear:
                     errors.append(
                         f"{config_id}: initial tire-pressure experiments must use "
-                        "symmetric front/rear pressure"
+                        "symmetric front/rear pressure in baseline and candidate"
                     )
 
     if errors:
