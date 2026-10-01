@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-01",
+  "scope": "rev_c_trail_armor_reference_snapshot",
+  "facts_only": true,
+  "objective": "Protect expensive trail systems with replaceable sacrificial armor while preserving clearance, serviceability, and a controlled impact load path.",
+  "commercial_references": [
+    {
+      "id": "MBS_G1_GEAR_DRIVE",
+      "role": "replaceable skid benchmark",
+      "facts": [
+        "6061-T6 aluminum gearbox",
+        "o-ring sealed gearbox",
+        "replaceable aluminum skid plates protect the vulnerable underside",
+        "replacement skid plates are sold as service parts",
+        "separate motor guard plate is offered"
+      ],
+      "sources": [
+        "https://www.mbs.com/shop/p/gear-drive-system",
+        "https://www.mbs.com/shop/parts/electric-parts/gear-drives"
+      ]
+    },
+    {
+      "id": "PROPEL_ENDEAVOR_GUARD_ECOSYSTEM",
+      "role": "serviceable off-road guard benchmark",
+      "facts": [
+        "belt and hub guards are sold as replaceable parts for Endeavor models",
+        "gear-drive variants use enclosed metal gear housings"
+      ],
+      "sources": [
+        "https://www.ridepropel.com/electric-skateboard-parts/propel-endeavor-parts/",
+        "https://www.ridepropel.com/electric-skateboard/gear-drive-for-endeavor-1pro-gt-s/"
+      ]
+    }
+  ],
+  "armor_layers": [
+    {
+      "order": 1,
+      "name": "wear_shoe",
+      "purpose": "replaceable first-contact wear/impact surface",
+      "design_state": "MATERIAL_AND_THICKNESS_TBD",
+      "requirements": [
+        "individually replaceable",
+        "visually inspectable",
+        "retention hardware protected from direct terrain contact where practical",
+        "damage cannot create wheel/brake/steering interference"
+      ]
+    },
+    {
+      "order": 2,
+      "name": "carrier_or_vendor_guard_structure",
+      "purpose": "locate wear shoe and distribute impact into an intended load path",
+      "design_state": "TOPOLOGY_DEPENDENT",
+      "requirements": [
+        "not attached to live-cell structure for initial qualification",
+        "does not use charge/data connectors as structure",
+        "does not block drivetrain or wheel service",
+        "does not create a forward-facing terrain hook"
+      ]
+    },
+    {
+      "order": 3,
+      "name": "structural_mount",
+      "purpose": "transfer residual load into qualified chassis structure",
+      "design_state": "PHYSICAL_EVIDENCE_REQUIRED",
+      "requirements": [
+        "retention method inspectable",
+        "witness or equivalent migration check",
+        "load path independent of adhesive alone",
+        "no unqualified safety-critical spacer or adapter"
+      ]
+    },
+    {
+      "order": 4,
+      "name": "protected_component",
+      "purpose": "drivetrain, motor, inert enclosure, or future electronics kept out of first-contact terrain path",
+      "design_state": "MUST_NOT_BE_FIRST_CONTACT"
+    }
+  ],
+  "geometry_principles": [
+    "vulnerable drivetrain/enclosure hardware is not the lowest exposed hard point in its protected zone",
+    "armor must preserve full wheel, steering, brake, deck-flex, and service sweeps",
+    "leading and trailing armor geometry should slide over low-energy root/curb surrogates rather than present a hook",
+    "armor should not form a debris pocket or mud scoop that can pack into moving parts",
+    "wear surfaces should be replaceable without opening a traction enclosure where architecture allows",
+    "armor shall not be relied upon as primary battery retention"
+  ],
+  "qualification_order": [
+    "CAD/measurement keep-out study",
+    "inert installed geometry",
+    "service/replacement dry-run",
+    "low-energy root/curb surrogate contact",
+    "post-contact retention and protected-component inspection",
+    "only later topology-specific impact-energy qualification"
+  ],
+  "material_policy": {
+    "selected_material": null,
+    "selected_thickness_mm": null,
+    "rule": "Do not freeze material or thickness from generic material properties alone. Select after contact geometry, load path, mass, wear, temperature, and topology are physically known.",
+    "candidate_families": [
+      "replaceable aluminum wear plate",
+      "replaceable engineering-polymer wear shoe",
+      "vendor-supplied drivetrain skid"
+    ]
+  },
+  "prohibited_shortcuts": [
+    "live battery used as first armor impact surrogate",
+    "skid attached only to battery shell without a qualified structural load path",
+    "guard whose removal requires disturbing unrelated brake retention",
+    "armor that becomes the lowest snag point without a root/curb surrogate test",
+    "unprotected fastener heads intentionally used as the wear surface",
+    "assuming a vendor skid proves X1 enclosure impact safety"
+  ],
+  "authority_boundary": {
+    "physical_authority": false,
+    "procurement_authority": false,
+    "powered_operation_authorized": false
+  }
+}
