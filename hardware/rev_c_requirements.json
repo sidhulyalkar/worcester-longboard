@@ -183,18 +183,22 @@
         "Matrix III steering"
       ],
       "open_questions": [
-        "whether 280mm deck is unnecessarily wide for rider leverage",
+        "whether 284mm deck is unnecessarily wide for rider leverage",
         "whether brake-first architecture can be retained after electric conversion",
         "received-board mass and exact electric truck configuration"
       ],
-      "source": "https://www.mbs.com/shop/p/10412"
+      "source": "https://www.mbs.com/shop/p/10412",
+      "sources": [
+        "https://www.mbs.com/shop/p/10412",
+        "https://www.mbs.com/shop/p/mbs-agent-mountainboard-deck"
+      ]
     },
     {
       "id": "AGENT_EXPLORER_REFERENCE",
       "role": "high-volume tire benchmark",
       "known": {
         "deck_length_mm": 1020,
-        "deck_max_width_mm": 280,
+        "deck_max_width_mm": 284,
         "tire_nominal_mm": "200x70",
         "tire_measured_diameter_mm": 194,
         "tire_inflated_width_mm": 80,
@@ -211,7 +215,12 @@
         "wheel mass/inertia penalty versus 200x50",
         "whether extra width materially improves this rider's loose-surface control"
       ],
-      "source": "https://www.mbs.com/shop/p/agent-explorer-mountainboard"
+      "source": "https://www.mbs.com/shop/p/agent-explorer-mountainboard",
+      "sources": [
+        "https://www.mbs.com/shop/p/agent-explorer-mountainboard",
+        "https://www.mbs.com/shop/p/mbs-agent-mountainboard-deck",
+        "https://www.mbs.com/shop/p/explorer-tire"
+      ]
     }
   ],
   "benchmark_only": [
