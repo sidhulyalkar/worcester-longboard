@@ -1,0 +1,188 @@
+import csv
+import json
+import math
+from pathlib import Path
+
+from tools.analyze_rev_c_ride_compliance import analyze
+
+
+def _write_run(path: Path, *, speed: float = 2.0, vibration_scale: float = 1.0):
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=(
+                "time_s",
+                "speed_mps",
+                "accel_z_mps2",
+                "gyro_roll_dps",
+                "gyro_yaw_dps",
+            ),
+        )
+        writer.writeheader()
+        for i in range(121):
+            t = i * 0.05
+            writer.writerow(
+                {
+                    "time_s": t,
+                    "speed_mps": speed + 0.02 * math.sin(i / 8),
+                    "accel_z_mps2": 9.80665
+                    + vibration_scale * 0.6 * math.sin(i / 3),
+                    "gyro_roll_dps": 8.0 * math.sin(i / 7),
+                    "gyro_yaw_dps": 5.0 * math.sin(i / 9),
+                }
+            )
+
+
+def _settings(**overrides):
+    values = {
+        "chassis_id": "COMP95_BASELINE",
+        "tire_family": "T1_200X50",
+        "tire_pressure_front_kpa": 200.0,
+        "tire_pressure_rear_kpa": 200.0,
+        "shock_block_id": "M3_SOFT_WHITE_78A",
+        "shock_block_position": "outside",
+        "wheelbase_mm": 940.0,
+        "deck_id": "comp95",
+        "footbed_id": "stock",
+    }
+    values.update(overrides)
+    return values
+
+
+def _manifest(tmp_path: Path):
+    configs = [
+        {
+            "id": "baseline",
+            "experiment_block": "pressure",
+            "primary_variable": "baseline",
+            "settings": _settings(),
+        },
+        {
+            "id": "pressure_lower",
+            "experiment_block": "pressure",
+            "primary_variable": "tire_pressure",
+            "settings": _settings(
+                tire_pressure_front_kpa=180.0,
+                tire_pressure_rear_kpa=180.0,
+            ),
+        },
+    ]
+    runs = []
+    for config_id, scale in (("baseline", 1.0), ("pressure_lower", 0.7)):
+        for repeat in range(3):
+            name = f"{config_id}_{repeat + 1:02d}"
+            csv_name = f"{name}.csv"
+            _write_run(tmp_path / csv_name, vibration_scale=scale)
+            runs.append(
+                {
+                    "id": name,
+                    "config_id": config_id,
+                    "csv_path": csv_name,
+                    "rider_observation_recorded": True,
+                    "notes": "",
+                }
+            )
+    return {
+        "schema_version": 1,
+        "scope": "rev_c_unpowered_ride_compliance_trials",
+        "session_id": "test",
+        "course_id": "fixed-course",
+        "surface_description": "synthetic",
+        "same_course_for_all_runs": True,
+        "imu_mount_id": "fixed-imu",
+        "imu_mount_unchanged": True,
+        "target_speed_mps": 2.0,
+        "speed_tolerance_fraction": 0.10,
+        "minimum_samples_per_run": 100,
+        "minimum_duration_s": 5.0,
+        "minimum_repeats_per_config": 3,
+        "baseline_config_id": "baseline",
+        "configs": configs,
+        "runs": runs,
+        "powered_operation_authorized": False,
+    }
+
+
+def test_valid_speed_matched_comparison_reports_metrics_without_winner(tmp_path: Path):
+    manifest = _manifest(tmp_path)
+    report = analyze(manifest, tmp_path)
+
+    assert report["valid"] is True
+    assert report["physical_authority"] is False
+    assert report["procurement_authority"] is False
+    assert report["powered_operation_authorized"] is False
+    assert "winner" not in json.dumps(report).lower()
+
+    candidate = report["config_results"]["pressure_lower"]
+    assert candidate["valid_for_comparison"] is True
+    assert candidate["valid_repeat_count"] == 3
+    assert (
+        candidate["relative_to_baseline"][
+            "vertical_accel_rms_mps2_pct_vs_baseline"
+        ]
+        < 0
+    )
+
+
+def test_speed_mismatch_invalidates_run_and_comparison(tmp_path: Path):
+    manifest = _manifest(tmp_path)
+    bad_run = manifest["runs"][-1]
+    _write_run(tmp_path / bad_run["csv_path"], speed=1.4, vibration_scale=0.7)
+
+    report = analyze(manifest, tmp_path)
+    assert report["valid"] is False
+    result = next(x for x in report["run_results"] if x["id"] == bad_run["id"])
+    assert result["valid"] is False
+    assert any("outside" in error for error in result["errors"])
+    assert (
+        report["config_results"]["pressure_lower"]["valid_for_comparison"] is False
+    )
+
+
+def test_nonbaseline_config_cannot_change_two_primary_variables(tmp_path: Path):
+    manifest = _manifest(tmp_path)
+    candidate = manifest["configs"][1]
+    candidate["settings"]["shock_block_position"] = "inside"
+
+    report = analyze(manifest, tmp_path)
+    assert report["valid"] is False
+    assert any("exceed primary variable tire_pressure" in error for error in report["errors"])
+
+
+def test_initial_pressure_comparison_requires_symmetric_pressure(tmp_path: Path):
+    manifest = _manifest(tmp_path)
+    candidate = manifest["configs"][1]
+    candidate["settings"]["tire_pressure_front_kpa"] = 175.0
+
+    report = analyze(manifest, tmp_path)
+    assert report["valid"] is False
+    assert any("symmetric front/rear pressure" in error for error in report["errors"])
+
+
+def test_subjective_observation_must_be_recorded_separately(tmp_path: Path):
+    manifest = _manifest(tmp_path)
+    manifest["runs"][0]["rider_observation_recorded"] = False
+
+    report = analyze(manifest, tmp_path)
+    assert report["valid"] is False
+    assert any("rider_observation_recorded" in error for error in report["errors"])
+
+
+def test_same_course_and_imu_mount_are_required(tmp_path: Path):
+    manifest = _manifest(tmp_path)
+    manifest["same_course_for_all_runs"] = False
+    manifest["imu_mount_unchanged"] = False
+
+    report = analyze(manifest, tmp_path)
+    assert report["valid"] is False
+    assert "same_course_for_all_runs must be true" in report["errors"]
+    assert "imu_mount_unchanged must be true" in report["errors"]
+
+
+def test_powered_operation_can_never_be_authorized(tmp_path: Path):
+    manifest = _manifest(tmp_path)
+    manifest["powered_operation_authorized"] = True
+
+    report = analyze(manifest, tmp_path)
+    assert report["valid"] is False
+    assert report["powered_operation_authorized"] is False
