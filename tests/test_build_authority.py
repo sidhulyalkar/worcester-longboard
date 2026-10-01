@@ -151,7 +151,7 @@ def test_front_hydraulic_release_does_not_unlock_v5_brake():
         "selected_deck_candidate_id": "comp95_class",
         "selected_chassis_family": "COMP95_BASELINE",
         "selected_wheel_family": "MBS_RSII_200X50",
-        "selected_brake_architecture": "FRONT_VENDOR_HYDRAULIC",
+        "selected_brake_architecture": "VENDOR_FRONT_HYDRAULIC",
         "selected_topology_for_measurement": "REAR_2WD_FRONT_VENDOR_HYDRAULIC",
         "range_pack_inert_envelope_plausible": True,
         "no_unqualified_safety_critical_adapter": True,
@@ -162,7 +162,7 @@ def test_front_hydraulic_release_does_not_unlock_v5_brake():
     assert report["procurement_items"]["DONOR-COMP95"]["orderable"] is True
     assert report["procurement_items"]["BRAKE-V5"]["orderable"] is False
     assert any(
-        "selected_brake_architecture='FRONT_VENDOR_HYDRAULIC'" in blocker
+        "selected_brake_architecture='VENDOR_FRONT_HYDRAULIC'" in blocker
         for blocker in report["procurement_items"]["BRAKE-V5"]["blockers"]
     )
     assert report["capabilities"]["order_power_hardware"]["allowed"] is False
