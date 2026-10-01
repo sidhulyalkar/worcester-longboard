@@ -77,6 +77,27 @@ jobs:
           test -f /tmp/x1-rev-c-release/deck_templates/rev_c_comp95_deck_envelope.svg
           test -f /tmp/x1-rev-c-release/deck_templates/rev_c_pro_warren_iii_deck_envelope.svg
           test -f /tmp/x1-rev-c-release/deck_templates/rev_c_agent_deck_envelope.svg
+      - name: Smoke-test Rev-C ride-compliance tools
+        run: |
+          python tools/init_rev_c_ride_compliance_session.py /tmp/x1-ride-compliance
+          test -f /tmp/x1-ride-compliance/ride_compliance_manifest.json
+          test -f /tmp/x1-ride-compliance/rider_observations.csv
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          snapshot = json.loads(
+              Path('hardware/rev_c_ride_compliance_snapshot_2026-10-01.json').read_text()
+          )
+          manifest = json.loads(
+              Path('/tmp/x1-ride-compliance/ride_compliance_manifest.json').read_text()
+          )
+          assert snapshot['facts_only'] is True
+          assert snapshot['procurement_policy']['buy_suspension_now'] is False
+          assert manifest['unpowered_test'] is True
+          assert manifest['dog_or_leash_present'] is False
+          assert manifest['powered_operation_authorized'] is False
+          assert len(list(Path('/tmp/x1-ride-compliance/data').glob('*.csv'))) == 6
+          PY
       - name: Host-test controller core
         run: |
           g++ -std=c++17 -O2 -Ifirmware/include \
