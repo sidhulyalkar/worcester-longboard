@@ -31,9 +31,15 @@ Current MBS reference packs provide a useful architecture comparison:
 
 The striking result is not merely that the larger pack has more range. It is also much more energy-dense at the **pack-system level** in these published references.
 
-Two 540 references would provide 1080 Wh but weigh 30 lb of battery. One 1089 Wh reference is published at 20 lb. Therefore a two-small-pack strategy is not the default way to maximize carried energy.
+Two 540 references would provide 1080 Wh of **battery inventory** and 30 lb of total pack mass, but a true cold-swap strategy would still install only one 15 lb pack on the board at a time. One 1089 Wh reference installs 20 lb continuously.
 
-That does **not** select the MBS pack for X1. It means modularity should be used intelligently:
+That makes the real trade more interesting than a simple 30-versus-20 lb comparison:
+
+- one 540 installed: lower board mass and potentially better handling, but only trail-class range before a logistics stop;
+- two 540s in inventory: near-1080 trip energy, but the spare needs a safe off-board location and a route that can reach it;
+- one 1089 installed: much more continuous range with no mid-trip swap, but +5 lb of installed battery mass versus one 540 reference.
+
+That does **not** select an MBS pack for X1. It means modularity should be used intelligently:
 
 - daily/light mission: install the lighter trail-class pack when its range is enough;
 - long mission: install the denser range-class pack when its mass is justified;
