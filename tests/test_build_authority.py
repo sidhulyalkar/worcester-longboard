@@ -141,6 +141,34 @@ def test_release_for_warren_does_not_unlock_comp95_or_v5_items():
     assert report["capabilities"]["order_measurement_chassis_parts"]["allowed"] is False
 
 
+def test_front_hydraulic_release_does_not_unlock_v5_brake():
+    fit = _stamp({"qualified_for_four_zone_duplication": True})
+    release = _stamp({
+        "authority": "x1_rev_c_chassis_release",
+        "schema_version": 1,
+        "qualified": True,
+        "deck_envelope_comparison_completed": True,
+        "selected_deck_candidate_id": "comp95_class",
+        "selected_chassis_family": "COMP95_BASELINE",
+        "selected_wheel_family": "MBS_RSII_200X50",
+        "selected_brake_architecture": "FRONT_VENDOR_HYDRAULIC",
+        "selected_topology_for_measurement": "REAR_2WD_FRONT_VENDOR_HYDRAULIC",
+        "range_pack_inert_envelope_plausible": True,
+        "no_unqualified_safety_critical_adapter": True,
+        "powered_operation_authorized": False,
+    })
+    report = evaluate(_plan(), _procurement(), [fit, release])
+    assert report["gates"]["rev_c_chassis_release_qualified"]["satisfied"] is True
+    assert report["procurement_items"]["DONOR-COMP95"]["orderable"] is True
+    assert report["procurement_items"]["BRAKE-V5"]["orderable"] is False
+    assert any(
+        "selected_brake_architecture='FRONT_VENDOR_HYDRAULIC'" in blocker
+        for blocker in report["procurement_items"]["BRAKE-V5"]["blockers"]
+    )
+    assert report["capabilities"]["order_power_hardware"]["allowed"] is False
+    assert report["capabilities"]["powered_operation"]["allowed"] is False
+
+
 def test_fallback_requires_strategy_change_after_rev_c_release():
     procurement = copy.deepcopy(_procurement())
     procurement["rules"]["preferred_chassis_item_id"] = None
