@@ -164,6 +164,14 @@ def test_valid_speed_matched_comparison_reports_metrics_without_winner(tmp_path:
     assert candidate["valid_for_comparison"] is True
     assert candidate["valid_repeat_count"] == 3
     assert (
+        "roll_yaw_correlation_delta_vs_baseline"
+        in candidate["relative_to_baseline"]
+    )
+    assert (
+        "roll_yaw_correlation_pct_vs_baseline"
+        not in candidate["relative_to_baseline"]
+    )
+    assert (
         candidate["relative_to_baseline"][
             "vertical_accel_rms_mps2_pct_vs_baseline"
         ]
