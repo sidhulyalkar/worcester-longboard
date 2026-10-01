@@ -91,7 +91,7 @@ def _procurement_authority(
     """Evaluate orderability per item, including evidence-backed release gates."""
     rules = procurement.get("rules", {})
     items = procurement.get("items", [])
-    preferred_item_id = rules.get("preferred_chassis_item_id")
+    instantiated_item_id = rules.get("instantiated_chassis_item_id")
     gate_state = gate_state or {}
     gate_evidence = gate_evidence or {}
     item_state: dict[str, dict] = {}
@@ -147,9 +147,9 @@ def _procurement_authority(
                     )
             if item.get("defer_until"):
                 blockers.append(f"deferred until: {item['defer_until']}")
-            if preferred_item_id and item.get("alternative_to") == preferred_item_id:
+            if instantiated_item_id and item.get("alternative_to") == instantiated_item_id:
                 blockers.append(
-                    f"fallback blocked while preferred chassis item is active: {preferred_item_id}"
+                    f"fallback blocked while instantiated chassis path is active: {instantiated_item_id}"
                 )
 
         if stage == "POWER_GATED" and rules.get("power_gated_authorized") is not True:
