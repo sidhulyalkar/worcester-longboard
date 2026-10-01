@@ -36,8 +36,6 @@ Issue #28 ride compliance    Issue #19 brake/drive topology
                               +--------------------+--------------------+
                                                    |
                                                    v
-                                                   |
-                                                   v
                                       final power architecture freeze
                                                    |
                                                    v
