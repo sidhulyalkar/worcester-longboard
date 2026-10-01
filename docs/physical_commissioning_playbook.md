@@ -18,10 +18,12 @@ Issue #4 one-zone fit pilot
                  v
           Issue #12 rolling chassis
                  |
-                 v
-          Issue #19 brake/drive topology
-                 |
-                 +---- requires Rev-B template ----+
+        +--------+------------------+
+        |                           |
+        v                           v
+Issue #28 ride compliance    Issue #19 brake/drive topology
+(unpowered analysis)                |
+                                    +---- requires Rev-B template ----+
                                                    v
                                  power packaging candidate
                                                    |
@@ -126,6 +128,41 @@ PYTHONPATH=. python tools/qualify_rolling_chassis.py \
 The qualifier intentionally does not promote a catalog clearance number into a physical threshold. It requires real measured clearance plus passing full-steer, full-lean and rough-surface tests.
 
 A passing report is `x1_rolling_chassis_physical`; it still cannot authorize power.
+
+## 4A. Issue #28 unpowered ride-compliance characterization
+
+Issue #28 may run after a real `x1_rolling_chassis_physical` authority exists. It is parallel evidence, not a prerequisite for beginning Issue #19.
+
+Initialize:
+
+```bash
+python tools/init_rev_c_ride_compliance_session.py \
+  rider/private/ride_compliance/session-01
+```
+
+Follow `docs/rev_c_ride_compliance_program.md`.
+
+The first comparison order is:
+
+1. repeatable stock baseline;
+2. 200x50 tire pressure within the selected tire/wheel approved range;
+3. stock Matrix III shock-block position;
+4. wheelbase where the chassis is adjustable;
+5. real deck / footbed behavior.
+
+Alternate shock-block hardness, Explorer wheels, 9-inch wheels, and independent suspension remain deferred until a specific measured deficiency justifies them.
+
+The session is explicitly unpowered, uses no dog/leash, keeps the course and IMU mount fixed, changes one primary variable per comparison block, and requires matched-speed repeated runs.
+
+Analyze:
+
+```bash
+python tools/analyze_rev_c_ride_compliance.py \
+  rider/private/ride_compliance/session-01/ride_compliance_manifest.json \
+  --out rider/private/ride_compliance/session-01/analysis.json
+```
+
+The analysis is intentionally `physical_authority=false`, `procurement_authority=false`, and `powered_operation_authorized=false`. It characterizes the chassis and can justify later tuning studies; it cannot release traction power.
 
 ## 5. Issue #19 brake/drive topology
 
