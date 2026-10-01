@@ -13,11 +13,12 @@ X1 has moved beyond the original TRAMPA/14S Alpha sketch. Current build and purc
 1. machine-readable qualification reports produced from real physical evidence;
 2. `hardware/build_authority.json` and `hardware/procurement_manifest.json`;
 3. the Rev-C mission and purchase boundary in `hardware/rev_c_requirements.json`, `docs/rev_c_trail_carver_architecture.md`, and `docs/rev_c_chassis_trade.md`;
-4. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;
-5. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
-6. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
-7. dated benchmark/risk registries;
-8. older Alpha notes retained only as historical design exploration.
+4. the ride-compliance experiment in `docs/rev_c_ride_compliance_program.md` and `hardware/rev_c_ride_compliance_snapshot_2026-10-01.json`;
+5. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;
+6. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
+7. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
+8. dated benchmark/risk registries;
+9. older Alpha notes retained only as historical design exploration.
 
 If an older document conflicts with a current manifest, build gate, or qualified authority, the older document does **not** authorize a purchase, fabrication step, or ride test.
 
@@ -103,6 +104,27 @@ Candidates include:
 
 These analyses may reject a bad idea cheaply. They are explicitly marked `physical_authority=false` and cannot promote a topology.
 
+### Ride-compliance path
+
+Issue **#28** characterizes the selected unpowered chassis before larger tires or suspension are justified.
+
+The lightweight tuning order is:
+
+```text
+stock 200x50 pneumatics
+        -> tire pressure within approved range
+        -> Matrix III shock-block position
+        -> wheelbase where adjustable
+        -> real deck / footbed behavior
+        -> alternate elastomer hardness only for a named deficiency
+        -> higher-volume wheels only for a named deficiency
+        -> independent suspension only after measured failure of the lightweight stack
+```
+
+`tools/init_rev_c_ride_compliance_session.py` creates a private data workspace and `tools/analyze_rev_c_ride_compliance.py` rejects speed-mismatched or multi-variable comparisons. Objective IMU metrics remain separate from rider observations; neither produces a single snowboard-feel score.
+
+No dog/leash or powered propulsion belongs in this experimental phase.
+
 ### Power packaging and inert-load path
 
 The power path is deliberately split into two mechanical stages before final freeze:
@@ -163,6 +185,7 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 - **#2** build and qualify X1 Fit Rig v0.3
 - **#14** measure and qualify the V5 mechanical-brake interface
 - **#12** qualify the donor-grounded unpowered rolling chassis
+- **#28** characterize the lightweight unpowered ride-compliance stack
 - **#19** resolve and qualify final brake/drive mechanical topology
 - **#3** generate measurement-qualified Rev-B rider-interface CAD after fit evidence
 - **#21** qualify inert dummy-pack enclosure/mount and mass distribution before final power freeze
