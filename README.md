@@ -14,11 +14,12 @@ X1 has moved beyond the original TRAMPA/14S Alpha sketch. Current build and purc
 2. `hardware/build_authority.json` and `hardware/procurement_manifest.json`;
 3. the Rev-C mission and purchase boundary in `hardware/rev_c_requirements.json`, `docs/rev_c_trail_carver_architecture.md`, and `docs/rev_c_chassis_trade.md`;
 4. the ride-compliance experiment in `docs/rev_c_ride_compliance_program.md` and `hardware/rev_c_ride_compliance_snapshot_2026-10-01.json`;
-5. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;
-6. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
-7. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
-8. dated benchmark/risk registries;
-9. older Alpha notes retained only as historical design exploration.
+5. the public-use/test-venue constraints in `docs/rev_c_public_use_and_test_venues.md` and `hardware/rev_c_public_use_constraints_2026-10-01.json`;
+6. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;
+7. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
+8. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
+9. dated benchmark/risk registries;
+10. older Alpha notes retained only as historical design exploration.
 
 If an older document conflicts with a current manifest, build gate, or qualified authority, the older document does **not** authorize a purchase, fabrication step, or ride test.
 
@@ -82,6 +83,21 @@ The CAD preserves those as separate branches. It does not recombine brake and dr
 `hardware/rev_c_chassis_trade_snapshot_2026-10-01.json` and `tools/analyze_rev_c_chassis_trade.py` preserve the current three-way pre-purchase trade without inventing unknown Agent mass/truck data. The existing donor-grounded Comp CAD remains a **reference**, not permission to skip Issue #25. `tools/init_chassis_session.py` and `tools/qualify_rolling_chassis.py` make Issue #12 physically executable after a chassis family is deliberately released. The qualifier requires a valid linked V5 authority, real measured donor geometry, stock-baseline tests, serviceability checks, and zero detected movement across every critical retention joint.
 
 No rider-specific permanent drilling is authorized from shoe-size labels, approximate web dimensions, or Wi-Fi pose.
+
+### Public-use and authorized-test-venue path
+
+Issue **#35** separates terrain capability from permission to operate.
+
+Current dated constraints:
+
+- Worcester Park remains a useful loose-surface/brush-path **terrain reference**, but current Los Gatos Town park rules prohibit skateboards in Town parks/trails, so it is not an assumed X1 test venue.
+- California's electrically motorized board category is narrow; the project does not assume a high-power trail configuration falls inside it.
+- selecting Shasta mode or another software power/speed cap does not itself establish vehicle classification.
+- future powered testing must use private or expressly authorized controlled terrain with a recorded permission basis.
+
+`tools/init_powered_test_venue_session.py` creates a private venue-evidence workspace and `tools/qualify_powered_test_venue.py` can qualify the location record only. It can never authorize the vehicle, public operation, or dog-accompanied operation.
+
+See `docs/rev_c_public_use_and_test_venues.md`.
 
 ### Brake/drive topology path
 
@@ -229,6 +245,7 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 - **#21** qualify inert dummy-pack enclosure/mount and mass distribution before final power freeze
 - **#30** qualify the passive charge-cradle mechanics after final pack/charger interfaces are known
 - **#33** qualify the Shasta companion mode only after rider-only low-speed powered evidence exists
+- **#35** resolve public-use classification and maintain an authorized powered-test venue record
 
 These tracks can advance in parallel only where their evidence dependencies allow.
 
