@@ -23,7 +23,8 @@
         "hub": "Rockstar II",
         "tire": "T1 200x50",
         "brake_compatible": true,
-        "electric_upgrade_note": "70mm axle upgrade advertised for MBS AGENT gear-drive compatibility"
+        "electric_upgrade_note": "70mm axle upgrade advertised for MBS AGENT gear-drive compatibility",
+        "f5x_native_mounting": false
       },
       "evidence_hypotheses": [
         "lowest published complete-chassis mass of the currently quantified compact candidates",
@@ -35,7 +36,8 @@
         "PowerLam versus snowboard-composite trail feel for this rider",
         "rear V5 plus rear-drive physical coexistence",
         "whether 200x50 pneumatic volume is sufficient for loose gravel and dirt",
-        "whether the fixed 940mm wheelbase has enough tuning range after rider fit"
+        "whether the fixed 940mm wheelbase has enough tuning range after rider fit",
+        "F5X four-hole binding conversion would require custom hardware/drilling on this deck"
       ],
       "source": "https://www.mbs.com/shop/p/comp-95-mountainboard-silver-hex"
     },
@@ -64,13 +66,15 @@
         "truck": "Matrix III CNC",
         "hub": "Rockstar II",
         "tire": "T1 200x50",
-        "brake_compatible": true
+        "brake_compatible": true,
+        "f5x_native_mounting": true
       },
       "evidence_hypotheses": [
         "narrowest published deck envelope in the three-way stance comparison",
         "snowboard-style composite construction isolates deck-construction feel from Agent-class deck width",
         "adjustable 910-970mm wheelbase creates a direct agility-versus-stability tuning variable",
-        "8mm radial concave and elastomer damped grip pads may improve leverage and vibration comfort, but require physical validation"
+        "8mm radial concave and elastomer damped grip pads may improve leverage and vibration comfort, but require physical validation",
+        "F5X included mounting hardware supports this deck family for fine snowboard-style stance-angle adjustment"
       ],
       "unresolved": [
         "stiff/high-pop deck may be too reactive or fatiguing on low-speed rough trails",
@@ -97,12 +101,14 @@
         "hub": "Rockstar II",
         "tire": "T3 200x50",
         "brake_compatible": null,
-        "electric_component_ecosystem": true
+        "electric_component_ecosystem": true,
+        "f5x_native_mounting": true
       },
       "evidence_hypotheses": [
         "electric-native battery, ESC, gear-drive and motor ecosystem reduces future packaging invention",
         "snowboard composite deck gives a second composite-construction reference",
-        "published 280mm width is explicitly intended to provide extra leverage and suit larger feet, so rider-specific leverage must be tested rather than assumed"
+        "published 280mm width is explicitly intended to provide extra leverage and suit larger feet, so rider-specific leverage must be tested rather than assumed",
+        "F5X included mounting hardware supports this deck family for fine snowboard-style stance-angle adjustment"
       ],
       "unresolved": [
         "published page does not provide complete mass/wheelbase/brake data needed for a fair quantitative comparison",
@@ -119,5 +125,17 @@
     "Availability does not override the Issue #25 evidence gate.",
     "A selected chassis does not unlock a different chassis in procurement.",
     "Power hardware remains blocked regardless of chassis selection."
-  ]
+  ],
+  "binding_reference": {
+    "id": "MBS_F5X_14060",
+    "price_usd": 199.95,
+    "role": "future rider-interface reference only; not currently purchase-authorized",
+    "facts": [
+      "standard snowboard-style 4-hole adjustment disc",
+      "fine stance-angle adjustment",
+      "included mounting hardware for AGENT series and DWIII Switch decks",
+      "other decks require custom hardware and drilling"
+    ],
+    "source": "https://www.mbs.com/shop/p/mbs-f5x-bindings"
+  }
 }
