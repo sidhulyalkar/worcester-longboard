@@ -92,7 +92,7 @@ Current candidate maximum envelopes are:
 |---|---:|---:|
 | Comp 95 class | 950 mm | 251 mm |
 | Pro Warren III class | 980 mm | 244 mm |
-| Agent class | 1020 mm | 284 mm |
+| Agent class | 1020 mm | 280 mm |
 
 These are stance/leverage envelopes only.
 
@@ -110,7 +110,7 @@ Mark:
 - approximate usable standing region;
 - no permanent mounting holes.
 
-Keep both templates on the same floor/surface and use the same shoes for the comparison.
+Keep all three templates on the same floor/surface and use the same shoes for the comparison.
 
 ---
 
