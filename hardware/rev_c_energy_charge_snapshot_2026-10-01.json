@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-01",
+  "scope": "rev_c_energy_charge_reference_snapshot",
+  "facts_only": true,
+  "project_boundary": {
+    "traction_pack": "professionally built or qualified integrated system only",
+    "charger": "battery/system-approved charger only",
+    "hot_swap": "not allowed unless the selected qualified system explicitly supports it",
+    "dock": "mechanical alignment/service fixture only; not a substitute BMS or charger",
+    "powered_operation_authorized": false
+  },
+  "energy_classes": {
+    "trail": {
+      "target_wh": [
+        500,
+        650
+      ],
+      "goal": "playful/carryable daily and trail configuration"
+    },
+    "range": {
+      "target_wh": [
+        950,
+        1150
+      ],
+      "goal": "long exploration configuration with explicit mass trade"
+    }
+  },
+  "commercial_references": [
+    {
+      "id": "MBS_AGENT_540",
+      "sku": "16502",
+      "nominal_energy_wh": 540,
+      "voltage_max_v": 75.6,
+      "architecture": "18S",
+      "weight_lb": 15,
+      "quick_swap": true,
+      "discharge_ports": 1,
+      "published_max_output_kw": 5.3,
+      "usb_c_pd_w": null,
+      "price_usd": 799.95,
+      "availability_snapshot": "COMING_SOON_WAITLIST_2026-10-01",
+      "source": "https://www.mbs.com/shop/p/mbs-540-battery-pack"
+    },
+    {
+      "id": "MBS_AGENT_1080",
+      "sku": "16504",
+      "nominal_energy_wh": 1089,
+      "voltage_max_v": 75.6,
+      "architecture": "18S",
+      "weight_lb": 20,
+      "quick_swap": true,
+      "discharge_ports": 2,
+      "published_max_output_kw_2wd": 7.6,
+      "published_max_output_kw_4wd": 10.6,
+      "usb_c_pd_w": 60,
+      "price_usd": 1399.95,
+      "availability_snapshot": "COMING_SOON_WAITLIST_2026-10-01",
+      "source": "https://www.mbs.com/shop/p/mbs-1080-battery-pack"
+    }
+  ],
+  "charger_references": [
+    {
+      "id": "MBS_AGENT_CHARGER_530W",
+      "sku": "16571",
+      "published_output": "75.6V x 7A",
+      "published_power_w": 530,
+      "price_usd": 199.95,
+      "availability_snapshot": "ONLY_5_AVAILABLE_2026-10-01",
+      "compatibility_rule": "reference only; exact pack compatibility must be confirmed from selected system documentation",
+      "source": "https://www.mbs.com/shop/parts/electric-parts"
+    },
+    {
+      "id": "EXWAY_SMART_SUPER_CHARGER_1050W",
+      "sku": "16572",
+      "published_power_w": 1050,
+      "price_usd": 499.95,
+      "availability_snapshot": "ONLY_3_AVAILABLE_2026-10-01",
+      "compatibility_rule": "MBS explicitly markets this as the ultimate upgrade for the AGENT 1080; do not infer 540 compatibility",
+      "source": "https://www.mbs.com/shop/p/exway-charger-1050"
+    }
+  ],
+  "product_benchmarks": [
+    {
+      "id": "ONEWHEEL_RALLY_XL_CHARGE_UX",
+      "published_range_miles": [
+        18,
+        28
+      ],
+      "published_weight_lb": 34,
+      "standard_full_charge_minutes": 165,
+      "optional_fast_charge_minutes": 85,
+      "lesson": "consumer charging should feel routine and predictable; published charge time remains system-specific",
+      "source": "https://onewheel.com/pages/onewheel-gt-s-series-rally-xl"
+    }
+  ],
+  "safety_references": [
+    {
+      "id": "UL_2271",
+      "role": "battery systems for light electric vehicle applications",
+      "source": "https://www.ul.com/news/e-bikemicromobility-device-safety-product-certification"
+    },
+    {
+      "id": "UL_2272",
+      "role": "electrical systems for personal e-mobility devices including e-skateboards",
+      "source": "https://www.ul.com/industries/automotive-and-mobility/micromobility-device-evaluation-testing-and-certification"
+    }
+  ],
+  "dock_architecture": {
+    "name": "passive alignment charge cradle",
+    "electrical_principle": "preserve the selected pack/charger electrical interface; dock adds no independent charging power stage",
+    "mechanical_features": [
+      "stable board parking cradle",
+      "self-centering guides that do not load wheel/brake/drive hardware",
+      "floating charger-plug carriage or one-handed mechanical mating aid",
+      "connector strain relief",
+      "protected cable routing",
+      "positive parked-state indication",
+      "service access without lifting the board"
+    ],
+    "prohibited": [
+      "exposed traction-voltage contacts",
+      "unqualified pogo-pin or magnetic traction-charge contacts",
+      "automatic hot-swap",
+      "charger/BMS bypass",
+      "parallel connection of unequal packs",
+      "using the dock to discover charger compatibility"
+    ]
+  },
+  "operating_modes": {
+    "everyday": {
+      "target_soc_policy": "use a reduced daily target only if the selected BMS/charger explicitly supports it",
+      "installed_energy_goal": "trail class when practical",
+      "rationale": "preserve handling and carryability"
+    },
+    "long_trip": {
+      "target_soc_policy": "full trip charge when supported and needed",
+      "installed_energy_goal": "range class or qualified cold-swap strategy",
+      "rationale": "maximize mission margin without permanently carrying range mass"
+    },
+    "storage": {
+      "target_soc_policy": "follow selected battery manufacturer/builder storage instructions",
+      "rationale": "no universal storage SOC assumption"
+    }
+  },
+  "experimental_invariants": [
+    "Range claims remain planning envelopes until qualified X1 telemetry exists.",
+    "Energy/power arithmetic provides only an ideal charge-time lower bound, never an actual full-charge promise.",
+    "Pack mass and CG are mechanical design inputs and must be requalified when pack class changes.",
+    "A larger battery cannot compensate for insufficient braking, traction, thermal margin, or retention.",
+    "No live battery is used for enclosure impact or clearance discovery.",
+    "The dock cannot create compatibility that the selected battery and charger do not already have."
+  ]
+}
