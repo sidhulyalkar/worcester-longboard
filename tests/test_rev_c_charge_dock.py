@@ -22,6 +22,13 @@ def _manifest():
     )
     for key in data["dock_design"]:
         data["dock_design"][key] = True
+    data["alignment_limits"] = {
+        "connector_manufacturer_source": "manufacturer-system-document",
+        "lateral_misalignment_limit_checked": True,
+        "angular_misalignment_limit_checked": True,
+        "mating_force_or_method_limit_checked": True,
+        "dock_guides_prevent_exceeding_known_connector_limits": True,
+    }
     data["stability_check"] = {
         "method": "repeatable low-energy disturbance check",
         "board_remained_stable": True,
@@ -50,6 +57,7 @@ def test_inert_dock_can_qualify_mechanics_without_electrical_authority():
     report = qualify(_manifest())
     assert report["qualified"] is True
     assert report["alignment_trial_count"] == 5
+    assert report["connector_alignment_limits_verified"] is True
     assert report["inert_mechanical_alignment_qualified"] is True
     assert report["live_battery_test_authorized"] is False
     assert report["electrical_charge_authorized"] is False
@@ -71,6 +79,32 @@ def test_connector_cannot_be_structural_retention():
     report = qualify(data)
     assert report["qualified"] is False
     assert any("connector_not_used_as_retention" in x for x in report["errors"])
+
+
+def test_connector_alignment_limits_must_be_sourced_and_checked():
+    data = _manifest()
+    data["alignment_limits"]["connector_manufacturer_source"] = ""
+    data["alignment_limits"]["dock_guides_prevent_exceeding_known_connector_limits"] = False
+    report = qualify(data)
+    assert report["qualified"] is False
+    assert any(
+        "alignment_limits.connector_manufacturer_source" in x
+        for x in report["errors"]
+    )
+    assert any(
+        "dock_guides_prevent_exceeding_known_connector_limits" in x
+        for x in report["errors"]
+    )
+
+
+def test_connector_cannot_be_used_as_board_retention_or_forced_alignment():
+    data = _manifest()
+    data["dock_design"]["board_retention_independent_of_connector"] = False
+    data["dock_design"]["connector_mating_axis_free_to_self_align"] = False
+    report = qualify(data)
+    assert report["qualified"] is False
+    assert any("board_retention_independent_of_connector" in x for x in report["errors"])
+    assert any("connector_mating_axis_free_to_self_align" in x for x in report["errors"])
 
 
 def test_five_repeatable_alignment_trials_are_required():
