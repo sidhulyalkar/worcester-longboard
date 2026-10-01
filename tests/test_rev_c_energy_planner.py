@@ -1,6 +1,10 @@
 import pytest
 
-from simulation.rev_c_energy_planner import MissionPlan, ideal_charge_lower_bound
+from simulation.rev_c_energy_planner import (
+    MissionPlan,
+    cold_swap_inventory_plan,
+    ideal_charge_lower_bound,
+)
 
 
 def test_540wh_trail_reference_matches_existing_planning_envelope():
@@ -37,6 +41,43 @@ def test_1089wh_mixed_surface_reference_covers_30_miles_only_in_optimistic_case(
     assert report["pack_range_envelope_miles"] == [29.0, 39.6]
     assert report["single_pack_covers_optimistic_case"] is True
     assert report["single_pack_covers_conservative_case"] is False
+
+
+def test_cold_swap_inventory_keeps_only_one_small_pack_installed():
+    report = cold_swap_inventory_plan(
+        distance_miles=20,
+        terrain="trail",
+        reserve_fraction=0.20,
+        pack_wh=540,
+        pack_mass_lb=15,
+    )
+    assert report["installed_pack_count_at_once"] == 1
+    assert report["installed_battery_mass_lb"] == 15
+    assert report["inventory"]["conservative_consumption_case"]["pack_count"] == 3
+    assert (
+        report["inventory"]["conservative_consumption_case"][
+            "total_pack_inventory_mass_lb"
+        ]
+        == 45
+    )
+    assert (
+        report["inventory"]["conservative_consumption_case"]["cold_swaps_needed"]
+        == 2
+    )
+    assert report["hot_swap_assumed"] is False
+    assert report["parallel_pack_operation_assumed"] is False
+    assert report["powered_operation_authorized"] is False
+
+
+def test_cold_swap_inventory_rejects_invalid_pack_mass():
+    with pytest.raises(ValueError, match="pack_mass_lb"):
+        cold_swap_inventory_plan(
+            distance_miles=10,
+            terrain="mixed",
+            reserve_fraction=0.20,
+            pack_wh=540,
+            pack_mass_lb=0,
+        )
 
 
 def test_charge_time_is_explicitly_only_an_ideal_lower_bound():
