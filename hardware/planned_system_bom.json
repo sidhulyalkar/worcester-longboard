@@ -65,14 +65,13 @@
       "status": "REV_C_HOLD",
       "freeze_gate": "rev_c_chassis_release_qualified",
       "contents": [
-        "Preferred MBS Comp 95 donor (10303)",
-        "Matrix III CNC 400 mm trucks included with donor",
-        "Rockstar II hubs included with donor",
-        "12x28 mm bearings included with donor",
-        "8 inch T1 tires/tubes included with donor",
-        "F5 bindings and mounting hardware included with donor"
+        "Candidate Comp 95 complete donor (10303): current instantiated procurement path only",
+        "Candidate Pro Warren III complete chassis: narrow snowboard-composite / adjustable-wheelbase reference; fresh procurement entry required if selected",
+        "Candidate Agent AIR chassis: electric-native snowboard-composite reference; fresh procurement entry required if selected",
+        "Matrix III / Rockstar II / 200x50 pneumatic interface family where applicable",
+        "selected chassis must match fingerprinted Issue #25 authority before checkout"
       ],
-      "authority": "Comp 95 remains the leading compact reference, not purchase authority. Release only after rider-scale deck comparison plus wheel/brake/drive topology review."
+      "authority": "Issue #25 selects the chassis family. The existing Comp 95 manifest item is not a default architecture choice; Warren/Agent require their own fresh sourced procurement entries if selected."
     },
     {
       "id": "MECHANICAL-BRAKE",
