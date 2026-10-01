@@ -27,8 +27,15 @@ Issue #28 ride compliance    Issue #19 brake/drive topology
                                                    v
                                  power packaging candidate
                                                    |
+                              +--------------------+--------------------+
+                              |                                         |
+                              v                                         v
+                Issue #37 inert trail armor                 Issue #21 inert dummy-pack mount
+                geometry / service path                     structural pack load path
+                              |                                         |
+                              +--------------------+--------------------+
+                                                   |
                                                    v
-                                  Issue #21 inert dummy-pack mount
                                                    |
                                                    v
                                       final power architecture freeze
@@ -251,6 +258,52 @@ PYTHONPATH=. python tools/qualify_power_packaging_candidate.py \
   rider/private/power/candidate_v1.json \
   --out rider/private/power/candidate_v1_authority.json
 ```
+
+## 7A. Issue #37 inert trail-armor geometry and service path
+
+After Issue #19 and the power-packaging candidate define the real protected zones, Issue #37 may begin in parallel with the dummy-pack program.
+
+This stage still uses inert protected-component surrogates.
+
+Initialize:
+
+```bash
+python tools/init_rev_c_trail_armor_session.py \
+  rider/private/armor/zone-a
+```
+
+Before contact testing, quantify the proposed skid's clearance cost from measured geometry:
+
+```bash
+python simulation/rev_c_skid_geometry.py \
+  --wheelbase-mm <measured> \
+  --skid-x-mm <measured> \
+  --component-clearance-mm <measured> \
+  --skid-drop-mm <measured>
+```
+
+Then fill `trail_armor_manifest.json` and qualify:
+
+```bash
+python tools/qualify_rev_c_trail_armor.py \
+  rider/private/armor/zone-a/trail_armor_manifest.json \
+  --out rider/private/armor/zone-a/trail_armor_authority.json
+```
+
+The early armor trial requires:
+
+- the wear surface to be the intended first hard contact;
+- full steer/lean/deck-flex/wheel/brake/harness clearance;
+- no forward-facing terrain hook or debris trap;
+- an explicit wear-shoe -> carrier/vendor guard -> structural-mount load path;
+- no battery shell or connector used as the primary impact structure;
+- wear-part replacement without opening the traction enclosure or disturbing unrelated brake-critical retention;
+- at least three low-energy root/curb surrogate contacts;
+- clean post-contact retention and protected-component inspection.
+
+A passing report remains `impact_energy_qualified=false`.
+
+If the final motor, gearbox, enclosure, mount or skid geometry changes after power freeze, repeat the affected Issue #37 zone. Early armor geometry evidence cannot be inherited across a changed impact load path.
 
 ## 8. Issue #21 inert dummy-pack mount
 
