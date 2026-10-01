@@ -316,6 +316,32 @@ Only now freeze the coupled powered system:
 
 Power purchasing remains separately blocked by the procurement manifest until explicitly promoted.
 
+## 9A. Issue #30 passive charge-cradle mechanics
+
+After the battery architecture, approved charger, connector orientation and final enclosure interfaces are selected, the **mechanical** charging cradle can be frozen.
+
+Use an inert pack and inert connector surrogate first. The template and qualifier are:
+
+```text
+hardware/rev_c_charge_dock_mechanical_template.json
+tools/qualify_rev_c_charge_dock.py
+```
+
+The dock must support and retain the parked board independently of the charge connector, avoid loading brake/drive hardware, self-center repeatably, preserve service access, protect the connector when the board is absent, and maintain cable strain relief and clearance.
+
+The inert qualifier requires at least five repeatable alignment trials and a clean post-trial inspection.
+
+A passing report still has:
+
+```text
+live_battery_test_authorized = false
+electrical_charge_authorized = false
+procurement_authority = false
+powered_operation_authorized = false
+```
+
+The dock never creates charger compatibility. A later live charging procedure must use only the selected battery/system-approved charger and the selected system's documented instructions.
+
 ## 10. Drivetrain commissioning after final freeze
 
 Even after final power architecture is frozen, do not jump directly to riding.
