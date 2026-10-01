@@ -1,9 +1,9 @@
 # Worcester X1 Rev-C chassis trade
 
-**Snapshot date:** 2026-09-30  
+**Snapshot date:** 2026-10-01  
 **Authority:** analysis only. This document cannot release procurement or powered operation.
 
-Machine-readable facts live in `hardware/rev_c_chassis_trade_snapshot_2026-09-30.json`. Derived deltas are checked by `tools/analyze_rev_c_chassis_trade.py`.
+Machine-readable facts live in `hardware/rev_c_chassis_trade_snapshot_2026-10-01.json`. Derived deltas are checked by `tools/analyze_rev_c_chassis_trade.py`.
 
 ## The three chassis hypotheses
 
