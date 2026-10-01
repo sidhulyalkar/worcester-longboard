@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-01",
+  "scope": "rev_c_shasta_companion_mode_research_requirements",
+  "authority": "RESEARCH_ONLY",
+  "physical_authority": false,
+  "procurement_authority": false,
+  "powered_operation_authorized": false,
+  "purpose": "Define a conservative, rider-controlled low-speed companion mode for eventual dog-accompanied neighborhood use without using a dog during development qualification.",
+  "provisional_control_envelope": {
+    "status": "UNQUALIFIED_SOFTWARE_HYPOTHESIS",
+    "speed_cap_mps": 2.7,
+    "accel_max_mps2": 0.45,
+    "regen_decel_max_mps2": 0.8,
+    "phase_current_max_a": 18,
+    "drive_current_slew_max_a_per_s": 20,
+    "brake_current_slew_max_a_per_s": 30,
+    "fault_release_current_slew_a_per_s": 60,
+    "interpretation": [
+      "These are initial research limits chosen to be below the existing Learn-mode envelope.",
+      "Current slew is only a torque-change proxy; it is not physical jerk authority.",
+      "Actual acceleration, jerk, stopping distance, traction, and dog suitability require staged physical qualification."
+    ]
+  },
+  "required_behavior": {
+    "remote_deadman_required": true,
+    "remote_timeout_fault_required": true,
+    "deadman_or_remote_loss_action": "ramp propulsion toward zero with bounded fault-release slew; recommend independent mechanical braking; do not invent automatic traction-power braking authority",
+    "overspeed_action": "do not increase propulsion; ramp positive drive toward zero with bounded fault-release slew; recommend independent mechanical braking",
+    "pack_overvoltage_regen_action": "drop regen request immediately to zero and recommend independent mechanical braking",
+    "symmetric_nominal_drive": true,
+    "deliberate_differential_carve_assist": false,
+    "traction_control_asymmetry_allowed_only_for_slip_or_component_derate": true,
+    "automatic_lighting_request_when_fitted": true,
+    "independent_mechanical_brake_remains_required": true
+  },
+  "companion_boundary": {
+    "leash_attachment_to_board": "PROHIBITED",
+    "dog_present_during_software_or_bench_development": false,
+    "dog_present_during_initial_rider_only_powered_qualification": false,
+    "dog_use_requires_future_explicit_authority": true,
+    "rationale": [
+      "A lateral leash impulse must not become board steering or a structural load on the vehicle.",
+      "Dog-accompanied use adds an unpredictable external moving load and should be introduced only after rider-only low-speed control and stopping are independently qualified."
+    ]
+  },
+  "qualification_ladder": [
+    {
+      "stage": 0,
+      "name": "host_software",
+      "dog_present": false,
+      "powered_vehicle": false,
+      "exit": "host tests cover cap, slew, deadman, overspeed, overvoltage regen removal, and symmetric nominal output"
+    },
+    {
+      "stage": 1,
+      "name": "bench_no_rider",
+      "dog_present": false,
+      "powered_vehicle": false,
+      "exit": "future bench setup demonstrates command transitions and fault outputs without road contact"
+    },
+    {
+      "stage": 2,
+      "name": "rider_only_closed_low_speed",
+      "dog_present": false,
+      "powered_vehicle": true,
+      "requires_future_powered_authority": true,
+      "exit": "future closed-course tests establish actual acceleration, jerk, stopping response, remote release behavior, and stability below companion cap"
+    },
+    {
+      "stage": 3,
+      "name": "companion_proximity_no_leash_load",
+      "dog_present": true,
+      "powered_vehicle": true,
+      "requires_future_explicit_companion_authority": true,
+      "exit": "future protocol only; not authorized by this specification"
+    }
+  ],
+  "metrics_for_future_physical_qualification": [
+    "ground-speed cap tracking",
+    "longitudinal acceleration",
+    "longitudinal jerk",
+    "remote-release propulsion decay time",
+    "regen-to-mechanical-brake transition behavior",
+    "rider-only stopping distance",
+    "uncommanded differential torque",
+    "slip-control intervention frequency",
+    "thermal state",
+    "fault-event log completeness"
+  ],
+  "non_goals": [
+    "autonomous dog following",
+    "leash-towing assistance",
+    "board-mounted leash anchor",
+    "automatic steering toward a dog",
+    "using software speed limits as a substitute for physical braking"
+  ]
+}
