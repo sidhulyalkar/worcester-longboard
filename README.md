@@ -160,6 +160,28 @@ The current planning policy is:
 
 Issue **#30** defines the future charge dock as a **passive mechanical alignment cradle**. The dock may self-center the board, manage cable strain and make approved-charger connection easier, but it does not replace the selected battery/system-approved charger, add exposed traction-voltage contacts, or authorize live charging. See `docs/rev_c_energy_and_charging.md`.
 
+### Shasta companion-mode path
+
+Issue **#33** defines a future very-low-speed companion mode for eventual dog-accompanied neighborhood use.
+
+The current implementation is **research-only**:
+
+```text
+host software contract
+        -> future bench/no-rider validation
+        -> future rider-only closed low-speed qualification
+        -> future explicit companion release
+        -> only then dog-accompanied testing
+```
+
+Current provisional software limits are 2.7 m/s speed cap, 0.45 m/s² acceleration, 0.80 m/s² regen deceleration, 18 A phase-current cap, 20 A/s drive-current slew, 30 A/s regen-current slew, and 60 A/s fault/deadman propulsion-release slew.
+
+These numbers are software hypotheses, not physical jerk or stopping authority. `tools/validate_shasta_control_contract.py` fails CI if the machine-readable requirements and C++ controller limits drift apart.
+
+The leash remains with the rider and must never be attached to the board. Deliberate differential carve assist stays disabled in this mode, independent mechanical braking remains mandatory, and no dog belongs in software, bench, or initial rider-only powered qualification.
+
+See `docs/rev_c_shasta_companion_mode.md`.
+
 ### Final power path
 
 Power hardware remains **provisional and `POWER_GATED`**. The current procurement manifest carries comparison candidates only to preserve cost/compatibility analysis. None are frozen or order-authorized yet.
@@ -206,6 +228,7 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 - **#3** generate measurement-qualified Rev-B rider-interface CAD after fit evidence
 - **#21** qualify inert dummy-pack enclosure/mount and mass distribution before final power freeze
 - **#30** qualify the passive charge-cradle mechanics after final pack/charger interfaces are known
+- **#33** qualify the Shasta companion mode only after rider-only low-speed powered evidence exists
 
 These tracks can advance in parallel only where their evidence dependencies allow.
 
