@@ -61,7 +61,7 @@ one 3135 load cell + one HX711
         -> Rev-B left/right rider-interface CAD
 ```
 
-The fit layer intentionally supports independent left/right foot dimensions, yaw, position, and removable cant while keeping truck geometry symmetric by default. Exact rider measurements and raw recordings stay under gitignored `rider/private/`.
+The fit layer intentionally supports independent left/right foot dimensions, yaw, position, and removable cant while keeping truck geometry symmetric by default. Exact rider measurements and raw recordings stay under gitignored `rider/private/`. Before any chassis order, `docs/rev_c_no_parts_chassis_experiment.md` provides a zero-cost three-way Comp/Warren/Agent stance test.
 
 ### Chassis/brake path
 
