@@ -40,6 +40,7 @@ The project minimizes expensive re-buys by freezing interfaces in the order that
 | Drive reference | Matrix III 420 mm / 70 mm axle reference; vendor drive-compatible but brake-incompatible |
 | Brake-hanger drive study | 300 mm hanger + 70 mm axles, ~440 mm end-to-end; drive-compatible reference with **brake alignment unknown** |
 | Brake/drive topology | unresolved and explicitly gated by Issue #19 |
+| Ride compliance | Issue #28 unpowered characterization after a qualified rolling chassis; analysis cannot authorize procurement or power |
 | Rider interface | independent left/right Rev-B geometry is blocked on qualified fit evidence |
 | Power packaging candidate | blocked until topology and Rev-B authority exist |
 | Inert battery-mass load path | blocked until packaging candidate exists; Issue #21 closes it |
@@ -207,7 +208,7 @@ Future battery/enclosure mounting is qualified using inert dummy mass matching t
 
 The critical dependency is now:
 
-`V5 brake -> rolling chassis -> brake/drive topology -> power packaging candidate -> inert dummy-pack mount -> final power architecture`
+`V5 brake -> rolling chassis -> {Issue #28 ride-compliance characterization + Issue #19 brake/drive topology} -> power packaging candidate -> inert dummy-pack mount -> final power architecture`
 
 The Rev-B rider-interface path joins at the packaging-candidate gate after qualified fit and rolling-chassis evidence.
 

@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "scope": "rev_c_unpowered_ride_compliance_trials",
+  "session_id": "",
+  "course_id": "",
+  "surface_description": "",
+  "same_course_for_all_runs": true,
+  "imu_source_id": "",
+  "imu_mount_id": "",
+  "imu_mount_unchanged": true,
+  "speed_source_id": "",
+  "speed_source_calibrated": false,
+  "sensor_timebase_aligned": false,
+  "rider_observations_csv": "rider_observations.csv",
+  "unpowered_test": true,
+  "dog_or_leash_present": false,
+  "tire_pressure_approved_range_kpa": [
+    null,
+    null
+  ],
+  "target_speed_mps": 2,
+  "speed_tolerance_fraction": 0.1,
+  "max_within_run_speed_std_fraction": 0.08,
+  "max_config_median_speed_delta_fraction": 0.05,
+  "minimum_samples_per_run": 100,
+  "minimum_duration_s": 5,
+  "minimum_repeats_per_config": 3,
+  "baseline_config_id": "baseline",
+  "configs": [
+    {
+      "id": "baseline",
+      "experiment_block": "stock_setup",
+      "primary_variable": "baseline",
+      "settings": {
+        "chassis_id": "",
+        "tire_family": "200x50",
+        "tire_pressure_front_kpa": null,
+        "tire_pressure_rear_kpa": null,
+        "shock_block_id": "",
+        "shock_block_position": "",
+        "wheelbase_mm": null,
+        "deck_id": "",
+        "footbed_id": ""
+      }
+    },
+    {
+      "id": "candidate_a",
+      "experiment_block": "stock_setup",
+      "primary_variable": "",
+      "settings": {
+        "chassis_id": "",
+        "tire_family": "200x50",
+        "tire_pressure_front_kpa": null,
+        "tire_pressure_rear_kpa": null,
+        "shock_block_id": "",
+        "shock_block_position": "",
+        "wheelbase_mm": null,
+        "deck_id": "",
+        "footbed_id": ""
+      }
+    }
+  ],
+  "runs": [
+    {
+      "id": "baseline_01",
+      "config_id": "baseline",
+      "csv_path": "baseline_01.csv",
+      "rider_observation_recorded": false,
+      "notes": ""
+    },
+    {
+      "id": "baseline_02",
+      "config_id": "baseline",
+      "csv_path": "baseline_02.csv",
+      "rider_observation_recorded": false,
+      "notes": ""
+    },
+    {
+      "id": "baseline_03",
+      "config_id": "baseline",
+      "csv_path": "baseline_03.csv",
+      "rider_observation_recorded": false,
+      "notes": ""
+    },
+    {
+      "id": "candidate_a_01",
+      "config_id": "candidate_a",
+      "csv_path": "candidate_a_01.csv",
+      "rider_observation_recorded": false,
+      "notes": ""
+    },
+    {
+      "id": "candidate_a_02",
+      "config_id": "candidate_a",
+      "csv_path": "candidate_a_02.csv",
+      "rider_observation_recorded": false,
+      "notes": ""
+    },
+    {
+      "id": "candidate_a_03",
+      "config_id": "candidate_a",
+      "csv_path": "candidate_a_03.csv",
+      "rider_observation_recorded": false,
+      "notes": ""
+    }
+  ],
+  "powered_operation_authorized": false
+}

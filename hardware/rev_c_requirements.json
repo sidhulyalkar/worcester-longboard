@@ -351,5 +351,39 @@
       "one drive/brake topology has a physical measurement plan with no unqualified safety-critical adapter",
       "range-pack envelope can be represented by inert mass without violating ground-clearance and rider-interface keep-outs"
     ]
+  },
+  "ride_compliance_program": {
+    "issue": 28,
+    "phase": "POST_SELECTED_CHASSIS_UNPOWERED",
+    "snapshot": "hardware/rev_c_ride_compliance_snapshot_2026-10-01.json",
+    "protocol": "docs/rev_c_ride_compliance_program.md",
+    "session_initializer": "tools/init_rev_c_ride_compliance_session.py",
+    "analyzer": "tools/analyze_rev_c_ride_compliance.py",
+    "tuning_order": [
+      "pneumatic_tire_pressure",
+      "truck_elastomer_position",
+      "wheelbase_where_adjustable",
+      "real_deck_and_footbed_behavior",
+      "alternate_shock_block_hardness_for_named_deficiency",
+      "higher_volume_wheel_for_named_deficiency",
+      "independent_suspension_only_after_measured_failure"
+    ],
+    "experiment_constraints": [
+      "unpowered low-energy comparison only",
+      "no dog or leash present",
+      "one primary compliance variable changes per comparison block",
+      "fixed course and IMU mount",
+      "matched-speed repeated runs",
+      "tire pressure stays within the declared manufacturer-approved range",
+      "objective metrics and rider observations remain separate",
+      "no single winner or snowboard-feel score"
+    ],
+    "procurement_boundary": {
+      "new_shock_blocks": "DEFER_UNTIL_STOCK_POSITION_DEFICIENCY",
+      "explorer_wheels": "DEFER_UNTIL_200X50_COMPLIANCE_OR_TRACTION_DEFICIENCY",
+      "nine_inch_wheels": "DEFER_UNTIL_MEASURED_CLEARANCE_DEFICIENCY",
+      "independent_suspension": "REOPEN_ARCHITECTURE_ONLY_AFTER_LIGHTWEIGHT_STACK_FAILURE"
+    },
+    "powered_operation_authorized": false
   }
 }

@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-01",
+  "scope": "rev_c_ride_compliance_reference_snapshot",
+  "facts_only": true,
+  "objective": "Tune progressive carve response and rough-surface isolation with the lightest reversible mechanisms before considering independent suspension.",
+  "matrix_iii": {
+    "system": "MBS Matrix III",
+    "tuning_axes": [
+      "shock_block_position",
+      "shock_block_hardness",
+      "truck_width_and_axle_state",
+      "flipped_standard_geometry_where_applicable"
+    ],
+    "shock_blocks": [
+      {
+        "id": "M3_SOFT_WHITE_78A",
+        "sku": "12371",
+        "durometer_a": 78,
+        "price_usd": 29.95,
+        "vendor_guidance": {
+          "inside": "tightest turns / maximum carve; explicitly described as suitable for lightweight riders or riding without bindings",
+          "outside": "all-around carve/stability balance; described for average riders with bindings"
+        },
+        "source": "https://www.mbs.com/shop/p/mbs-matrix-iii-shock-blocks-soft"
+      },
+      {
+        "id": "M3_MEDIUM_ORANGE_85A",
+        "sku": "12372",
+        "durometer_a": 85,
+        "price_usd": 29.95,
+        "vendor_guidance": {
+          "agent_reference": "MBS Agent electric examples use Orange medium blocks inside for a carvey stock setup and describe moving them outside for higher-speed stability"
+        },
+        "source": "https://www.mbs.com/shop/parts/trucks/matrix-iii"
+      },
+      {
+        "id": "M3_HARD_RED_95A",
+        "sku": "12373",
+        "durometer_a": 95,
+        "price_usd": 29.95,
+        "vendor_guidance": {
+          "inside": "vendor describes for very heavy riders riding without bindings",
+          "outside": "vendor describes as extreme high-speed / straight-line stability oriented"
+        },
+        "source": "https://www.mbs.com/shop/p/mbs-matrix-iii-shock-blocks-hard"
+      }
+    ],
+    "truck_references": [
+      {
+        "id": "M3_CNC_400",
+        "width_mm": 400,
+        "stock_shock_block": "M3_SOFT_WHITE_78A",
+        "stock_position": "outside",
+        "vendor_character": "light / nimble / brake compatible",
+        "brake_compatible": true,
+        "direct_agent_gear_drive_compatible": false,
+        "source": "https://www.mbs.com/shop/p/mbs-matrix-iii-mountain-board-truck-12mmx400mm"
+      },
+      {
+        "id": "M3_CNC_420",
+        "width_mm": 420,
+        "stock_shock_block": "M3_SOFT_WHITE_78A",
+        "stock_position": "inside",
+        "vendor_character": "electric-focused / carvey stock setup / wide drive clearance",
+        "brake_compatible": false,
+        "direct_agent_gear_drive_compatible": true,
+        "source": "https://www.mbs.com/shop/p/mbs-matrix-iii-mountain-board-truck-12mmx420mm"
+      }
+    ]
+  },
+  "compliance_layers": [
+    {
+      "order": 1,
+      "mechanism": "pneumatic_tire",
+      "role": "highest-frequency trail chatter, obstacle conformity, loose-surface contact",
+      "default_policy": "qualify 200x50 tire family and approved pressure range before adding tire mass/width"
+    },
+    {
+      "order": 2,
+      "mechanism": "truck_elastomer_position",
+      "role": "steering resistance, rebound, recentering and carve/stability balance",
+      "default_policy": "use received Matrix III hardware and position adjustment before purchasing another hardness"
+    },
+    {
+      "order": 3,
+      "mechanism": "wheelbase",
+      "role": "first-order agility/stability lever where chassis supports adjustment",
+      "default_policy": "Warren-only controlled 910/940/970mm experiment; keep other variables fixed"
+    },
+    {
+      "order": 4,
+      "mechanism": "deck_and_footbed",
+      "role": "slower flex/torsion plus local high-frequency attenuation",
+      "default_policy": "compare real received deck behavior; static envelope tests cannot establish flex"
+    },
+    {
+      "order": 5,
+      "mechanism": "alternative_shock_block_hardness",
+      "role": "expand steering resistance/rebound range if stock block position cannot close the handling target",
+      "default_policy": "defer purchase until stock block-position experiment shows a deficiency"
+    },
+    {
+      "order": 6,
+      "mechanism": "higher_volume_wheel",
+      "role": "extra flotation and compliance if 200x50 proves deficient",
+      "default_policy": "Explorer/T2 remain gated because of mass, hub and brake-interface penalties"
+    },
+    {
+      "order": 7,
+      "mechanism": "independent_suspension",
+      "role": "large vertical isolation when rigid-platform compliance stack is measurably insufficient",
+      "default_policy": "fallback only; reopen architecture rather than bolt on an ad-hoc suspension"
+    }
+  ],
+  "benchmarks": [
+    {
+      "id": "ONEWHEEL_RALLY_XL",
+      "architecture": "single large pneumatic tire + active self-balancing ride shaping",
+      "published_weight_lb": 34,
+      "published_range_miles": [
+        18,
+        28
+      ],
+      "published_tire": "12 x 7.0-6.0",
+      "lesson": "large tire air volume and ride shaping are useful product-level references, but single-wheel self-balancing dynamics are not directly transferable to a four-wheel mountainboard",
+      "source": "https://onewheel.com/pages/onewheel-gt-s-series-rally-xl"
+    },
+    {
+      "id": "PROPEL_ENDEAVOR_4GT",
+      "architecture": "independent suspension + 200mm pneumatic wheels",
+      "published_weight_lb": {
+        "belt": 48,
+        "gear": 53
+      },
+      "lesson": "independent suspension is a credible rough-terrain solution but its system mass is incompatible with treating suspension as a free comfort upgrade in Rev-C",
+      "source": "https://www.ridepropel.com/electric-skateboard/propel-endeavor-gt/"
+    }
+  ],
+  "experimental_invariants": [
+    "Change one primary compliance variable at a time.",
+    "Keep course and IMU mounting fixed within a comparison block.",
+    "Compare repeated runs at matched low speed; vibration metrics are speed-dependent.",
+    "Tire-pressure experiments must stay within the tire/wheel manufacturer's approved range and begin symmetrically front/rear.",
+    "No powered compliance test is authorized by this snapshot or its analysis tools.",
+    "Subjective snowboard feel is recorded separately from objective vibration/steering metrics; neither is collapsed into a single score.",
+    "Independent suspension reopens only after the lightweight compliance stack shows a measured deficiency."
+  ],
+  "procurement_policy": {
+    "buy_new_shock_blocks_now": false,
+    "buy_explorer_wheels_now": false,
+    "buy_9inch_wheels_now": false,
+    "buy_suspension_now": false,
+    "rationale": "Use received stock geometry/position, tire setup and chassis-specific wheelbase first; new parts should close an observed deficiency."
+  }
+}

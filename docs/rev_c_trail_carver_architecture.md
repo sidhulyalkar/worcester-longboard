@@ -69,6 +69,8 @@ Rev-C uses compliance in layers:
 
 Only if this stack fails measured terrain-control tests should an independent-suspension chassis reopen.
 
+The executable tuning protocol is `docs/rev_c_ride_compliance_program.md`. Its order is deliberately cheap and reversible: stock 200x50 pneumatics → Matrix III shock-block position → wheelbase where adjustable → real deck/footbed behavior → alternate elastomer hardness → larger-volume wheel architecture → independent suspension. Objective IMU metrics and rider observations remain separate; the program does not produce a single "snowboard feel" score.
+
 ### 3. Use tire volume before tire diameter
 
 A taller tire buys obstacle clearance but raises axle height and therefore the rider.
@@ -240,7 +242,7 @@ Why it is not automatically selected:
 
 Current published facts:
 
-- 1020 x 280 mm snowboard-composite deck;
+- 1020 x 284 mm snowboard-composite deck;
 - 200x50 T3 tires on Rockstar II hubs;
 - Matrix III steering;
 - direct compatibility with the Agent electrical ecosystem.
@@ -249,13 +251,13 @@ Why it matters:
 
 It is evidence that we can get real snowboard-style composite construction and a fully supported electric ecosystem without going to independent suspension.
 
-Its 280 mm width may, however, be excessive for the rider. Width that looks "stable" on paper can reduce edge leverage for small feet.
+Its 284 mm maximum width may, however, be excessive for the rider. Width that looks "stable" on paper can reduce edge leverage for small feet.
 
 ### Agent Explorer reference
 
 Current published facts:
 
-- same 1020 x 280 mm deck family;
+- same 1020 x 284 mm deck family;
 - 200x70 Explorer tires;
 - published Explorer tire physical reference about 194 mm diameter and 80 mm inflated width;
 - Rockstar Pro II XL hubs;
@@ -486,14 +488,14 @@ Do not yet buy:
 
 The chassis/brake purchasing hold can close when all of the following are true:
 
-1. rider-scale Comp-vs-Agent deck envelope comparison is complete;
+1. rider-scale Comp 95 vs Pro Warren III vs Agent deck-envelope comparison is complete;
 2. selected chassis/wheel family has a credible independent friction-or-hydraulic stopping path;
 3. one drive/brake topology has a physical measurement plan without an unqualified safety-critical adapter;
 4. the range-pack inert envelope can be placed without violating ground-clearance, steering, deck-flex or rider-interface keep-outs.
 
 At that point the repository should deliberately select one chassis family and rewrite the ordering guide. It should not quietly fall back to the old Comp 95 assumption.
 
-## Current recommendation
+## Current working hypothesis
 
 Rev-C now treats the **Comp 95 and Pro Warren III as the two strongest compact Matrix/RSII hypotheses** pending the three-way physical stance test. The Comp minimizes known mass and cost; the Warren offers the narrowest envelope, snowboard-composite construction, and adjustable wheelbase. The Agent remains the electric-native/wide-deck reference. Rear V5 braking remains attractive when it packages cleanly, while vendor-engineered front hydraulic braking remains a live alternative when it materially improves rear-drive traction and packaging.
 
