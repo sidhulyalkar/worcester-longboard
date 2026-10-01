@@ -33,6 +33,41 @@ def _write_run(path: Path, *, speed: float = 2.0, vibration_scale: float = 1.0):
             )
 
 
+def _write_observations(path: Path, runs):
+    fields = (
+        "run_id",
+        "config_id",
+        "carve_response",
+        "trail_chatter",
+        "recentering",
+        "steering_effort",
+        "stability",
+        "foot_fatigue",
+        "confidence",
+        "emergency_stepoff_ok",
+        "notes",
+    )
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer.writeheader()
+        for run in runs:
+            writer.writerow(
+                {
+                    "run_id": run["id"],
+                    "config_id": run["config_id"],
+                    "carve_response": "progressive",
+                    "trail_chatter": "moderate",
+                    "recentering": "predictable",
+                    "steering_effort": "moderate",
+                    "stability": "stable",
+                    "foot_fatigue": "low",
+                    "confidence": "good",
+                    "emergency_stepoff_ok": "yes",
+                    "notes": "",
+                }
+            )
+
+
 def _settings(**overrides):
     values = {
         "chassis_id": "COMP95_BASELINE",
@@ -82,6 +117,7 @@ def _manifest(tmp_path: Path):
                     "notes": "",
                 }
             )
+    _write_observations(tmp_path / "rider_observations.csv", runs)
     return {
         "schema_version": 1,
         "scope": "rev_c_unpowered_ride_compliance_trials",
@@ -89,8 +125,13 @@ def _manifest(tmp_path: Path):
         "course_id": "fixed-course",
         "surface_description": "synthetic",
         "same_course_for_all_runs": True,
+        "imu_source_id": "synthetic-imu",
         "imu_mount_id": "fixed-imu",
         "imu_mount_unchanged": True,
+        "speed_source_id": "synthetic-speed",
+        "speed_source_calibrated": True,
+        "sensor_timebase_aligned": True,
+        "rider_observations_csv": "rider_observations.csv",
         "unpowered_test": True,
         "dog_or_leash_present": False,
         "tire_pressure_approved_range_kpa": [150.0, 300.0],
@@ -254,6 +295,50 @@ def test_dog_or_leash_presence_is_rejected(tmp_path: Path):
     report = analyze(manifest, tmp_path)
     assert report["valid"] is False
     assert "dog_or_leash_present must be false" in report["errors"]
+
+
+def test_missing_rider_observation_row_is_rejected(tmp_path: Path):
+    manifest = _manifest(tmp_path)
+    observations = tmp_path / "rider_observations.csv"
+    with observations.open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+        fieldnames = rows[0].keys()
+    with observations.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows[:-1])
+
+    report = analyze(manifest, tmp_path)
+    assert report["valid"] is False
+    assert any("rider observations missing runs" in error for error in report["errors"])
+
+
+def test_unaccepted_emergency_stepoff_is_rejected(tmp_path: Path):
+    manifest = _manifest(tmp_path)
+    observations = tmp_path / "rider_observations.csv"
+    with observations.open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+        fieldnames = rows[0].keys()
+    rows[0]["emergency_stepoff_ok"] = "no"
+    with observations.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    report = analyze(manifest, tmp_path)
+    assert report["valid"] is False
+    assert any("emergency step-off was not accepted" in error for error in report["errors"])
+
+
+def test_sensor_provenance_is_required(tmp_path: Path):
+    manifest = _manifest(tmp_path)
+    manifest["speed_source_calibrated"] = False
+    manifest["sensor_timebase_aligned"] = False
+
+    report = analyze(manifest, tmp_path)
+    assert report["valid"] is False
+    assert "speed_source_calibrated must be true" in report["errors"]
+    assert "sensor_timebase_aligned must be true" in report["errors"]
 
 
 def test_powered_operation_can_never_be_authorized(tmp_path: Path):
