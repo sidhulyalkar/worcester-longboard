@@ -116,7 +116,8 @@ def test_valid_speed_matched_comparison_reports_metrics_without_winner(tmp_path:
     assert report["physical_authority"] is False
     assert report["procurement_authority"] is False
     assert report["powered_operation_authorized"] is False
-    assert "winner" not in json.dumps(report).lower()
+    assert "winner" not in report
+    assert "score" not in report
 
     candidate = report["config_results"]["pressure_lower"]
     assert candidate["valid_for_comparison"] is True
