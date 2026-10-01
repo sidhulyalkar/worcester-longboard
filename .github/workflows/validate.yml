@@ -135,6 +135,22 @@ jobs:
           assert dock['electrical_charge_authorized'] is False
           assert dock['powered_operation_authorized'] is False
           PY
+      - name: Validate provisional Shasta control contract
+        run: |
+          python tools/validate_shasta_control_contract.py --out /tmp/x1-shasta-contract.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('/tmp/x1-shasta-contract.json').read_text())
+          assert report['valid'] is True
+          assert report['physical_authority'] is False
+          assert report['procurement_authority'] is False
+          assert report['powered_operation_authorized'] is False
+          env = report['parsed_controller_envelope']
+          assert env['speed_cap_mps'] == 2.7
+          assert env['drive_current_slew_max_a_per_s'] == 20.0
+          assert env['fault_release_current_slew_a_per_s'] == 60.0
+          PY
       - name: Host-test controller core
         run: |
           g++ -std=c++17 -O2 -Ifirmware/include \
