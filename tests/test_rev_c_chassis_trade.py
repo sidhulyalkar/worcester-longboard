@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _snapshot():
     return json.loads(
-        (ROOT / "hardware/rev_c_chassis_trade_snapshot_2026-09-30.json").read_text()
+        (ROOT / "hardware/rev_c_chassis_trade_snapshot_2026-10-01.json").read_text()
     )
 
 
