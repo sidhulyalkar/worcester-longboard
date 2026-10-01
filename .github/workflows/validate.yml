@@ -60,7 +60,18 @@ jobs:
           python simulation/rev_c_mass_budget.py --configuration trail --chassis pro_warren_iii
           python simulation/rev_c_mass_budget.py --configuration range --chassis comp95
           python simulation/rev_c_mass_budget.py --configuration range --chassis pro_warren_iii
-          python tools/analyze_rev_c_chassis_trade.py
+          python tools/analyze_rev_c_chassis_trade.py --out /tmp/x1-rev-c-chassis-trade.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('/tmp/x1-rev-c-chassis-trade.json').read_text())
+          assert report['valid'] is True
+          assert report['physical_authority'] is False
+          assert report['procurement_authority'] is False
+          rows = {x['id']: x for x in report['candidate_rows']}
+          assert rows['PRO_WARREN_III_REFERENCE']['deck_width_delta_mm_vs_comp95'] == -7.0
+          assert rows['AGENT_AIR_REFERENCE']['deck_width_mm'] == 284
+          PY
           python simulation/rev_c_topology_traction_sweep.py --grades 0 0.10 0.20 0.30
           python tools/init_rev_c_chassis_release_session.py /tmp/x1-rev-c-release
           test -f /tmp/x1-rev-c-release/deck_templates/rev_c_comp95_deck_envelope.svg
