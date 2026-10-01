@@ -314,7 +314,8 @@ The full board will eventually require the categories below. Exact powered parts
 - Rev-C range energy class target roughly 950-1150 Wh;
 - exact voltage/cell topology intentionally TBD;
 - pack-builder-selected BMS with balancing and temperature monitoring;
-- matched charger;
+- battery/system-approved matched charger;
+- passive charge-cradle hardware only after the battery/charger/connector interfaces are frozen;
 - DC-rated main fuse;
 - service disconnect;
 - precharge / anti-spark strategy;
@@ -322,6 +323,8 @@ The full board will eventually require the categories below. Exact powered parts
 - crash-protected serviceable enclosure.
 
 The first traction battery is **not** a DIY cost-saving exercise.
+
+The current MBS 540/1080 packs and 530 W/1050 W chargers are **dated architecture references only**. Do not add any of them to a checkout packet merely because their voltage or connector appears compatible. Charger selection freezes with the professional battery/BMS architecture, and Issue #30 initially qualifies only an inert mechanical cradle.
 
 ### Supervisory electronics
 
@@ -378,7 +381,7 @@ A storefront description is evidence about what was sold. The received physical 
 1. generate the Comp 95-class, Pro Warren III-class, and Agent-class full-scale deck envelopes;
 2. compare stance width, heel/toe leverage and emergency step-off on the two envelopes;
 3. monitor chassis availability only as market information, not purchase authority;
-4. do not buy chassis, brake, standalone trucks/hubs, wheel upgrades, drivetrain, motors, ESC or battery.
+4. do not buy chassis, brake, standalone trucks/hubs, wheel upgrades, drivetrain, motors, ESC, battery, charger, or charge-dock electrical parts.
 
 **After Issue #4 passes:**
 
@@ -391,6 +394,7 @@ A storefront description is evidence about what was sold. The received physical 
 7. complete the four-zone sensing rig and qualify rider fit;
 8. physically qualify the brake and unpowered chassis;
 9. resolve final Issue #19 brake/drive topology;
-10. only then continue toward the power freeze.
+10. only then continue toward the power freeze;
+11. after the final pack/approved-charger/connector interfaces exist, prototype Issue #30 with an inert connector and pack fixture before any live charging integration.
 
 That sequence is cheaper because every expensive purchase closes a measured interface rather than opening a new compatibility question.

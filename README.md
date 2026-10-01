@@ -144,6 +144,22 @@ Issue **#21** then tests an inert dummy mass through `tools/init_dummy_pack_sess
 
 The live traction pack is never the first enclosure mechanical test mass.
 
+### Modular energy and charging path
+
+Rev-C separates **installed energy**, **trip energy**, and **charge power**.
+
+The current planning policy is:
+
+- use the smallest qualified installed pack class that covers the mission with reserve;
+- preserve the lighter 500-650 Wh trail class for handling/carryability when it is sufficient;
+- use the 950-1150 Wh range class for genuinely long missions;
+- keep cold swap powered-off and treat it as a logistics option, not a reason to permanently carry duplicate small packs;
+- replace generic Wh/mi assumptions with X1 telemetry only after powered commissioning eventually produces trustworthy data.
+
+`simulation/rev_c_energy_planner.py` exposes mission-energy requirements and ideal energy/power charge-time lower bounds. `tools/analyze_rev_c_energy_trade.py` compares dated commercial pack references without selecting one.
+
+Issue **#30** defines the future charge dock as a **passive mechanical alignment cradle**. The dock may self-center the board, manage cable strain and make approved-charger connection easier, but it does not replace the selected battery/system-approved charger, add exposed traction-voltage contacts, or authorize live charging. See `docs/rev_c_energy_and_charging.md`.
+
 ### Final power path
 
 Power hardware remains **provisional and `POWER_GATED`**. The current procurement manifest carries comparison candidates only to preserve cost/compatibility analysis. None are frozen or order-authorized yet.
@@ -189,6 +205,7 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 - **#19** resolve and qualify final brake/drive mechanical topology
 - **#3** generate measurement-qualified Rev-B rider-interface CAD after fit evidence
 - **#21** qualify inert dummy-pack enclosure/mount and mass distribution before final power freeze
+- **#30** qualify the passive charge-cradle mechanics after final pack/charger interfaces are known
 
 These tracks can advance in parallel only where their evidence dependencies allow.
 
