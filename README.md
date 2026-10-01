@@ -141,6 +141,24 @@ stock 200x50 pneumatics
 
 No dog/leash or powered propulsion belongs in this experimental phase.
 
+### Sacrificial trail-armor path
+
+Issue **#37** turns the existing "cheap guard first" philosophy into an inert qualification program.
+
+The intended impact hierarchy is:
+
+```text
+terrain
+  -> replaceable wear shoe / vendor skid
+  -> carrier or vendor guard structure
+  -> qualified structural mount
+  -> protected drivetrain / inert enclosure
+```
+
+`simulation/rev_c_skid_geometry.py` quantifies clearance and rigid 2D breakover loss from measured geometry. `tools/init_rev_c_trail_armor_session.py` and `tools/qualify_rev_c_trail_armor.py` then test inert first-contact geometry, snag behavior, retention and serviceability.
+
+Material/thickness remain unfrozen. A passing early armor report has `impact_energy_qualified=false`, uses no live battery, and cannot authorize procurement or powered trail use.
+
 ### Power packaging and inert-load path
 
 The power path is deliberately split into two mechanical stages before final freeze:
@@ -246,6 +264,7 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 - **#30** qualify the passive charge-cradle mechanics after final pack/charger interfaces are known
 - **#33** qualify the Shasta companion mode only after rider-only low-speed powered evidence exists
 - **#35** resolve public-use classification and maintain an authorized powered-test venue record
+- **#37** qualify sacrificial trail-armor geometry/serviceability before powered trail exposure
 
 These tracks can advance in parallel only where their evidence dependencies allow.
 

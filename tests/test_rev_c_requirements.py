@@ -203,3 +203,30 @@ def test_issue_35_does_not_treat_shasta_mode_as_vehicle_classification():
         "TRAIL_PRIVATE_OR_EXPRESSLY_AUTHORIZED_USE",
         "PUBLIC_ROAD_ORIENTED_DERIVATIVE_STUDY",
     ]
+
+
+def test_issue_37_trail_armor_is_inert_first_and_non_authoritative():
+    program = _requirements()["trail_armor_program"]
+    assert program["issue"] == 37
+    assert program["phase"] == "POST_TOPOLOGY_AND_PACKAGING_GEOMETRY_INERT_FIRST"
+    assert program["impact_path"] == [
+        "terrain",
+        "replaceable_wear_shoe_or_vendor_skid",
+        "carrier_or_vendor_guard_structure",
+        "qualified_structural_mount",
+        "protected_component",
+    ]
+    assert program["procurement_authority"] is False
+    assert program["powered_operation_authorized"] is False
+
+
+def test_issue_37_keeps_battery_shell_connectors_and_material_choice_out_of_shortcuts():
+    boundaries = _requirements()["trail_armor_program"]["hard_boundaries"]
+    assert "live battery excluded from initial armor qualification" in boundaries
+    assert "battery shell is not primary trail armor structure" in boundaries
+    assert "electrical connectors are not structural armor members" in boundaries
+    assert (
+        "material and thickness remain unfrozen until topology/contact/load path are known"
+        in boundaries
+    )
+    assert "inert geometry qualification is not impact-energy authority" in boundaries

@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "scope": "rev_c_inert_trail_armor_trial",
+  "session_id": "",
+  "protected_zone_id": "",
+  "armor_architecture": "",
+  "wear_shoe_id": "",
+  "carrier_or_vendor_guard_id": "",
+  "structural_mount_id": "",
+  "protected_inert_component_id": "",
+  "live_battery_present": false,
+  "electrical_energy_present": false,
+  "powered_vehicle": false,
+  "impact_energy_qualified": false,
+  "geometry_checks": {
+    "wear_shoe_is_intended_first_hard_contact": false,
+    "vulnerable_component_not_lowest_exposed_hard_point": false,
+    "full_steer_clearance_verified": false,
+    "full_lean_clearance_verified": false,
+    "deck_flex_clearance_verified": false,
+    "wheel_and_tire_sweep_clear": false,
+    "brake_hardware_and_cable_clear": false,
+    "harness_and_connector_clear": false,
+    "no_forward_facing_terrain_hook": false,
+    "debris_escape_path_present": false,
+    "no_exposed_sharp_edge_toward_rider_or_harness": false,
+    "wear_hardware_not_intended_as_terrain_contact": false
+  },
+  "load_path": {
+    "type": "",
+    "description": "",
+    "battery_shell_is_primary_impact_structure": false,
+    "electrical_connector_is_structural_member": false,
+    "adhesive_only_retention": false,
+    "structural_mount_retention_inspectable": false,
+    "witness_or_migration_check_present": false,
+    "no_unqualified_safety_critical_adapter": false
+  },
+  "service_checks": {
+    "wear_part_individually_replaceable": false,
+    "replacement_does_not_open_traction_enclosure": false,
+    "replacement_does_not_disturb_brake_critical_joint": false,
+    "wheel_tube_service_preserved": false,
+    "drivetrain_service_preserved": false,
+    "replacement_method": "",
+    "replacement_time_minutes": null
+  },
+  "low_energy_surrogate_trials": [
+    {
+      "id": "trial-01",
+      "surrogate_description": "",
+      "contact_direction": "",
+      "measured_entry_speed_mps": null,
+      "intended_wear_surface_contacted_first": false,
+      "armor_slid_or_deflected_over_surrogate_without_hooking": false,
+      "protected_component_contacted": false,
+      "wheel_brake_or_steering_interference": false,
+      "armor_or_fastener_became_loose": false
+    },
+    {
+      "id": "trial-02",
+      "surrogate_description": "",
+      "contact_direction": "",
+      "measured_entry_speed_mps": null,
+      "intended_wear_surface_contacted_first": false,
+      "armor_slid_or_deflected_over_surrogate_without_hooking": false,
+      "protected_component_contacted": false,
+      "wheel_brake_or_steering_interference": false,
+      "armor_or_fastener_became_loose": false
+    },
+    {
+      "id": "trial-03",
+      "surrogate_description": "",
+      "contact_direction": "",
+      "measured_entry_speed_mps": null,
+      "intended_wear_surface_contacted_first": false,
+      "armor_slid_or_deflected_over_surrogate_without_hooking": false,
+      "protected_component_contacted": false,
+      "wheel_brake_or_steering_interference": false,
+      "armor_or_fastener_became_loose": false
+    }
+  ],
+  "post_trial_inspection": {
+    "structural_mount_damage": false,
+    "protected_component_damage": false,
+    "new_crack_or_permanent_deformation": false,
+    "retention_or_witness_movement": false,
+    "loose_or_missing_hardware": false,
+    "new_wheel_brake_steering_interference": false,
+    "wear_part_condition_recorded": false
+  },
+  "procurement_authority": false,
+  "powered_operation_authorized": false
+}

@@ -638,12 +638,17 @@ The most vulnerable expensive component should not be the first thing that meets
 
 Future drive/enclosure geometry should intentionally create a hierarchy:
 
-1. tire;
-2. cheap/replaceable skid or guard;
-3. structural mount;
-4. gearbox/motor/enclosure.
+1. tire where terrain can be cleared by the wheel;
+2. replaceable wear shoe / skid or vendor sacrificial guard;
+3. carrier or vendor guard structure;
+4. qualified structural mount;
+5. gearbox/motor/inert enclosure.
 
 A guard that is stronger than the mount behind it can simply transfer impact into a more expensive failure. Guard interfaces must therefore be inspectable and replaceable.
+
+Issue #37 makes this philosophy executable. `simulation/rev_c_skid_geometry.py` exposes how much ground clearance and rigid 2D breakover angle a proposed skid consumes, while `tools/qualify_rev_c_trail_armor.py` checks only inert geometry, serviceability, retention and low-energy snag behavior. A passing early armor report explicitly does **not** qualify powered impact energy.
+
+The initial armor trial also requires that the battery shell and electrical connectors are not used as structural trail-impact members, that wear-part replacement does not disturb unrelated brake-critical retention, and that a root/curb surrogate reaches the intended wear surface before the protected component.
 
 ## 11. Brake philosophy after this review
 

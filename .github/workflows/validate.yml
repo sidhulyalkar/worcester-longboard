@@ -50,6 +50,7 @@ jobs:
           assert report['capabilities']['powered_operation']['allowed'] is False
           assert report['capabilities']['public_operation']['allowed'] is False
           assert report['capabilities']['dog_accompanied_operation']['allowed'] is False
+          assert report['capabilities']['qualify_inert_trail_armor']['allowed'] is False
           assert report['gates']['brake_drive_topology_qualified']['satisfied'] is False
           assert report['gates']['power_packaging_candidate_defined']['satisfied'] is False
           assert report['gates']['dummy_pack_mount_qualified']['satisfied'] is False
@@ -99,6 +100,90 @@ jobs:
           assert manifest['dog_or_leash_present'] is False
           assert manifest['powered_operation_authorized'] is False
           assert len(list(Path('/tmp/x1-ride-compliance/data').glob('*.csv'))) == 6
+          PY
+      - name: Smoke-test Rev-C trail-armor tools
+        run: |
+          python simulation/rev_c_skid_geometry.py             --wheelbase-mm 940             --skid-x-mm 470             --component-clearance-mm 100             --skid-drop-mm 10 > /tmp/x1-skid-geometry.json
+          python tools/init_rev_c_trail_armor_session.py /tmp/x1-trail-armor
+          test -f /tmp/x1-trail-armor/trail_armor_manifest.json
+          test -f /tmp/x1-trail-armor/workspace_manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          geometry = json.loads(Path('/tmp/x1-skid-geometry.json').read_text())
+          assert geometry['skid_clearance_mm'] == 90.0
+          assert geometry['rigid_2d_breakover_loss_deg'] > 0
+          assert geometry['physical_authority'] is False
+          assert geometry['impact_authority'] is False
+
+          path = Path('/tmp/x1-trail-armor/trail_armor_manifest.json')
+          data = json.loads(path.read_text())
+          data.update({
+              'session_id': 'ci-armor',
+              'protected_zone_id': 'CI-DRIVE-ZONE',
+              'armor_architecture': 'replaceable-drive-skid',
+              'wear_shoe_id': 'CI-WEAR',
+              'carrier_or_vendor_guard_id': 'CI-CARRIER',
+              'structural_mount_id': 'CI-MOUNT',
+              'protected_inert_component_id': 'CI-INERT-DRIVE',
+          })
+          for key in data['geometry_checks']:
+              data['geometry_checks'][key] = True
+          data['load_path'] = {
+              'type': 'separate_sacrificial_skid',
+              'description': 'synthetic wear shoe to carrier to structural mount',
+              'battery_shell_is_primary_impact_structure': False,
+              'electrical_connector_is_structural_member': False,
+              'adhesive_only_retention': False,
+              'structural_mount_retention_inspectable': True,
+              'witness_or_migration_check_present': True,
+              'no_unqualified_safety_critical_adapter': True,
+          }
+          data['service_checks'] = {
+              'wear_part_individually_replaceable': True,
+              'replacement_does_not_open_traction_enclosure': True,
+              'replacement_does_not_disturb_brake_critical_joint': True,
+              'wheel_tube_service_preserved': True,
+              'drivetrain_service_preserved': True,
+              'replacement_method': 'dedicated synthetic skid fasteners',
+              'replacement_time_minutes': 5.0,
+          }
+          for trial in data['low_energy_surrogate_trials']:
+              trial.update({
+                  'surrogate_description': 'synthetic rounded root surrogate',
+                  'contact_direction': 'forward',
+                  'measured_entry_speed_mps': 0.5,
+                  'intended_wear_surface_contacted_first': True,
+                  'armor_slid_or_deflected_over_surrogate_without_hooking': True,
+                  'protected_component_contacted': False,
+                  'wheel_brake_or_steering_interference': False,
+                  'armor_or_fastener_became_loose': False,
+              })
+          data['post_trial_inspection'] = {
+              'structural_mount_damage': False,
+              'protected_component_damage': False,
+              'new_crack_or_permanent_deformation': False,
+              'retention_or_witness_movement': False,
+              'loose_or_missing_hardware': False,
+              'new_wheel_brake_steering_interference': False,
+              'wear_part_condition_recorded': True,
+          }
+          path.write_text(json.dumps(data, indent=2) + '\n')
+          PY
+          python tools/qualify_rev_c_trail_armor.py             /tmp/x1-trail-armor/trail_armor_manifest.json             --out /tmp/x1-trail-armor/trail_armor_authority.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(
+              Path('/tmp/x1-trail-armor/trail_armor_authority.json').read_text()
+          )
+          assert report['qualified'] is True
+          assert report['inert_geometry_service_qualified'] is True
+          assert report['impact_energy_qualified'] is False
+          assert report['live_battery_test_authorized'] is False
+          assert report['procurement_authority'] is False
+          assert report['powered_operation_authorized'] is False
           PY
       - name: Smoke-test Rev-C energy and charge-dock tools
         run: |
