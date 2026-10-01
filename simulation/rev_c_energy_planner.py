@@ -83,6 +83,62 @@ class MissionPlan:
         }
 
 
+def cold_swap_inventory_plan(
+    *,
+    distance_miles: float,
+    terrain: str,
+    reserve_fraction: float,
+    pack_wh: float,
+    pack_mass_lb: float,
+) -> dict:
+    mission = MissionPlan(
+        distance_miles=distance_miles,
+        terrain=terrain,
+        reserve_fraction=reserve_fraction,
+        pack_wh=pack_wh,
+    ).as_dict()
+
+    if pack_mass_lb <= 0 or not math.isfinite(pack_mass_lb):
+        raise ValueError("pack_mass_lb must be finite and positive")
+
+    optimistic_packs = mission["packs_needed"]["optimistic_consumption_case"]
+    conservative_packs = mission["packs_needed"]["conservative_consumption_case"]
+
+    return {
+        "distance_miles": distance_miles,
+        "terrain": terrain,
+        "reserve_fraction": reserve_fraction,
+        "pack_wh": pack_wh,
+        "pack_mass_lb": pack_mass_lb,
+        "installed_pack_count_at_once": 1,
+        "installed_battery_mass_lb": round(pack_mass_lb, 2),
+        "inventory": {
+            "optimistic_consumption_case": {
+                "pack_count": optimistic_packs,
+                "total_pack_inventory_mass_lb": round(
+                    optimistic_packs * pack_mass_lb, 2
+                ),
+                "cold_swaps_needed": max(0, optimistic_packs - 1),
+            },
+            "conservative_consumption_case": {
+                "pack_count": conservative_packs,
+                "total_pack_inventory_mass_lb": round(
+                    conservative_packs * pack_mass_lb, 2
+                ),
+                "cold_swaps_needed": max(0, conservative_packs - 1),
+            },
+        },
+        "spare_location_requirement": (
+            "Any spare traction pack must have a qualified safe logistics/storage "
+            "location. This plan does not assume rider-body carry or simultaneous "
+            "parallel connection."
+        ),
+        "hot_swap_assumed": False,
+        "parallel_pack_operation_assumed": False,
+        "powered_operation_authorized": False,
+    }
+
+
 def ideal_charge_lower_bound(
     *,
     pack_wh: float,
@@ -133,6 +189,7 @@ def main() -> None:
     parser.add_argument("--pack-wh", type=float)
     parser.add_argument("--reserve", type=float, default=0.20)
     parser.add_argument("--charger-w", type=float)
+    parser.add_argument("--pack-mass-lb", type=float)
     parser.add_argument("--start-soc", type=float, default=0.0)
     parser.add_argument("--target-soc", type=float, default=1.0)
     args = parser.parse_args()
@@ -154,6 +211,15 @@ def main() -> None:
             reserve_fraction=args.reserve,
             pack_wh=args.pack_wh,
         ).as_dict()
+
+        if args.pack_mass_lb is not None:
+            report["cold_swap_inventory"] = cold_swap_inventory_plan(
+                distance_miles=args.distance_miles,
+                terrain=args.terrain,
+                reserve_fraction=args.reserve,
+                pack_wh=args.pack_wh,
+                pack_mass_lb=args.pack_mass_lb,
+            )
 
     if args.charger_w is not None:
         if args.pack_wh is None:
