@@ -32,7 +32,7 @@ The project minimizes expensive re-buys by freezing interfaces in the order that
 
 | Subsystem | Current status |
 |---|---|
-| Chassis sourcing | MBS Comp 95 donor-first strategy is preferred for cost and interface coherence |
+| Chassis sourcing | Issue #25 selects among current Rev-C candidates; Comp 95 is only the instantiated purchase path until evidence selects a chassis |
 | Donor geometry | published Comp 95/T1 baseline: 950 mm deck, 251 mm max deck width, 940 mm axle-to-axle, T1 ~194 x 51 mm physical tire reference |
 | Brake-first truck | Matrix III 400 mm / 300 mm hanger / 50 mm axle reference; physical unit still measurement-gated |
 | Mechanical stopping | MBS V5 measurement reference; rear rotor/arm/cable geometry and stop performance require Issue #14 evidence |
@@ -41,6 +41,7 @@ The project minimizes expensive re-buys by freezing interfaces in the order that
 | Brake-hanger drive study | 300 mm hanger + 70 mm axles, ~440 mm end-to-end; drive-compatible reference with **brake alignment unknown** |
 | Brake/drive topology | unresolved and explicitly gated by Issue #19 |
 | Ride compliance | Issue #28 unpowered characterization after a qualified rolling chassis; analysis cannot authorize procurement or power |
+| Public-use / test venue | Issue #35 keeps Worcester Park as terrain inspiration only under current Town rules; public-road status of a high-power trail configuration is not established |
 | Rider interface | independent left/right Rev-B geometry is blocked on qualified fit evidence |
 | Power packaging candidate | blocked until topology and Rev-B authority exist |
 | Inert battery-mass load path | blocked until packaging candidate exists; Issue #21 closes it |
@@ -208,7 +209,7 @@ Future battery/enclosure mounting is qualified using inert dummy mass matching t
 
 The critical dependency is now:
 
-`V5 brake -> rolling chassis -> {Issue #28 ride-compliance characterization + Issue #19 brake/drive topology} -> power packaging candidate -> inert dummy-pack mount -> final power architecture`
+`V5 brake -> rolling chassis -> {Issue #28 ride-compliance characterization + Issue #19 brake/drive topology} -> power packaging candidate -> inert dummy-pack mount -> final power architecture -> Issue #35 authorized venue evidence -> future powered commissioning`
 
 The Rev-B rider-interface path joins at the packaging-candidate gate after qualified fit and rolling-chassis evidence.
 
@@ -226,4 +227,4 @@ Drive voltage, gearing, KV, wheel diameter, efficiency, traction, and thermal co
 
 Current repository authority stops before traction power. No present document, test fixture, CAD generator, procurement entry, brake report, chassis report, topology report, dummy-pack report, or CI pass authorizes powered riding.
 
-A future powered-commissioning tranche must introduce an explicit progressive authority contract beginning with low-energy bench operation and repeated mechanical inspection rather than inheriting permission from final power-architecture freeze.
+A future powered-commissioning tranche must introduce an explicit progressive authority contract beginning with low-energy bench operation and repeated mechanical inspection rather than inheriting permission from final power-architecture freeze. Powered ground testing also requires a separate Issue #35 venue record. Venue permission cannot authorize the vehicle, and a software mode cannot establish public-road classification.
