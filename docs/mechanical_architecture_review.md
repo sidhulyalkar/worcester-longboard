@@ -696,7 +696,7 @@ The shortest reliable path is not the path with the fewest tests. It is the path
 
 That path is:
 
-`one-zone sensor -> stock donor -> stock donor rolling baseline -> V5 brake -> measured unpowered chassis -> brake/drive topology -> rider-specific Rev-B -> coupled power architecture -> inert enclosure/drivetrain tests -> traction system -> incremental powered commissioning`
+`one-zone sensor -> stock donor -> stock donor rolling baseline -> V5 brake -> measured unpowered chassis -> {Issue #28 lightweight ride-compliance characterization + brake/drive topology} -> rider-specific Rev-B -> coupled power architecture -> inert enclosure/drivetrain tests -> traction system -> incremental powered commissioning`
 
 At every arrow, preserve the previous known-good configuration so a new failure can be attributed to the change that introduced it.
 
