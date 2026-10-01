@@ -365,6 +365,13 @@
       ],
       "hard_blocked": true,
       "block_reason": "Issue #35 has not established a public-use vehicle classification or route/venue authority for Worcester X1."
+    },
+    "qualify_inert_trail_armor": {
+      "issue": 37,
+      "requires": [
+        "brake_drive_topology_qualified",
+        "power_packaging_candidate_defined"
+      ]
     }
   }
 }
