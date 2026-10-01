@@ -95,3 +95,35 @@ def test_agent_deck_reference_uses_published_284mm_max_deck_width():
     data = _requirements()
     candidates = {x["id"]: x for x in data["candidate_architectures"]}
     assert candidates["AGENT_AIR_REFERENCE"]["known"]["deck_max_width_mm"] == 284
+
+
+def test_issue_28_ride_compliance_is_unpowered_and_lightweight_first():
+    data = _requirements()
+    program = data["ride_compliance_program"]
+    assert program["issue"] == 28
+    assert program["phase"] == "POST_SELECTED_CHASSIS_UNPOWERED"
+    assert program["powered_operation_authorized"] is False
+    assert program["tuning_order"][:3] == [
+        "pneumatic_tire_pressure",
+        "truck_elastomer_position",
+        "wheelbase_where_adjustable",
+    ]
+    assert program["tuning_order"][-1] == (
+        "independent_suspension_only_after_measured_failure"
+    )
+
+
+def test_issue_28_does_not_turn_compliance_into_accessory_shopping():
+    boundary = _requirements()["ride_compliance_program"]["procurement_boundary"]
+    assert boundary["new_shock_blocks"] == (
+        "DEFER_UNTIL_STOCK_POSITION_DEFICIENCY"
+    )
+    assert boundary["explorer_wheels"] == (
+        "DEFER_UNTIL_200X50_COMPLIANCE_OR_TRACTION_DEFICIENCY"
+    )
+    assert boundary["nine_inch_wheels"] == (
+        "DEFER_UNTIL_MEASURED_CLEARANCE_DEFICIENCY"
+    )
+    assert boundary["independent_suspension"] == (
+        "REOPEN_ARCHITECTURE_ONLY_AFTER_LIGHTWEIGHT_STACK_FAILURE"
+    )
