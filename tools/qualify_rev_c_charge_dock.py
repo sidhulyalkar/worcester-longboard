@@ -21,6 +21,9 @@ REQUIRED_DOCK_CHECKS = (
     "charger_cable_strain_relief_present",
     "charge_connector_protected_when_board_absent",
     "service_access_preserved",
+    "connector_mating_axis_free_to_self_align",
+    "board_retention_independent_of_connector",
+    "no_user_hand_near_inert_connector_during_final_alignment",
 )
 
 REQUIRED_TRIAL_CHECKS = (
@@ -104,6 +107,23 @@ def qualify(data: dict) -> dict:
             if cable.get(key) is not True:
                 errors.append(f"cable_check.{key} must be true")
 
+    limits = data.get("alignment_limits")
+    if not isinstance(limits, dict):
+        errors.append("alignment_limits must be an object")
+    else:
+        if not _nonempty(limits.get("connector_manufacturer_source")):
+            errors.append(
+                "alignment_limits.connector_manufacturer_source must be nonempty"
+            )
+        for key in (
+            "lateral_misalignment_limit_checked",
+            "angular_misalignment_limit_checked",
+            "mating_force_or_method_limit_checked",
+            "dock_guides_prevent_exceeding_known_connector_limits",
+        ):
+            if limits.get(key) is not True:
+                errors.append(f"alignment_limits.{key} must be true")
+
     trials = data.get("alignment_trials")
     if not isinstance(trials, list) or len(trials) < 5:
         errors.append("at least five alignment trials are required")
@@ -152,6 +172,7 @@ def qualify(data: dict) -> dict:
             "selected_charger_reference_id"
         ),
         "alignment_trial_count": len(trials),
+        "connector_alignment_limits_verified": qualified,
         "inert_mechanical_alignment_qualified": qualified,
         "live_battery_test_authorized": False,
         "electrical_charge_authorized": False,
