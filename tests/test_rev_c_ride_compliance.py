@@ -91,6 +91,9 @@ def _manifest(tmp_path: Path):
         "same_course_for_all_runs": True,
         "imu_mount_id": "fixed-imu",
         "imu_mount_unchanged": True,
+        "unpowered_test": True,
+        "dog_or_leash_present": False,
+        "tire_pressure_approved_range_kpa": [150.0, 300.0],
         "target_speed_mps": 2.0,
         "speed_tolerance_fraction": 0.10,
         "max_within_run_speed_std_fraction": 0.08,
@@ -231,6 +234,25 @@ def test_same_course_and_imu_mount_are_required(tmp_path: Path):
     assert report["valid"] is False
     assert "same_course_for_all_runs must be true" in report["errors"]
     assert "imu_mount_unchanged must be true" in report["errors"]
+
+
+def test_pressure_outside_declared_approved_range_is_rejected(tmp_path: Path):
+    manifest = _manifest(tmp_path)
+    manifest["configs"][1]["settings"]["tire_pressure_front_kpa"] = 120.0
+    manifest["configs"][1]["settings"]["tire_pressure_rear_kpa"] = 120.0
+
+    report = analyze(manifest, tmp_path)
+    assert report["valid"] is False
+    assert any("outside approved pressure range" in error for error in report["errors"])
+
+
+def test_dog_or_leash_presence_is_rejected(tmp_path: Path):
+    manifest = _manifest(tmp_path)
+    manifest["dog_or_leash_present"] = True
+
+    report = analyze(manifest, tmp_path)
+    assert report["valid"] is False
+    assert "dog_or_leash_present must be false" in report["errors"]
 
 
 def test_powered_operation_can_never_be_authorized(tmp_path: Path):
