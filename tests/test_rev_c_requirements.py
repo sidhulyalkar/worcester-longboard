@@ -127,3 +127,27 @@ def test_issue_28_does_not_turn_compliance_into_accessory_shopping():
     assert boundary["independent_suspension"] == (
         "REOPEN_ARCHITECTURE_ONLY_AFTER_LIGHTWEIGHT_STACK_FAILURE"
     )
+
+
+def test_energy_architecture_selects_installed_energy_by_mission():
+    energy = _requirements()["energy_architecture"]
+    strategy = energy["mission_energy_strategy"]
+    assert "smallest qualified pack class" in strategy["installed_energy_policy"]
+    assert "permanently installed energy" in strategy["trip_energy_policy"]
+    assert "powered-off" in strategy["cold_swap_role"]
+    assert energy["planning_reserve_fraction"] >= 0.20
+
+
+def test_issue_30_charge_dock_is_passive_and_cannot_authorize_live_charging():
+    energy = _requirements()["energy_architecture"]
+    dock = energy["charge_dock"]
+    assert dock["issue"] == 30
+    assert dock["architecture"] == "PASSIVE_MECHANICAL_ALIGNMENT_CRADLE"
+    assert dock["live_battery_test_authorized"] is False
+    assert dock["electrical_charge_authorized"] is False
+    assert dock["powered_operation_authorized"] is False
+    charging = energy["charging"]
+    assert "explicitly approved" in charging["compatibility_rule"]
+    assert charging["universal_daily_soc_assumption"] == (
+        "NONE_FOLLOW_SELECTED_BATTERY_SYSTEM"
+    )
