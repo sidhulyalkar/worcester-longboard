@@ -47,6 +47,24 @@ If a received Warren is set to roughly 940 mm axle-to-axle, we can compare its d
 
 For the same effective steer angle, a bicycle-model sensitivity proxy makes curvature inversely proportional to wheelbase. The 910-to-970 mm Warren range therefore spans about a 1.066× curvature ratio. This is **not** a mountainboard handling prediction. It simply shows that the adjustment range is large enough to be worth measuring.
 
+## Finished-mass pressure
+
+The chassis trade is already constrained by battery mass before motors, ESC, guards, mounts or wiring enter the picture.
+
+Using the current commercial mass references only:
+
+| Reference | 35 lb trail target after 15 lb battery | 45 lb range target after 20 lb battery |
+|---|---:|---:|
+| Comp 95, 14.6 lb | 5.4 lb remaining | 10.4 lb remaining |
+| Pro Warren III, 15.9 lb | 4.1 lb remaining | 9.1 lb remaining |
+| Agent AIR | Unknown | Unknown |
+
+These are **remaining budgets**, not feasibility claims.
+
+The Warren's 1.3 lb complete-chassis penalty is small enough that it remains a serious experimental candidate, but large enough to matter when the trail target has only a few pounds left for the entire drive/control/protection stack.
+
+That is another reason to preserve the modular energy strategy: if the range pack damages handling and carryability, a lighter installed trail pack plus cold-swapped spare energy can be a better product than forcing the maximum battery onto every ride.
+
 ## Wheel trade: air volume versus unsprung/rotating mass
 
 The current MBS tire references create a surprisingly sharp trade:
