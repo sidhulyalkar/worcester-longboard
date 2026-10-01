@@ -91,7 +91,7 @@ def test_pro_warren_iii_is_a_first_class_rev_c_chassis_candidate():
     assert known["availability_snapshot"] == "COMING_SOON_WAITLIST_2026-09-30"
 
 
-def test_agent_deck_reference_uses_published_280mm_max_deck_width():
+def test_agent_deck_reference_uses_published_284mm_max_deck_width():
     data = _requirements()
     candidates = {x["id"]: x for x in data["candidate_architectures"]}
-    assert candidates["AGENT_AIR_REFERENCE"]["known"]["deck_max_width_mm"] == 280
+    assert candidates["AGENT_AIR_REFERENCE"]["known"]["deck_max_width_mm"] == 284
