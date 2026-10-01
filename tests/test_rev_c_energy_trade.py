@@ -25,14 +25,23 @@ def test_energy_trade_reports_specific_energy_without_selecting_pack():
     assert rows["MBS_AGENT_1080"]["specific_energy_wh_per_lb"] == 54.45
 
 
-def test_two_small_reference_packs_have_large_mass_penalty_for_near_equal_energy():
+def test_cold_swap_separates_installed_mass_from_total_inventory_mass():
     comparison = analyze(_snapshot())["architecture_comparison"]
-    assert comparison["two_540_reference"]["nominal_energy_wh"] == 1080
-    assert comparison["two_540_reference"]["battery_mass_lb"] == 30
-    assert comparison["one_1080_reference"]["nominal_energy_wh"] == 1089
-    assert comparison["one_1080_reference"]["battery_mass_lb"] == 20
+    dual = comparison["two_540_inventory_reference"]
+    large = comparison["one_1080_reference"]
+
+    assert dual["nominal_trip_energy_wh"] == 1080
+    assert dual["total_battery_inventory_mass_lb"] == 30
+    assert dual["installed_battery_mass_lb_during_cold_swap_operation"] == 15
+    assert dual["simultaneous_on_board_installation_assumed"] is False
+    assert dual["safe_spare_location_required"] is True
+    assert dual["rider_body_carry_default"] is False
+
+    assert large["nominal_trip_energy_wh"] == 1089
+    assert large["installed_battery_mass_lb"] == 20
     assert comparison["energy_delta_wh_two_540_minus_1080"] == -9
-    assert comparison["mass_delta_lb_two_540_minus_1080"] == 10
+    assert comparison["inventory_mass_delta_lb_two_540_minus_1080"] == 10
+    assert comparison["installed_mass_delta_lb_one_540_minus_1080"] == -5
 
 
 def test_energy_trade_uses_conservative_planning_ranges():
