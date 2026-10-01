@@ -76,6 +76,23 @@ def test_each_candidate_needs_three_remount_trials():
     assert any("three remount trials" in e for e in report["errors"])
 
 
+def test_current_three_candidate_set_is_required_exactly():
+    source = _manifest()
+    source["candidates"] = [
+        candidate
+        for candidate in source["candidates"]
+        if candidate["id"] != "pro_warren_iii_class"
+    ]
+    source["rejected_candidates"] = [
+        entry
+        for entry in source["rejected_candidates"]
+        if entry["id"] != "pro_warren_iii_class"
+    ]
+    report = qualify(source)
+    assert report["qualified"] is False
+    assert any("current Rev-C candidate set" in e for e in report["errors"])
+
+
 def test_every_nonselected_candidate_must_be_rejected_with_reason():
     source = _manifest()
     source["rejected_candidates"] = []

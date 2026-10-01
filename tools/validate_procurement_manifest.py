@@ -53,12 +53,12 @@ def validate_manifest(data: dict) -> dict:
             errors.append("power-gated procurement cannot be globally authorized in this tranche")
 
     rules = data.get("rules", {})
-    preferred = rules.get("preferred_chassis_item_id")
-    if preferred:
-        if preferred not in ids:
-            errors.append(f"preferred chassis item does not exist: {preferred}")
-        elif items_by_id[preferred].get("stage") != "MEASURE_FIRST":
-            errors.append("preferred chassis item must be MEASURE_FIRST")
+    instantiated = rules.get("instantiated_chassis_item_id")
+    if instantiated:
+        if instantiated not in ids:
+            errors.append(f"instantiated chassis item does not exist: {instantiated}")
+        elif items_by_id[instantiated].get("stage") != "MEASURE_FIRST":
+            errors.append("instantiated chassis item must be MEASURE_FIRST")
 
     for item in data.get("items", []):
         alternative_to = item.get("alternative_to")
@@ -121,7 +121,7 @@ def validate_manifest(data: dict) -> dict:
         "buy_now_maximum_usd": round(buy_now_total, 2),
         "buy_now_ceiling_usd": ceiling,
         "item_count": len(ids),
-        "preferred_chassis_item_id": preferred,
+        "instantiated_chassis_item_id": instantiated,
         "power_gated_authorized": rules.get("power_gated_authorized") is True,
     }
 

@@ -1,9 +1,9 @@
 # Worcester X1 Rev-C chassis trade
 
-**Snapshot date:** 2026-09-30  
+**Snapshot date:** 2026-10-01  
 **Authority:** analysis only. This document cannot release procurement or powered operation.
 
-Machine-readable facts live in `hardware/rev_c_chassis_trade_snapshot_2026-09-30.json`. Derived deltas are checked by `tools/analyze_rev_c_chassis_trade.py`.
+Machine-readable facts live in `hardware/rev_c_chassis_trade_snapshot_2026-10-01.json`. Derived deltas are checked by `tools/analyze_rev_c_chassis_trade.py`.
 
 ## The three chassis hypotheses
 
@@ -46,6 +46,24 @@ This makes Warren unusually useful as an experimental chassis.
 If a received Warren is set to roughly 940 mm axle-to-axle, we can compare its deck/interface behavior against the Comp reference without intentionally changing wheelbase. We can then move to roughly 910 and 970 mm to explore the first-order wheelbase effect separately.
 
 For the same effective steer angle, a bicycle-model sensitivity proxy makes curvature inversely proportional to wheelbase. The 910-to-970 mm Warren range therefore spans about a 1.066× curvature ratio. This is **not** a mountainboard handling prediction. It simply shows that the adjustment range is large enough to be worth measuring.
+
+## Finished-mass pressure
+
+The chassis trade is already constrained by battery mass before motors, ESC, guards, mounts or wiring enter the picture.
+
+Using the current commercial mass references only:
+
+| Reference | 35 lb trail target after 15 lb battery | 45 lb range target after 20 lb battery |
+|---|---:|---:|
+| Comp 95, 14.6 lb | 5.4 lb remaining | 10.4 lb remaining |
+| Pro Warren III, 15.9 lb | 4.1 lb remaining | 9.1 lb remaining |
+| Agent AIR | Unknown | Unknown |
+
+These are **remaining budgets**, not feasibility claims.
+
+The Warren's 1.3 lb complete-chassis penalty is small enough that it remains a serious experimental candidate, but large enough to matter when the trail target has only a few pounds left for the entire drive/control/protection stack.
+
+That is another reason to preserve the modular energy strategy: if the range pack damages handling and carryability, a lighter installed trail pack plus cold-swapped spare energy can be a better product than forcing the maximum battery onto every ride.
 
 ## Wheel trade: air volume versus unsprung/rotating mass
 

@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "as_of": "2026-09-30",
+  "as_of": "2026-10-01",
   "currency": "USD",
   "rules": {
     "buy_now_max_total_usd": 125,
     "measure_first_requires_issue": true,
     "power_gated_authorized": false,
-    "preferred_chassis_strategy": "REV_C_HOLD_COMPACT_MATRIX_REFERENCE",
-    "preferred_chassis_item_id": "DONOR-COMP95",
+    "preferred_chassis_strategy": "REV_C_EVIDENCE_SELECTED_CHASSIS_WITH_COMP_PATH_ONLY",
     "rev_c_expensive_procurement_hold": "evidence_gated",
     "rev_c_requirements_path": "hardware/rev_c_requirements.json",
     "source_snapshot_as_of": "2026-09-11",
-    "rev_c_chassis_release_gate": "rev_c_chassis_release_qualified"
+    "rev_c_chassis_release_gate": "rev_c_chassis_release_qualified",
+    "instantiated_chassis_item_id": "DONOR-COMP95"
   },
   "items": [
     {

@@ -19,8 +19,8 @@ def test_manifest_is_valid_and_power_hardware_stays_blocked():
 
 def test_rev_c_holds_expensive_chassis_while_retaining_comp95_reference():
     data = _manifest()
-    assert data["rules"]["preferred_chassis_strategy"] == "REV_C_HOLD_COMPACT_MATRIX_REFERENCE"
-    assert data["rules"]["preferred_chassis_item_id"] == "DONOR-COMP95"
+    assert data["rules"]["preferred_chassis_strategy"] == "REV_C_EVIDENCE_SELECTED_CHASSIS_WITH_COMP_PATH_ONLY"
+    assert data["rules"]["instantiated_chassis_item_id"] == "DONOR-COMP95"
     assert data["rules"]["rev_c_expensive_procurement_hold"] == "evidence_gated"
     assert data["rules"]["rev_c_chassis_release_gate"] == "rev_c_chassis_release_qualified"
     items = {item["id"]: item for item in data["items"]}
@@ -74,9 +74,9 @@ def test_duplicate_sku_authority_id_is_rejected():
 
 def test_missing_preferred_or_alternative_targets_are_rejected():
     data = _manifest()
-    data["rules"]["preferred_chassis_item_id"] = "NOT-REAL"
+    data["rules"]["instantiated_chassis_item_id"] = "NOT-REAL"
     data["items"][12]["alternative_to"] = "ALSO-NOT-REAL"
     report = validate_manifest(data)
     assert report["valid"] is False
-    assert any("preferred chassis item does not exist" in err for err in report["errors"])
+    assert any("instantiated chassis item does not exist" in err for err in report["errors"])
     assert any("alternative target does not exist" in err for err in report["errors"])

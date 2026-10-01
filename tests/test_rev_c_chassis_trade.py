@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _snapshot():
     return json.loads(
-        (ROOT / "hardware/rev_c_chassis_trade_snapshot_2026-09-30.json").read_text()
+        (ROOT / "hardware/rev_c_chassis_trade_snapshot_2026-10-01.json").read_text()
     )
 
 
@@ -29,6 +29,21 @@ def test_warren_is_narrower_than_comp95_but_slightly_heavier():
     assert warren["wheelbase_adjustment_span_mm"] == 60.0
     assert warren["deck_area_proxy_delta_pct_vs_comp95"] == 0.28
     assert warren["deck_construction"] == "Snowboard composite"
+
+
+def test_finished_mass_headroom_is_explicit_for_known_chassis_masses():
+    report = analyze(_snapshot())
+    rows = {x["id"]: x for x in report["candidate_rows"]}
+    comp = rows["COMP95_BASELINE"]["reference_mass_headroom_lb"]
+    warren = rows["PRO_WARREN_III_REFERENCE"]["reference_mass_headroom_lb"]
+    agent = rows["AGENT_AIR_REFERENCE"]["reference_mass_headroom_lb"]
+
+    assert comp["trail_35lb_with_15lb_battery"] == 5.4
+    assert comp["range_45lb_with_20lb_battery"] == 10.4
+    assert warren["trail_35lb_with_15lb_battery"] == 4.1
+    assert warren["range_45lb_with_20lb_battery"] == 9.1
+    assert agent["trail_35lb_with_15lb_battery"] is None
+    assert agent["range_45lb_with_20lb_battery"] is None
 
 
 def test_agent_unknowns_stay_unknown_instead_of_being_inferred():

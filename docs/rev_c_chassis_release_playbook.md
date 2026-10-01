@@ -110,7 +110,7 @@ Mark:
 - approximate usable standing region;
 - no permanent mounting holes.
 
-Keep both templates on the same floor/surface and use the same shoes for the comparison.
+Keep all three templates on the same floor/surface and use the same shoes for the comparison.
 
 ---
 
