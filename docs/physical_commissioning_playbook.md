@@ -34,6 +34,9 @@ Issue #28 ride compliance    Issue #19 brake/drive topology
                                       final power architecture freeze
                                                    |
                                                    v
+                                   Issue #35 authorized venue evidence
+                                                   |
+                                                   v
                                        future powered commissioning
                                                    |
                                                    v
@@ -347,6 +350,52 @@ powered_operation_authorized = false
 ```
 
 The dock never creates charger compatibility. A later live charging procedure must use only the selected battery/system-approved charger and the selected system's documented instructions.
+
+## 9B. Issue #35 authorized powered-test venue evidence
+
+Before any future powered ground test, create a private venue session:
+
+```bash
+python tools/init_powered_test_venue_session.py \
+  rider/private/venues/test-01
+```
+
+Fill `venue_manifest.json` from the actual location and permission record.
+
+The record must identify:
+
+- owner or managing jurisdiction;
+- permission basis and source;
+- date permission was checked;
+- controlled course boundary;
+- surface;
+- pedestrian/vehicle separation;
+- emergency stop plan;
+- maximum planned speed;
+- applicable restrictions;
+- mechanical-brake requirement.
+
+Current dated rules mean Worcester Park must not be used as the default powered test venue.
+
+Qualify the venue record:
+
+```bash
+python tools/qualify_powered_test_venue.py \
+  rider/private/venues/test-01/venue_manifest.json \
+  --out rider/private/venues/test-01/venue_authority.json
+```
+
+A passing report proves only that the venue evidence is complete under the dated checklist.
+
+It still emits:
+
+```text
+vehicle_powered_operation_authority = false
+public_operation_authority = false
+dog_accompanied_operation_authority = false
+```
+
+Venue permission never substitutes for vehicle qualification.
 
 ## 10. Drivetrain commissioning after final freeze
 
