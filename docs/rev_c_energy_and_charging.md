@@ -155,7 +155,16 @@ This is a deliberate product architecture decision: **mechanical cleverness, ele
 
 ## Inert dock qualification
 
-The template is `hardware/rev_c_charge_dock_mechanical_template.json`.
+Initialize a fresh private inert session:
+
+```bash
+python tools/init_rev_c_charge_dock_session.py \
+  rider/private/energy/dock-01
+```
+
+The initializer refuses to overwrite a non-empty session and creates a non-authoritative workspace with `dock_manifest.json`.
+
+The public template is `hardware/rev_c_charge_dock_mechanical_template.json`.
 
 Qualify with:
 
