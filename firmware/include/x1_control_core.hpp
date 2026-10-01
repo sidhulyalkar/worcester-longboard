@@ -3,7 +3,7 @@
 
 namespace x1 {
 
-enum class RideMode : uint8_t { Learn=0, Trail=1, Flow=2, Sport=3 };
+enum class RideMode : uint8_t { Learn=0, Trail=1, Flow=2, Sport=3, Shasta=4 };
 
 enum FaultBits : uint32_t {
     FAULT_NONE          = 0,
@@ -15,6 +15,8 @@ enum FaultBits : uint32_t {
     FAULT_ESC_HOT_R     = 1u << 5,
     FAULT_PACK_OVERVOLT = 1u << 6,
     FAULT_SENSOR_STALE  = 1u << 7,
+    FAULT_DEADMAN_RELEASED = 1u << 8,
+    FAULT_OVERSPEED     = 1u << 9,
 };
 
 struct Config {
@@ -49,6 +51,7 @@ struct Limits {
     float accel_max_mps2;
     float decel_max_mps2;
     float phase_current_max_a;
+    float current_slew_max_a_per_s;
 };
 
 struct SensorFrame {
@@ -67,6 +70,7 @@ struct SensorFrame {
     float esc_temp_r_c = 25.0f;
     float remote_age_s = 0.0f;
     float sensor_age_s = 0.0f;
+    bool remote_deadman_active = true;
 };
 
 struct State {
