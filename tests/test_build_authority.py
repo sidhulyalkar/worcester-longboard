@@ -66,6 +66,7 @@ def test_public_repo_defaults_are_conservative():
     assert report["capabilities"]["order_power_hardware"]["allowed"] is False
     assert report["capabilities"]["powered_operation"]["allowed"] is False
     assert report["capabilities"]["dog_accompanied_operation"]["allowed"] is False
+    assert report["capabilities"]["public_operation"]["allowed"] is False
 
 
 def test_rev_c_blocks_measurement_chassis_procurement_until_release_conditions_close():
@@ -244,6 +245,17 @@ def test_power_ordering_stays_blocked_by_procurement_policy():
     assert report["capabilities"]["order_power_hardware"]["allowed"] is False
     assert "procurement stage blocked: POWER_GATED" in report["capabilities"]["order_power_hardware"]["blockers"]
     assert report["capabilities"]["powered_operation"]["allowed"] is False
+
+
+def test_even_complete_existing_evidence_cannot_authorize_public_operation():
+    report = evaluate(_plan(), _procurement(), _all_physical_evidence())
+    assert report["gates"]["power_architecture_frozen"]["satisfied"] is True
+    public = report["capabilities"]["public_operation"]
+    assert public["allowed"] is False
+    assert any(
+        "Issue #35 has not established a public-use vehicle classification" in blocker
+        for blocker in public["blockers"]
+    )
 
 
 def test_even_complete_existing_evidence_cannot_authorize_dog_accompanied_operation():
