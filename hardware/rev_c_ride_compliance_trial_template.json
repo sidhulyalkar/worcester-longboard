@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "scope": "rev_c_unpowered_ride_compliance_trials",
+  "powered_operation_authorized": false,
+  "same_course_for_all_runs": true,
+  "imu_mount_unchanged": true,
+  "course_id": "",
+  "target_speed_mps": 1.5,
+  "speed_tolerance_fraction": 0.1,
+  "minimum_samples_per_run": 100,
+  "minimum_duration_s": 5,
+  "minimum_repeats_per_config": 3,
+  "baseline_config_id": "stock_reference",
+  "configs": [
+    {
+      "id": "stock_reference",
+      "chassis_id": "",
+      "deck_id": "",
+      "tire_id": "",
+      "tire_pressure_note": "record exact measured pressure privately; remain within manufacturer-approved range",
+      "shock_block_id": "",
+      "shock_block_position": "",
+      "wheelbase_mm": null,
+      "notes": "received stock geometry/reference"
+    },
+    {
+      "id": "position_variant",
+      "chassis_id": "",
+      "deck_id": "",
+      "tire_id": "",
+      "tire_pressure_note": "match baseline pressure",
+      "shock_block_id": "",
+      "shock_block_position": "",
+      "wheelbase_mm": null,
+      "notes": "change only shock-block position from baseline where the received truck supports it"
+    }
+  ],
+  "runs": [
+    {
+      "id": "stock-1",
+      "config_id": "stock_reference",
+      "csv_path": "stock-1.csv"
+    },
+    {
+      "id": "stock-2",
+      "config_id": "stock_reference",
+      "csv_path": "stock-2.csv"
+    },
+    {
+      "id": "stock-3",
+      "config_id": "stock_reference",
+      "csv_path": "stock-3.csv"
+    },
+    {
+      "id": "variant-1",
+      "config_id": "position_variant",
+      "csv_path": "variant-1.csv"
+    },
+    {
+      "id": "variant-2",
+      "config_id": "position_variant",
+      "csv_path": "variant-2.csv"
+    },
+    {
+      "id": "variant-3",
+      "config_id": "position_variant",
+      "csv_path": "variant-3.csv"
+    }
+  ],
+  "private_rider_observation_fields": [
+    "predictable_recenter",
+    "heel_toe_leverage",
+    "chatter_comfort",
+    "turn_in_naturalness",
+    "emergency_step_off",
+    "notes"
+  ],
+  "csv_columns": [
+    "time_s",
+    "speed_mps",
+    "accel_z_mps2",
+    "gyro_roll_dps",
+    "gyro_yaw_dps"
+  ]
+}
