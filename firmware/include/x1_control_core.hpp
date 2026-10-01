@@ -92,6 +92,7 @@ struct Command {
     float regen_scale_l = 1.0f;
     float regen_scale_r = 1.0f;
     bool mechanical_brake_recommended = false;
+    bool lights_requested = false;
     uint32_t faults = FAULT_NONE;
 };
 
