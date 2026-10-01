@@ -79,6 +79,19 @@ python simulation/rev_c_energy_planner.py \
 
 The tool reports required nominal energy, the pack's planning range envelope, and how many cold-swap pack equivalents would be required under optimistic and conservative consumption cases.
 
+If a pack mass is also supplied, it separately reports **installed battery mass** and **total battery inventory mass**:
+
+```bash
+python simulation/rev_c_energy_planner.py \
+  --distance-miles 20 \
+  --terrain trail \
+  --pack-wh 540 \
+  --pack-mass-lb 15 \
+  --reserve 0.20
+```
+
+This still assumes only one pack is installed at a time. It does not assume rider-body carry, hot swap, or parallel operation.
+
 It does not select or authorize a battery.
 
 ## Charge-time arithmetic is not a charge-time claim
@@ -185,9 +198,14 @@ The test uses an inert pack/connector fixture and requires at least five repeata
 It checks that:
 
 - the board is supported without loading brake or drive hardware;
+- board retention is independent of the connector;
 - the connector is never a structural retention element;
+- the connector mating axis can self-align rather than being forced by board weight;
+- manufacturer/system connector alignment and mating limits are sourced and checked;
+- the dock guides keep misalignment inside those known limits;
 - guides center the board repeatably;
 - the inert connector seats without forced lateral loading;
+- the user does not need a hand near the inert connector during final alignment;
 - cable strain relief remains effective;
 - the cable clears sharp edges and wheel/steering sweep;
 - the connector is protected when the board is absent;
