@@ -310,7 +310,7 @@ def main() -> None:
         "snapshot",
         nargs="?",
         type=Path,
-        default=Path("hardware/rev_c_chassis_trade_snapshot_2026-09-30.json"),
+        default=Path("hardware/rev_c_chassis_trade_snapshot_2026-10-01.json"),
     )
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
