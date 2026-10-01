@@ -450,5 +450,31 @@
     ],
     "powered_operation_authorized": false,
     "public_operation_authorized": false
+  },
+  "trail_armor_program": {
+    "issue": 37,
+    "phase": "POST_TOPOLOGY_AND_PACKAGING_GEOMETRY_INERT_FIRST",
+    "snapshot": "hardware/rev_c_trail_armor_snapshot_2026-10-01.json",
+    "protocol": "docs/rev_c_trail_armor.md",
+    "session_initializer": "tools/init_rev_c_trail_armor_session.py",
+    "qualifier": "tools/qualify_rev_c_trail_armor.py",
+    "geometry_study": "simulation/rev_c_skid_geometry.py",
+    "impact_path": [
+      "terrain",
+      "replaceable_wear_shoe_or_vendor_skid",
+      "carrier_or_vendor_guard_structure",
+      "qualified_structural_mount",
+      "protected_component"
+    ],
+    "hard_boundaries": [
+      "live battery excluded from initial armor qualification",
+      "battery shell is not primary trail armor structure",
+      "electrical connectors are not structural armor members",
+      "material and thickness remain unfrozen until topology/contact/load path are known",
+      "inert geometry qualification is not impact-energy authority",
+      "wear-part replacement must not disturb unrelated brake-critical retention"
+    ],
+    "procurement_authority": false,
+    "powered_operation_authorized": false
   }
 }
