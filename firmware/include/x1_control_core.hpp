@@ -51,7 +51,9 @@ struct Limits {
     float accel_max_mps2;
     float decel_max_mps2;
     float phase_current_max_a;
-    float current_slew_max_a_per_s;
+    float drive_current_slew_max_a_per_s;
+    float brake_current_slew_max_a_per_s;
+    float fault_release_current_slew_a_per_s;
 };
 
 struct SensorFrame {
