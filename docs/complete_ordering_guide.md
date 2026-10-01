@@ -190,12 +190,12 @@ PYTHONPATH=. python tools/init_one_zone_pilot_session.py \
 
 ## 4. Cart B: REV-C HOLD — source/watch only
 
-### Preferred donor: MBS Comp 95, part 10303
+### Currently instantiated donor purchase path: MBS Comp 95, part 10303
 
 - New snapshot price: `$499.95`
 - Direct page: https://www.mbs.com/shop/p/comp-95-mountainboard-silver-hex
 
-The donor already includes the expensive interface set we actually want to study:
+This is the only complete donor currently represented by an orderable manifest item. That makes it the instantiated measurement path, **not** the automatically preferred Rev-C chassis. The donor includes:
 
 - 2 x Matrix III CNC 400 mm trucks;
 - 12 mm axles;
@@ -205,7 +205,16 @@ The donor already includes the expensive interface set we actually want to study
 - Comp 95 PowerLam deck;
 - F5 bindings and hardware.
 
-Do not separately order a pair of trucks, hubs, bearings, wheels and bindings if the donor path remains active.
+Do not separately order a pair of trucks, hubs, bearings, wheels and bindings if the Comp donor path is the one eventually released.
+
+### Other live Rev-C chassis candidates
+
+The physical stance experiment now includes two additional candidates:
+
+- **MBS Pro Warren III**: 980 x 244 mm deck envelope, snowboard-composite construction, adjustable 910–970 mm wheelbase, 15.9 lb complete published mass, brake-compatible Matrix III / Rockstar II architecture. The current product page is waitlisted and exposes a 10407 page heading versus 10406 embedded spec block, so it is **not** currently a checkout item.
+- **MBS Agent AIR**: 1020 x 284 mm exact deck maximum from the dedicated deck spec, snowboard-composite construction, native AGENT electrification ecosystem. Current complete unpowered mass, exact wheelbase, and brake-compatible truck state remain unresolved in the captured evidence, so it is **not** currently a checkout item.
+
+If Issue #25 selects Warren or Agent, the Comp 95 item stays blocked. A fresh sourced procurement entry for the selected chassis must be added and validated before checkout.
 
 ### Used-donor rule
 
@@ -366,7 +375,7 @@ A storefront description is evidence about what was sold. The received physical 
 
 **While fit-pilot parts are shipping:**
 
-1. generate the Comp 95-class and Agent-class full-scale deck envelopes;
+1. generate the Comp 95-class, Pro Warren III-class, and Agent-class full-scale deck envelopes;
 2. compare stance width, heel/toe leverage and emergency step-off on the two envelopes;
 3. monitor chassis availability only as market information, not purchase authority;
 4. do not buy chassis, brake, standalone trucks/hubs, wheel upgrades, drivetrain, motors, ESC or battery.
