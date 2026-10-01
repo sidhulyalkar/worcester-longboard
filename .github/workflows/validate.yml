@@ -105,6 +105,9 @@ jobs:
           python simulation/rev_c_energy_planner.py \
             --pack-wh 1089 --charger-w 1050 --start-soc 0.10 --target-soc 0.90
           python tools/analyze_rev_c_energy_trade.py --out /tmp/x1-energy-trade.json
+          python tools/init_rev_c_charge_dock_session.py /tmp/x1-charge-dock
+          test -f /tmp/x1-charge-dock/dock_manifest.json
+          test -f /tmp/x1-charge-dock/workspace_manifest.json
           python - <<'PY'
           import json
           from pathlib import Path
@@ -118,7 +121,7 @@ jobs:
           assert comparison['mass_delta_lb_two_540_minus_1080'] == 10.0
 
           dock = json.loads(
-              Path('hardware/rev_c_charge_dock_mechanical_template.json').read_text()
+              Path('/tmp/x1-charge-dock/dock_manifest.json').read_text()
           )
           assert dock['electrical_energy_present'] is False
           assert dock['charger_energized'] is False
