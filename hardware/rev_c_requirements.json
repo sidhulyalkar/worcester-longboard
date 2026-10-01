@@ -116,6 +116,31 @@
       "method": "small bounded left/right drive torque bias",
       "initial_max_bias_fraction": 0.1,
       "must_disable_on_sensor_fault": true
+    },
+    "shasta_companion_program": {
+      "issue": 33,
+      "requirements": "hardware/rev_c_shasta_mode_requirements.json",
+      "phase": "RESEARCH_ONLY_UNTIL_FUTURE_POWERED_AUTHORITY",
+      "provisional_envelope": {
+        "speed_cap_mps": 2.7,
+        "accel_max_mps2": 0.45,
+        "regen_decel_max_mps2": 0.8,
+        "phase_current_max_a": 18,
+        "drive_current_slew_max_a_per_s": 20,
+        "brake_current_slew_max_a_per_s": 30,
+        "fault_release_current_slew_a_per_s": 60
+      },
+      "hard_boundaries": [
+        "remote deadman required",
+        "board-mounted leash attachment prohibited",
+        "deliberate differential carve assist disabled",
+        "independent mechanical brake remains required",
+        "no dog in software, bench, or initial rider-only powered qualification",
+        "dog introduction requires future explicit companion authority",
+        "current slew is not physical jerk authority"
+      ],
+      "powered_operation_authorized": false,
+      "dog_accompanied_operation_authorized": false
     }
   },
   "candidate_architectures": [
