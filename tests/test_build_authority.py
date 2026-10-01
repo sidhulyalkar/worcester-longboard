@@ -67,6 +67,7 @@ def test_public_repo_defaults_are_conservative():
     assert report["capabilities"]["powered_operation"]["allowed"] is False
     assert report["capabilities"]["dog_accompanied_operation"]["allowed"] is False
     assert report["capabilities"]["public_operation"]["allowed"] is False
+    assert report["capabilities"]["qualify_inert_trail_armor"]["allowed"] is False
 
 
 def test_rev_c_blocks_measurement_chassis_procurement_until_release_conditions_close():
@@ -203,6 +204,36 @@ def test_topology_evidence_cannot_skip_brake_or_chassis():
     assert state["satisfied"] is False
     assert any("brake_interface_qualified" in x for x in state["blockers"])
     assert any("rolling_chassis_physical_qualified" in x for x in state["blockers"])
+
+
+def test_inert_trail_armor_requires_topology_and_packaging_geometry():
+    evidence = _all_physical_evidence()
+    report = evaluate(_plan(), _procurement(), evidence)
+    assert report["capabilities"]["qualify_inert_trail_armor"]["allowed"] is True
+
+    without_packaging = [
+        doc for doc in evidence
+        if doc.get("authority") != "x1_power_packaging_candidate"
+    ]
+    report = evaluate(_plan(), _procurement(), without_packaging)
+    armor = report["capabilities"]["qualify_inert_trail_armor"]
+    assert armor["allowed"] is False
+    assert any(
+        "power_packaging_candidate_defined" in blocker
+        for blocker in armor["blockers"]
+    )
+
+    without_topology = [
+        doc for doc in evidence
+        if doc.get("authority") != "x1_brake_drive_topology"
+    ]
+    report = evaluate(_plan(), _procurement(), without_topology)
+    armor = report["capabilities"]["qualify_inert_trail_armor"]
+    assert armor["allowed"] is False
+    assert any(
+        "brake_drive_topology_qualified" in blocker
+        for blocker in armor["blockers"]
+    )
 
 
 def test_packaging_candidate_cannot_skip_topology_or_revb():
