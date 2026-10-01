@@ -14,6 +14,10 @@ from typing import Any
 
 LB_PER_KG = 2.2046226218
 G_PER_LB = 453.59237
+TRAIL_TARGET_LB = 35.0
+RANGE_TARGET_LB = 45.0
+TRAIL_BATTERY_REFERENCE_LB = 15.0
+RANGE_BATTERY_REFERENCE_LB = 20.0
 
 REQUIRED_CANDIDATES = {
     "COMP95_BASELINE",
@@ -151,6 +155,27 @@ def analyze(snapshot: dict) -> dict:
                 "complete_unpowered_mass_lb": complete_mass,
                 "complete_mass_delta_lb_vs_comp95": (
                     None if complete_mass is None else round(float(complete_mass) - comp_complete_mass, 2)
+                ),
+                "reference_mass_headroom_lb": (
+                    {
+                        "trail_35lb_with_15lb_battery": round(
+                            TRAIL_TARGET_LB
+                            - float(complete_mass)
+                            - TRAIL_BATTERY_REFERENCE_LB,
+                            2,
+                        ),
+                        "range_45lb_with_20lb_battery": round(
+                            RANGE_TARGET_LB
+                            - float(complete_mass)
+                            - RANGE_BATTERY_REFERENCE_LB,
+                            2,
+                        ),
+                    }
+                    if complete_mass is not None
+                    else {
+                        "trail_35lb_with_15lb_battery": None,
+                        "range_45lb_with_20lb_battery": None,
+                    }
                 ),
                 "wheelbase_range_mm": (
                     None
@@ -292,6 +317,7 @@ def analyze(snapshot: dict) -> dict:
             "published brake compatibility does not prove simultaneous brake plus drivetrain coexistence",
             "unknown Agent complete mass and exact unpowered truck width prevent a closed mass/brake comparison",
             "current Warren waitlist prevents treating it as immediately purchasable",
+            "35lb trail and 45lb range finished-mass goals remain aspirational until drive, ESC, guards, mounts and wiring close the component budget",
             "a candidate selected by Issue #25 must match an explicitly released procurement item before checkout",
         ],
         "physical_questions_remaining": [
