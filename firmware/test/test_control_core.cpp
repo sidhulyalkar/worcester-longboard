@@ -57,6 +57,7 @@ int main() {
     // 20 A/s x 0.1 s = 2 A maximum first-step rise.
     assert(c.drive_current_l_a <= 2.0001f);
     assert(c.drive_current_l_a >= 0.0f);
+    assert(c.lights_requested);
 
     // Deadman release must remove propulsion with the faster bounded fault ramp
     // and recommend independent mechanical stopping.
