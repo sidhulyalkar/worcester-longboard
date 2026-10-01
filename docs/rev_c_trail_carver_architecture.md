@@ -412,14 +412,40 @@ Goal: predictable companion-speed transport.
 Initial behavior:
 
 - <= 2.7 m/s (~6 mph) software cap;
-- exceptionally low acceleration jerk;
-- symmetric drive torque;
+- provisional low acceleration/current-slew envelope, with physical jerk still requiring future rider-only measurement;
+- symmetric nominal drive torque;
 - carve assist disabled initially;
 - no aggressive regenerative transition;
 - lighting automatically enabled when fitted;
 - clear remote deadman/release behavior.
 
 The dog's leash must remain controlled by the rider, never attached to the board.
+
+## Public-use architecture boundary
+
+Worcester Park remains a **terrain benchmark**, not an assumed test venue. Current Los Gatos Town park rules prohibit skateboards in Town parks/trails, so physical X1 testing must use private or otherwise expressly authorized controlled terrain unless that rule changes or written authorization is obtained.
+
+California's electrically motorized-board category is also narrow. Rev-C therefore does not treat a Shasta speed cap, current cap, or other software derate as proof that a high-power trail configuration belongs in that category.
+
+The propulsion architecture should preserve two branches until final power freeze is closer:
+
+### X1 Trail
+
+- off-road capability first;
+- private or expressly authorized terrain;
+- public-road category not assumed;
+- no artificial reduction of trail capability merely to create the appearance of road compliance.
+
+### X1 Public / Companion study
+
+- neighborhood/public-use goal only if a hardware configuration can demonstrably satisfy the applicable category and route restrictions;
+- lighting/reflector integration;
+- Shasta low-speed control;
+- a separate lower-power motor/controller/battery derivative remains acceptable if required.
+
+This is a legitimate product fork. It is better than accidentally creating one vehicle that is mediocre off road and still not demonstrably valid for public-road use.
+
+See `docs/rev_c_public_use_and_test_venues.md`.
 
 ## Range model
 
