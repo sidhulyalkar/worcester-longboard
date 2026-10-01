@@ -118,6 +118,7 @@ def _analyze_run(
     speed_tolerance_fraction: float,
     minimum_samples: int,
     minimum_duration_s: float,
+    max_within_run_speed_std_fraction: float,
 ) -> dict:
     errors: list[str] = []
     csv_path = base_dir / str(run.get("csv_path", ""))
@@ -152,12 +153,19 @@ def _analyze_run(
 
     speed = [row["speed_mps"] for row in rows]
     mean_speed = statistics.fmean(speed)
+    speed_std = statistics.pstdev(speed)
     speed_low = target_speed_mps * (1.0 - speed_tolerance_fraction)
     speed_high = target_speed_mps * (1.0 + speed_tolerance_fraction)
     if not speed_low <= mean_speed <= speed_high:
         errors.append(
             f"run {run.get('id')}: mean speed {mean_speed:.3f} m/s outside "
             f"{speed_low:.3f}-{speed_high:.3f} m/s"
+        )
+    max_speed_std = target_speed_mps * max_within_run_speed_std_fraction
+    if speed_std > max_speed_std:
+        errors.append(
+            f"run {run.get('id')}: speed std {speed_std:.3f} m/s exceeds "
+            f"{max_speed_std:.3f} m/s"
         )
 
     accel = [row["accel_z_mps2"] for row in rows]
@@ -175,7 +183,7 @@ def _analyze_run(
         "sample_count": len(rows),
         "duration_s": round(duration, 3),
         "mean_speed_mps": round(mean_speed, 4),
-        "speed_std_mps": round(statistics.pstdev(speed), 4),
+        "speed_std_mps": round(speed_std, 4),
         "vertical_accel_rms_mps2": round(_rms(accel_centered), 4),
         "vertical_accel_p95_abs_mps2": round(_percentile(accel_abs, 0.95), 4),
         "vertical_accel_peak_abs_mps2": round(max(accel_abs), 4),
@@ -203,6 +211,12 @@ def analyze(manifest: dict, base_dir: Path) -> dict:
     minimum_samples = manifest.get("minimum_samples_per_run")
     minimum_duration = manifest.get("minimum_duration_s")
     minimum_repeats = manifest.get("minimum_repeats_per_config")
+    max_within_run_speed_std_fraction = manifest.get(
+        "max_within_run_speed_std_fraction"
+    )
+    max_config_speed_delta_fraction = manifest.get(
+        "max_config_median_speed_delta_fraction"
+    )
 
     if not _finite(target_speed) or float(target_speed) <= 0:
         errors.append("target_speed_mps must be positive")
@@ -218,6 +232,22 @@ def analyze(manifest: dict, base_dir: Path) -> dict:
         errors.append("minimum_duration_s must be positive")
     if not isinstance(minimum_repeats, int) or minimum_repeats < 3:
         errors.append("minimum_repeats_per_config must be an integer >= 3")
+    if (
+        not _finite(max_within_run_speed_std_fraction)
+        or float(max_within_run_speed_std_fraction) <= 0
+        or float(max_within_run_speed_std_fraction) > 0.25
+    ):
+        errors.append(
+            "max_within_run_speed_std_fraction must be in (0, 0.25]"
+        )
+    if (
+        not _finite(max_config_speed_delta_fraction)
+        or float(max_config_speed_delta_fraction) <= 0
+        or float(max_config_speed_delta_fraction) > 0.25
+    ):
+        errors.append(
+            "max_config_median_speed_delta_fraction must be in (0, 0.25]"
+        )
 
     configs = manifest.get("configs", [])
     if not isinstance(configs, list) or not configs:
@@ -360,6 +390,9 @@ def analyze(manifest: dict, base_dir: Path) -> dict:
             speed_tolerance_fraction=float(tolerance),
             minimum_samples=minimum_samples,
             minimum_duration_s=float(minimum_duration),
+            max_within_run_speed_std_fraction=float(
+                max_within_run_speed_std_fraction
+            ),
         )
         for run in runs
         if isinstance(run, dict)
@@ -408,6 +441,20 @@ def analyze(manifest: dict, base_dir: Path) -> dict:
 
     baseline = aggregate.get(baseline_id, {})
     baseline_metrics = baseline.get("median_metrics", {})
+    baseline_speed = baseline_metrics.get("mean_speed_mps")
+
+    if baseline_speed is not None:
+        max_delta = float(baseline_speed) * float(max_config_speed_delta_fraction)
+        for config_id, entry in aggregate.items():
+            config_speed = entry["median_metrics"].get("mean_speed_mps")
+            if config_speed is None:
+                continue
+            if abs(float(config_speed) - float(baseline_speed)) > max_delta:
+                entry["errors"].append(
+                    "median configuration speed differs too much from baseline"
+                )
+                entry["valid_for_comparison"] = False
+
     for config_id, entry in aggregate.items():
         deltas: dict[str, float | None] = {}
         for metric in metric_names:
