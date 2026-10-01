@@ -23,6 +23,27 @@ REQUIRED_COLUMNS = (
     "gyro_yaw_dps",
 )
 
+SETTING_KEYS = (
+    "chassis_id",
+    "tire_family",
+    "tire_pressure_front_kpa",
+    "tire_pressure_rear_kpa",
+    "shock_block_id",
+    "shock_block_position",
+    "wheelbase_mm",
+    "deck_id",
+    "footbed_id",
+)
+
+PRIMARY_VARIABLE_SETTINGS = {
+    "tire_pressure": {"tire_pressure_front_kpa", "tire_pressure_rear_kpa"},
+    "shock_block_position": {"shock_block_position"},
+    "shock_block_hardness": {"shock_block_id"},
+    "wheelbase": {"wheelbase_mm"},
+    "tire_family": {"tire_family"},
+    "footbed": {"footbed_id"},
+}
+
 
 def _finite(value: Any) -> bool:
     return (
@@ -199,17 +220,92 @@ def analyze(manifest: dict, base_dir: Path) -> dict:
         errors.append("minimum_repeats_per_config must be an integer >= 3")
 
     configs = manifest.get("configs", [])
+    if not isinstance(configs, list) or not configs:
+        errors.append("configs must be a nonempty list")
+        configs = []
+
     config_ids = [
         config.get("id")
         for config in configs
         if isinstance(config, dict) and isinstance(config.get("id"), str)
+        and config.get("id").strip()
     ]
-    if len(config_ids) != len(set(config_ids)) or not config_ids:
+    if len(config_ids) != len(set(config_ids)) or len(config_ids) != len(configs):
         errors.append("configs must contain unique nonempty ids")
 
     baseline_id = manifest.get("baseline_config_id")
     if baseline_id not in config_ids:
         errors.append("baseline_config_id must reference a declared config")
+
+    config_map = {
+        config["id"]: config
+        for config in configs
+        if isinstance(config, dict)
+        and isinstance(config.get("id"), str)
+        and config.get("id").strip()
+    }
+
+    for config_id, config in config_map.items():
+        settings = config.get("settings")
+        if not isinstance(settings, dict):
+            errors.append(f"{config_id}: settings must be an object")
+            continue
+        missing_settings = [key for key in SETTING_KEYS if key not in settings]
+        if missing_settings:
+            errors.append(
+                f"{config_id}: missing settings {', '.join(missing_settings)}"
+            )
+            continue
+
+        for key in ("tire_pressure_front_kpa", "tire_pressure_rear_kpa", "wheelbase_mm"):
+            value = settings.get(key)
+            if value is not None and (not _finite(value) or float(value) <= 0):
+                errors.append(f"{config_id}: {key} must be positive when provided")
+
+        for key in ("chassis_id", "tire_family", "shock_block_id", "shock_block_position", "deck_id", "footbed_id"):
+            value = settings.get(key)
+            if not isinstance(value, str) or not value.strip():
+                errors.append(f"{config_id}: {key} must be a nonempty string")
+
+    baseline_config = config_map.get(baseline_id)
+    if baseline_config is not None and isinstance(baseline_config.get("settings"), dict):
+        baseline_settings = baseline_config["settings"]
+        if baseline_config.get("primary_variable") != "baseline":
+            errors.append("baseline config primary_variable must be 'baseline'")
+        for config_id, config in config_map.items():
+            if config_id == baseline_id or not isinstance(config.get("settings"), dict):
+                continue
+            primary = config.get("primary_variable")
+            allowed_keys = PRIMARY_VARIABLE_SETTINGS.get(primary)
+            if allowed_keys is None:
+                errors.append(
+                    f"{config_id}: primary_variable must be one of "
+                    + ", ".join(sorted(PRIMARY_VARIABLE_SETTINGS))
+                )
+                continue
+
+            settings = config["settings"]
+            changed = {
+                key
+                for key in SETTING_KEYS
+                if settings.get(key) != baseline_settings.get(key)
+            }
+            if not changed:
+                errors.append(f"{config_id}: no setting differs from baseline")
+            elif not changed.issubset(allowed_keys):
+                errors.append(
+                    f"{config_id}: changed settings {sorted(changed)} exceed "
+                    f"primary variable {primary}"
+                )
+
+            if primary == "tire_pressure":
+                front = settings.get("tire_pressure_front_kpa")
+                rear = settings.get("tire_pressure_rear_kpa")
+                if front != rear:
+                    errors.append(
+                        f"{config_id}: initial tire-pressure experiments must use "
+                        "symmetric front/rear pressure"
+                    )
 
     if errors:
         return {
@@ -223,6 +319,39 @@ def analyze(manifest: dict, base_dir: Path) -> dict:
         }
 
     runs = manifest.get("runs", [])
+    if not isinstance(runs, list) or not runs:
+        errors.append("runs must be a nonempty list")
+        runs = []
+
+    run_ids = [
+        run.get("id")
+        for run in runs
+        if isinstance(run, dict)
+        and isinstance(run.get("id"), str)
+        and run.get("id").strip()
+    ]
+    if len(run_ids) != len(set(run_ids)) or len(run_ids) != len(runs):
+        errors.append("runs must contain unique nonempty ids")
+
+    for run in runs:
+        if not isinstance(run, dict):
+            continue
+        if run.get("rider_observation_recorded") is not True:
+            errors.append(
+                f"run {run.get('id')}: rider_observation_recorded must be true"
+            )
+
+    if errors:
+        return {
+            "schema_version": 1,
+            "authority": "x1_rev_c_ride_compliance_analysis",
+            "valid": False,
+            "errors": errors,
+            "physical_authority": False,
+            "procurement_authority": False,
+            "powered_operation_authorized": False,
+        }
+
     analyzed_runs = [
         _analyze_run(
             run,
