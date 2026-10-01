@@ -2,7 +2,7 @@
   "schema_version": 1,
   "project": "Worcester X1",
   "revision": "Rev-C Trail-Carver",
-  "as_of": "2026-09-30",
+  "as_of": "2026-10-01",
   "status": "ARCHITECTURE_TRADE_STUDY",
   "mission": {
     "primary": "low-speed trail carving with snowboard-like progressive handling",
@@ -69,8 +69,33 @@
       ],
       "trip_soc_target_fraction": 1,
       "dock_goal": "protected alignment dock or stand with no exposed traction contacts",
-      "pack_swap": "power-off/cold-swap only until a qualified battery system explicitly supports otherwise"
-    }
+      "pack_swap": "power-off/cold-swap only until a qualified battery system explicitly supports otherwise",
+      "compatibility_rule": "use only a charger explicitly approved for the selected battery/system",
+      "custom_high_voltage_dock_contacts": "PROHIBITED_UNLESS_FUTURE_QUALIFIED_SYSTEM",
+      "universal_daily_soc_assumption": "NONE_FOLLOW_SELECTED_BATTERY_SYSTEM"
+    },
+    "mission_energy_strategy": {
+      "installed_energy_policy": "select the smallest qualified pack class that covers the mission with reserve",
+      "trip_energy_policy": "do not equate maximum available trip energy with permanently installed energy",
+      "trail_class_role": "default handling/carryability reference when mission range permits",
+      "range_class_role": "long-mission reference when added mass is justified",
+      "cold_swap_role": "powered-off logistics option only; not a reason to body-carry an unprotected traction pack",
+      "telemetry_upgrade": "replace planning Wh/mi with qualified X1 telemetry when powered commissioning eventually exists"
+    },
+    "charge_dock": {
+      "issue": 30,
+      "architecture": "PASSIVE_MECHANICAL_ALIGNMENT_CRADLE",
+      "electrical_rule": "preserve the selected battery/system-approved charger and connector interface",
+      "inert_template": "hardware/rev_c_charge_dock_mechanical_template.json",
+      "qualifier": "tools/qualify_rev_c_charge_dock.py",
+      "protocol": "docs/rev_c_energy_and_charging.md",
+      "live_battery_test_authorized": false,
+      "electrical_charge_authorized": false,
+      "powered_operation_authorized": false
+    },
+    "reference_snapshot": "hardware/rev_c_energy_charge_snapshot_2026-10-01.json",
+    "energy_trade_analyzer": "tools/analyze_rev_c_energy_trade.py",
+    "mission_planner": "simulation/rev_c_energy_planner.py"
   },
   "control_architecture": {
     "required_signals": [
