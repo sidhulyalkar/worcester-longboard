@@ -48,6 +48,7 @@ jobs:
           assert report['capabilities']['qualify_dummy_pack_mount']['allowed'] is False
           assert report['capabilities']['order_power_hardware']['allowed'] is False
           assert report['capabilities']['powered_operation']['allowed'] is False
+          assert report['capabilities']['public_operation']['allowed'] is False
           assert report['capabilities']['dog_accompanied_operation']['allowed'] is False
           assert report['gates']['brake_drive_topology_qualified']['satisfied'] is False
           assert report['gates']['power_packaging_candidate_defined']['satisfied'] is False
@@ -135,6 +136,73 @@ jobs:
           assert dock['charger_energized'] is False
           assert dock['electrical_charge_authorized'] is False
           assert dock['powered_operation_authorized'] is False
+          PY
+      - name: Smoke-test public-use and powered-venue evidence tools
+        run: |
+          python tools/init_powered_test_venue_session.py /tmp/x1-powered-venue
+          test -f /tmp/x1-powered-venue/venue_manifest.json
+          test -f /tmp/x1-powered-venue/workspace_manifest.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          snapshot = json.loads(
+              Path('hardware/rev_c_public_use_constraints_2026-10-01.json').read_text()
+          )
+          assert snapshot['authority'] == 'INFORMATIONAL_ONLY'
+          assert snapshot['public_operation_authorized'] is False
+          assert (
+              snapshot['los_gatos']['worcester_park']['ride_test_venue_status']
+              == 'BLOCKED_BY_CURRENT_TOWN_PARK_SKATEBOARD_RULE'
+          )
+          assert (
+              snapshot['california']['classification_boundary'][
+                  'software_derate_not_assumed_to_change_classification'
+              ]
+              is True
+          )
+
+          manifest_path = Path('/tmp/x1-powered-venue/venue_manifest.json')
+          venue = json.loads(manifest_path.read_text())
+          venue.update({
+              'session_id': 'ci-private-venue',
+              'venue_id': 'PRIVATE-CONTROLLED-A',
+              'venue_name': 'CI synthetic controlled private venue',
+              'venue_type': 'private_property',
+              'owner_or_jurisdiction': 'synthetic owner',
+              'permission_basis': 'synthetic written permission fixture',
+              'permission_source_or_record': 'ci-fixture-only',
+              'permission_checked_date': '2026-10-01',
+              'public_access_controlled': True,
+              'course_boundary_defined': True,
+              'surface_description': 'synthetic mixed-surface course',
+              'pedestrian_vehicle_separation_method': 'closed synthetic course',
+              'emergency_stop_plan': 'mechanical brake plus clear runoff',
+              'maximum_planned_speed_mps': 2.0,
+              'applicable_restrictions': ['CI fixture only'],
+              'mechanical_brake_required': True,
+              'dog_present': False,
+              'leash_attachment_to_board': False,
+              'worcester_park': False,
+              'venue_permission_verified': True,
+              'vehicle_operation_legality_verified': False,
+              'vehicle_powered_operation_authority': False,
+              'dog_accompanied_operation_authority': False,
+          })
+          manifest_path.write_text(json.dumps(venue, indent=2) + '\n')
+          PY
+          python tools/qualify_powered_test_venue.py             /tmp/x1-powered-venue/venue_manifest.json             --out /tmp/x1-powered-venue/venue_authority.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(
+              Path('/tmp/x1-powered-venue/venue_authority.json').read_text()
+          )
+          assert report['qualified'] is True
+          assert report['venue_permission_qualified'] is True
+          assert report['vehicle_powered_operation_authority'] is False
+          assert report['public_operation_authority'] is False
+          assert report['dog_accompanied_operation_authority'] is False
           PY
       - name: Validate provisional Shasta control contract
         run: |

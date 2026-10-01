@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-01",
+  "scope": "rev_c_public_use_constraints",
+  "purpose": "Design and test-venue constraints only; not legal advice or permission to operate.",
+  "authority": "INFORMATIONAL_ONLY",
+  "public_operation_authorized": false,
+  "california": {
+    "electrically_motorized_board_definition": {
+      "source_section": "California Vehicle Code 313.5",
+      "requirements": [
+        "floorboard designed to be stood upon",
+        "not greater than 60 inches deep and 18 inches wide",
+        "designed to transport only one person",
+        "electric propulsion system averaging less than 1000 watts",
+        "maximum propulsion-only speed on paved level surface no more than 20 mph"
+      ],
+      "source": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=VEH&sectionNum=313.5."
+    },
+    "operation_constraints": {
+      "helmet_required_for_public_highway_bikeway_path_sidewalk_or_trail": true,
+      "public_speed_limit_mph": 15,
+      "highway_posted_speed_limit_max_mph": 35,
+      "highway_exception": "Class II or Class IV bikeway",
+      "darkness_equipment": [
+        "white forward light visible from 300 feet, or qualifying operator-mounted substitute",
+        "red rear reflector visible from 500 feet, or qualifying operator-mounted substitute",
+        "white or yellow side reflectors visible from 200 feet, or qualifying operator-mounted substitute"
+      ],
+      "sources": [
+        "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=VEH&sectionNum=21292.",
+        "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=VEH&sectionNum=21293.",
+        "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=VEH&sectionNum=21294."
+      ]
+    },
+    "classification_boundary": {
+      "rule": "Do not assume CVC 21290-21296 public-operation rules apply unless the final vehicle actually satisfies the CVC 313.5 definition.",
+      "software_derate_not_assumed_to_change_classification": true,
+      "high_power_trail_architecture_public_road_status": "NOT_ESTABLISHED",
+      "reason": "The statutory definition constrains the propulsion system itself; a low-speed ride mode alone is not treated by this project as proof of classification.",
+      "supporting_source": "https://www.cdtfa.ca.gov/taxes-and-fees/california-tire-fee/industry-topics.htm"
+    }
+  },
+  "los_gatos": {
+    "town_park_rules": {
+      "skateboards_allowed": false,
+      "hoverboards_allowed": false,
+      "applies_to": "Town parks and trails",
+      "source": "https://www.losgatosca.gov/DocumentCenter/View/1229/Parks-Rules-and-Regulations"
+    },
+    "dogs": {
+      "off_leash_in_town_parks_allowed": false,
+      "source": "https://www.losgatosca.gov/1829/Dogs-Off-Leash"
+    },
+    "worcester_park": {
+      "town_park": true,
+      "terrain_reference": {
+        "approximate_area_acres": 11,
+        "trail_count": 3,
+        "character": "natural woodlands, vegetation, neighborhood park trails and meadow"
+      },
+      "ride_test_venue_status": "BLOCKED_BY_CURRENT_TOWN_PARK_SKATEBOARD_RULE",
+      "role_in_project": "terrain and product-requirement inspiration only unless Town rules change or written authorization is obtained",
+      "sources": [
+        "https://www.losgatosca.gov/CivicSend/ViewMessage/Message/85953",
+        "https://www.losgatosca.gov/DocumentCenter/View/1229/Parks-Rules-and-Regulations"
+      ]
+    }
+  },
+  "test_venue_policy": {
+    "preferred": [
+      "private property with owner permission and controlled access",
+      "closed or controlled test area where vehicle operation is expressly authorized",
+      "bench and unpowered fixtures before any powered ground testing"
+    ],
+    "do_not_assume_authorized": [
+      "Worcester Park",
+      "other Los Gatos Town parks or trails",
+      "public sidewalks",
+      "public roads merely because Shasta mode is selected"
+    ],
+    "requirement": "Before any powered ground test, record venue owner/jurisdiction, permission basis, surface, pedestrian separation, emergency stop plan and applicable operating restrictions."
+  },
+  "product_architecture_fork": {
+    "trail_private_authorized": {
+      "goal": "maximize trail capability for private or expressly authorized terrain",
+      "regulatory_category_assumed": false
+    },
+    "public_road_oriented_derivative": {
+      "goal": "study a separate hardware architecture that can demonstrably satisfy the applicable public-road category if neighborhood road use remains a product requirement",
+      "software_only_power_limit_sufficient": false,
+      "unresolved": [
+        "how California interprets averaging less than 1000 watts for the final propulsion system",
+        "whether selected motors/controllers/battery architecture can fit the statutory definition",
+        "local street/bikeway restrictions at the intended route",
+        "whether a separate lower-power hardware derivative is preferable to compromising trail architecture"
+      ]
+    }
+  },
+  "design_implications": [
+    "Do not optimize X1 around Worcester Park as a physical test site.",
+    "Keep lights/reflectors as a real product requirement if any public-road-oriented derivative is pursued.",
+    "Do not let a 2.7 m/s Shasta software cap stand in for vehicle classification.",
+    "Preserve the option for a trail-first private/authorized-use X1 and a distinct lower-power public-road-oriented derivative.",
+    "Public-use legality and venue permission must be rechecked immediately before physical testing because rules can change."
+  ]
+}

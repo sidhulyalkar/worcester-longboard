@@ -357,6 +357,14 @@
       ],
       "hard_blocked": true,
       "block_reason": "Issue #33 has no current physical companion authority contract; powered qualification alone cannot authorize dog-accompanied operation."
+    },
+    "public_operation": {
+      "issue": 35,
+      "requires": [
+        "power_architecture_frozen"
+      ],
+      "hard_blocked": true,
+      "block_reason": "Issue #35 has not established a public-use vehicle classification or route/venue authority for Worcester X1."
     }
   }
 }
