@@ -23,7 +23,7 @@ CANDIDATES = {
     },
     "agent": {
         "length_mm": 1020.0,
-        "width_mm": 284.0,
+        "width_mm": 280.0,
         "label": "Agent max deck envelope",
     },
 }
