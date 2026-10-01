@@ -180,3 +180,26 @@ def test_issue_33_provisional_envelope_matches_control_research_target():
         "brake_current_slew_max_a_per_s": 30.0,
         "fault_release_current_slew_a_per_s": 60.0,
     }
+
+
+def test_issue_35_public_use_program_keeps_worcester_as_terrain_reference_only():
+    program = _requirements()["public_use_program"]
+    assert program["issue"] == 35
+    assert program["status"] == "INFORMATIONAL_DESIGN_CONSTRAINT_ONLY"
+    assert program["worcester_park_role"] == (
+        "TERRAIN_REFERENCE_NOT_ASSUMED_TEST_VENUE"
+    )
+    assert program["powered_operation_authorized"] is False
+    assert program["public_operation_authorized"] is False
+
+
+def test_issue_35_does_not_treat_shasta_mode_as_vehicle_classification():
+    program = _requirements()["public_use_program"]
+    assert "do not assume Shasta" in program["classification_rule"]
+    assert program["public_road_status"] == (
+        "NOT_ESTABLISHED_FOR_HIGH_POWER_TRAIL_CONFIGURATION"
+    )
+    assert program["architecture_branches"] == [
+        "TRAIL_PRIVATE_OR_EXPRESSLY_AUTHORIZED_USE",
+        "PUBLIC_ROAD_ORIENTED_DERIVATIVE_STUDY",
+    ]
