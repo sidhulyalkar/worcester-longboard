@@ -52,13 +52,13 @@
       "freeze_gate": "rev_c_chassis_release_qualified",
       "contents": [
         "qualified Issue #4 fit-pilot authority",
-        "full-scale Comp 95-class versus Agent-class deck-envelope comparison authority",
+        "full-scale Comp 95-class versus Pro Warren III-class versus Agent-class deck-envelope comparison authority",
         "pre-purchase four-branch brake/drive topology trade authority",
         "mass-normalized front-versus-rear traction sweep record",
         "trail and range inert pack-envelope plausibility authority",
         "explicit chassis/wheel/brake/topology selection and rejected alternatives"
       ],
-      "authority": "Issue #25 releases only the preferred MEASURE_FIRST chassis/brake path. It cannot qualify physical interfaces or authorize power."
+      "authority": "Issue #25 releases only the evidence-selected matching MEASURE_FIRST chassis/brake path. It cannot qualify physical interfaces or authorize power."
     },
     {
       "id": "CHASSIS",
@@ -236,6 +236,21 @@
         "abrasion sleeve and strain relief"
       ],
       "authority": "Low-voltage bench development can proceed, but installation geometry waits for the physical chassis/topology/dummy-mount evidence"
+    },
+    {
+      "id": "TRAIL-ARMOR",
+      "status": "PLAN_ONLY",
+      "freeze_gate": "power_architecture_frozen",
+      "contents": [
+        "replaceable terrain-facing wear shoe / skid for each qualified protected zone",
+        "carrier or vendor guard structure with explicit residual-impact load path",
+        "inspectable structural mount and witness/migration method",
+        "clearance/breakover geometry record from measured chassis",
+        "debris/drainage escape path",
+        "dedicated service fasteners where possible",
+        "material/thickness selected only after final topology, contact geometry, mass and thermal environment are known"
+      ],
+      "authority": "Issue #37 may qualify inert armor geometry, serviceability and low-energy snag behavior. Material/thickness and powered impact-energy authority remain blocked until the final protected subsystem and structural load case exist."
     },
     {
       "id": "ENCLOSURES-HARNESS",
