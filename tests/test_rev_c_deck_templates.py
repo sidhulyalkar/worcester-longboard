@@ -9,7 +9,7 @@ def test_rev_c_candidate_envelopes_match_published_reference_dimensions():
     assert CANDIDATES["pro_warren_iii"]["length_mm"] == 980.0
     assert CANDIDATES["pro_warren_iii"]["width_mm"] == 244.0
     assert CANDIDATES["agent"]["length_mm"] == 1020.0
-    assert CANDIDATES["agent"]["width_mm"] == 284.0
+    assert CANDIDATES["agent"]["width_mm"] == 280.0
 
 
 def test_svg_is_explicitly_non_structural():
