@@ -19,7 +19,10 @@
     "connector_carriage_has_compliance_or_alignment_relief": false,
     "charger_cable_strain_relief_present": false,
     "charge_connector_protected_when_board_absent": false,
-    "service_access_preserved": false
+    "service_access_preserved": false,
+    "connector_mating_axis_free_to_self_align": false,
+    "board_retention_independent_of_connector": false,
+    "no_user_hand_near_inert_connector_during_final_alignment": false
   },
   "stability_check": {
     "method": "",
@@ -86,5 +89,12 @@
     "board_or_chassis_damage": null
   },
   "electrical_charge_authorized": false,
-  "powered_operation_authorized": false
+  "powered_operation_authorized": false,
+  "alignment_limits": {
+    "connector_manufacturer_source": "",
+    "lateral_misalignment_limit_checked": false,
+    "angular_misalignment_limit_checked": false,
+    "mating_force_or_method_limit_checked": false,
+    "dock_guides_prevent_exceeding_known_connector_limits": false
+  }
 }
