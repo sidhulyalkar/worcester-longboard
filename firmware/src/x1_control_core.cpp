@@ -88,9 +88,22 @@ Command step_controller(const Config& cfg, RideMode mode, const SensorFrame& s,
         return out;
     }
 
-    if (st.speed_mps > lim.speed_cap_mps) {
+    const bool overspeed = st.speed_mps > lim.speed_cap_mps;
+    if (overspeed) {
         out.faults |= FAULT_OVERSPEED;
         out.mechanical_brake_recommended = true;
+    }
+
+    if (overspeed && s.throttle >= 0.0f) {
+        out.drive_current_l_a = slew(
+            0.0f, previous.drive_current_l_a,
+            fault_release_current_slew, s.dt_s
+        );
+        out.drive_current_r_a = slew(
+            0.0f, previous.drive_current_r_a,
+            fault_release_current_slew, s.dt_s
+        );
+        return out;
     }
 
     const float thermal_batt = linear_derate(s.batt_temp_c, cfg.batt_derate_start_c, cfg.batt_derate_zero_c);
@@ -140,14 +153,19 @@ Command step_controller(const Config& cfg, RideMode mode, const SensorFrame& s,
             base_brake * out.regen_scale_l * vscale * thermal_l;
         const float target_brake_r =
             base_brake * out.regen_scale_r * vscale * thermal_r;
-        out.brake_current_l_a = slew(
-            target_brake_l, previous.brake_current_l_a,
-            brake_current_slew, s.dt_s
-        );
-        out.brake_current_r_a = slew(
-            target_brake_r, previous.brake_current_r_a,
-            brake_current_slew, s.dt_s
-        );
+        if (vscale <= 0.0f) {
+            out.brake_current_l_a = 0.0f;
+            out.brake_current_r_a = 0.0f;
+        } else {
+            out.brake_current_l_a = slew(
+                target_brake_l, previous.brake_current_l_a,
+                brake_current_slew, s.dt_s
+            );
+            out.brake_current_r_a = slew(
+                target_brake_r, previous.brake_current_r_a,
+                brake_current_slew, s.dt_s
+            );
+        }
         out.mechanical_brake_recommended =
             out.mechanical_brake_recommended ||
             (vscale < 0.75f) ||
