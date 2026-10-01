@@ -199,9 +199,26 @@
         "precharge / anti-spark strategy",
         "high-current connectors and conductors",
         "positive-retention crash-protected enclosure",
-        "cold-swap service concept until a qualified system explicitly supports otherwise"
+        "cold-swap service concept until a qualified system explicitly supports otherwise",
+        "mission-selected installed pack class rather than permanently maximizing installed energy",
+        "no default body-carried unprotected spare traction pack"
       ],
       "authority": "Rev-C energy classes replace the old implicit 12S4P assumption. Exact voltage, cells, BMS, connector and enclosure remain blocked until inert packaging and drive topology qualify."
+    },
+    {
+      "id": "CHARGE-DOCK",
+      "status": "PLAN_ONLY",
+      "freeze_gate": "power_architecture_frozen",
+      "contents": [
+        "stable passive parking cradle",
+        "self-centering board guides",
+        "floating or compliance-tolerant approved-charger connector carriage",
+        "charger cable strain relief",
+        "connector protection when board is absent",
+        "service access without connector acting as structural retention",
+        "inert connector fixture for pre-live qualification"
+      ],
+      "authority": "Issue #30 qualifies inert mechanical alignment only. The dock does not replace the selected battery/system-approved charger, cannot expose traction-voltage contacts, and cannot authorize live charging or powered operation."
     },
     {
       "id": "SUPERVISORY-ELECTRONICS",
