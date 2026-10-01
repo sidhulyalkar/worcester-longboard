@@ -640,11 +640,18 @@ def analyze(manifest: dict, base_dir: Path) -> dict:
         for metric in metric_names:
             value = entry["median_metrics"].get(metric)
             base = baseline_metrics.get(metric)
-            deltas[f"{metric}_pct_vs_baseline"] = (
-                _pct_delta(float(value), float(base))
-                if value is not None and base is not None
-                else None
-            )
+            if metric == "roll_yaw_correlation":
+                deltas["roll_yaw_correlation_delta_vs_baseline"] = (
+                    round(float(value) - float(base), 4)
+                    if value is not None and base is not None
+                    else None
+                )
+            else:
+                deltas[f"{metric}_pct_vs_baseline"] = (
+                    _pct_delta(float(value), float(base))
+                    if value is not None and base is not None
+                    else None
+                )
         entry["relative_to_baseline"] = deltas
 
     valid = (
