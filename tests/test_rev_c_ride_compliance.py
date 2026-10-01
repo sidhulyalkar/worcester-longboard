@@ -93,6 +93,8 @@ def _manifest(tmp_path: Path):
         "imu_mount_unchanged": True,
         "target_speed_mps": 2.0,
         "speed_tolerance_fraction": 0.10,
+        "max_within_run_speed_std_fraction": 0.08,
+        "max_config_median_speed_delta_fraction": 0.05,
         "minimum_samples_per_run": 100,
         "minimum_duration_s": 5.0,
         "minimum_repeats_per_config": 3,
@@ -137,6 +139,58 @@ def test_speed_mismatch_invalidates_run_and_comparison(tmp_path: Path):
     assert (
         report["config_results"]["pressure_lower"]["valid_for_comparison"] is False
     )
+
+
+def test_excessive_within_run_speed_variation_is_rejected(tmp_path: Path):
+    manifest = _manifest(tmp_path)
+    path = tmp_path / manifest["runs"][-1]["csv_path"]
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=(
+                "time_s",
+                "speed_mps",
+                "accel_z_mps2",
+                "gyro_roll_dps",
+                "gyro_yaw_dps",
+            ),
+        )
+        writer.writeheader()
+        for i in range(121):
+            writer.writerow(
+                {
+                    "time_s": i * 0.05,
+                    "speed_mps": 2.0 + 0.5 * math.sin(i / 2),
+                    "accel_z_mps2": 9.80665 + 0.4 * math.sin(i / 3),
+                    "gyro_roll_dps": 8.0 * math.sin(i / 7),
+                    "gyro_yaw_dps": 5.0 * math.sin(i / 9),
+                }
+            )
+
+    report = analyze(manifest, tmp_path)
+    assert report["valid"] is False
+    result = next(
+        x for x in report["run_results"]
+        if x["id"] == manifest["runs"][-1]["id"]
+    )
+    assert any("speed std" in error for error in result["errors"])
+
+
+def test_cross_configuration_median_speed_must_match_baseline(tmp_path: Path):
+    manifest = _manifest(tmp_path)
+    for run in manifest["runs"]:
+        if run["config_id"] == "pressure_lower":
+            _write_run(
+                tmp_path / run["csv_path"],
+                speed=2.18,
+                vibration_scale=0.7,
+            )
+
+    report = analyze(manifest, tmp_path)
+    assert report["valid"] is False
+    candidate = report["config_results"]["pressure_lower"]
+    assert candidate["valid_for_comparison"] is False
+    assert any("median configuration speed" in error for error in candidate["errors"])
 
 
 def test_nonbaseline_config_cannot_change_two_primary_variables(tmp_path: Path):
