@@ -5,8 +5,13 @@
   "course_id": "",
   "surface_description": "",
   "same_course_for_all_runs": true,
+  "imu_source_id": "",
   "imu_mount_id": "",
   "imu_mount_unchanged": true,
+  "speed_source_id": "",
+  "speed_source_calibrated": false,
+  "sensor_timebase_aligned": false,
+  "rider_observations_csv": "rider_observations.csv",
   "unpowered_test": true,
   "dog_or_leash_present": false,
   "tire_pressure_approved_range_kpa": [
