@@ -170,7 +170,7 @@
       "role": "electric-ready snowboard-composite benchmark",
       "known": {
         "deck_length_mm": 1020,
-        "deck_max_width_mm": 284,
+        "deck_max_width_mm": 280,
         "truck": "Matrix III",
         "hub": "Rockstar II",
         "tire": "T3 200x50",
