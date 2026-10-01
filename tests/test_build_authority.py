@@ -171,7 +171,7 @@ def test_front_hydraulic_release_does_not_unlock_v5_brake():
 
 def test_fallback_requires_strategy_change_after_rev_c_release():
     procurement = copy.deepcopy(_procurement())
-    procurement["rules"]["preferred_chassis_item_id"] = None
+    procurement["rules"]["instantiated_chassis_item_id"] = None
     fit, release = _all_physical_evidence()[:2]
     report = evaluate(_plan(), procurement, [fit, release])
     assert report["procurement_items"]["TRUCK-M3-400"]["orderable"] is True
