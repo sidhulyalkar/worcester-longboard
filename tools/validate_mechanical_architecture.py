@@ -97,6 +97,17 @@ def validate(
         errors.append(
             "risk rules must require lifecycle-health history before future powered operation"
         )
+    if risk_map.get("M23", {}).get("must_close_before") != "future_powered_operation_authority":
+        errors.append("M23 must close before future powered-operation authority")
+    if (
+        risks.get("rules", {}).get(
+            "powered_commissioning_stage_ladder_required_before_future_powered_operation"
+        )
+        is not True
+    ):
+        errors.append(
+            "risk rules must require staged commissioning before future powered operation"
+        )
 
     # Donor-grounded reference must reflect the selected Comp 95 family while
     # remaining explicitly catalog-derived until the received board is measured.
@@ -216,6 +227,47 @@ def validate(
             "power architecture can freeze without Issue #43 powertrain envelope"
         )
 
+    venue_gate = gates.get("powered_test_venue_qualified")
+    if not isinstance(venue_gate, dict) or venue_gate.get("issue") != 35:
+        errors.append("build authority lacks Issue #35 powered-test venue gate")
+
+    expected_stage_requires = {
+        "commissioning_stage_0_qualified": {"power_architecture_frozen"},
+        "commissioning_stage_1_qualified": {"commissioning_stage_0_qualified"},
+        "commissioning_stage_2_qualified": {"commissioning_stage_1_qualified"},
+        "commissioning_stage_3_qualified": {
+            "commissioning_stage_2_qualified",
+            "powered_test_venue_qualified",
+        },
+        "commissioning_stage_4_qualified": {
+            "commissioning_stage_3_qualified",
+            "powered_test_venue_qualified",
+        },
+    }
+    for gate_name, expected_requires in expected_stage_requires.items():
+        gate = gates.get(gate_name)
+        if not isinstance(gate, dict):
+            errors.append(f"build authority lacks {gate_name}")
+            continue
+        if gate.get("issue") != 45:
+            errors.append(f"{gate_name} must point to Issue #45")
+        if set(gate.get("requires", [])) != expected_requires:
+            errors.append(
+                f"{gate_name} has incorrect stage/venue prerequisites"
+            )
+
+    capabilities = build.get("capabilities", {})
+    powered_cap = capabilities.get("powered_operation", {})
+    if "commissioning_stage_4_qualified" not in set(powered_cap.get("requires", [])):
+        errors.append("powered_operation must require Stage 4 commissioning")
+    if powered_cap.get("hard_blocked") is not True:
+        errors.append("powered_operation must remain hard-blocked after Stage 4")
+
+    for cap_name in ("public_operation", "dog_accompanied_operation"):
+        cap = capabilities.get(cap_name, {})
+        if "commissioning_stage_4_qualified" not in set(cap.get("requires", [])):
+            errors.append(f"{cap_name} must require Stage 4 commissioning")
+
     subsystems = {x.get("id"): x for x in planned_bom.get("subsystems", []) if isinstance(x, dict)}
     release_subsystem = subsystems.get("REV-C-CHASSIS-RELEASE")
     if not release_subsystem or release_subsystem.get("freeze_gate") != "rev_c_chassis_release_qualified":
@@ -309,6 +361,36 @@ def validate(
     ):
         errors.append(
             "planned BOM must require current lifecycle health before future powered operation"
+        )
+
+    commissioning_subsystem = subsystems.get("POWERED-COMMISSIONING")
+    if not commissioning_subsystem:
+        errors.append("planned BOM must preserve explicit POWERED-COMMISSIONING subsystem")
+    else:
+        if commissioning_subsystem.get("status") != "PLAN_ONLY":
+            errors.append("POWERED-COMMISSIONING must remain PLAN_ONLY")
+        if commissioning_subsystem.get("freeze_gate") != "power_architecture_frozen":
+            errors.append(
+                "POWERED-COMMISSIONING must begin only after power_architecture_frozen"
+            )
+        authority = str(commissioning_subsystem.get("authority", ""))
+        for phrase in (
+            "Issue #45",
+            "fresh post-stage lifecycle health",
+            "cannot authorize general powered",
+        ):
+            if phrase not in authority:
+                errors.append(
+                    f"POWERED-COMMISSIONING authority must preserve boundary: {phrase}"
+                )
+    if (
+        planned_bom.get("rules", {}).get(
+            "future_powered_operation_requires_stage4_commissioning"
+        )
+        is not True
+    ):
+        errors.append(
+            "planned BOM must require Stage 4 commissioning before future powered operation"
         )
 
     for sid in ("DRIVE", "MOTOR-CONTROL", "TRACTION-BATTERY"):
