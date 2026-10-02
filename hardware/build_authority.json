@@ -323,6 +323,50 @@
           "type": "valid_authority_fingerprint"
         }
       ]
+    },
+    "lifecycle_health_ready": {
+      "issue": 41,
+      "requires": [
+        "rolling_chassis_physical_qualified"
+      ],
+      "evidence": [
+        {
+          "path": "authority",
+          "equals": "x1_lifecycle_health_state"
+        },
+        {
+          "path": "schema_version",
+          "equals": 1
+        },
+        {
+          "path": "valid",
+          "equals": true
+        },
+        {
+          "path": "health_state",
+          "equals": "READY_FOR_ALLOWED_ACTIVITY"
+        },
+        {
+          "path": "ready_for_allowed_activity",
+          "equals": true
+        },
+        {
+          "path": "powered_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "public_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "dog_accompanied_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
+      ]
     }
   },
   "capabilities": {
@@ -382,7 +426,8 @@
     },
     "powered_operation": {
       "requires": [
-        "power_architecture_frozen"
+        "power_architecture_frozen",
+        "lifecycle_health_ready"
       ],
       "hard_blocked": true,
       "block_reason": "No current Worcester X1 authority contract can authorize powered operation."
@@ -390,7 +435,8 @@
     "dog_accompanied_operation": {
       "issue": 33,
       "requires": [
-        "power_architecture_frozen"
+        "power_architecture_frozen",
+        "lifecycle_health_ready"
       ],
       "hard_blocked": true,
       "block_reason": "Issue #33 has no current physical companion authority contract; powered qualification alone cannot authorize dog-accompanied operation."
@@ -398,7 +444,8 @@
     "public_operation": {
       "issue": 35,
       "requires": [
-        "power_architecture_frozen"
+        "power_architecture_frozen",
+        "lifecycle_health_ready"
       ],
       "hard_blocked": true,
       "block_reason": "Issue #35 has not established a public-use vehicle classification or route/venue authority for Worcester X1."
