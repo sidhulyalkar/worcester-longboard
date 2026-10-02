@@ -131,7 +131,7 @@ It emits `x1_lifecycle_health_state`.
 
 A READY result means only maintenance-ready for an activity already permitted elsewhere. It cannot authorize power, public operation, or companion use.
 
-Any future powered-operation authority must consume a fresh READY health state for the current configuration rather than assuming that an old commissioning result remains valid forever.
+The build-authority graph now exposes `lifecycle_health_ready`. Every staged commissioning action and any future powered/public/companion operation path requires that gate in addition to the stage-specific or operating authority. A READY health report is therefore necessary but never sufficient.
 
 ## Powertrain envelope architecture
 

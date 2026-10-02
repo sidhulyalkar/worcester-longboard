@@ -62,6 +62,7 @@ jobs:
           assert report['gates']['power_packaging_candidate_defined']['satisfied'] is False
           assert report['gates']['dummy_pack_mount_qualified']['satisfied'] is False
           assert report['gates']['power_architecture_frozen']['satisfied'] is False
+          assert report['gates']['lifecycle_health_ready']['satisfied'] is False
           print('Public authority is conservative: fit-pilot ordering open; Rev-C chassis, topology, packaging, dummy-pack and power gates remain closed.')
           PY
       - name: Smoke-test Rev-C pre-purchase tools
