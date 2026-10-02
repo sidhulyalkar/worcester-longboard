@@ -165,6 +165,9 @@
         "right_motor_temperature_c",
         "left_controller_temperature_c",
         "right_controller_temperature_c"
+      ],
+      "required_event_codes": [
+        "REMOTE_DEADMAN_RELEASE"
       ]
     },
     "RESTRAINED_LOADED_BENCH": {
@@ -184,7 +187,8 @@
         "right_motor_temperature_c",
         "left_controller_temperature_c",
         "right_controller_temperature_c"
-      ]
+      ],
+      "required_event_codes": []
     },
     "RIDER_FREE_CONTROLLED_GROUND": {
       "required_stream_types": [
@@ -204,6 +208,9 @@
         "right_motor_temperature_c",
         "left_controller_temperature_c",
         "right_controller_temperature_c"
+      ],
+      "required_event_codes": [
+        "REMOTE_DEADMAN_RELEASE"
       ]
     },
     "RIDER_ONLY_VERY_LOW_SPEED": {
@@ -227,6 +234,11 @@
         "right_motor_temperature_c",
         "left_controller_temperature_c",
         "right_controller_temperature_c"
+      ],
+      "required_event_codes": [
+        "REMOTE_DEADMAN_RELEASE",
+        "STOPPING_START",
+        "VEHICLE_STOPPED"
       ]
     }
   },
