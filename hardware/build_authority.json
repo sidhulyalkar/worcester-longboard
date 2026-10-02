@@ -366,6 +366,13 @@
           "path": "authority_fingerprint_sha256",
           "type": "valid_authority_fingerprint"
         }
+      ],
+      "evidence_links": [
+        {
+          "path": "rolling_chassis_fingerprint_sha256",
+          "gate": "rolling_chassis_physical_qualified",
+          "target_path": "authority_fingerprint_sha256"
+        }
       ]
     }
   },
