@@ -59,6 +59,16 @@ def _initialized(tmp_path: Path, inventory=None):
     return checkout, inv_data
 
 
+def test_initialized_draft_can_be_structurally_valid_without_checkout_prices(tmp_path: Path):
+    checkout, inventory = _initialized(tmp_path)
+    report = validate(checkout, inventory)
+
+    assert report["valid"] is True
+    assert report["checkout_ready"] is False
+    assert report["order_record_complete"] is False
+    assert report["checkout_status"] == "DRAFT"
+
+
 def test_ready_cart_a_checkout_is_valid_but_creates_no_new_authority(tmp_path: Path):
     checkout, inventory = _initialized(tmp_path)
     _complete_checkout_fields(checkout)
