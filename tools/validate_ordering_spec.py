@@ -146,6 +146,7 @@ def validate(procurement: dict, sources: dict, planned: dict) -> dict:
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     procurement_path = Path(sys.argv[1]) if len(sys.argv) > 1 else root / "hardware/procurement_manifest.json"
+    procurement = json.loads(procurement_path.read_text(encoding="utf-8"))
     if len(sys.argv) > 2:
         sources_path = Path(sys.argv[2])
     else:
@@ -159,7 +160,7 @@ def main() -> None:
             sources_path = root / f"hardware/order_sources_{source_date}.json"
     planned_path = Path(sys.argv[3]) if len(sys.argv) > 3 else root / "hardware/planned_system_bom.json"
     report = validate(
-        json.loads(procurement_path.read_text(encoding="utf-8")),
+        procurement,
         json.loads(sources_path.read_text(encoding="utf-8")),
         json.loads(planned_path.read_text(encoding="utf-8")),
     )
