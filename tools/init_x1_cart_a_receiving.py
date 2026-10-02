@@ -46,6 +46,18 @@ def initialize(
         raise ValueError("checkout authority fingerprint is invalid")
     if authority.get("valid") is not True or authority.get("order_record_complete") is not True:
         raise ValueError("checkout authority must be valid and order-record complete")
+    if authority.get("checkout_within_existing_buy_now_authority") is not True:
+        raise ValueError("checkout authority must remain within existing BUY_NOW authority")
+    for key in (
+        "procurement_authority",
+        "physical_qualification_authority",
+        "fabrication_authority",
+        "powered_operation_authorized",
+        "public_operation_authorized",
+        "dog_accompanied_operation_authorized",
+    ):
+        if authority.get(key) is not False:
+            raise ValueError(f"checkout authority boundary violated: {key}")
     if authority.get("checkout_record_sha256") != _digest(checkout):
         raise ValueError("checkout authority does not match supplied checkout record")
     if authority.get("checkout_id") != checkout.get("checkout_id"):
