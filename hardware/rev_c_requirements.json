@@ -595,5 +595,66 @@
     "battery_configuration_authority": false,
     "thermal_qualification": false,
     "powered_operation_authorized": false
+  },
+  "powered_commissioning_program": {
+    "issue": 45,
+    "phase": "POST_FINAL_POWER_ARCHITECTURE_STAGED_COMMISSIONING",
+    "snapshot": "hardware/rev_c_powered_commissioning_snapshot_2026-10-01.json",
+    "stage_template": "hardware/rev_c_powered_commissioning_stage_template.json",
+    "session_initializer": "tools/init_rev_c_powered_commissioning_stage.py",
+    "qualifier": "tools/qualify_rev_c_powered_commissioning_stage.py",
+    "stages": [
+      {
+        "index": 0,
+        "id": "BENCH_READINESS",
+        "ground_travel": false,
+        "rider": false,
+        "venue_required": false
+      },
+      {
+        "index": 1,
+        "id": "SECURED_UNLOADED_SPIN",
+        "ground_travel": false,
+        "rider": false,
+        "venue_required": false
+      },
+      {
+        "index": 2,
+        "id": "RESTRAINED_LOADED_BENCH",
+        "ground_travel": false,
+        "rider": false,
+        "venue_required": false
+      },
+      {
+        "index": 3,
+        "id": "RIDER_FREE_CONTROLLED_GROUND",
+        "ground_travel": true,
+        "rider": false,
+        "venue_required": true
+      },
+      {
+        "index": 4,
+        "id": "RIDER_ONLY_VERY_LOW_SPEED",
+        "ground_travel": true,
+        "rider": true,
+        "venue_required": true
+      }
+    ],
+    "hard_boundaries": [
+      "no commissioning stage may be skipped",
+      "every stage binds to the exact final power-architecture fingerprint",
+      "every stage starts from a READY lifecycle-health state for the same board/configuration",
+      "every energized stage closes with a new READY post-stage lifecycle-health state",
+      "ground stages require fingerprinted qualified powered-test venue evidence",
+      "dog is absent from every Stage 0-4 commissioning activity",
+      "public-area operation is absent from every Stage 0-4 commissioning activity",
+      "regen remains supplemental to independent mechanical braking",
+      "Stage 4 completion does not authorize general powered operation",
+      "Stage 4 completion does not authorize public operation",
+      "Stage 4 completion does not authorize dog-accompanied operation"
+    ],
+    "general_powered_operation_authorized": false,
+    "public_operation_authorized": false,
+    "dog_accompanied_operation_authorized": false
   }
 }

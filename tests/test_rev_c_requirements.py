@@ -355,3 +355,67 @@ def test_issue_43_g1_ratio_reference_does_not_select_a_ratio_for_x1():
     assert reference["official_agent_motor_gear_references_teeth"] == [13, 15, 17]
     assert reference["stock_agent_motor_gear_teeth"] == 15
     assert reference["selection_for_x1"] == "NONE"
+
+
+def test_issue_45_powered_commissioning_is_staged_and_post_freeze():
+    program = _requirements()["powered_commissioning_program"]
+    assert program["issue"] == 45
+    assert program["phase"] == "POST_FINAL_POWER_ARCHITECTURE_STAGED_COMMISSIONING"
+    assert [stage["id"] for stage in program["stages"]] == [
+        "BENCH_READINESS",
+        "SECURED_UNLOADED_SPIN",
+        "RESTRAINED_LOADED_BENCH",
+        "RIDER_FREE_CONTROLLED_GROUND",
+        "RIDER_ONLY_VERY_LOW_SPEED",
+    ]
+    assert [stage["index"] for stage in program["stages"]] == [0, 1, 2, 3, 4]
+
+
+def test_issue_45_ground_and_rider_stages_are_distinct():
+    stages = {
+        stage["id"]: stage
+        for stage in _requirements()["powered_commissioning_program"]["stages"]
+    }
+    assert stages["SECURED_UNLOADED_SPIN"]["ground_travel"] is False
+    assert stages["RESTRAINED_LOADED_BENCH"]["ground_travel"] is False
+    assert stages["RIDER_FREE_CONTROLLED_GROUND"] == {
+        "index": 3,
+        "id": "RIDER_FREE_CONTROLLED_GROUND",
+        "ground_travel": True,
+        "rider": False,
+        "venue_required": True,
+    }
+    assert stages["RIDER_ONLY_VERY_LOW_SPEED"] == {
+        "index": 4,
+        "id": "RIDER_ONLY_VERY_LOW_SPEED",
+        "ground_travel": True,
+        "rider": True,
+        "venue_required": True,
+    }
+
+
+def test_issue_45_never_turns_commissioning_into_normal_operation_authority():
+    program = _requirements()["powered_commissioning_program"]
+    boundaries = program["hard_boundaries"]
+    assert "Stage 4 completion does not authorize general powered operation" in boundaries
+    assert "Stage 4 completion does not authorize public operation" in boundaries
+    assert "Stage 4 completion does not authorize dog-accompanied operation" in boundaries
+    assert program["general_powered_operation_authorized"] is False
+    assert program["public_operation_authorized"] is False
+    assert program["dog_accompanied_operation_authorized"] is False
+
+
+def test_issue_45_requires_health_and_venue_lineage():
+    boundaries = _requirements()["powered_commissioning_program"]["hard_boundaries"]
+    assert (
+        "every stage starts from a READY lifecycle-health state for the same board/configuration"
+        in boundaries
+    )
+    assert (
+        "every energized stage closes with a new READY post-stage lifecycle-health state"
+        in boundaries
+    )
+    assert (
+        "ground stages require fingerprinted qualified powered-test venue evidence"
+        in boundaries
+    )

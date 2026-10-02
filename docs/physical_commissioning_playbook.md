@@ -46,17 +46,33 @@ Issue #28 ride compliance    Issue #19 brake/drive topology
                                                                         |
                                                                         v
                                                            final power architecture freeze
-                                                   |
-                                                   v
-                                   Issue #35 authorized venue evidence
-                                                   |
-                                                   v
-                             current Issue #41 health state must be READY
-                                                   |
-                                                   v
-                                       future powered commissioning
-                                                   |
-                                                   v
+                                                                        |
+                                                                        v
+                                            current Issue #41 health state must be READY
+                                                                        |
+                                                                        v
+                                               Issue #45 Stage 0 bench readiness
+                                                                        |
+                                                                        v
+                                         Stage 1 secured unloaded wheel spin
+                                                                        |
+                                                                        v
+                                          Stage 2 restrained loaded bench
+                                                                        |
+                                              +-------------------------+
+                                              |                         |
+                                              v                         v
+                                Issue #35 authorized venue       fresh Issue #41 READY
+                                              |                         |
+                                              +------------+------------+
+                                                           |
+                                                           v
+                                      Stage 3 rider-free controlled ground
+                                                           |
+                                                           v
+                                      Stage 4 rider-only very-low-speed
+                                                           |
+                                                           v
                                   Issue #33 rider-only Shasta qualification
                                                    |
                                                    v
@@ -655,23 +671,78 @@ dog_accompanied_operation_authority = false
 
 Venue permission never substitutes for vehicle qualification.
 
-## 10. Drivetrain commissioning after final freeze
+## 10. Issue #45 staged powered commissioning after final freeze
 
 Even after final power architecture is frozen, do not jump directly to riding.
 
-Mechanical commissioning order:
+First complete the non-energized drivetrain readiness work:
 
-1. assemble drive without traction battery installed;
+1. assemble the selected drive without using propulsion to discover mechanical mistakes;
 2. hand-rotate every wheel through a full revolution;
 3. verify backlash/tension/alignment;
 4. verify wheel/tube service;
 5. verify guard/skid clearance;
-6. perform static torque-reaction test;
-7. inspect witness marks;
-8. only then use a current-limited low-energy source if future electrical authority allows;
-9. inspect mount angle, bearings and temperature after every run.
+6. perform the selected static torque-reaction/retention checks;
+7. inspect critical witness marks;
+8. create a fresh lifecycle-health preflight for the exact final configuration.
 
-A future powered-operation authority must add its own incremental speed/load/failsafe/thermal test ladder. Current repository authority remains hard-blocked from powered riding.
+Then follow `docs/rev_c_powered_commissioning.md`.
+
+The commissioning ladder is:
+
+```text
+Stage 0  BENCH_READINESS
+        -> Stage 1 SECURED_UNLOADED_SPIN
+        -> Stage 2 RESTRAINED_LOADED_BENCH
+        -> Stage 3 RIDER_FREE_CONTROLLED_GROUND
+        -> Stage 4 RIDER_ONLY_VERY_LOW_SPEED
+```
+
+Initialize each private stage from the actual final power architecture and current lifecycle-health authority:
+
+```bash
+python tools/init_rev_c_powered_commissioning_stage.py \
+  rider/private/commissioning/stage-0 \
+  --stage-id BENCH_READINESS \
+  --board-id X1-A \
+  --configuration-id CFG-A \
+  --power-architecture rider/private/power/final/power_authority.json \
+  --pre-health-state rider/private/health/x1-a/health_state.json
+```
+
+Stage 1-4 additionally consume the immediately previous stage authority.
+
+Every energized stage must be followed by inspection/service as needed plus a **new** lifecycle preflight that returns `READY_FOR_ALLOWED_ACTIVITY` before the stage can qualify.
+
+Stage 3 and Stage 4 additionally require the exact fingerprinted Issue #35 venue authority.
+
+Qualify an energized stage with:
+
+```bash
+python tools/qualify_rev_c_powered_commissioning_stage.py \
+  rider/private/commissioning/stage-1/commissioning_manifest.json \
+  --power-architecture rider/private/power/final/power_authority.json \
+  --pre-health-state rider/private/health/x1-a/pre_stage_health.json \
+  --previous-stage rider/private/commissioning/stage-0/authority.json \
+  --post-health-state rider/private/health/x1-a/post_stage_health.json \
+  --out rider/private/commissioning/stage-1/authority.json
+```
+
+Stage 3/4 add `--venue-authority`.
+
+No stage may be skipped.
+
+Any universal stop condition, unresolved anomaly, non-READY post-stage health state, configuration-lineage mismatch, or missing required measurement prevents stage qualification.
+
+A passing Stage 4 still reports:
+
+```text
+general_powered_operation_authorized = false
+public_operation_authorized = false
+dog_accompanied_operation_authorized = false
+```
+
+Issue #45 therefore closes the old "future powered commissioning" placeholder without turning commissioning evidence into normal-use authority.
 
 ## 10A. Issue #33 Shasta companion-mode qualification
 
