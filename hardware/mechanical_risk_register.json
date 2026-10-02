@@ -439,6 +439,78 @@
         "compare candidate pack locations before final enclosure freeze"
       ],
       "must_close_before": "dummy_pack_mount_qualified"
+    },
+    {
+      "id": "M19",
+      "subsystem": "environmental_ingress",
+      "failure_mode": "dust, grit, mud or splash bypasses intended shields/seals/drainage and reaches a protected electrical or mechanical zone",
+      "effect": "electrical fault, connector contamination, trapped moisture, bearing/brake degradation, or loss of serviceability",
+      "severity": 5,
+      "likelihood": 4,
+      "detectability": 3,
+      "priority_score": 60,
+      "status": "OPEN_ENVIRONMENTAL",
+      "prevention": [
+        "map every exposed interface and contamination path",
+        "use shields/labyrinths/drainage instead of assuming complete sealing",
+        "orient seams/connectors to shed water where practical",
+        "keep live traction hardware out of initial ingress discovery tests"
+      ],
+      "verification": [
+        "Issue #39 inert dry-grit splash and mud-surrogate cycles",
+        "protected-zone witness inspection",
+        "post-exposure drainage/drying inspection",
+        "connector and moving-interface service recovery"
+      ],
+      "must_close_before": "power_architecture_frozen"
+    },
+    {
+      "id": "M20",
+      "subsystem": "environmental_corrosion_fretting",
+      "failure_mode": "retained moisture or contamination causes corrosion, contact discoloration, fretting or seal degradation",
+      "effect": "increased resistance, intermittent sensing/control, seized service interfaces, weakened fasteners or hidden damage",
+      "severity": 5,
+      "likelihood": 3,
+      "detectability": 3,
+      "priority_score": 45,
+      "status": "OPEN_ENVIRONMENTAL",
+      "prevention": [
+        "avoid moisture traps and dissimilar-material shortcuts where possible",
+        "preserve inspectable drainage and drying paths",
+        "use manufacturer-compatible connector/seal service methods",
+        "use coupon/lab corrosion screening only when material choices require it"
+      ],
+      "verification": [
+        "Issue #39 post-dry inspection",
+        "connector inspection after contamination/recovery",
+        "material/coating screening where justified",
+        "future energized environmental validation after final electrical architecture"
+      ],
+      "must_close_before": "power_architecture_frozen"
+    },
+    {
+      "id": "M21",
+      "subsystem": "environmental_service_recovery",
+      "failure_mode": "normal trail contamination cannot be removed without pressure washing, opening primary seals, contaminating brakes, or disturbing safety-critical joints",
+      "effect": "maintenance is skipped or cleaning itself creates damage and latent failures",
+      "severity": 4,
+      "likelihood": 4,
+      "detectability": 2,
+      "priority_score": 32,
+      "status": "OPEN_ENVIRONMENTAL",
+      "prevention": [
+        "design replaceable contamination shields and accessible drains",
+        "keep brake friction surfaces out of cleaner/lubricant runoff paths",
+        "preserve wheel/tire/brake/steering service without opening traction enclosure",
+        "define least-aggressive approved cleaning and drying procedure"
+      ],
+      "verification": [
+        "Issue #39 wheel brake steering recovery checks",
+        "post-exposure service dry-run",
+        "repeatable drain/dry procedure",
+        "inspection for seal displacement harness chafe and fastener migration"
+      ],
+      "must_close_before": "power_architecture_frozen"
     }
   ]
 }
