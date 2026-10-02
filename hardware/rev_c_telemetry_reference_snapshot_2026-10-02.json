@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-02",
+  "scope": "rev_c_telemetry_evidence_reference",
+  "authority": "REFERENCE_ONLY",
+  "issues": [
+    47,
+    49
+  ],
+  "objective": "Create one canonical, replayable, private raw telemetry contract for powered commissioning, lifecycle evidence, range calibration, control debugging, and fault reconstruction without making logging a control dependency.",
+  "logging_boundary": {
+    "real_time_control_dependency": false,
+    "logger_failure_may_invalidate_evidence": true,
+    "logger_failure_may_preserve_unsafe_propulsion": false,
+    "telemetry_validity_proves_physical_calibration": false,
+    "telemetry_validity_proves_vehicle_safety": false,
+    "telemetry_validity_authorizes_powered_operation": false,
+    "raw_route_and_motion_data_public": false
+  },
+  "stream_families": [
+    "control",
+    "electrical_drivetrain",
+    "motion",
+    "thermal"
+  ],
+  "event_log": {
+    "format": "jsonl_v1",
+    "required_supported_event_types": [
+      "SESSION_START",
+      "SESSION_STOP",
+      "STAGE_START",
+      "STAGE_STOP",
+      "DEADMAN_TRANSITION",
+      "REMOTE_STALE",
+      "FAULT_TRANSITION",
+      "MECHANICAL_BRAKE_MARKER",
+      "STOPPING_TEST_START",
+      "OPERATOR_STOP",
+      "ANOMALY"
+    ]
+  },
+  "clock_contract": {
+    "raw_streams_may_have_independent_clocks": true,
+    "timestamp_monotonic_required": true,
+    "sequence_monotonic_required": true,
+    "synchronization_declared_required": true,
+    "sync_model": "session_time_s = raw_time_s * scale + offset_s",
+    "sync_uncertainty_required": true,
+    "sync_evidence_reference_required": true,
+    "minimum_required_stream_overlap_fraction": 0.9,
+    "unexplained_gap_over_declared_max_invalidates_stream": true
+  },
+  "file_integrity": {
+    "sha256_required": true,
+    "declared_schema_required": true,
+    "finite_numeric_signal_values_required": true,
+    "duplicate_sequence_invalid": true,
+    "duplicate_or_nonmonotonic_timestamp_invalid": true
+  },
+  "commissioning_integration": {
+    "BENCH_READINESS": {
+      "telemetry_required": false,
+      "rationale": "Stage 0 is non-energized planning/readiness and requires only a logging plan."
+    },
+    "SECURED_UNLOADED_SPIN": {
+      "telemetry_required": true,
+      "required_signals": [
+        "pack_voltage_v",
+        "battery_current_a",
+        "left_motor_erpm",
+        "right_motor_erpm",
+        "left_motor_temperature_c",
+        "right_motor_temperature_c",
+        "left_controller_temperature_c",
+        "right_controller_temperature_c",
+        "remote_deadman_active",
+        "drive_current_cmd_left_a",
+        "drive_current_cmd_right_a",
+        "controller_fault_bits"
+      ]
+    },
+    "RESTRAINED_LOADED_BENCH": {
+      "telemetry_required": true,
+      "required_signals": [
+        "pack_voltage_v",
+        "battery_current_a",
+        "left_phase_current_a",
+        "right_phase_current_a",
+        "left_motor_erpm",
+        "right_motor_erpm",
+        "left_motor_temperature_c",
+        "right_motor_temperature_c",
+        "left_controller_temperature_c",
+        "right_controller_temperature_c",
+        "remote_deadman_active",
+        "drive_current_cmd_left_a",
+        "drive_current_cmd_right_a",
+        "regen_current_cmd_left_a",
+        "regen_current_cmd_right_a",
+        "controller_fault_bits"
+      ]
+    },
+    "RIDER_FREE_CONTROLLED_GROUND": {
+      "telemetry_required": true,
+      "required_signals": [
+        "ground_speed_mps",
+        "pack_voltage_v",
+        "battery_current_a",
+        "left_phase_current_a",
+        "right_phase_current_a",
+        "left_motor_erpm",
+        "right_motor_erpm",
+        "left_motor_temperature_c",
+        "right_motor_temperature_c",
+        "left_controller_temperature_c",
+        "right_controller_temperature_c",
+        "remote_deadman_active",
+        "drive_current_cmd_left_a",
+        "drive_current_cmd_right_a",
+        "tc_scale_left",
+        "tc_scale_right",
+        "controller_fault_bits"
+      ],
+      "required_observed_events": [
+        "DEADMAN_TRANSITION"
+      ]
+    },
+    "RIDER_ONLY_VERY_LOW_SPEED": {
+      "telemetry_required": true,
+      "required_signals": [
+        "ground_speed_mps",
+        "longitudinal_accel_mps2",
+        "longitudinal_jerk_mps3",
+        "pack_voltage_v",
+        "battery_current_a",
+        "left_phase_current_a",
+        "right_phase_current_a",
+        "left_motor_erpm",
+        "right_motor_erpm",
+        "left_motor_temperature_c",
+        "right_motor_temperature_c",
+        "left_controller_temperature_c",
+        "right_controller_temperature_c",
+        "remote_deadman_active",
+        "drive_current_cmd_left_a",
+        "drive_current_cmd_right_a",
+        "regen_current_cmd_left_a",
+        "regen_current_cmd_right_a",
+        "tc_scale_left",
+        "tc_scale_right",
+        "controller_fault_bits"
+      ],
+      "required_observed_events": [
+        "DEADMAN_TRANSITION",
+        "STOPPING_TEST_START"
+      ]
+    }
+  },
+  "replay_metrics": {
+    "pack_voltage_v": "reference validated pack-voltage time series",
+    "battery_current_a": "reference validated battery-current time series",
+    "left_phase_current_a": "reference validated left phase-current time series",
+    "right_phase_current_a": "reference validated right phase-current time series",
+    "left_motor_speed": "reference left_motor_erpm time series",
+    "right_motor_speed": "reference right_motor_erpm time series",
+    "left_motor_erpm": "reference validated left_motor_erpm time series",
+    "right_motor_erpm": "reference validated right_motor_erpm time series",
+    "left_motor_temperature_c": "reference validated left motor-temperature time series",
+    "right_motor_temperature_c": "reference validated right motor-temperature time series",
+    "left_controller_temperature_c": "reference validated left controller-temperature time series",
+    "right_controller_temperature_c": "reference validated right controller-temperature time series",
+    "ground_speed_mps": "reference validated independent ground-speed time series",
+    "longitudinal_accel_mps2": "reference validated longitudinal-acceleration time series",
+    "longitudinal_jerk_mps3": "reference validated longitudinal-jerk time series",
+    "remote_release_propulsion_decay_s": "derive from a DEADMAN_TRANSITION release event and left/right drive-current command decay",
+    "stopping_distance_m": "integrate ground_speed_mps after STOPPING_TEST_START until the first sustained stopped interval"
+  },
+  "privacy": {
+    "raw_session_data": "rider/private/",
+    "public_repo": "schemas, validators, synthetic fixtures, signal definitions and non-personal derived logic only",
+    "precise_routes_public": false,
+    "serials_public": false,
+    "personal_motion_public": false
+  },
+  "authority_boundaries": [
+    "A valid telemetry session proves schema, chronology, hash, source, synchronization, gap and coverage integrity only.",
+    "Physical sensor calibration is not inferred merely because calibration_id is present.",
+    "A valid telemetry session does not prove a commissioning stage passed.",
+    "A replay metric does not authorize powered operation.",
+    "Missing or corrupt required logging invalidates commissioning evidence but must not affect the controller's fail-conservative behavior."
+  ],
+  "powered_operation_authorized": false,
+  "public_operation_authorized": false,
+  "dog_accompanied_operation_authorized": false
+}
