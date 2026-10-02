@@ -94,6 +94,19 @@ def test_ordered_checkout_requires_confirmation_and_total_reconciliation(tmp_pat
     assert "order_total_usd does not match merchandise + shipping + tax" in report["errors"]
 
 
+def test_private_checkout_cannot_relax_public_freshness_policy(tmp_path: Path):
+    checkout, inventory = _initialized(tmp_path)
+    _complete_checkout_fields(checkout)
+    checkout["source_freshness_policy"]["max_refresh_scope_age_days"] = 365
+
+    report = validate(checkout, inventory)
+    assert report["valid"] is False
+    assert (
+        "source_freshness_policy does not match procurement authority"
+        in report["errors"]
+    )
+
+
 def test_refreshed_exact_sources_expire_after_declared_freshness_window(tmp_path: Path):
     checkout, inventory = _initialized(tmp_path)
     _complete_checkout_fields(
