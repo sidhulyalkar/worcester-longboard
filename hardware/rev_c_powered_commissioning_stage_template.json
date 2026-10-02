@@ -12,6 +12,7 @@
   "post_lifecycle_health_fingerprint_sha256": "",
   "previous_stage_fingerprint_sha256": "",
   "venue_authority_fingerprint_sha256": "",
+  "telemetry_summary_fingerprint_sha256": "",
   "energized": false,
   "free_ground_travel": false,
   "rider_present": false,
