@@ -3,12 +3,35 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / "hardware/rev_c_environmental_trial_template.json"
+
+
+def _valid_authority(data: dict, expected: str) -> bool:
+    if data.get("authority") != expected or data.get("qualified") is not True:
+        return False
+    if data.get("powered_operation_authorized") is not False:
+        return False
+    actual = data.get("authority_fingerprint_sha256")
+    if not isinstance(actual, str) or not actual:
+        return False
+    unsigned = dict(data)
+    unsigned.pop("authority_fingerprint_sha256", None)
+    try:
+        payload = json.dumps(
+            unsigned,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("utf-8")
+    except (TypeError, ValueError):
+        return False
+    return actual == hashlib.sha256(payload).hexdigest()
 
 
 def initialize(
@@ -28,10 +51,16 @@ def initialize(
     chassis = json.loads(chassis_authority_path.read_text(encoding="utf-8"))
     dummy = json.loads(dummy_pack_authority_path.read_text(encoding="utf-8"))
 
-    if chassis.get("authority") != "x1_rolling_chassis_physical":
-        raise ValueError("chassis authority must be x1_rolling_chassis_physical")
-    if dummy.get("authority") != "x1_dummy_pack_mount":
-        raise ValueError("dummy-pack authority must be x1_dummy_pack_mount")
+    if not _valid_authority(chassis, "x1_rolling_chassis_physical"):
+        raise ValueError(
+            "chassis authority must be qualified, fingerprint-valid "
+            "x1_rolling_chassis_physical"
+        )
+    if not _valid_authority(dummy, "x1_dummy_pack_mount"):
+        raise ValueError(
+            "dummy-pack authority must be qualified, fingerprint-valid "
+            "x1_dummy_pack_mount"
+        )
 
     manifest = json.loads(TEMPLATE.read_text(encoding="utf-8"))
     manifest["session_id"] = session_dir.name
