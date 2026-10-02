@@ -90,6 +90,14 @@ def initialize(
         item["stream_type"]: item
         for item in contract["streams"]
     }
+    required_stream_types = set(
+        contract["stage_requirements"][stage_id]["required_stream_types"]
+    )
+    manifest["streams"] = [
+        stream
+        for stream in manifest["streams"]
+        if stream["stream_type"] in required_stream_types
+    ]
     for stream in manifest["streams"]:
         stream_type = stream["stream_type"]
         spec = specs[stream_type]
