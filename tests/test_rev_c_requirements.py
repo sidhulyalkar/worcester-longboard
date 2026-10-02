@@ -310,3 +310,48 @@ def test_issue_41_does_not_invent_service_intervals_or_erase_history():
         "open STOP findings require explicit inspection/service closure and a fresh preflight"
         in policies
     )
+
+
+def test_issue_43_powertrain_envelope_is_sourced_and_pre_power_freeze():
+    program = _requirements()["powertrain_envelope_program"]
+    assert program["issue"] == 43
+    assert program["phase"] == (
+        "POST_TOPOLOGY_AND_DUMMY_PACK_PRE_FINAL_POWER_FREEZE"
+    )
+    assert program["required_scenario_classes"] == [
+        "flat_cruise",
+        "grade_climb",
+        "low_speed_accel",
+    ]
+    assert program["must_close_before"] == "power_architecture_frozen"
+    assert program["physical_authority"] is False
+    assert program["procurement_authority"] is False
+    assert program["controller_configuration_authority"] is False
+    assert program["battery_configuration_authority"] is False
+    assert program["thermal_qualification"] is False
+    assert program["powered_operation_authorized"] is False
+
+
+def test_issue_43_keeps_phase_battery_current_and_thermal_boundaries_explicit():
+    boundaries = _requirements()["powertrain_envelope_program"]["hard_boundaries"]
+    assert "motor phase current and battery current remain distinct quantities" in boundaries
+    assert "no-load geometric speed is not a ride-speed claim" in boundaries
+    assert "first-order current and power analysis is not thermal qualification" in boundaries
+    assert (
+        "all candidate electrical and motor limits require explicit source references"
+        in boundaries
+    )
+    assert (
+        "Issue #19 selected topology must match the candidate propulsion topology"
+        in boundaries
+    )
+
+
+def test_issue_43_g1_ratio_reference_does_not_select_a_ratio_for_x1():
+    reference = _requirements()["powertrain_envelope_program"][
+        "official_g1_reference_ratio_study"
+    ]
+    assert reference["wheel_gear_teeth"] == 64
+    assert reference["official_agent_motor_gear_references_teeth"] == [13, 15, 17]
+    assert reference["stock_agent_motor_gear_teeth"] == 15
+    assert reference["selection_for_x1"] == "NONE"
