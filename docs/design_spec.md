@@ -42,10 +42,11 @@ The project minimizes expensive re-buys by freezing interfaces in the order that
 | Brake/drive topology | unresolved and explicitly gated by Issue #19 |
 | Ride compliance | Issue #28 unpowered characterization after a qualified rolling chassis; analysis cannot authorize procurement or power |
 | Public-use / test venue | Issue #35 keeps Worcester Park as terrain inspiration only under current Town rules; public-road status of a high-power trail configuration is not established |
+| Lifecycle health | Issue #41 begins after rolling-chassis authority and preserves append-only preflight/service/impact/configuration history tied to the exact chassis fingerprint |
 | Rider interface | independent left/right Rev-B geometry is blocked on qualified fit evidence |
 | Power packaging candidate | blocked until topology and Rev-B authority exist |
 | Inert battery-mass load path | blocked until packaging candidate exists; Issue #21 closes it |
-| Final power architecture | blocked until Issue #21 passes |
+| Final power architecture | blocked until Issue #21 and the Issue #39 inert environmental candidate pass |
 | Permanent rider-specific drilling | blocked until full-scale template and Rev-B gate pass |
 
 The unpowered donor must roll, steer, clear its real motion envelope, stop mechanically, be serviceable, and survive post-test inspection before the brake/drive topology can be qualified.
@@ -108,6 +109,28 @@ Issue #12 now has an executable evidence path rather than an abstract build gate
 - no drivetrain, traction battery, or powered testing inside the unpowered evidence scope.
 
 A passing report is `x1_rolling_chassis_physical` and still cannot authorize power.
+
+## Lifecycle health architecture
+
+Issue #41 begins when Issue #12 emits the fingerprinted physical rolling-chassis authority.
+
+That event creates the identity anchor for the vehicle's persistent health record.
+
+The lifecycle system uses:
+
+- `hardware/x1_component_registry_template.json`;
+- append-only `x1_vehicle_health_event` records;
+- `tools/init_x1_lifecycle_health.py`;
+- `tools/new_x1_health_event.py`;
+- `tools/evaluate_x1_lifecycle_health.py`.
+
+The evaluator verifies the rolling-chassis fingerprint, configuration lineage, event chronology, nondecreasing odometer/ride-hour counters when present, unresolved findings, sourced service intervals, and the latest preflight.
+
+It emits `x1_lifecycle_health_state`.
+
+A READY result means only maintenance-ready for an activity already permitted elsewhere. It cannot authorize power, public operation, or companion use.
+
+Any future powered-operation authority must consume a fresh READY health state for the current configuration rather than assuming that an old commissioning result remains valid forever.
 
 ## Staged power packaging architecture
 
