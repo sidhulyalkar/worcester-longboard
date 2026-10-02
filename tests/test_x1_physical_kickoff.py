@@ -112,17 +112,23 @@ def test_inventory_cannot_contain_blocked_or_unknown_item():
         render(_plan(), _procurement(), inventory)
 
 
-def test_renderer_refuses_if_public_state_opens_non_buy_now_item():
+def test_renderer_rejects_tampered_attempt_to_open_non_buy_now_item():
     plan = copy.deepcopy(_plan())
-    # Artificial regression fixture: remove the chassis gate and stage dependency.
+    # Artificial regression fixture: remove the chassis gate and item selection
+    # constraints. Either the manifest validator or the renderer's redundant
+    # no-evidence check must reject this state.
     plan["gates"]["rev_c_chassis_release_qualified"]["requires"] = []
     procurement = copy.deepcopy(_procurement())
     donor = next(x for x in procurement["items"] if x["id"] == "DONOR-COMP95")
     donor.pop("requires_gate", None)
     donor.pop("requires_gate_selections", None)
 
-    with pytest.raises(ValueError, match="unexpectedly open non-BUY_NOW"):
+    with pytest.raises(ValueError) as exc:
         render(plan, procurement, _inventory())
+    assert (
+        "invalid procurement manifest" in str(exc.value)
+        or "unexpectedly open non-BUY_NOW" in str(exc.value)
+    )
 
 
 def test_initializer_creates_full_private_kickoff_workspace(tmp_path: Path):
