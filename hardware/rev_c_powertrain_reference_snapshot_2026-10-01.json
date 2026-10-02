@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-01",
+  "scope": "rev_c_powertrain_reference_snapshot",
+  "authority": "REFERENCE_ONLY",
+  "issue": 43,
+  "purpose": "Dated propulsion-system reference facts and modeling boundaries for non-authoritative Rev-C trade studies.",
+  "mbs_g1": {
+    "selected_for_x1": false,
+    "wheel_gear_teeth": 64,
+    "gearbox": "sealed pre-greased helical gearboxes",
+    "compatible_truck_requirement": "Matrix III with 70 mm axles",
+    "motor_mount_pattern": "common 4-hole pattern, 44 mm diagonal hole spacing",
+    "motors_sold_separately": true,
+    "motor_gears_sold_separately": true,
+    "source": "https://www.mbs.com/shop/p/gear-drive-system"
+  },
+  "mbs_agent_reference": {
+    "selected_for_x1": false,
+    "stock_motor_gear_teeth": 15,
+    "stock_wheel_gear_teeth": 64,
+    "alternate_official_motor_gears_teeth": [
+      13,
+      17
+    ],
+    "motor_family": "6890-class MBS Agent motor",
+    "system_voltage_cells_series": 18,
+    "maximum_pack_voltage_v": 75.6,
+    "motor_kv_rpm_per_v": "NOT_PUBLISHED_IN_CURRENT_MBS_REFERENCE_USED_HERE",
+    "motor_pole_pairs": "NOT_PUBLISHED_IN_CURRENT_MBS_REFERENCE_USED_HERE",
+    "motor_current_limit_a": "NOT_PUBLISHED_IN_CURRENT_MBS_REFERENCE_USED_HERE",
+    "battery_current_limit_a": "NOT_PUBLISHED_IN_CURRENT_MBS_REFERENCE_USED_HERE",
+    "controller_erpm_limit": "NOT_PUBLISHED_IN_CURRENT_MBS_REFERENCE_USED_HERE",
+    "sources": [
+      "https://www.mbs.com/shop/p/mbs-agent-explorer-electric-mountain-board",
+      "https://www.mbs.com/shop/parts/electric-parts"
+    ]
+  },
+  "vesc_modeling_boundary": {
+    "motor_current_and_battery_current_are_distinct": true,
+    "low_speed_high_motor_current_can_coexist_with_lower_battery_current": true,
+    "approximate_relation_note": "VESC documentation explains battery/input current as a fraction of motor current depending on modulation/duty cycle; the X1 solver therefore estimates battery current from electrical power and pack voltage rather than equating it to motor phase current.",
+    "erpm_equals_mechanical_rpm_times_pole_pairs": true,
+    "hardware_erpm_limit_varies_by_controller": true,
+    "sources": [
+      "https://www.vesc-project.com/node/3519",
+      "https://vesc-project.com/node/183"
+    ]
+  },
+  "model_boundaries": [
+    "motor Kt derived from Kv is an idealized planning proxy and does not include winding resistance, saturation, field weakening, commutation losses or controller-specific behavior",
+    "battery current estimate is a steady-state input-power approximation and is not a VESC configuration value",
+    "traction uses a quasi-static axle normal-load model and does not capture lateral transfer, tire sinkage, transient suspension, wheel hop or detailed soil mechanics",
+    "no-load geometric speed is not a ride-speed prediction",
+    "a first-order current/power envelope does not establish continuous thermal capability",
+    "declared current, ERPM, power, voltage, efficiency and friction assumptions must come from a candidate data sheet, selected builder, or explicit study assumption",
+    "Issue #19 physical brake-drive topology remains upstream of final propulsion selection"
+  ],
+  "output_authority": {
+    "physical_authority": false,
+    "procurement_authority": false,
+    "controller_configuration_authority": false,
+    "battery_configuration_authority": false,
+    "thermal_qualification": false,
+    "powered_operation_authorized": false
+  }
+}
