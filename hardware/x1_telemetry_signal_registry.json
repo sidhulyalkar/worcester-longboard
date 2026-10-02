@@ -1,0 +1,360 @@
+{
+  "schema_version": 1,
+  "scope": "x1_telemetry_signal_registry",
+  "as_of": "2026-10-02",
+  "streams": {
+    "control": {
+      "format": "csv",
+      "required_columns": [
+        {
+          "name": "seq",
+          "unit": "count",
+          "type": "integer",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "source_time_s",
+          "unit": "s",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "session_time_s",
+          "unit": "s",
+          "type": "float",
+          "raw": false,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "throttle_request",
+          "unit": "normalized",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "brake_request",
+          "unit": "normalized",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "ride_mode",
+          "unit": "enum",
+          "type": "string",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "remote_deadman_active",
+          "unit": "bool",
+          "type": "boolean",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "remote_age_s",
+          "unit": "s",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "left_drive_current_cmd_a",
+          "unit": "A",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "right_drive_current_cmd_a",
+          "unit": "A",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "left_regen_current_cmd_a",
+          "unit": "A",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "right_regen_current_cmd_a",
+          "unit": "A",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "control_fault_bits",
+          "unit": "bitmask",
+          "type": "integer",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        }
+      ]
+    },
+    "powertrain": {
+      "format": "csv",
+      "required_columns": [
+        {
+          "name": "seq",
+          "unit": "count",
+          "type": "integer",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "source_time_s",
+          "unit": "s",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "session_time_s",
+          "unit": "s",
+          "type": "float",
+          "raw": false,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "pack_voltage_v",
+          "unit": "V",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "battery_current_a",
+          "unit": "A",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "left_phase_current_a",
+          "unit": "A",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "right_phase_current_a",
+          "unit": "A",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "left_motor_erpm",
+          "unit": "ERPM",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "right_motor_erpm",
+          "unit": "ERPM",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "left_motor_speed",
+          "unit": "ERPM",
+          "type": "float",
+          "raw": false,
+          "commissioning_requires_qualified_source": true,
+          "derived_from": "left_motor_erpm"
+        },
+        {
+          "name": "right_motor_speed",
+          "unit": "ERPM",
+          "type": "float",
+          "raw": false,
+          "commissioning_requires_qualified_source": true,
+          "derived_from": "right_motor_erpm"
+        },
+        {
+          "name": "left_motor_temperature_c",
+          "unit": "degC",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "right_motor_temperature_c",
+          "unit": "degC",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "left_controller_temperature_c",
+          "unit": "degC",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "right_controller_temperature_c",
+          "unit": "degC",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "pack_soc",
+          "unit": "fraction",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "battery_temperature_c",
+          "unit": "degC",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        }
+      ]
+    },
+    "motion": {
+      "format": "csv",
+      "required_columns": [
+        {
+          "name": "seq",
+          "unit": "count",
+          "type": "integer",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "source_time_s",
+          "unit": "s",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "session_time_s",
+          "unit": "s",
+          "type": "float",
+          "raw": false,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "ground_speed_mps",
+          "unit": "m/s",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "longitudinal_accel_mps2",
+          "unit": "m/s^2",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": true
+        },
+        {
+          "name": "accel_y_mps2",
+          "unit": "m/s^2",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "accel_z_mps2",
+          "unit": "m/s^2",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "gyro_roll_dps",
+          "unit": "deg/s",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "gyro_pitch_dps",
+          "unit": "deg/s",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "gyro_yaw_dps",
+          "unit": "deg/s",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "front_left_speed_mps",
+          "unit": "m/s",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "front_right_speed_mps",
+          "unit": "m/s",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "rear_left_speed_mps",
+          "unit": "m/s",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        },
+        {
+          "name": "rear_right_speed_mps",
+          "unit": "m/s",
+          "type": "float",
+          "raw": true,
+          "commissioning_requires_qualified_source": false
+        }
+      ]
+    }
+  },
+  "derived_measurements": {
+    "remote_release_propulsion_decay_s": {
+      "unit": "s",
+      "required_inputs": [
+        "control.left_drive_current_cmd_a",
+        "control.right_drive_current_cmd_a",
+        "events.DEADMAN_RELEASE_OR_REMOTE_TIMEOUT"
+      ],
+      "method_id": "remote_release_decay_v1"
+    },
+    "longitudinal_jerk_mps3": {
+      "unit": "m/s^3",
+      "required_inputs": [
+        "motion.longitudinal_accel_mps2",
+        "motion.session_time_s"
+      ],
+      "method_id": "finite_difference_peak_abs_v1"
+    },
+    "stopping_distance_m": {
+      "unit": "m",
+      "required_inputs": [
+        "motion.ground_speed_mps",
+        "motion.session_time_s",
+        "events.MECHANICAL_BRAKE_MARKER_OR_OPERATOR_STOP"
+      ],
+      "method_id": "trapezoid_until_stop_threshold_v1"
+    }
+  }
+}
