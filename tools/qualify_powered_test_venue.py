@@ -7,6 +7,7 @@ powered operation, public-road operation, or dog-accompanied operation.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -29,6 +30,17 @@ REQUIRED_TEXT = (
 
 def _nonempty(value: Any) -> bool:
     return isinstance(value, str) and bool(value.strip())
+
+
+def _digest(data: dict) -> str:
+    return hashlib.sha256(
+        json.dumps(
+            data,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("utf-8")
+    ).hexdigest()
 
 
 def qualify(data: dict) -> dict:
@@ -80,7 +92,7 @@ def qualify(data: dict) -> dict:
 
     venue_permission_qualified = not errors
 
-    return {
+    report = {
         "schema_version": 1,
         "authority": "x1_powered_test_venue_evidence",
         "qualified": venue_permission_qualified,
@@ -101,6 +113,8 @@ def qualify(data: dict) -> dict:
             "operation-qualified, or dog-accompanied-operation-qualified."
         ),
     }
+    report["authority_fingerprint_sha256"] = _digest(report)
+    return report
 
 
 def main() -> None:
