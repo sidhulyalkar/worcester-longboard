@@ -29,7 +29,13 @@ If an older document conflicts with a current manifest, build gate, or qualified
 
 ## Ordering and sourcing
 
-Start with `docs/complete_ordering_guide.md` for the staged checkout and receiving procedure.
+Start with `docs/x1_physical_kickoff.md` if you have not bought anything yet. One command creates the private Day-0 inventory, live Cart A packet, and all three full-scale Rev-C stance templates without opening any expensive gate.
+
+```bash
+python tools/init_x1_physical_kickoff.py rider/private/physical_kickoff
+```
+
+Then use `docs/complete_ordering_guide.md` for the detailed staged checkout and receiving procedure.
 
 The ordering stack is deliberately split by function:
 
@@ -37,6 +43,8 @@ The ordering stack is deliberately split by function:
 - `hardware/order_sources_2026-09-11.json` records the dated vendor/source snapshot used for the current shopping guide;
 - `hardware/planned_system_bom.json` maps the complete future board without pretending TBD powered parts are frozen;
 - `tools/render_procurement_packet.py` renders the currently authorized checkout packet;
+- `tools/render_physical_kickoff_packet.py` combines that authority with a private owned-item inventory while refusing to open non-BUY_NOW hardware;
+- `tools/init_x1_physical_kickoff.py` creates the one-command Issue #51 Day-0 workspace;
 - `tools/validate_ordering_spec.py` detects source/price/compatibility drift against repository authority.
 
 The current complete Issue #4 convenience ceiling remains **$120.90 before shipping/tax**, and optional owned tools/materials should be skipped. Rev-C now holds the previously preferred Comp 95 + V5 chassis purchase until rider-scale deck comparison and wheel/brake/drive topology release conditions close. Standard Rockstar II hubs are not assumed to accept the optional T2 9-inch tire; the 9-inch path remains physically and compatibility gated.
@@ -355,6 +363,7 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 
 ## Current physical milestones
 
+- **#51** create the Day-0 private physical-kickoff workspace; orchestration only, no new authority
 - **#4** qualify one load-cell/HX711/pod zone before four-zone duplication
 - **#25** qualify Rev-C pre-purchase chassis release from deck/topology/inert-envelope evidence
 - **#2** build and qualify X1 Fit Rig v0.3
