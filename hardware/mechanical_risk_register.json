@@ -13,7 +13,8 @@
     "all_structural_or_retention_items_require_post_test_inspection": true,
     "power_freeze_requires_brake_drive_topology_authority": true,
     "final_power_freeze_requires_dummy_pack_mount_authority": true,
-    "lifecycle_health_history_required_before_future_powered_operation": true
+    "lifecycle_health_history_required_before_future_powered_operation": true,
+    "powered_commissioning_stage_ladder_required_before_future_powered_operation": true
   },
   "risks": [
     {
@@ -536,6 +537,31 @@
         "STOP finding persistence test",
         "sourced service interval and missing-counter fail-closed tests",
         "future powered commissioning must consume a current READY health state without treating it as operation authority"
+      ],
+      "must_close_before": "future_powered_operation_authority"
+    },
+    {
+      "id": "M23",
+      "subsystem": "powered_commissioning_authority",
+      "failure_mode": "energized testing skips a commissioning stage, reuses stale configuration/health/venue evidence, or treats a successful commissioning run as normal powered-operation authority",
+      "effect": "unexpected propulsion, uncontrolled ground motion, hidden post-test damage, or operation outside the configuration and venue actually qualified",
+      "severity": 5,
+      "likelihood": 3,
+      "detectability": 3,
+      "priority_score": 45,
+      "status": "OPEN_COMMISSIONING",
+      "prevention": [
+        "bind every stage to exact final power-architecture and configuration identifiers",
+        "require immediate previous-stage fingerprint for Stage 1-4",
+        "require READY lifecycle health before every stage and a new READY post-stage state after every energized stage",
+        "require fingerprinted powered-test venue evidence before Stage 3/4",
+        "keep Stage 4 distinct from general powered-operation authority"
+      ],
+      "verification": [
+        "Issue #45 stage-order and lineage unit tests",
+        "Issue #45 CLI smoke test",
+        "future physical stage reports with exact authority fingerprints",
+        "future normal-operation authority must explicitly consume Stage 4 rather than inheriting it implicitly"
       ],
       "must_close_before": "future_powered_operation_authority"
     }
