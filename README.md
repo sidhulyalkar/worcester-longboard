@@ -106,7 +106,7 @@ The private health workspace is anchored to the exact `x1_rolling_chassis_physic
 
 A moved critical witness mark, wheel-retention change, structural crack, materially unavailable friction brake, or steering binding cannot be erased by a later green checklist. The finding must be explicitly inspected/serviced and closed first.
 
-`READY_FOR_ALLOWED_ACTIVITY` is deliberately not an operating permit. Every report keeps powered, public, and dog-accompanied operation false. Future powered commissioning must eventually require both its own operation authority **and** a current READY health state for the exact active configuration.
+`READY_FOR_ALLOWED_ACTIVITY` is deliberately not an operating permit. Every report keeps powered, public, and dog-accompanied operation false. The central build-authority graph now requires a current READY health state for the exact active configuration on every future powered, public, or dog-accompanied operation path, in addition to each path's own independent authority.
 
 See `docs/rev_c_lifecycle_health.md`.
 
