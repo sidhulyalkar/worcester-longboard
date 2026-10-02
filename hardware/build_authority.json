@@ -374,6 +374,286 @@
           "type": "valid_authority_fingerprint"
         }
       ]
+    },
+    "powered_test_venue_qualified": {
+      "issue": 35,
+      "requires": [],
+      "evidence": [
+        {
+          "path": "authority",
+          "equals": "x1_powered_test_venue_evidence"
+        },
+        {
+          "path": "schema_version",
+          "equals": 1
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "venue_permission_qualified",
+          "equals": true
+        },
+        {
+          "path": "vehicle_powered_operation_authority",
+          "equals": false
+        },
+        {
+          "path": "public_operation_authority",
+          "equals": false
+        },
+        {
+          "path": "dog_accompanied_operation_authority",
+          "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
+      ]
+    },
+    "commissioning_stage_0_qualified": {
+      "issue": 45,
+      "requires": [
+        "power_architecture_frozen"
+      ],
+      "evidence": [
+        {
+          "path": "authority",
+          "equals": "x1_powered_commissioning_stage"
+        },
+        {
+          "path": "schema_version",
+          "equals": 1
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "stage_index",
+          "equals": 0
+        },
+        {
+          "path": "stage_id",
+          "equals": "BENCH_READINESS"
+        },
+        {
+          "path": "commissioning_stage_completed",
+          "equals": true
+        },
+        {
+          "path": "general_powered_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "public_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "dog_accompanied_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
+      ]
+    },
+    "commissioning_stage_1_qualified": {
+      "issue": 45,
+      "requires": [
+        "commissioning_stage_0_qualified"
+      ],
+      "evidence": [
+        {
+          "path": "authority",
+          "equals": "x1_powered_commissioning_stage"
+        },
+        {
+          "path": "schema_version",
+          "equals": 1
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "stage_index",
+          "equals": 1
+        },
+        {
+          "path": "stage_id",
+          "equals": "SECURED_UNLOADED_SPIN"
+        },
+        {
+          "path": "commissioning_stage_completed",
+          "equals": true
+        },
+        {
+          "path": "general_powered_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "public_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "dog_accompanied_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
+      ]
+    },
+    "commissioning_stage_2_qualified": {
+      "issue": 45,
+      "requires": [
+        "commissioning_stage_1_qualified"
+      ],
+      "evidence": [
+        {
+          "path": "authority",
+          "equals": "x1_powered_commissioning_stage"
+        },
+        {
+          "path": "schema_version",
+          "equals": 1
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "stage_index",
+          "equals": 2
+        },
+        {
+          "path": "stage_id",
+          "equals": "RESTRAINED_LOADED_BENCH"
+        },
+        {
+          "path": "commissioning_stage_completed",
+          "equals": true
+        },
+        {
+          "path": "general_powered_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "public_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "dog_accompanied_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
+      ]
+    },
+    "commissioning_stage_3_qualified": {
+      "issue": 45,
+      "requires": [
+        "commissioning_stage_2_qualified",
+        "powered_test_venue_qualified"
+      ],
+      "evidence": [
+        {
+          "path": "authority",
+          "equals": "x1_powered_commissioning_stage"
+        },
+        {
+          "path": "schema_version",
+          "equals": 1
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "stage_index",
+          "equals": 3
+        },
+        {
+          "path": "stage_id",
+          "equals": "RIDER_FREE_CONTROLLED_GROUND"
+        },
+        {
+          "path": "commissioning_stage_completed",
+          "equals": true
+        },
+        {
+          "path": "general_powered_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "public_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "dog_accompanied_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
+      ]
+    },
+    "commissioning_stage_4_qualified": {
+      "issue": 45,
+      "requires": [
+        "commissioning_stage_3_qualified",
+        "powered_test_venue_qualified"
+      ],
+      "evidence": [
+        {
+          "path": "authority",
+          "equals": "x1_powered_commissioning_stage"
+        },
+        {
+          "path": "schema_version",
+          "equals": 1
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "stage_index",
+          "equals": 4
+        },
+        {
+          "path": "stage_id",
+          "equals": "RIDER_ONLY_VERY_LOW_SPEED"
+        },
+        {
+          "path": "commissioning_stage_completed",
+          "equals": true
+        },
+        {
+          "path": "general_powered_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "public_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "dog_accompanied_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
+      ]
     }
   },
   "capabilities": {
@@ -433,15 +713,15 @@
     },
     "powered_operation": {
       "requires": [
-        "power_architecture_frozen"
+        "commissioning_stage_4_qualified"
       ],
       "hard_blocked": true,
-      "block_reason": "No current Worcester X1 authority contract can authorize powered operation."
+      "block_reason": "Issue #45 Stage 4 is commissioning evidence only; no current Worcester X1 authority contract authorizes general powered operation."
     },
     "dog_accompanied_operation": {
       "issue": 33,
       "requires": [
-        "power_architecture_frozen"
+        "commissioning_stage_4_qualified"
       ],
       "hard_blocked": true,
       "block_reason": "Issue #33 has no current physical companion authority contract; powered qualification alone cannot authorize dog-accompanied operation."
@@ -449,7 +729,7 @@
     "public_operation": {
       "issue": 35,
       "requires": [
-        "power_architecture_frozen"
+        "commissioning_stage_4_qualified"
       ],
       "hard_blocked": true,
       "block_reason": "Issue #35 has not established a public-use vehicle classification or route/venue authority for Worcester X1."
@@ -480,6 +760,38 @@
         "brake_drive_topology_qualified",
         "rolling_chassis_physical_qualified",
         "dummy_pack_mount_qualified"
+      ]
+    },
+    "prepare_powered_bench_readiness": {
+      "issue": 45,
+      "requires": [
+        "power_architecture_frozen"
+      ]
+    },
+    "conduct_secured_unloaded_spin": {
+      "issue": 45,
+      "requires": [
+        "commissioning_stage_0_qualified"
+      ]
+    },
+    "conduct_restrained_loaded_bench": {
+      "issue": 45,
+      "requires": [
+        "commissioning_stage_1_qualified"
+      ]
+    },
+    "conduct_rider_free_controlled_ground": {
+      "issue": 45,
+      "requires": [
+        "commissioning_stage_2_qualified",
+        "powered_test_venue_qualified"
+      ]
+    },
+    "conduct_rider_only_very_low_speed_commissioning": {
+      "issue": 45,
+      "requires": [
+        "commissioning_stage_3_qualified",
+        "powered_test_venue_qualified"
       ]
     }
   }
