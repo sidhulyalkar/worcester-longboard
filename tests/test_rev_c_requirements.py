@@ -263,3 +263,50 @@ def test_issue_39_forbids_ip_shortcuts_and_live_ingress_discovery():
         "passing inert environmental evidence does not authorize energized wet operation"
         in boundaries
     )
+
+
+def test_issue_41_lifecycle_health_starts_after_rolling_chassis_and_persists():
+    program = _requirements()["lifecycle_health_program"]
+    assert program["issue"] == 41
+    assert program["phase"] == (
+        "START_AFTER_ROLLING_CHASSIS_AND_CONTINUE_FOR_VEHICLE_LIFE"
+    )
+    assert program["upstream_anchor"] == (
+        "fingerprinted x1_rolling_chassis_physical authority"
+    )
+    assert program["health_states"] == [
+        "READY_FOR_ALLOWED_ACTIVITY",
+        "INSPECTION_REQUIRED",
+        "SERVICE_REQUIRED",
+        "STOP_USE",
+    ]
+    assert program["powered_operation_authorized"] is False
+    assert program["public_operation_authorized"] is False
+    assert program["dog_accompanied_operation_authorized"] is False
+
+
+def test_issue_41_ready_state_never_becomes_operation_authority():
+    program = _requirements()["lifecycle_health_program"]
+    boundaries = program["hard_boundaries"]
+    assert "health state never authorizes powered operation" in boundaries
+    assert "health state never authorizes public operation" in boundaries
+    assert "health state never authorizes dog-accompanied operation" in boundaries
+    assert "health state never overrides blocked build authority" in boundaries
+    assert (
+        "future powered commissioning must require a fresh READY_FOR_ALLOWED_ACTIVITY state on the current configuration in addition to all other authorities"
+        in program["policies"]
+    )
+
+
+def test_issue_41_does_not_invent_service_intervals_or_erase_history():
+    policies = _requirements()["lifecycle_health_program"]["policies"]
+    assert "append-only event history rather than rewriting prior inspections" in policies
+    assert "component replacement creates explicit configuration lineage" in policies
+    assert (
+        "no fixed mileage hour or calendar service interval without an accepted source"
+        in policies
+    )
+    assert (
+        "open STOP findings require explicit inspection/service closure and a fresh preflight"
+        in policies
+    )
