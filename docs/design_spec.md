@@ -43,10 +43,11 @@ The project minimizes expensive re-buys by freezing interfaces in the order that
 | Ride compliance | Issue #28 unpowered characterization after a qualified rolling chassis; analysis cannot authorize procurement or power |
 | Public-use / test venue | Issue #35 keeps Worcester Park as terrain inspiration only under current Town rules; public-road status of a high-power trail configuration is not established |
 | Lifecycle health | Issue #41 begins after rolling-chassis authority and preserves append-only preflight/service/impact/configuration history tied to the exact chassis fingerprint |
+| Powertrain envelope | Issue #43 couples force, traction, gearing, phase current, battery current/power, RPM/ERPM and geometric speed using explicitly sourced candidate limits |
 | Rider interface | independent left/right Rev-B geometry is blocked on qualified fit evidence |
 | Power packaging candidate | blocked until topology and Rev-B authority exist |
 | Inert battery-mass load path | blocked until packaging candidate exists; Issue #21 closes it |
-| Final power architecture | blocked until Issue #21 and the Issue #39 inert environmental candidate pass |
+| Final power architecture | blocked until Issue #21, Issue #39 inert environmental candidate, and Issue #43 sourced powertrain envelope pass |
 | Permanent rider-specific drilling | blocked until full-scale template and Rev-B gate pass |
 
 The unpowered donor must roll, steer, clear its real motion envelope, stop mechanically, be serviceable, and survive post-test inspection before the brake/drive topology can be qualified.
@@ -132,6 +133,24 @@ A READY result means only maintenance-ready for an activity already permitted el
 
 Any future powered-operation authority must consume a fresh READY health state for the current configuration rather than assuming that an old commissioning result remains valid forever.
 
+## Powertrain envelope architecture
+
+Issue #43 adds a quantitative rejection layer between physical packaging evidence and final power freeze.
+
+The simulator `simulation/rev_c_powertrain_envelope.py` does not choose a motor. It evaluates a declared candidate against:
+
+- longitudinal force;
+- driven-axle traction;
+- wheel and motor torque;
+- idealized motor phase current from sourced KV;
+- battery input power/current;
+- motor RPM and controller ERPM;
+- nominal/full-voltage geometric no-load speed.
+
+The sourced candidate qualifier `tools/qualify_rev_c_powertrain_candidate.py` requires the actual Issue #19 topology, rolling-chassis authority and Issue #21 dummy-pack authority, plus explicit source references for the candidate motor/controller/battery limits.
+
+A passing `x1_powertrain_envelope_candidate` is required before final power freeze but retains `procurement_authority=false`, `controller_configuration_authority=false`, `battery_configuration_authority=false`, `thermal_qualification=false`, and `powered_operation_authorized=false`.
+
 ## Staged power packaging architecture
 
 Power is intentionally **not frozen** and is now split into preliminary packaging, inert structural qualification, inert environmental/service qualification, and final freeze.
@@ -184,7 +203,7 @@ The initial Issue #39 campaign has no live traction battery, traction voltage, c
 
 ### Stage C: final power architecture freeze
 
-Only after the dummy-pack load path **and** Issue #39 inert environmental candidate pass may the project freeze the coupled powered system:
+Only after the dummy-pack load path, Issue #39 inert environmental candidate, **and Issue #43 sourced powertrain envelope** pass may the project freeze the coupled powered system:
 
 - drive type and ratio;
 - axle configuration;
