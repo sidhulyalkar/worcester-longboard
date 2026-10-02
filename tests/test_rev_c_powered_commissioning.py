@@ -177,6 +177,11 @@ def _manifest(
                 if venue is not None
                 else ""
             ),
+            "telemetry_replay_fingerprint_sha256": (
+                telemetry_replay["authority_fingerprint_sha256"]
+                if telemetry_replay is not None
+                else ""
+            ),
             "energized": spec["energized"],
             "free_ground_travel": spec["free_ground_travel"],
             "rider_present": spec["rider_present"],
@@ -668,3 +673,33 @@ def test_stage_zero_rejects_telemetry_replay_evidence():
     )
     assert report["qualified"] is False
     assert "Stage 0 must not supply telemetry replay evidence" in report["errors"]
+
+
+def test_stage_manifest_telemetry_fingerprint_must_match_replay():
+    power = _power_architecture()
+    pre = _health("2026-10-01T11:59:00Z")
+    stage0 = _qualify_stage("BENCH_READINESS", power, pre)
+    post = _health("2026-10-01T12:04:00Z")
+    replay = _telemetry_replay("SECURED_UNLOADED_SPIN", power)
+    manifest = _manifest(
+        "SECURED_UNLOADED_SPIN",
+        power,
+        pre,
+        previous=stage0,
+        post_health=post,
+        telemetry_replay=replay,
+        started="2026-10-01T12:02:00Z",
+        completed="2026-10-01T12:03:00Z",
+    )
+    manifest["telemetry_replay_fingerprint_sha256"] = "0" * 64
+    report = qualify(
+        manifest,
+        power,
+        pre,
+        previous_stage=stage0,
+        post_health=post,
+        telemetry_replay=replay,
+        snapshot=SNAPSHOT,
+    )
+    assert report["qualified"] is False
+    assert "manifest telemetry replay fingerprint mismatch" in report["errors"]
