@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-01",
+  "scope": "rev_c_telemetry_evidence_reference",
+  "authority": "REFERENCE_ONLY",
+  "issue": 49,
+  "purpose": "Define auditable vehicle telemetry evidence for Issue #45 powered commissioning and future lifecycle/range analysis without granting controller or operation authority.",
+  "record_format": {
+    "telemetry_csv_columns": [
+      "record_seq",
+      "mono_us",
+      "signal_id",
+      "value",
+      "source_age_us",
+      "quality"
+    ],
+    "allowed_quality": [
+      "OK",
+      "STALE",
+      "INVALID"
+    ],
+    "events_jsonl_fields": [
+      "event_seq",
+      "mono_us",
+      "event_type",
+      "code",
+      "fault_bits",
+      "details"
+    ],
+    "metrics_json_fields": [
+      "metric_id",
+      "value",
+      "unit",
+      "start_mono_us",
+      "end_mono_us",
+      "method_reference",
+      "source_signal_ids"
+    ],
+    "monotonic_clock_rule": "mono_us is the primary ordering clock; UTC is session metadata only and must never be used for control timing."
+  },
+  "source_kinds": [
+    "ECU_LOCAL",
+    "IMU_LOCAL",
+    "FRONT_WHEEL_SENSOR_LEFT",
+    "FRONT_WHEEL_SENSOR_RIGHT",
+    "VESC_CAN_LEFT",
+    "VESC_CAN_RIGHT",
+    "BMS_OR_PACK_TELEMETRY",
+    "REMOTE_INPUT",
+    "EXTERNAL_GROUND_TRUTH",
+    "DERIVED"
+  ],
+  "event_types": [
+    "SESSION_START",
+    "SESSION_END",
+    "STAGE_MARKER",
+    "FAULT_EDGE",
+    "DEADMAN_EDGE",
+    "REMOTE_STALE_EDGE",
+    "STOP_CONDITION",
+    "TC_INTERVENTION",
+    "MECHANICAL_BRAKE_RECOMMENDED",
+    "LOGGER_ERROR",
+    "ANNOTATION"
+  ],
+  "integrity_policy": {
+    "record_sequence_must_strictly_increase": true,
+    "event_sequence_must_strictly_increase": true,
+    "monotonic_time_must_not_decrease": true,
+    "persistent_write_errors_allowed": 0,
+    "unclean_shutdown_allowed": false,
+    "max_overall_record_drop_fraction": 0.01,
+    "signal_max_gap_multiplier": 3,
+    "fault_edge_match_tolerance_ms": 25,
+    "interpretation": "These are commissioning evidence-quality thresholds, not control-loop timing or safety limits."
+  },
+  "stage_requirements": {
+    "SECURED_UNLOADED_SPIN": {
+      "stage_index": 1,
+      "max_record_drop_fraction": 0.01,
+      "required_signals_hz": {
+        "pack_voltage_v": 20,
+        "battery_current_a": 20,
+        "left_motor_erpm": 20,
+        "right_motor_erpm": 20,
+        "left_motor_temperature_c": 5,
+        "right_motor_temperature_c": 5,
+        "left_controller_temperature_c": 5,
+        "right_controller_temperature_c": 5,
+        "remote_deadman_active": 20,
+        "remote_age_s": 20,
+        "control_fault_bits": 20
+      },
+      "required_metrics": []
+    },
+    "RESTRAINED_LOADED_BENCH": {
+      "stage_index": 2,
+      "max_record_drop_fraction": 0.01,
+      "required_signals_hz": {
+        "pack_voltage_v": 50,
+        "battery_current_a": 50,
+        "left_phase_current_a": 50,
+        "right_phase_current_a": 50,
+        "left_motor_erpm": 50,
+        "right_motor_erpm": 50,
+        "left_motor_temperature_c": 5,
+        "right_motor_temperature_c": 5,
+        "left_controller_temperature_c": 5,
+        "right_controller_temperature_c": 5,
+        "remote_deadman_active": 50,
+        "control_fault_bits": 50
+      },
+      "required_metrics": []
+    },
+    "RIDER_FREE_CONTROLLED_GROUND": {
+      "stage_index": 3,
+      "max_record_drop_fraction": 0.005,
+      "required_signals_hz": {
+        "ground_speed_mps": 50,
+        "pack_voltage_v": 50,
+        "battery_current_a": 50,
+        "left_phase_current_a": 50,
+        "right_phase_current_a": 50,
+        "front_left_wheel_speed_mps": 50,
+        "front_right_wheel_speed_mps": 50,
+        "remote_deadman_active": 100,
+        "remote_age_s": 100,
+        "commanded_drive_current_l_a": 100,
+        "commanded_drive_current_r_a": 100,
+        "left_motor_temperature_c": 5,
+        "right_motor_temperature_c": 5,
+        "left_controller_temperature_c": 5,
+        "right_controller_temperature_c": 5,
+        "slip_l": 50,
+        "slip_r": 50,
+        "control_fault_bits": 50
+      },
+      "required_metrics": [
+        "remote_release_propulsion_decay_s"
+      ]
+    },
+    "RIDER_ONLY_VERY_LOW_SPEED": {
+      "stage_index": 4,
+      "max_record_drop_fraction": 0.005,
+      "required_signals_hz": {
+        "ground_speed_mps": 50,
+        "longitudinal_accel_mps2": 100,
+        "longitudinal_jerk_mps3": 100,
+        "pack_voltage_v": 50,
+        "battery_current_a": 50,
+        "left_phase_current_a": 50,
+        "right_phase_current_a": 50,
+        "front_left_wheel_speed_mps": 50,
+        "front_right_wheel_speed_mps": 50,
+        "remote_deadman_active": 100,
+        "remote_age_s": 100,
+        "commanded_drive_current_l_a": 100,
+        "commanded_drive_current_r_a": 100,
+        "left_motor_temperature_c": 5,
+        "right_motor_temperature_c": 5,
+        "left_controller_temperature_c": 5,
+        "right_controller_temperature_c": 5,
+        "slip_l": 50,
+        "slip_r": 50,
+        "control_fault_bits": 50
+      },
+      "required_metrics": [
+        "remote_release_propulsion_decay_s",
+        "stopping_distance_m"
+      ]
+    }
+  },
+  "derived_signal_rules": {
+    "longitudinal_jerk_mps3": "Must declare the acceleration source, filter/derivative method and method reference. No unqualified raw finite-difference jerk is accepted as Stage 4 evidence.",
+    "ground_speed_mps": "Must identify independent ground-speed source or the exact qualified fusion method.",
+    "odometer_km": "May enter lifecycle service calculations only after its accumulation/reset behavior is independently qualified.",
+    "ride_hours": "May enter lifecycle service calculations only after its active-time definition and reset behavior are independently qualified."
+  },
+  "logger_architecture_rules": [
+    "telemetry persistence must not block or delay the real-time control loop",
+    "control behavior must fail conservative if required sensors are stale even if logging is unavailable",
+    "logging failure invalidates evidence for a stage that requires the missing data but must not preserve propulsion",
+    "persistent storage writes should be buffered outside the hard real-time control path",
+    "session metadata must record logger firmware/build identity and signal-source mapping",
+    "raw/source channels must remain distinguishable from derived channels",
+    "fault bit changes must be reconstructable from periodic control_fault_bits and matching fault-edge events"
+  ],
+  "hard_boundaries": [
+    "valid telemetry evidence grants no powered-operation authority",
+    "valid telemetry evidence grants no controller-configuration authority",
+    "valid telemetry evidence grants no battery-configuration authority",
+    "valid telemetry evidence grants no public-operation authority",
+    "valid telemetry evidence grants no dog-accompanied-operation authority",
+    "telemetry cannot replace independent mechanical braking or lifecycle preflight",
+    "exact ride and commissioning logs remain private"
+  ],
+  "powered_operation_authorized": false,
+  "controller_configuration_authority": false,
+  "battery_configuration_authority": false,
+  "public_operation_authorized": false,
+  "dog_accompanied_operation_authorized": false
+}
