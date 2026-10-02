@@ -144,6 +144,21 @@ def initialize(
         }
         rows.append(row)
 
+    rules = procurement["rules"]
+    template["issue"] = rules["cart_a_checkout_issue"]
+    template["source_freshness_policy"] = {
+        "max_refresh_scope_age_days": rules[
+            "cart_a_refresh_scope_max_age_days"
+        ],
+        "require_in_stock_for_refresh_scope": rules[
+            "cart_a_require_stock_recheck_at_checkout"
+        ],
+        "price_or_stock_change_requires_snapshot_refresh": rules[
+            "cart_a_price_or_stock_change_requires_source_refresh"
+        ],
+        "authority_source": "hardware/procurement_manifest.json",
+    }
+
     template.update(
         {
             "checkout_id": checkout_id,
