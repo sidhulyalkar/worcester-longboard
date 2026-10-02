@@ -110,7 +110,8 @@
           "calibration_id": "",
           "derivation_id": ""
         }
-      ]
+      ],
+      "dropped_sequence_ranges": []
     },
     {
       "stream_id": "electrical_drivetrain",
@@ -182,7 +183,8 @@
           "calibration_id": "",
           "derivation_id": ""
         }
-      ]
+      ],
+      "dropped_sequence_ranges": []
     },
     {
       "stream_id": "motion",
@@ -282,7 +284,8 @@
           "calibration_id": "",
           "derivation_id": ""
         }
-      ]
+      ],
+      "dropped_sequence_ranges": []
     },
     {
       "stream_id": "thermal",
@@ -340,7 +343,8 @@
           "calibration_id": "",
           "derivation_id": ""
         }
-      ]
+      ],
+      "dropped_sequence_ranges": []
     }
   ],
   "event_log": {
@@ -359,10 +363,12 @@
       "uncertainty_ms": null,
       "evidence_ref": ""
     },
-    "supported_event_types": []
+    "supported_event_types": [],
+    "sequence_gaps_allowed": false
   },
   "notes": "",
   "powered_operation_authorized": false,
   "public_operation_authorized": false,
-  "dog_accompanied_operation_authorized": false
+  "dog_accompanied_operation_authorized": false,
+  "sealed_at_utc": ""
 }
