@@ -93,6 +93,47 @@ def _stage(stage_id):
     return next(x for x in SNAPSHOT["stages"] if x["stage_id"] == stage_id)
 
 
+def _telemetry_replay(stage_id, power, *, board="X1-A", config="CFG-A"):
+    spec = _stage(stage_id)
+    metrics = [
+        {
+            "metric_id": metric,
+            "unit": "synthetic-unit",
+            "value": 1.0,
+            "evidence_ref": f"telemetry://synthetic/{stage_id}/{metric}",
+            "method": "synthetic fixture",
+            "source_signals": ["synthetic"],
+        }
+        for metric in spec["required_measurements"]
+    ]
+    return _stamp(
+        {
+            "schema_version": 1,
+            "authority": "x1_commissioning_telemetry_replay",
+            "qualified": True,
+            "errors": [],
+            "issues": [47, 49],
+            "session_id": f"telemetry-{stage_id.lower()}",
+            "board_id": board,
+            "configuration_id": config,
+            "commissioning_stage_id": stage_id,
+            "power_architecture_fingerprint_sha256": power[
+                "authority_fingerprint_sha256"
+            ],
+            "telemetry_session_fingerprint_sha256": hashlib.sha256(
+                f"session-{stage_id}".encode()
+            ).hexdigest(),
+            "metrics": metrics,
+            "metric_ids": sorted(item["metric_id"] for item in metrics),
+            "commissioning_stage_qualified": False,
+            "powered_operation_authorized": False,
+            "public_operation_authorized": False,
+            "dog_accompanied_operation_authorized": False,
+            "interpretation_boundary": "synthetic",
+        }
+    )
+
+
 def _manifest(
     stage_id,
     power,
@@ -101,6 +142,7 @@ def _manifest(
     previous=None,
     post_health=None,
     venue=None,
+    telemetry_replay=None,
     started="2026-10-01T12:00:00Z",
     completed="2026-10-01T12:01:00Z",
 ):
@@ -159,10 +201,35 @@ def _manifest(
             "measurements": [
                 {
                     "metric_id": metric,
-                    "value": 1.0,
-                    "unit": "synthetic-unit",
-                    "source": "synthetic fixture",
-                    "evidence_ref": "",
+                    "value": (
+                        next(
+                            item for item in telemetry_replay["metrics"]
+                            if item["metric_id"] == metric
+                        )["value"]
+                        if telemetry_replay is not None
+                        else 1.0
+                    ),
+                    "unit": (
+                        next(
+                            item for item in telemetry_replay["metrics"]
+                            if item["metric_id"] == metric
+                        )["unit"]
+                        if telemetry_replay is not None
+                        else "synthetic-unit"
+                    ),
+                    "source": (
+                        "x1_commissioning_telemetry_replay"
+                        if telemetry_replay is not None
+                        else "synthetic fixture"
+                    ),
+                    "evidence_ref": (
+                        next(
+                            item for item in telemetry_replay["metrics"]
+                            if item["metric_id"] == metric
+                        )["evidence_ref"]
+                        if telemetry_replay is not None
+                        else ""
+                    ),
                 }
                 for metric in spec["required_measurements"]
             ],
@@ -185,9 +252,19 @@ def _qualify_stage(
     previous=None,
     post_health=None,
     venue=None,
+    telemetry_replay=None,
+    auto_telemetry=True,
     started="2026-10-01T12:00:00Z",
     completed="2026-10-01T12:01:00Z",
 ):
+    spec = _stage(stage_id)
+    if (
+        telemetry_replay is None
+        and auto_telemetry
+        and spec["energized"]
+    ):
+        telemetry_replay = _telemetry_replay(stage_id, power)
+
     manifest = _manifest(
         stage_id,
         power,
@@ -195,6 +272,7 @@ def _qualify_stage(
         previous=previous,
         post_health=post_health,
         venue=venue,
+        telemetry_replay=telemetry_replay,
         started=started,
         completed=completed,
     )
@@ -205,6 +283,7 @@ def _qualify_stage(
         previous_stage=previous,
         post_health=post_health,
         venue=venue,
+        telemetry_replay=telemetry_replay,
         snapshot=SNAPSHOT,
     )
 
@@ -492,3 +571,100 @@ def test_configuration_or_power_architecture_lineage_mismatch_fails():
     assert report["qualified"] is False
     assert "power architecture must be qualified" in report["errors"]
     assert "power architecture fingerprint is invalid" in report["errors"]
+
+
+def test_energized_stage_requires_fingerprinted_telemetry_replay():
+    power = _power_architecture()
+    pre = _health("2026-10-01T11:59:00Z")
+    stage0 = _qualify_stage("BENCH_READINESS", power, pre)
+    post = _health("2026-10-01T12:04:00Z")
+
+    report = _qualify_stage(
+        "SECURED_UNLOADED_SPIN",
+        power,
+        pre,
+        previous=stage0,
+        post_health=post,
+        auto_telemetry=False,
+        started="2026-10-01T12:02:00Z",
+        completed="2026-10-01T12:03:00Z",
+    )
+    assert report["qualified"] is False
+    assert (
+        "fingerprinted telemetry replay is required for energized stage"
+        in report["errors"]
+    )
+
+
+def test_telemetry_replay_lineage_and_metric_reference_must_match():
+    power = _power_architecture()
+    pre = _health("2026-10-01T11:59:00Z")
+    stage0 = _qualify_stage("BENCH_READINESS", power, pre)
+    post = _health("2026-10-01T12:04:00Z")
+    replay = _telemetry_replay("SECURED_UNLOADED_SPIN", power)
+
+    manifest = _manifest(
+        "SECURED_UNLOADED_SPIN",
+        power,
+        pre,
+        previous=stage0,
+        post_health=post,
+        telemetry_replay=replay,
+        started="2026-10-01T12:02:00Z",
+        completed="2026-10-01T12:03:00Z",
+    )
+    manifest["measurements"][0]["evidence_ref"] = "telemetry://copied/wrong"
+    report = qualify(
+        manifest,
+        power,
+        pre,
+        previous_stage=stage0,
+        post_health=post,
+        telemetry_replay=replay,
+        snapshot=SNAPSHOT,
+    )
+    assert report["qualified"] is False
+    assert any(
+        "measurement evidence_ref does not match telemetry replay" in error
+        for error in report["errors"]
+    )
+
+    tampered = dict(replay)
+    tampered["configuration_id"] = "CFG-B"
+    report = qualify(
+        _manifest(
+            "SECURED_UNLOADED_SPIN",
+            power,
+            pre,
+            previous=stage0,
+            post_health=post,
+            telemetry_replay=replay,
+            started="2026-10-01T12:02:00Z",
+            completed="2026-10-01T12:03:00Z",
+        ),
+        power,
+        pre,
+        previous_stage=stage0,
+        post_health=post,
+        telemetry_replay=tampered,
+        snapshot=SNAPSHOT,
+    )
+    assert report["qualified"] is False
+    assert "telemetry replay configuration_id mismatch" in report["errors"]
+    assert "telemetry replay fingerprint is invalid" in report["errors"]
+
+
+def test_stage_zero_rejects_telemetry_replay_evidence():
+    power = _power_architecture()
+    health = _health("2026-10-01T11:59:00Z")
+    replay = _telemetry_replay("SECURED_UNLOADED_SPIN", power)
+    manifest = _manifest("BENCH_READINESS", power, health)
+    report = qualify(
+        manifest,
+        power,
+        health,
+        telemetry_replay=replay,
+        snapshot=SNAPSHOT,
+    )
+    assert report["qualified"] is False
+    assert "Stage 0 must not supply telemetry replay evidence" in report["errors"]
