@@ -415,6 +415,13 @@
       "requires": [
         "dummy_pack_mount_qualified"
       ]
+    },
+    "establish_lifecycle_health_history": {
+      "issue": 41,
+      "requires": [
+        "rolling_chassis_physical_qualified"
+      ],
+      "note": "Creates/evaluates maintenance health only; READY_FOR_ALLOWED_ACTIVITY never authorizes an otherwise blocked activity."
     }
   }
 }
