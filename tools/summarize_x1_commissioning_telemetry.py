@@ -216,17 +216,15 @@ def _stopping_distance(
                 continue
             t0 = point["t"]
             j = i
-            while (
-                j + 1 < len(points)
-                and points[j + 1]["t"] - t0 < sustained_stop_s
-                and abs(points[j + 1]["value"]) <= stop_threshold_mps
-            ):
+            while j + 1 < len(points):
+                next_point = points[j + 1]
+                if abs(next_point["value"]) > stop_threshold_mps:
+                    break
                 j += 1
-            if (
-                j < len(points)
-                and points[j]["t"] - t0 >= sustained_stop_s
-            ):
-                stop_index = j
+                if points[j]["t"] - t0 >= sustained_stop_s:
+                    stop_index = j
+                    break
+            if stop_index is not None:
                 break
 
         if stop_index is None:
