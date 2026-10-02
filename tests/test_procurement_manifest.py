@@ -101,7 +101,7 @@ def test_cart_a_checkout_policy_cannot_be_relaxed():
         is True
     )
 
-    weakened = copy.deepcopy(data)
+    weakened = deepcopy(data)
     weakened["rules"]["cart_a_refresh_scope_max_age_days"] = 365
     weakened["rules"]["cart_a_require_stock_recheck_at_checkout"] = False
     weakened["rules"][
