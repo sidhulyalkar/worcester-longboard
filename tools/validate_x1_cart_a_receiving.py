@@ -89,6 +89,18 @@ def validate(receiving: dict, checkout: dict, checkout_authority: dict) -> dict:
         errors.append("checkout authority must be valid")
     if checkout_authority.get("order_record_complete") is not True:
         errors.append("checkout authority must have order_record_complete=true")
+    if checkout_authority.get("checkout_within_existing_buy_now_authority") is not True:
+        errors.append("checkout authority must remain within existing BUY_NOW authority")
+    for key in (
+        "procurement_authority",
+        "physical_qualification_authority",
+        "fabrication_authority",
+        "powered_operation_authorized",
+        "public_operation_authorized",
+        "dog_accompanied_operation_authorized",
+    ):
+        if checkout_authority.get(key) is not False:
+            errors.append(f"checkout authority boundary violated: {key}")
     if checkout_authority.get("checkout_record_sha256") != _digest(checkout):
         errors.append("checkout authority does not match checkout record")
     if receiving.get("checkout_authority_fingerprint_sha256") != checkout_authority.get(
