@@ -253,7 +253,11 @@ def evaluate(registry: dict, events: list[dict], snapshot: dict | None = None) -
     if not _nonempty(current_configuration_id):
         errors.append("registry configuration_id must be nonempty")
 
-    _parse_timestamp(errors, "registry.created_at_utc", registry.get("created_at_utc"))
+    registry_created_at = _parse_timestamp(
+        errors,
+        "registry.created_at_utc",
+        registry.get("created_at_utc"),
+    )
 
     for key in (
         "powered_operation_authorized",
@@ -330,6 +334,8 @@ def evaluate(registry: dict, events: list[dict], snapshot: dict | None = None) -
         event_type = event.get("event_type")
         if event_type not in ALLOWED_EVENT_TYPES:
             errors.append(f"{event_id or index}: unsupported event_type")
+        if not _nonempty(event.get("activity_type")):
+            errors.append(f"{event_id or index}: activity_type must be nonempty")
 
         for key in (
             "powered_operation_authorized",
@@ -348,6 +354,8 @@ def evaluate(registry: dict, events: list[dict], snapshot: dict | None = None) -
             event.get("timestamp_utc"),
         )
         if dt is not None:
+            if registry_created_at is not None and dt < registry_created_at:
+                errors.append(f"{event_id or index}: event predates registry creation")
             parsed_events.append((dt, event))
 
     parsed_events.sort(key=lambda pair: pair[0])
@@ -381,6 +389,12 @@ def evaluate(registry: dict, events: list[dict], snapshot: dict | None = None) -
                 f"{event_id}: configuration_id={event_config!r} does not match "
                 f"active configuration {current_configuration_id!r}"
             )
+
+        for cid, installed_at in install_times.items():
+            if cid in active_components and installed_at is not None and installed_at > dt:
+                errors.append(
+                    f"{event_id}: active component {cid} is recorded before its installation timestamp"
+                )
 
         km = event.get("odometer_km")
         hours = event.get("ride_hours")
@@ -584,6 +598,11 @@ def evaluate(registry: dict, events: list[dict], snapshot: dict | None = None) -
                         f"{cid}.installed_at_utc",
                         component.get("installed_at_utc"),
                     )
+                    if install_times[cid] is not None and install_times[cid] > dt:
+                        errors.append(
+                            f"{event_id}: installed component {cid} has an installation "
+                            "timestamp after the configuration-change event"
+                        )
                     install_km[cid] = (
                         float(component["installed_odometer_km"])
                         if _finite_nonnegative(component.get("installed_odometer_km"))
