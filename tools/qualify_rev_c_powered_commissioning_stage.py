@@ -183,10 +183,48 @@ def _validate_venue(errors: list[str], data: dict) -> None:
         errors.append("venue authority fingerprint is invalid")
 
 
+def _validate_telemetry_replay(
+    errors: list[str],
+    data: dict,
+    *,
+    board_id: str,
+    configuration_id: str,
+    stage_id: str,
+    power_arch_fp: str,
+    required_metrics: list[str],
+) -> None:
+    if data.get("authority") != "x1_commissioning_telemetry_replay":
+        errors.append("telemetry replay has wrong authority type")
+    if data.get("qualified") is not True:
+        errors.append("telemetry replay is not qualified")
+    if data.get("board_id") != board_id:
+        errors.append("telemetry replay board_id mismatch")
+    if data.get("configuration_id") != configuration_id:
+        errors.append("telemetry replay configuration_id mismatch")
+    if data.get("commissioning_stage_id") != stage_id:
+        errors.append("telemetry replay stage_id mismatch")
+    if data.get("power_architecture_fingerprint_sha256") != power_arch_fp:
+        errors.append("telemetry replay power-architecture lineage mismatch")
+    if data.get("powered_operation_authorized") is not False:
+        errors.append("telemetry replay cannot authorize powered operation")
+    if data.get("public_operation_authorized") is not False:
+        errors.append("telemetry replay cannot authorize public operation")
+    if data.get("dog_accompanied_operation_authorized") is not False:
+        errors.append("telemetry replay cannot authorize dog-accompanied operation")
+    if not _valid_fp(data):
+        errors.append("telemetry replay fingerprint is invalid")
+
+    metric_ids = set(data.get("metric_ids", []))
+    missing = sorted(set(required_metrics) - metric_ids)
+    if missing:
+        errors.append(f"telemetry replay missing required metrics: {missing}")
+
+
 def _validate_measurements(
     errors: list[str],
     measurements: Any,
     required: list[str],
+    telemetry_replay: dict | None = None,
 ) -> None:
     if not isinstance(measurements, list):
         errors.append("measurements must be a list")
@@ -222,9 +260,65 @@ def _validate_measurements(
                 f"{metric_id}: measurement requires finite value or evidence_ref"
             )
 
+    replay_by_id = {}
+    if telemetry_replay is not None:
+        replay_by_id = {
+            item.get("metric_id"): item
+            for item in telemetry_replay.get("metrics", [])
+            if isinstance(item, dict) and _nonempty(item.get("metric_id"))
+        }
+
     for metric_id in required:
         if metric_id not in by_id:
             errors.append(f"required measurement missing: {metric_id}")
+            continue
+
+        if telemetry_replay is None:
+            continue
+
+        replay_item = replay_by_id.get(metric_id)
+        if replay_item is None:
+            errors.append(
+                f"required measurement has no telemetry replay metric: {metric_id}"
+            )
+            continue
+
+        item = by_id[metric_id]
+        if item.get("source") != "x1_commissioning_telemetry_replay":
+            errors.append(
+                f"{metric_id}: measurement source must be x1_commissioning_telemetry_replay"
+            )
+        if item.get("evidence_ref") != replay_item.get("evidence_ref"):
+            errors.append(
+                f"{metric_id}: measurement evidence_ref does not match telemetry replay"
+            )
+        if item.get("unit") != replay_item.get("unit"):
+            errors.append(
+                f"{metric_id}: measurement unit does not match telemetry replay"
+            )
+
+        replay_value = replay_item.get("value")
+        value = item.get("value")
+        if (
+            replay_value is not None
+            and isinstance(replay_value, (int, float))
+            and not isinstance(replay_value, bool)
+            and math.isfinite(float(replay_value))
+        ):
+            if not (
+                isinstance(value, (int, float))
+                and not isinstance(value, bool)
+                and math.isfinite(float(value))
+                and math.isclose(
+                    float(value),
+                    float(replay_value),
+                    rel_tol=1e-9,
+                    abs_tol=1e-9,
+                )
+            ):
+                errors.append(
+                    f"{metric_id}: measurement value does not match telemetry replay"
+                )
 
 
 def qualify(
@@ -235,6 +329,7 @@ def qualify(
     previous_stage: dict | None = None,
     post_health: dict | None = None,
     venue: dict | None = None,
+    telemetry_replay: dict | None = None,
     snapshot: dict | None = None,
 ) -> dict:
     snapshot = snapshot or json.loads(SNAPSHOT.read_text(encoding="utf-8"))
@@ -391,10 +486,29 @@ def qualify(
         if not isinstance(item, dict) or item.get("status") != "PASS":
             errors.append(f"required stage check not PASS: {check_id}")
 
+    required_measurements = list(stage.get("required_measurements", []))
+    telemetry_required = stage.get("energized") is True
+    if telemetry_required:
+        if telemetry_replay is None:
+            errors.append("fingerprinted telemetry replay is required for energized stage")
+        else:
+            _validate_telemetry_replay(
+                errors,
+                telemetry_replay,
+                board_id=board_id,
+                configuration_id=configuration_id,
+                stage_id=stage_id,
+                power_arch_fp=power_fp,
+                required_metrics=required_measurements,
+            )
+    elif telemetry_replay is not None:
+        errors.append("Stage 0 must not supply telemetry replay evidence")
+
     _validate_measurements(
         errors,
         manifest.get("measurements"),
-        list(stage.get("required_measurements", [])),
+        required_measurements,
+        telemetry_replay=telemetry_replay if telemetry_required else None,
     )
 
     stop_conditions = manifest.get("stop_conditions_observed")
@@ -491,6 +605,16 @@ def qualify(
             if venue is not None
             else None
         ),
+        "telemetry_replay_fingerprint_sha256": (
+            telemetry_replay.get("authority_fingerprint_sha256")
+            if telemetry_replay is not None
+            else None
+        ),
+        "telemetry_session_fingerprint_sha256": (
+            telemetry_replay.get("telemetry_session_fingerprint_sha256")
+            if telemetry_replay is not None
+            else None
+        ),
         "commissioning_stage_completed": qualified,
         "energized_stage_completed": qualified and stage.get("energized") is True,
         "free_ground_travel_stage_completed": (
@@ -520,6 +644,7 @@ def main() -> None:
     parser.add_argument("--previous-stage", type=Path)
     parser.add_argument("--post-health-state", type=Path)
     parser.add_argument("--venue-authority", type=Path)
+    parser.add_argument("--telemetry-replay", type=Path)
     parser.add_argument("--snapshot", type=Path, default=SNAPSHOT)
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
@@ -536,6 +661,7 @@ def main() -> None:
         previous_stage=load(args.previous_stage),
         post_health=load(args.post_health_state),
         venue=load(args.venue_authority),
+        telemetry_replay=load(args.telemetry_replay),
         snapshot=load(args.snapshot),
     )
     text = json.dumps(report, indent=2, sort_keys=True) + "\n"
