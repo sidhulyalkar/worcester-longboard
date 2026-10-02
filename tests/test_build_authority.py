@@ -26,6 +26,11 @@ def _stamp(doc):
 
 
 def _all_physical_evidence():
+    chassis = _stamp({
+        "authority": "x1_rolling_chassis_physical",
+        "qualified": True,
+        "powered_operation_authorized": False,
+    })
     return [
         _stamp({"qualified_for_four_zone_duplication": True}),
         _stamp({
@@ -44,7 +49,7 @@ def _all_physical_evidence():
         }),
         _stamp({"authority": "x1_fit_session", "schema_version": 2, "rev_b_gate": {"ready_for_rev_b_fit_cad": True}}),
         _stamp({"authority": "x1_mechanical_brake_interface", "qualified": True, "brake_interface_verified": True, "powered_operation_authorized": False}),
-        _stamp({"authority": "x1_rolling_chassis_physical", "qualified": True, "powered_operation_authorized": False}),
+        chassis,
         _stamp({"authority": "x1_brake_drive_topology", "schema_version": 1, "qualified": True, "selected_topology": "same_rear_axle_v5_plus_drive", "powered_operation_authorized": False}),
         _stamp({"authority": "x1_rev_b_template", "qualified": True}),
         _stamp({"authority": "x1_power_packaging_candidate", "schema_version": 1, "qualified": True, "powered_operation_authorized": False}),
@@ -75,6 +80,9 @@ def _all_physical_evidence():
             "valid": True,
             "health_state": "READY_FOR_ALLOWED_ACTIVITY",
             "ready_for_allowed_activity": True,
+            "rolling_chassis_fingerprint_sha256": chassis[
+                "authority_fingerprint_sha256"
+            ],
             "powered_operation_authorized": False,
             "public_operation_authorized": False,
             "dog_accompanied_operation_authorized": False,
@@ -475,6 +483,27 @@ def test_lifecycle_health_ready_requires_chassis_and_ready_health_evidence():
 
     report = evaluate(_plan(), _procurement(), _all_physical_evidence())
     assert report["gates"]["lifecycle_health_ready"]["satisfied"] is True
+
+
+def test_lifecycle_health_from_different_chassis_cannot_satisfy_gate():
+    evidence = _all_physical_evidence()
+    health_index = next(
+        i for i, doc in enumerate(evidence)
+        if doc.get("authority") == "x1_lifecycle_health_state"
+    )
+    wrong = {
+        key: value
+        for key, value in evidence[health_index].items()
+        if key != "authority_fingerprint_sha256"
+    }
+    wrong["rolling_chassis_fingerprint_sha256"] = "0" * 64
+    evidence[health_index] = _stamp(wrong)
+
+    report = evaluate(_plan(), _procurement(), evidence)
+    gate = report["gates"]["lifecycle_health_ready"]
+    assert gate["evidence_matched"] is True
+    assert gate["satisfied"] is False
+    assert any("evidence link mismatch" in blocker for blocker in gate["blockers"])
 
 
 def test_missing_lifecycle_health_blocks_every_commissioning_action():
