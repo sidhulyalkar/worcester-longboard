@@ -58,6 +58,16 @@ def _all_physical_evidence():
             "powered_operation_authorized": False,
         }),
         _stamp({"authority": "x1_power_architecture", "qualified": True}),
+        _stamp({
+            "authority": "x1_lifecycle_health_state",
+            "schema_version": 1,
+            "valid": True,
+            "health_state": "READY_FOR_ALLOWED_ACTIVITY",
+            "ready_for_allowed_activity": True,
+            "powered_operation_authorized": False,
+            "public_operation_authorized": False,
+            "dog_accompanied_operation_authorized": False,
+        }),
     ]
 
 
@@ -78,6 +88,7 @@ def test_public_repo_defaults_are_conservative():
     assert report["capabilities"]["qualify_inert_trail_armor"]["allowed"] is False
     assert report["capabilities"]["qualify_environmental_inert_candidate"]["allowed"] is False
     assert report["capabilities"]["establish_lifecycle_health_history"]["allowed"] is False
+    assert report["gates"]["lifecycle_health_ready"]["satisfied"] is False
 
 
 def test_rev_c_blocks_measurement_chassis_procurement_until_release_conditions_close():
@@ -235,6 +246,74 @@ def test_lifecycle_health_tracking_begins_only_after_rolling_chassis_qualificati
     )
 
 
+def test_lifecycle_health_ready_requires_chassis_and_current_ready_evidence():
+    health = _stamp({
+        "authority": "x1_lifecycle_health_state",
+        "schema_version": 1,
+        "valid": True,
+        "health_state": "READY_FOR_ALLOWED_ACTIVITY",
+        "ready_for_allowed_activity": True,
+        "powered_operation_authorized": False,
+        "public_operation_authorized": False,
+        "dog_accompanied_operation_authorized": False,
+    })
+
+    report = evaluate(_plan(), _procurement(), [health])
+    gate = report["gates"]["lifecycle_health_ready"]
+    assert gate["evidence_matched"] is True
+    assert gate["satisfied"] is False
+    assert any(
+        "rolling_chassis_physical_qualified" in blocker
+        for blocker in gate["blockers"]
+    )
+
+    report = evaluate(_plan(), _procurement(), _all_physical_evidence())
+    assert report["gates"]["lifecycle_health_ready"]["satisfied"] is True
+
+
+def test_operation_paths_require_current_lifecycle_health_even_after_power_freeze():
+    evidence = [
+        doc for doc in _all_physical_evidence()
+        if doc.get("authority") != "x1_lifecycle_health_state"
+    ]
+    report = evaluate(_plan(), _procurement(), evidence)
+
+    assert report["gates"]["power_architecture_frozen"]["satisfied"] is True
+    assert report["gates"]["lifecycle_health_ready"]["satisfied"] is False
+
+    for capability in (
+        "powered_operation",
+        "public_operation",
+        "dog_accompanied_operation",
+    ):
+        assert report["capabilities"][capability]["allowed"] is False
+        assert any(
+            "lifecycle_health_ready" in blocker
+            for blocker in report["capabilities"][capability]["blockers"]
+        )
+
+
+def test_nonready_health_state_cannot_satisfy_lifecycle_gate():
+    evidence = _all_physical_evidence()
+    health_index = next(
+        i for i, doc in enumerate(evidence)
+        if doc.get("authority") == "x1_lifecycle_health_state"
+    )
+    evidence[health_index] = _stamp({
+        "authority": "x1_lifecycle_health_state",
+        "schema_version": 1,
+        "valid": True,
+        "health_state": "SERVICE_REQUIRED",
+        "ready_for_allowed_activity": False,
+        "powered_operation_authorized": False,
+        "public_operation_authorized": False,
+        "dog_accompanied_operation_authorized": False,
+    })
+
+    report = evaluate(_plan(), _procurement(), evidence)
+    assert report["gates"]["lifecycle_health_ready"]["satisfied"] is False
+
+
 def test_inert_trail_armor_requires_topology_and_packaging_geometry():
     evidence = _all_physical_evidence()
     report = evaluate(_plan(), _procurement(), evidence)
@@ -343,6 +422,7 @@ def test_power_ordering_stays_blocked_by_procurement_policy():
     assert report["gates"]["dummy_pack_mount_qualified"]["satisfied"] is True
     assert report["gates"]["environmental_inert_candidate_qualified"]["satisfied"] is True
     assert report["gates"]["power_architecture_frozen"]["satisfied"] is True
+    assert report["gates"]["lifecycle_health_ready"]["satisfied"] is True
     assert report["capabilities"]["order_power_hardware"]["allowed"] is False
     assert "procurement stage blocked: POWER_GATED" in report["capabilities"]["order_power_hardware"]["blockers"]
     assert report["capabilities"]["powered_operation"]["allowed"] is False
