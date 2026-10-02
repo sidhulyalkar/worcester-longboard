@@ -404,6 +404,7 @@ def evaluate(
 
     open_findings: dict[str, dict] = {}
     all_findings: set[str] = set()
+    baseline_event_ids: list[str] = []
     last_seen_km: float | None = None
     last_seen_hours: float | None = None
     latest_event: dict | None = None
@@ -422,6 +423,8 @@ def evaluate(
         event_id = event.get("event_id", "<unknown>")
         event_type = event.get("event_type")
         event_config = event.get("configuration_id")
+        if event_type == "BASELINE":
+            baseline_event_ids.append(event_id)
 
         if event_config != current_configuration_id:
             errors.append(
@@ -574,6 +577,21 @@ def evaluate(
             if not _nonempty(action.get("action")):
                 errors.append(f"{event_id}: service action requires action text")
             if action.get("resets_service_interval") is True:
+                policy = active_components[component_id].get("service_policy", {})
+                has_sourced_interval = any(
+                    policy.get(key) is not None
+                    for key in ("interval_km", "interval_hours", "interval_days")
+                )
+                if not has_sourced_interval:
+                    errors.append(
+                        f"{event_id}: cannot reset service interval for "
+                        f"{component_id} because no interval is declared"
+                    )
+                if not _nonempty(action.get("source_reference")):
+                    errors.append(
+                        f"{event_id}: resetting service interval for "
+                        f"{component_id} requires source_reference"
+                    )
                 last_service_at[component_id] = dt
                 last_service_km[component_id] = current_km
                 last_service_hours[component_id] = current_hours
@@ -667,6 +685,14 @@ def evaluate(
                     f"{event_id}: component_changes must be empty when applied=false"
                 )
 
+    baseline_errors: list[str] = []
+    if len(baseline_event_ids) != 1:
+        baseline_errors.append(
+            f"exactly one BASELINE event is required, found {len(baseline_event_ids)}"
+        )
+    elif parsed_events and parsed_events[0][1].get("event_type") != "BASELINE":
+        baseline_errors.append("BASELINE must be the first health event")
+
     current_at = latest_at
     due_items: list[str] = []
     due_unknown: list[str] = []
@@ -686,7 +712,7 @@ def evaluate(
         due_items.extend(due)
         due_unknown.extend(unknown)
 
-    preflight_errors: list[str] = []
+    preflight_errors: list[str] = list(baseline_errors)
     preflight_complete = False
     if latest_event is None:
         preflight_errors.append("no health events recorded")
@@ -751,6 +777,10 @@ def evaluate(
         "current_configuration_id": current_configuration_id,
         "active_component_ids": sorted(active_components),
         "event_count": len(parsed_events),
+        "baseline_recorded": len(baseline_event_ids) == 1,
+        "baseline_event_id": (
+            baseline_event_ids[0] if len(baseline_event_ids) == 1 else None
+        ),
         "latest_event_id": (
             latest_event.get("event_id") if latest_event is not None else None
         ),
