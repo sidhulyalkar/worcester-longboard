@@ -9,9 +9,10 @@
     "preferred_chassis_strategy": "REV_C_EVIDENCE_SELECTED_CHASSIS_WITH_COMP_PATH_ONLY",
     "rev_c_expensive_procurement_hold": "evidence_gated",
     "rev_c_requirements_path": "hardware/rev_c_requirements.json",
-    "source_snapshot_as_of": "2026-09-11",
+    "source_snapshot_as_of": "2026-10-01",
     "rev_c_chassis_release_gate": "rev_c_chassis_release_qualified",
-    "instantiated_chassis_item_id": "DONOR-COMP95"
+    "instantiated_chassis_item_id": "DONOR-COMP95",
+    "source_snapshot_path": "hardware/order_sources_2026-10-01.json"
   },
   "items": [
     {
