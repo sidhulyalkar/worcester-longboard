@@ -65,6 +65,53 @@ jobs:
           assert report['gates']['lifecycle_health_ready']['satisfied'] is False
           print('Public authority is conservative: fit-pilot ordering open; Rev-C chassis, topology, packaging, dummy-pack and power gates remain closed.')
           PY
+      - name: Smoke-test Issue 51 physical kickoff
+        run: |
+          python tools/init_x1_physical_kickoff.py /tmp/x1-physical-kickoff
+          test -f /tmp/x1-physical-kickoff/DAY0_KICKOFF.md
+          test -f /tmp/x1-physical-kickoff/NEXT_STEPS.md
+          test -f /tmp/x1-physical-kickoff/owned_inventory.json
+          test -f /tmp/x1-physical-kickoff/workspace_manifest.json
+          test -f /tmp/x1-physical-kickoff/rev_c_release/deck_templates/rev_c_comp95_deck_envelope.svg
+          test -f /tmp/x1-physical-kickoff/rev_c_release/deck_templates/rev_c_pro_warren_iii_deck_envelope.svg
+          test -f /tmp/x1-physical-kickoff/rev_c_release/deck_templates/rev_c_agent_deck_envelope.svg
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          packet = Path('/tmp/x1-physical-kickoff/DAY0_KICKOFF.md').read_text()
+          assert '$120.90' in packet
+          assert 'chassis/brake MEASURE_FIRST purchase: **BLOCKED**' in packet
+          assert 'power ordering: **BLOCKED**' in packet
+          assert 'powered operation: **BLOCKED**' in packet
+
+          manifest = json.loads(
+              Path('/tmp/x1-physical-kickoff/workspace_manifest.json').read_text()
+          )
+          assert manifest['scope'] == 'x1_physical_kickoff_workspace'
+          assert manifest['procurement_authority'] is False
+          assert manifest['fabrication_authority'] is False
+          assert manifest['powered_operation_authority'] is False
+
+          inventory_path = Path('/tmp/x1-physical-kickoff/owned_inventory.json')
+          inventory = json.loads(inventory_path.read_text())
+          mcu = next(x for x in inventory['items'] if x['id'] == 'MCU-ESP32S3')
+          mcu.update({
+              'status': 'OWNED_EQUIVALENT',
+              'qty_owned_verified': 1,
+              'unused_or_known_history': True,
+          })
+          inventory_path.write_text(json.dumps(inventory, indent=2) + '\n')
+          PY
+          python tools/render_physical_kickoff_packet.py             --inventory /tmp/x1-physical-kickoff/owned_inventory.json             --out /tmp/x1-physical-kickoff/DAY0_KICKOFF_UPDATED.md
+          python - <<'PY'
+          from pathlib import Path
+          packet = Path('/tmp/x1-physical-kickoff/DAY0_KICKOFF_UPDATED.md').read_text()
+          assert '$100.90' in packet
+          assert 'VERIFY_OWNED_AND_SKIP_DUPLICATE' in packet
+          assert '| DONOR-COMP95 | MEASURE_FIRST | BLOCKED |' in packet
+          assert '| BATTERY-PRO-MODULAR | POWER_GATED | BLOCKED |' in packet
+          PY
       - name: Smoke-test Rev-C pre-purchase tools
         run: |
           python simulation/rev_c_mass_budget.py --configuration trail --chassis comp95
