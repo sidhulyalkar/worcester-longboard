@@ -334,6 +334,33 @@ Control strategy:
 - no final IP/waterproof/corrosion-life claim from project surrogate tests;
 - future energized wet validation remains separate after final power architecture.
 
+### Lifecycle history integrity
+
+A qualified chassis is not permanently qualified in the sense of "never inspect it again."
+
+The vehicle changes over time through:
+
+- impacts;
+- contamination;
+- wear;
+- service;
+- fastener movement;
+- tire/pressure changes;
+- component replacement;
+- future thermal and electrical faults.
+
+Issue #41 therefore treats the maintenance record as part of the current vehicle configuration.
+
+Control strategy:
+
+- anchor the private health workspace to the rolling-chassis authority fingerprint;
+- keep event history append-only;
+- preserve component replacement as explicit configuration lineage;
+- keep serious findings open until an inspection/service/configuration event explicitly closes them;
+- require a fresh preflight after service, component change, post-activity or fault events;
+- use manufacturer/system-integrator or qualified-X1 service intervals only when an actual source exists;
+- never let `READY_FOR_ALLOWED_ACTIVITY` grant an otherwise blocked activity.
+
 ### Brake/drive packaging
 
 This is the architecture risk that can strand the most expensive purchases.
