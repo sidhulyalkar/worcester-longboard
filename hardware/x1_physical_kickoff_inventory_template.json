@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "scope": "x1_physical_kickoff_inventory",
+  "inventory_checked_at_utc": "",
+  "items": [
+    {
+      "id": "LC-3135",
+      "status": "UNASSESSED",
+      "qty_owned_verified": 0,
+      "exact_part_match": false,
+      "unused_or_known_history": false,
+      "notes": ""
+    },
+    {
+      "id": "ADC-HX711",
+      "status": "UNASSESSED",
+      "qty_owned_verified": 0,
+      "exact_part_match": false,
+      "unused_or_known_history": false,
+      "notes": ""
+    },
+    {
+      "id": "MCU-ESP32S3",
+      "status": "UNASSESSED",
+      "qty_owned_verified": 0,
+      "exact_part_match": false,
+      "unused_or_known_history": false,
+      "notes": ""
+    },
+    {
+      "id": "USB-DATA",
+      "status": "UNASSESSED",
+      "qty_owned_verified": 0,
+      "exact_part_match": false,
+      "unused_or_known_history": false,
+      "notes": ""
+    },
+    {
+      "id": "HW-M5-PILOT",
+      "status": "UNASSESSED",
+      "qty_owned_verified": 0,
+      "exact_part_match": false,
+      "unused_or_known_history": false,
+      "notes": ""
+    },
+    {
+      "id": "HW-M4-PILOT",
+      "status": "UNASSESSED",
+      "qty_owned_verified": 0,
+      "exact_part_match": false,
+      "unused_or_known_history": false,
+      "notes": ""
+    },
+    {
+      "id": "WIRE-HEATSHRINK",
+      "status": "UNASSESSED",
+      "qty_owned_verified": 0,
+      "exact_part_match": false,
+      "unused_or_known_history": false,
+      "notes": ""
+    },
+    {
+      "id": "CALIPER-SCREENING",
+      "status": "UNASSESSED",
+      "qty_owned_verified": 0,
+      "exact_part_match": false,
+      "unused_or_known_history": false,
+      "notes": ""
+    },
+    {
+      "id": "FEELER-GAUGE",
+      "status": "UNASSESSED",
+      "qty_owned_verified": 0,
+      "exact_part_match": false,
+      "unused_or_known_history": false,
+      "notes": ""
+    },
+    {
+      "id": "PILOT-BASE",
+      "status": "UNASSESSED",
+      "qty_owned_verified": 0,
+      "exact_part_match": false,
+      "unused_or_known_history": false,
+      "notes": ""
+    }
+  ],
+  "allowed_statuses": [
+    "UNASSESSED",
+    "NEED_BUY",
+    "OWNED_EQUIVALENT",
+    "OWNED_EXACT_UNUSED"
+  ],
+  "interpretation_boundary": "Inventory status can reduce duplicate BUY_NOW convenience purchases only after physical verification. It cannot open a blocked procurement item, qualify evidence, or authorize fabrication/operation."
+}
