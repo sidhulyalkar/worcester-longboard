@@ -36,6 +36,10 @@ Issue #28 ride compliance    Issue #19 brake/drive topology
                               +--------------------+--------------------+
                                                    |
                                                    v
+                                Issue #39 inert environmental candidate
+                                contamination / drainage / service recovery
+                                                   |
+                                                   v
                                       final power architecture freeze
                                                    |
                                                    v
@@ -353,9 +357,73 @@ PYTHONPATH=. python tools/qualify_dummy_pack_mount.py \
 
 Only a passing `x1_dummy_pack_mount` report can open the final power freeze.
 
+## 8A. Issue #39 inert environmental durability candidate
+
+Issue #39 runs after the qualified Issue #21 dummy-pack mount and before final power architecture freeze.
+
+Create the private session from the real authorities:
+
+```bash
+python tools/init_rev_c_environmental_session.py \
+  rider/private/environmental/session-01 \
+  --chassis-authority rider/private/chassis/donor-a/chassis_authority.json \
+  --dummy-pack-authority rider/private/dummy_pack/v1/dummy_pack_authority.json \
+  --candidate-enclosure-id INERT-ENC-A \
+  --harness-revision-id HARNESS-SURROGATE-A
+```
+
+Follow `docs/rev_c_environmental_durability.md`.
+
+Initial trials are inert/disconnected only and must cover:
+
+1. complete exposed-interface inventory;
+2. dry-grit surrogate;
+3. clean-water splash surrogate;
+4. inert mud surrogate;
+5. disconnected connector inspection/clean/re-seat;
+6. wheel/bearing/brake/steering recovery;
+7. declared drying process and post-exposure inspection.
+
+Do not use:
+
+- live traction battery;
+- traction voltage;
+- connected charger;
+- powered vehicle;
+- pressure washer;
+- immersion.
+
+Qualify:
+
+```bash
+python tools/qualify_rev_c_environmental_durability.py \
+  rider/private/environmental/session-01/environmental_manifest.json \
+  --chassis-authority rider/private/chassis/donor-a/chassis_authority.json \
+  --dummy-pack-authority rider/private/dummy_pack/v1/dummy_pack_authority.json \
+  --out rider/private/environmental/session-01/environmental_authority.json
+```
+
+A passing report is fingerprinted `x1_environmental_inert_candidate`.
+
+It still has:
+
+```text
+ip_rating_claimed = false
+waterproof_claimed = false
+corrosion_life_claimed = false
+electrical_wet_operation_qualified = false
+live_battery_test_authorized = false
+procurement_authority = false
+powered_operation_authorized = false
+```
+
+This gate exists so the enclosure, harness entries, drainage, connector access and maintenance strategy can be changed before expensive power hardware freezes.
+
+Future energized environmental validation remains separate.
+
 ## 9. Final power architecture freeze
 
-Only now freeze the coupled powered system:
+Only after Issue #21 **and Issue #39** pass may the project freeze the coupled powered system:
 
 - selected drive architecture;
 - final axle configuration;
