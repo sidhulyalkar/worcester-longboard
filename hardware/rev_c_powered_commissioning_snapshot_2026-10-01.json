@@ -30,7 +30,8 @@
         "secured_spin_fixture_plan_ready"
       ],
       "required_measurements": [],
-      "post_stage_ready_health_required": false
+      "post_stage_ready_health_required": false,
+      "telemetry_replay_required": false
     },
     {
       "stage_index": 1,
@@ -66,7 +67,8 @@
         "left_controller_temperature_c",
         "right_controller_temperature_c"
       ],
-      "post_stage_ready_health_required": true
+      "post_stage_ready_health_required": true,
+      "telemetry_replay_required": true
     },
     {
       "stage_index": 2,
@@ -103,7 +105,8 @@
         "left_controller_temperature_c",
         "right_controller_temperature_c"
       ],
-      "post_stage_ready_health_required": true
+      "post_stage_ready_health_required": true,
+      "telemetry_replay_required": true
     },
     {
       "stage_index": 3,
@@ -140,7 +143,8 @@
         "left_controller_temperature_c",
         "right_controller_temperature_c"
       ],
-      "post_stage_ready_health_required": true
+      "post_stage_ready_health_required": true,
+      "telemetry_replay_required": true
     },
     {
       "stage_index": 4,
@@ -181,7 +185,8 @@
         "left_controller_temperature_c",
         "right_controller_temperature_c"
       ],
-      "post_stage_ready_health_required": true
+      "post_stage_ready_health_required": true,
+      "telemetry_replay_required": true
     }
   ],
   "universal_stop_conditions": [
@@ -204,7 +209,8 @@
     "Stage 3 and Stage 4 link a qualified powered-test venue fingerprint.",
     "A configuration change invalidates downstream commissioning lineage until the affected stages are repeated.",
     "A lifecycle STOP_USE or SERVICE_REQUIRED state invalidates progression until explicitly closed and followed by a fresh preflight.",
-    "A stage may not be skipped."
+    "A stage may not be skipped.",
+    "Stage 1 through Stage 4 link a fingerprinted telemetry replay authority derived from sealed raw telemetry for the exact board/configuration/power architecture/stage."
   ],
   "authority_boundaries": [
     "Stage reports qualify only the declared commissioning stage.",
