@@ -43,14 +43,6 @@ def initialize(
     rolling_chassis_authority_path: Path,
 ) -> dict:
     workspace_dir = workspace_dir.resolve()
-    if workspace_dir.exists() and any(workspace_dir.iterdir()):
-        raise FileExistsError(
-            f"workspace directory is not empty: {workspace_dir}; "
-            "use a fresh private directory"
-        )
-    workspace_dir.mkdir(parents=True, exist_ok=True)
-    events_dir = workspace_dir / "events"
-    events_dir.mkdir()
 
     chassis = json.loads(
         rolling_chassis_authority_path.read_text(encoding="utf-8")
@@ -59,6 +51,15 @@ def initialize(
         raise ValueError(
             "rolling chassis authority must be qualified and fingerprint-valid"
         )
+
+    if workspace_dir.exists() and any(workspace_dir.iterdir()):
+        raise FileExistsError(
+            f"workspace directory is not empty: {workspace_dir}; "
+            "use a fresh private directory"
+        )
+    workspace_dir.mkdir(parents=True, exist_ok=True)
+    events_dir = workspace_dir / "events"
+    events_dir.mkdir()
 
     registry = json.loads(REGISTRY_TEMPLATE.read_text(encoding="utf-8"))
     registry["board_id"] = board_id
