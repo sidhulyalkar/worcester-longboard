@@ -70,7 +70,13 @@ def _health(tmp_path: Path, name: str, timestamp: str):
     )
 
 
-def _stage(tmp_path: Path, index: int, stage_id: str, health_fp: str):
+def _stage(
+    tmp_path: Path,
+    index: int,
+    stage_id: str,
+    health_fp: str,
+    power_fp: str,
+):
     return _write(
         tmp_path / f"stage-{index}.json",
         _stamp(
@@ -87,7 +93,7 @@ def _stage(tmp_path: Path, index: int, stage_id: str, health_fp: str):
                 "configuration_id": "CFG-A",
                 "started_at_utc": "2026-10-01T12:00:00Z",
                 "completed_at_utc": "2026-10-01T12:01:00Z",
-                "power_architecture_fingerprint_sha256": "power-fp",
+                "power_architecture_fingerprint_sha256": power_fp,
                 "pre_lifecycle_health_fingerprint_sha256": health_fp,
                 "post_lifecycle_health_fingerprint_sha256": health_fp,
                 "previous_stage_fingerprint_sha256": None,
@@ -157,11 +163,13 @@ def test_ground_stage_requires_previous_stage_and_venue(tmp_path: Path):
     power = _power(tmp_path)
     health_path = _health(tmp_path, "health.json", "2026-10-01T12:10:00Z")
     health = json.loads(health_path.read_text())
+    power_doc = json.loads(power.read_text())
     previous = _stage(
         tmp_path,
         2,
         "RESTRAINED_LOADED_BENCH",
         health["authority_fingerprint_sha256"],
+        power_doc["authority_fingerprint_sha256"],
     )
     venue = _venue(tmp_path)
 
@@ -189,11 +197,13 @@ def test_initializer_rejects_missing_ground_venue(tmp_path: Path):
     power = _power(tmp_path)
     health_path = _health(tmp_path, "health.json", "2026-10-01T12:10:00Z")
     health = json.loads(health_path.read_text())
+    power_doc = json.loads(power.read_text())
     previous = _stage(
         tmp_path,
         2,
         "RESTRAINED_LOADED_BENCH",
         health["authority_fingerprint_sha256"],
+        power_doc["authority_fingerprint_sha256"],
     )
 
     with pytest.raises(ValueError, match="venue authority"):
@@ -211,11 +221,13 @@ def test_initializer_rejects_missing_ground_venue(tmp_path: Path):
 def test_initializer_rejects_health_not_matching_previous_stage(tmp_path: Path):
     power = _power(tmp_path)
     health_path = _health(tmp_path, "health.json", "2026-10-01T12:10:00Z")
+    power_doc = json.loads(power.read_text())
     previous = _stage(
         tmp_path,
         0,
         "BENCH_READINESS",
         "different-health-fingerprint",
+        power_doc["authority_fingerprint_sha256"],
     )
 
     with pytest.raises(ValueError, match="pre-health must match"):
