@@ -72,6 +72,43 @@ def _all_physical_evidence():
     ]
 
 
+def _commissioning_evidence():
+    venue = _stamp({
+        "schema_version": 1,
+        "authority": "x1_powered_test_venue_evidence",
+        "qualified": True,
+        "errors": [],
+        "venue_id": "PRIVATE-A",
+        "venue_name": "Synthetic private venue",
+        "venue_permission_qualified": True,
+        "vehicle_operation_legality_verified_recorded": False,
+        "vehicle_powered_operation_authority": False,
+        "public_operation_authority": False,
+        "dog_accompanied_operation_authority": False,
+        "interpretation_boundary": "synthetic",
+    })
+    stages = []
+    for index, stage_id in enumerate((
+        "BENCH_READINESS",
+        "SECURED_UNLOADED_SPIN",
+        "RESTRAINED_LOADED_BENCH",
+        "RIDER_FREE_CONTROLLED_GROUND",
+        "RIDER_ONLY_VERY_LOW_SPEED",
+    )):
+        stages.append(_stamp({
+            "schema_version": 1,
+            "authority": "x1_powered_commissioning_stage",
+            "qualified": True,
+            "stage_index": index,
+            "stage_id": stage_id,
+            "commissioning_stage_completed": True,
+            "general_powered_operation_authorized": False,
+            "public_operation_authorized": False,
+            "dog_accompanied_operation_authorized": False,
+        }))
+    return [venue, *stages]
+
+
 def test_public_repo_defaults_are_conservative():
     report = evaluate(_plan(), _procurement(), [])
     assert report["capabilities"]["order_fit_pilot_parts"]["allowed"] is True
@@ -90,6 +127,11 @@ def test_public_repo_defaults_are_conservative():
     assert report["capabilities"]["qualify_environmental_inert_candidate"]["allowed"] is False
     assert report["capabilities"]["establish_lifecycle_health_history"]["allowed"] is False
     assert report["capabilities"]["qualify_powertrain_envelope"]["allowed"] is False
+    assert report["capabilities"]["prepare_powered_bench_readiness"]["allowed"] is False
+    assert report["capabilities"]["conduct_secured_unloaded_spin"]["allowed"] is False
+    assert report["capabilities"]["conduct_restrained_loaded_bench"]["allowed"] is False
+    assert report["capabilities"]["conduct_rider_free_controlled_ground"]["allowed"] is False
+    assert report["capabilities"]["conduct_rider_only_very_low_speed_commissioning"]["allowed"] is False
 
 
 def test_rev_c_blocks_measurement_chassis_procurement_until_release_conditions_close():
@@ -396,6 +438,96 @@ def test_power_ordering_stays_blocked_by_procurement_policy():
     assert report["capabilities"]["order_power_hardware"]["allowed"] is False
     assert "procurement stage blocked: POWER_GATED" in report["capabilities"]["order_power_hardware"]["blockers"]
     assert report["capabilities"]["powered_operation"]["allowed"] is False
+
+
+def test_commissioning_capabilities_open_only_stage_by_stage():
+    base = _all_physical_evidence()
+    commissioning = _commissioning_evidence()
+    venue, stage0, stage1, stage2, stage3, stage4 = commissioning
+
+    report = evaluate(_plan(), _procurement(), base)
+    assert report["gates"]["power_architecture_frozen"]["satisfied"] is True
+    assert report["capabilities"]["prepare_powered_bench_readiness"]["allowed"] is True
+    assert report["capabilities"]["conduct_secured_unloaded_spin"]["allowed"] is False
+
+    report = evaluate(_plan(), _procurement(), base + [stage0])
+    assert report["gates"]["commissioning_stage_0_qualified"]["satisfied"] is True
+    assert report["capabilities"]["conduct_secured_unloaded_spin"]["allowed"] is True
+    assert report["capabilities"]["conduct_restrained_loaded_bench"]["allowed"] is False
+
+    report = evaluate(_plan(), _procurement(), base + [stage0, stage1])
+    assert report["gates"]["commissioning_stage_1_qualified"]["satisfied"] is True
+    assert report["capabilities"]["conduct_restrained_loaded_bench"]["allowed"] is True
+    assert report["capabilities"]["conduct_rider_free_controlled_ground"]["allowed"] is False
+
+    report = evaluate(_plan(), _procurement(), base + [stage0, stage1, stage2])
+    assert report["gates"]["commissioning_stage_2_qualified"]["satisfied"] is True
+    assert report["capabilities"]["conduct_rider_free_controlled_ground"]["allowed"] is False
+    assert any(
+        "powered_test_venue_qualified" in blocker
+        for blocker in report["capabilities"]["conduct_rider_free_controlled_ground"]["blockers"]
+    )
+
+    report = evaluate(
+        _plan(),
+        _procurement(),
+        base + [venue, stage0, stage1, stage2],
+    )
+    assert report["gates"]["powered_test_venue_qualified"]["satisfied"] is True
+    assert report["capabilities"]["conduct_rider_free_controlled_ground"]["allowed"] is True
+
+    report = evaluate(
+        _plan(),
+        _procurement(),
+        base + [venue, stage0, stage1, stage2, stage3],
+    )
+    assert report["gates"]["commissioning_stage_3_qualified"]["satisfied"] is True
+    assert (
+        report["capabilities"]["conduct_rider_only_very_low_speed_commissioning"]["allowed"]
+        is True
+    )
+
+
+def test_even_complete_stage_four_commissioning_does_not_unlock_normal_riding():
+    evidence = _all_physical_evidence() + _commissioning_evidence()
+    report = evaluate(_plan(), _procurement(), evidence)
+
+    for index in range(5):
+        assert report["gates"][f"commissioning_stage_{index}_qualified"]["satisfied"] is True
+    assert report["gates"]["powered_test_venue_qualified"]["satisfied"] is True
+
+    powered = report["capabilities"]["powered_operation"]
+    assert powered["allowed"] is False
+    assert any(
+        "Stage 4 is commissioning evidence only" in blocker
+        for blocker in powered["blockers"]
+    )
+    assert report["capabilities"]["public_operation"]["allowed"] is False
+    assert report["capabilities"]["dog_accompanied_operation"]["allowed"] is False
+
+
+def test_ground_commissioning_evidence_cannot_skip_venue_or_prior_stage():
+    base = _all_physical_evidence()
+    venue, stage0, stage1, stage2, stage3, _ = _commissioning_evidence()
+
+    report = evaluate(
+        _plan(),
+        _procurement(),
+        base + [stage0, stage1, stage2, stage3],
+    )
+    state = report["gates"]["commissioning_stage_3_qualified"]
+    assert state["evidence_matched"] is True
+    assert state["satisfied"] is False
+    assert any("powered_test_venue_qualified" in x for x in state["blockers"])
+
+    report = evaluate(
+        _plan(),
+        _procurement(),
+        base + [venue, stage0, stage2, stage3],
+    )
+    state = report["gates"]["commissioning_stage_3_qualified"]
+    assert state["satisfied"] is False
+    assert any("commissioning_stage_2_qualified" in x for x in state["blockers"])
 
 
 def test_even_complete_existing_evidence_cannot_authorize_public_operation():
