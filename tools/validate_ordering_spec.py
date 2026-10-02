@@ -37,6 +37,11 @@ def validate(procurement: dict, sources: dict, planned: dict) -> dict:
     if sources.get("refresh_live_price_and_stock_before_checkout") is not True:
         errors.append("source snapshot must require live refresh before checkout")
 
+    refresh_scope_ids = sources.get("refresh_scope_manifest_ids", [])
+    if refresh_scope_ids is not None and not isinstance(refresh_scope_ids, list):
+        errors.append("refresh_scope_manifest_ids must be a list when present")
+        refresh_scope_ids = []
+
     manifest = {item["id"]: item for item in procurement.get("items", []) if item.get("id")}
     seen: set[str] = set()
     for source in sources.get("sources", []):
@@ -69,6 +74,24 @@ def validate(procurement: dict, sources: dict, planned: dict) -> dict:
 
         if manifest[manifest_id].get("stage") == "POWER_GATED" and source.get("recommended") is True:
             errors.append(f"{manifest_id}: POWER_GATED source cannot be recommended for purchase")
+
+        if manifest_id in refresh_scope_ids:
+            if source.get("last_verified_as_of") != sources.get("as_of"):
+                errors.append(
+                    f"{manifest_id}: scoped refresh entry must be verified on snapshot date"
+                )
+            if source.get("availability_status") != "IN_STOCK":
+                errors.append(
+                    f"{manifest_id}: scoped refresh entry must record IN_STOCK availability"
+                )
+
+    if refresh_scope_ids:
+        missing_refresh = sorted(set(refresh_scope_ids) - seen)
+        if missing_refresh:
+            errors.append(
+                "refresh scope references missing source entries: "
+                + ", ".join(missing_refresh)
+            )
 
     expected_source_ids = {
         item_id
@@ -123,7 +146,17 @@ def validate(procurement: dict, sources: dict, planned: dict) -> dict:
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     procurement_path = Path(sys.argv[1]) if len(sys.argv) > 1 else root / "hardware/procurement_manifest.json"
-    sources_path = Path(sys.argv[2]) if len(sys.argv) > 2 else root / "hardware/order_sources_2026-09-11.json"
+    if len(sys.argv) > 2:
+        sources_path = Path(sys.argv[2])
+    else:
+        source_rel = procurement.get("rules", {}).get("source_snapshot_path")
+        if source_rel:
+            sources_path = root / source_rel
+        else:
+            source_date = procurement.get("rules", {}).get(
+                "source_snapshot_as_of", procurement.get("as_of")
+            )
+            sources_path = root / f"hardware/order_sources_{source_date}.json"
     planned_path = Path(sys.argv[3]) if len(sys.argv) > 3 else root / "hardware/planned_system_bom.json"
     report = validate(
         json.loads(procurement_path.read_text(encoding="utf-8")),
