@@ -328,7 +328,9 @@ def validate(
             if not _nonempty(row.get("sku")):
                 errors.append(f"{item_id}: sku must be nonempty")
             price = row.get("unit_price_usd")
-            if not _finite_nonnegative(price):
+            if price is None and status == "DRAFT":
+                price_value = 0.0
+            elif not _finite_nonnegative(price):
                 errors.append(f"{item_id}: unit_price_usd must be finite and nonnegative")
                 price_value = 0.0
             else:
