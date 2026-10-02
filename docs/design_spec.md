@@ -257,7 +257,7 @@ Future battery/enclosure mounting is qualified using inert dummy mass matching t
 
 The critical dependency is now:
 
-`V5 brake -> rolling chassis -> {Issue #28 ride-compliance characterization + Issue #19 brake/drive topology} -> power packaging candidate -> inert dummy-pack mount -> final power architecture -> Issue #35 authorized venue evidence -> future powered commissioning`
+`V5 brake -> rolling chassis -> {Issue #28 ride-compliance characterization + Issue #19 brake/drive topology} -> power packaging candidate -> inert dummy-pack mount -> {Issue #39 environmental candidate + Issue #43 powertrain envelope} -> final power architecture -> Issue #45 Stage 0/1/2 bench commissioning -> {Issue #35 venue + Issue #45 Stage 3/4 controlled-ground commissioning}`
 
 The Rev-B rider-interface path joins at the packaging-candidate gate after qualified fit and rolling-chassis evidence.
 
@@ -273,6 +273,20 @@ Drive voltage, gearing, KV, wheel diameter, efficiency, traction, and thermal co
 
 ## Commissioning boundary
 
-Current repository authority stops before traction power. No present document, test fixture, CAD generator, procurement entry, brake report, chassis report, topology report, dummy-pack report, or CI pass authorizes powered riding.
+Issue #45 now defines the progressive powered-commissioning authority contract.
 
-A future powered-commissioning tranche must introduce an explicit progressive authority contract beginning with low-energy bench operation and repeated mechanical inspection rather than inheriting permission from final power-architecture freeze. Powered ground testing also requires a separate Issue #35 venue record. Venue permission cannot authorize the vehicle, and a software mode cannot establish public-road classification.
+The software architecture distinguishes:
+
+- Stage 0 `BENCH_READINESS`;
+- Stage 1 `SECURED_UNLOADED_SPIN`;
+- Stage 2 `RESTRAINED_LOADED_BENCH`;
+- Stage 3 `RIDER_FREE_CONTROLLED_GROUND`;
+- Stage 4 `RIDER_ONLY_VERY_LOW_SPEED`.
+
+Every stage binds to the exact final power architecture and lifecycle-health lineage. Energized stages require a fresh post-stage READY health report. Stage 3/4 additionally require fingerprinted Issue #35 venue evidence.
+
+This does **not** mean the repository currently authorizes any energized physical test. The public repository contains no real final power-architecture or commissioning-stage evidence.
+
+Even a future passing Stage 4 report keeps general powered operation, public operation, and dog-accompanied operation false. Normal riding must therefore be governed by a later explicit operating authority rather than inherited from commissioning.
+
+Venue permission cannot authorize the vehicle, lifecycle health cannot authorize an otherwise blocked activity, and a software mode cannot establish public-road classification.
