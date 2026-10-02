@@ -112,8 +112,9 @@ def validate(
         errors.append("checkout schema_version must be 1")
     if checkout.get("scope") != "x1_cart_a_checkout_record":
         errors.append("wrong checkout scope")
-    if checkout.get("issue") != 56:
-        errors.append("checkout issue must be 56")
+    expected_issue = procurement.get("rules", {}).get("cart_a_checkout_issue")
+    if checkout.get("issue") != expected_issue:
+        errors.append("checkout issue does not match procurement authority")
     status = checkout.get("status")
     if status not in ALLOWED_STATUS:
         errors.append("checkout status must be DRAFT, READY_TO_ORDER, or ORDERED")
@@ -199,14 +200,40 @@ def validate(
     if not isinstance(policy, dict):
         errors.append("source_freshness_policy must be an object")
         policy = {}
-    max_age = policy.get("max_refresh_scope_age_days")
+    procurement_rules = procurement.get("rules", {})
+    expected_policy = {
+        "max_refresh_scope_age_days": procurement_rules.get(
+            "cart_a_refresh_scope_max_age_days"
+        ),
+        "require_in_stock_for_refresh_scope": procurement_rules.get(
+            "cart_a_require_stock_recheck_at_checkout"
+        ),
+        "price_or_stock_change_requires_snapshot_refresh": procurement_rules.get(
+            "cart_a_price_or_stock_change_requires_source_refresh"
+        ),
+        "authority_source": "hardware/procurement_manifest.json",
+    }
+    if policy != expected_policy:
+        errors.append(
+            "source_freshness_policy does not match procurement authority"
+        )
+    max_age = expected_policy["max_refresh_scope_age_days"]
     if not isinstance(max_age, int) or isinstance(max_age, bool) or max_age < 0:
-        errors.append("max_refresh_scope_age_days must be a nonnegative integer")
+        errors.append(
+            "procurement cart_a_refresh_scope_max_age_days must be nonnegative"
+        )
         max_age = 0
-    if policy.get("require_in_stock_for_refresh_scope") is not True:
-        errors.append("refresh-scope items must require in-stock source evidence")
-    if policy.get("price_or_stock_change_requires_snapshot_refresh") is not True:
-        errors.append("price/stock change must require source snapshot refresh")
+    if expected_policy["require_in_stock_for_refresh_scope"] is not True:
+        errors.append(
+            "procurement authority must require refresh-scope stock recheck"
+        )
+    if (
+        expected_policy["price_or_stock_change_requires_snapshot_refresh"]
+        is not True
+    ):
+        errors.append(
+            "procurement authority must require refresh after price/stock change"
+        )
 
     rows = checkout.get("items")
     if not isinstance(rows, list):
