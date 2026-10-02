@@ -130,6 +130,10 @@ def validate(
         if checkout.get(key) is not False:
             errors.append(f"{key} must be false")
 
+    inventory_sha = _digest(inventory)
+    if checkout.get("inventory_record_sha256") != inventory_sha:
+        errors.append("checkout inventory fingerprint is stale or incorrect")
+
     expected_source_path = procurement.get("rules", {}).get("source_snapshot_path")
     if checkout.get("source_snapshot_path") != expected_source_path:
         errors.append("checkout source_snapshot_path does not match procurement authority")
@@ -457,6 +461,7 @@ def validate(
         "checkout_id": checkout.get("checkout_id"),
         "checkout_status": status,
         "checkout_record_sha256": _digest(checkout),
+        "inventory_record_sha256": inventory_sha,
         "source_snapshot_sha256": _digest(sources),
         "ordered_item_ids": sorted(ordered_ids),
         "owned_item_ids": sorted(owned_ids),
