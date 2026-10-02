@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-01",
+  "scope": "rev_c_environmental_durability_reference_snapshot",
+  "facts_only": true,
+  "authority": "REFERENCE_ONLY",
+  "objective": "Make the selected X1 mechanical/electrical packaging tolerant of trail dust, grit, mud and splash while preserving drainage, inspection and service recovery.",
+  "standards_references": [
+    {
+      "id": "ISO_20653_2023",
+      "role": "reference structure for protection of road-vehicle electrical enclosures against foreign objects/dust and water",
+      "compliance_claim": false,
+      "source": "https://www.iso.org/standard/76116.html"
+    },
+    {
+      "id": "ASTM_B117_26",
+      "role": "reference for controlled comparative corrosion exposure of material/coating specimens",
+      "compliance_claim": false,
+      "caveat": "ASTM states stand-alone salt-spray results do not reliably predict natural-environment performance",
+      "source": "https://store.astm.org/standards/b117"
+    }
+  ],
+  "project_boundaries": {
+    "ip_rating_claimed": false,
+    "waterproof_claimed": false,
+    "corrosion_life_claimed": false,
+    "live_traction_battery_in_initial_trials": false,
+    "energized_high_voltage_in_initial_trials": false,
+    "charger_connected_in_initial_trials": false,
+    "powered_vehicle_in_initial_trials": false,
+    "pressure_washing_assumed_safe": false,
+    "immersion_assumed_safe": false,
+    "energized_environmental_testing_requires_future_electrical_authority": true,
+    "wet_dirty_powered_ground_testing_requires_future_powered_and_venue_authority": true
+  },
+  "environmental_layers": [
+    {
+      "order": 1,
+      "mechanism": "interface_inventory",
+      "purpose": "identify every enclosure seam, connector, vent/drain, bearing, brake and harness entry that can trap or admit contamination"
+    },
+    {
+      "order": 2,
+      "mechanism": "dry_grit_surrogate",
+      "purpose": "expose binding, seal, drain, fastener and service vulnerabilities without water or high energy"
+    },
+    {
+      "order": 3,
+      "mechanism": "splash_surrogate",
+      "purpose": "verify intended splash paths, drainage and dry protected zones using an inert enclosure"
+    },
+    {
+      "order": 4,
+      "mechanism": "mud_surrogate",
+      "purpose": "verify that viscous contamination does not block drainage, service access, steering/brake motion or cooling paths"
+    },
+    {
+      "order": 5,
+      "mechanism": "connector_service_recovery",
+      "purpose": "prove disconnected interfaces can be inspected, cleaned and fully re-seated without seal or pin damage"
+    },
+    {
+      "order": 6,
+      "mechanism": "post_exposure_dry_and_inspection",
+      "purpose": "detect retained moisture, chafe, fretting, seal displacement, bearing/brake degradation and fastener migration"
+    },
+    {
+      "order": 7,
+      "mechanism": "material_corrosion_screening",
+      "purpose": "use coupons or appropriate lab methods if material/coating choices remain ambiguous; do not extrapolate coupon salt-fog time into product life"
+    },
+    {
+      "order": 8,
+      "mechanism": "future_energized_validation",
+      "purpose": "only after final electrical architecture exists; separately validate insulation, connector, BMS/ESC and fault behavior"
+    }
+  ],
+  "cleaning_policy": [
+    "Do not use a pressure washer unless the final selected components and complete system explicitly support the exposure.",
+    "Do not immerse the complete board or traction enclosure merely to discover leaks.",
+    "Remove bulk debris with the least aggressive method that preserves seals, bearings, brake surfaces and labels.",
+    "Keep solvents/cleaners away from polymers, elastomers, adhesives and coatings unless compatibility is established.",
+    "Open protected enclosures only through their intended service procedure; do not make every post-ride inspection require breaking a primary environmental seal."
+  ],
+  "service_recovery_targets": [
+    "wheel/tire service remains possible after contamination",
+    "mechanical brake releases and actuates normally after cleaning",
+    "steering returns freely",
+    "drainage paths remain open",
+    "connectors can be inspected and fully re-seated without using the cable as a handle",
+    "no safety-critical fastener or seal must be disturbed merely to remove a replaceable contamination guard",
+    "post-ride inspection can identify retained moisture or migration before the next ride"
+  ],
+  "design_principles": [
+    "Prefer shields, labyrinths, drainage and replaceable contamination barriers over assuming every part is hermetically sealed.",
+    "Orient connectors and seams so gravity/drainage help rather than trap water.",
+    "Provide drip loops and strain relief before vulnerable cable entries.",
+    "Keep brake friction surfaces out of lubricant/cleaner runoff paths.",
+    "Treat bearings and moving seals as maintainable wear interfaces rather than lifetime waterproof parts.",
+    "Do not make the battery shell the trail skid or contamination sacrificial surface.",
+    "A passing inert environmental trial is a packaging/service authority only, not an electrical wet-operation authority."
+  ]
+}
