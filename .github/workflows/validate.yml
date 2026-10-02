@@ -332,6 +332,127 @@ jobs:
           assert report['procurement_authority'] is False
           assert report['powered_operation_authorized'] is False
           PY
+      - name: Smoke-test Issue 41 lifecycle health tools
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          chassis = {
+              'schema_version': 1,
+              'authority': 'x1_rolling_chassis_physical',
+              'qualified': True,
+              'powered_operation_authorized': False,
+          }
+          payload = json.dumps(
+              chassis,
+              sort_keys=True,
+              separators=(',', ':'),
+              allow_nan=False,
+          ).encode('utf-8')
+          chassis['authority_fingerprint_sha256'] = hashlib.sha256(payload).hexdigest()
+          Path('/tmp/x1-health-chassis.json').write_text(
+              json.dumps(chassis, indent=2) + '\n'
+          )
+          PY
+          python tools/init_x1_lifecycle_health.py             /tmp/x1-health             --board-id CI-X1             --configuration-id CFG-A             --created-at-utc 2026-10-01T12:00:00Z             --rolling-chassis-authority /tmp/x1-health-chassis.json
+          test -f /tmp/x1-health/component_registry.json
+          test -d /tmp/x1-health/events
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('/tmp/x1-health/component_registry.json')
+          registry = json.loads(path.read_text())
+          registry['components'] = [
+              {
+                  'component_id': 'DECK-A',
+                  'subsystem': 'structure',
+                  'role': 'structural_deck',
+                  'manufacturer': 'CI Synthetic',
+                  'model': 'CI Deck',
+                  'revision': 'A',
+                  'serial_or_private_identifier': '',
+                  'active': True,
+                  'installed_at_utc': '2026-10-01T12:00:00Z',
+                  'installed_odometer_km': 0.0,
+                  'installed_ride_hours': 0.0,
+                  'service_policy': {
+                      'source_type': '',
+                      'source_reference': '',
+                      'interval_km': None,
+                      'interval_hours': None,
+                      'interval_days': None,
+                      'notes': '',
+                  },
+              }
+          ]
+          path.write_text(json.dumps(registry, indent=2) + '\n')
+          PY
+          python tools/new_x1_health_event.py             /tmp/x1-health/component_registry.json             /tmp/x1-health/events/0001-preflight.json             --event-id PREFLIGHT-CI-1             --timestamp-utc 2026-10-01T12:10:00Z             --event-type PREFLIGHT             --activity-type UNPOWERED_CONTROLLED_TEST
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          snapshot = json.loads(
+              Path('hardware/rev_c_lifecycle_health_snapshot_2026-10-01.json').read_text()
+          )
+          path = Path('/tmp/x1-health/events/0001-preflight.json')
+          event = json.loads(path.read_text())
+          for check in event['checks'].values():
+              check['status'] = 'NA'
+          for check_id in snapshot['required_preflight_checks']:
+              event['checks'][check_id]['status'] = 'PASS'
+          event['odometer_km'] = 0.0
+          event['ride_hours'] = 0.0
+          path.write_text(json.dumps(event, indent=2) + '\n')
+          PY
+          python tools/evaluate_x1_lifecycle_health.py             /tmp/x1-health/component_registry.json             --rolling-chassis-authority /tmp/x1-health-chassis.json             --event /tmp/x1-health/events/0001-preflight.json             --out /tmp/x1-health/health-ready.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('/tmp/x1-health/health-ready.json').read_text())
+          assert report['valid'] is True
+          assert report['health_state'] == 'READY_FOR_ALLOWED_ACTIVITY'
+          assert report['ready_for_allowed_activity'] is True
+          assert report['powered_operation_authorized'] is False
+          assert report['public_operation_authorized'] is False
+          assert report['dog_accompanied_operation_authorized'] is False
+          PY
+          python tools/new_x1_health_event.py             /tmp/x1-health/component_registry.json             /tmp/x1-health/events/0002-impact.json             --event-id IMPACT-CI-1             --timestamp-utc 2026-10-01T12:20:00Z             --event-type IMPACT             --activity-type UNPOWERED_CONTROLLED_TEST
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('/tmp/x1-health/events/0002-impact.json')
+          event = json.loads(path.read_text())
+          event['odometer_km'] = 0.1
+          event['ride_hours'] = 0.05
+          event['observed_triggers'] = ['critical_witness_mark_movement']
+          event['findings_opened'] = [
+              {
+                  'finding_id': 'F-CI-STOP',
+                  'component_id': 'DECK-A',
+                  'severity': 'STOP',
+                  'trigger': 'critical_witness_mark_movement',
+                  'source_check_id': '',
+                  'description': 'Synthetic critical retention witness movement.',
+                  'evidence_ref': 'ci-fixture',
+              }
+          ]
+          path.write_text(json.dumps(event, indent=2) + '\n')
+          PY
+          python tools/evaluate_x1_lifecycle_health.py             /tmp/x1-health/component_registry.json             --rolling-chassis-authority /tmp/x1-health-chassis.json             --event /tmp/x1-health/events/0001-preflight.json             --event /tmp/x1-health/events/0002-impact.json             --out /tmp/x1-health/health-stop.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('/tmp/x1-health/health-stop.json').read_text())
+          assert report['valid'] is True
+          assert report['health_state'] == 'STOP_USE'
+          assert report['ready_for_allowed_activity'] is False
+          assert report['open_findings'][0]['finding_id'] == 'F-CI-STOP'
+          assert report['powered_operation_authorized'] is False
+          PY
       - name: Smoke-test Rev-C energy and charge-dock tools
         run: |
           python simulation/rev_c_energy_planner.py \
