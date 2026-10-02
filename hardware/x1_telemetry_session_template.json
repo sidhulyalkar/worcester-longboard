@@ -31,7 +31,9 @@
       "nominal_rate_hz": null,
       "max_gap_s": null,
       "calibration_status": "DECLARED_ONLY",
-      "calibration_evidence_ref": ""
+      "calibration_evidence_ref": "",
+      "sampling_mode": "continuous",
+      "nominal_rate_tolerance_fraction": 0.25
     },
     {
       "stream_type": "electrical",
@@ -47,7 +49,9 @@
       "nominal_rate_hz": null,
       "max_gap_s": null,
       "calibration_status": "DECLARED_ONLY",
-      "calibration_evidence_ref": ""
+      "calibration_evidence_ref": "",
+      "sampling_mode": "continuous",
+      "nominal_rate_tolerance_fraction": 0.25
     },
     {
       "stream_type": "motion",
@@ -63,7 +67,9 @@
       "nominal_rate_hz": null,
       "max_gap_s": null,
       "calibration_status": "DECLARED_ONLY",
-      "calibration_evidence_ref": ""
+      "calibration_evidence_ref": "",
+      "sampling_mode": "continuous",
+      "nominal_rate_tolerance_fraction": 0.25
     },
     {
       "stream_type": "events",
@@ -79,7 +85,9 @@
       "nominal_rate_hz": null,
       "max_gap_s": null,
       "calibration_status": "NOT_APPLICABLE",
-      "calibration_evidence_ref": ""
+      "calibration_evidence_ref": "",
+      "sampling_mode": "event_driven",
+      "nominal_rate_tolerance_fraction": null
     }
   ],
   "minimum_required_overlap_s": null,
