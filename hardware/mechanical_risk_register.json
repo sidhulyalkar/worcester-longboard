@@ -12,7 +12,8 @@
     "no_unverified_custom_safety_critical_brake_adapter": true,
     "all_structural_or_retention_items_require_post_test_inspection": true,
     "power_freeze_requires_brake_drive_topology_authority": true,
-    "final_power_freeze_requires_dummy_pack_mount_authority": true
+    "final_power_freeze_requires_dummy_pack_mount_authority": true,
+    "lifecycle_health_history_required_before_future_powered_operation": true
   },
   "risks": [
     {
@@ -511,6 +512,32 @@
         "inspection for seal displacement harness chafe and fastener migration"
       ],
       "must_close_before": "power_architecture_frozen"
+    },
+    {
+      "id": "M22",
+      "subsystem": "lifecycle_health_record",
+      "failure_mode": "inspection, impact, service or component-replacement history is fragmented, overwritten or detached from the actual chassis/configuration",
+      "effect": "vehicle is reused with unresolved latent damage, overdue sourced service, or a health record that describes different hardware",
+      "severity": 5,
+      "likelihood": 3,
+      "detectability": 4,
+      "priority_score": 60,
+      "status": "OPEN_LIFECYCLE",
+      "prevention": [
+        "anchor the health workspace to the rolling-chassis authority fingerprint",
+        "append health events instead of rewriting prior history",
+        "require explicit configuration lineage for component replacement",
+        "track open findings until explicit inspection/service closure",
+        "require fresh preflight after service, post-activity, configuration change or unresolved-event closure"
+      ],
+      "verification": [
+        "Issue #41 evaluator chronology and fingerprint tests",
+        "component replacement lineage test",
+        "STOP finding persistence test",
+        "sourced service interval and missing-counter fail-closed tests",
+        "future powered commissioning must consume a current READY health state without treating it as operation authority"
+      ],
+      "must_close_before": "future_powered_operation_authority"
     }
   ]
 }
