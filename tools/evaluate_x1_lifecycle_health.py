@@ -73,6 +73,22 @@ def _valid_authority(data: dict, expected: str) -> bool:
         return False
 
 
+def _valid_authority(data: dict, expected: str) -> bool:
+    if data.get("authority") != expected or data.get("qualified") is not True:
+        return False
+    if data.get("powered_operation_authorized") is not False:
+        return False
+    actual = data.get("authority_fingerprint_sha256")
+    if not isinstance(actual, str) or not actual:
+        return False
+    unsigned = dict(data)
+    unsigned.pop("authority_fingerprint_sha256", None)
+    try:
+        return actual == _digest(unsigned)
+    except (TypeError, ValueError):
+        return False
+
+
 def _nonempty(value: Any) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
@@ -283,6 +299,26 @@ def evaluate(
         errors.append(
             "registry does not link the supplied rolling-chassis authority"
         )
+
+    if chassis_authority is None:
+        errors.append("rolling-chassis authority is required")
+    elif not _valid_authority(chassis_authority, "x1_rolling_chassis_physical"):
+        errors.append(
+            "rolling-chassis authority must be qualified, fingerprint-valid, "
+            "and non-powered"
+        )
+    else:
+        upstream = registry.get("upstream_authorities")
+        if not isinstance(upstream, dict):
+            errors.append("registry upstream_authorities must be an object")
+        elif (
+            upstream.get("rolling_chassis_fingerprint_sha256")
+            != chassis_authority.get("authority_fingerprint_sha256")
+        ):
+            errors.append(
+                "registry rolling_chassis_fingerprint_sha256 does not match "
+                "the supplied chassis authority"
+            )
 
     board_id = registry.get("board_id")
     current_configuration_id = registry.get("configuration_id")
@@ -744,6 +780,11 @@ def evaluate(
         "valid": not errors,
         "errors": errors,
         "board_id": board_id,
+        "rolling_chassis_fingerprint_sha256": (
+            chassis_authority.get("authority_fingerprint_sha256")
+            if isinstance(chassis_authority, dict)
+            else None
+        ),
         "current_configuration_id": current_configuration_id,
         "active_component_ids": sorted(active_components),
         "rolling_chassis_fingerprint_sha256": chassis_authority.get(
