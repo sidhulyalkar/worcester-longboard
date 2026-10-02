@@ -487,10 +487,10 @@ def qualify(
             errors.append(f"required stage check not PASS: {check_id}")
 
     required_measurements = list(stage.get("required_measurements", []))
-    telemetry_required = stage.get("energized") is True
+    telemetry_required = stage.get("telemetry_replay_required") is True
     if telemetry_required:
         if telemetry_replay is None:
-            errors.append("fingerprinted telemetry replay is required for energized stage")
+            errors.append("fingerprinted telemetry replay is required for this stage")
         else:
             _validate_telemetry_replay(
                 errors,
@@ -501,8 +501,16 @@ def qualify(
                 power_arch_fp=power_fp,
                 required_metrics=required_measurements,
             )
-    elif telemetry_replay is not None:
-        errors.append("Stage 0 must not supply telemetry replay evidence")
+            replay_fp = telemetry_replay.get("authority_fingerprint_sha256")
+            if manifest.get("telemetry_replay_fingerprint_sha256") != replay_fp:
+                errors.append("manifest telemetry replay fingerprint mismatch")
+    else:
+        if telemetry_replay is not None:
+            errors.append("Stage 0 must not supply telemetry replay evidence")
+        if manifest.get("telemetry_replay_fingerprint_sha256") not in ("", None):
+            errors.append(
+                "Stage 0 telemetry_replay_fingerprint_sha256 must be empty"
+            )
 
     _validate_measurements(
         errors,
