@@ -12,7 +12,8 @@
   "source_freshness_policy": {
     "max_refresh_scope_age_days": 7,
     "require_in_stock_for_refresh_scope": true,
-    "price_or_stock_change_requires_snapshot_refresh": true
+    "price_or_stock_change_requires_snapshot_refresh": true,
+    "authority_source": "hardware/procurement_manifest.json"
   },
   "items": [],
   "shipping_usd": null,
