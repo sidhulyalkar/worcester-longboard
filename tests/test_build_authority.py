@@ -69,6 +69,16 @@ def _all_physical_evidence():
             "powered_operation_authorized": False,
         }),
         _stamp({"authority": "x1_power_architecture", "qualified": True}),
+        _stamp({
+            "authority": "x1_lifecycle_health_state",
+            "schema_version": 1,
+            "valid": True,
+            "health_state": "READY_FOR_ALLOWED_ACTIVITY",
+            "ready_for_allowed_activity": True,
+            "powered_operation_authorized": False,
+            "public_operation_authorized": False,
+            "dog_accompanied_operation_authorized": False,
+        }),
     ]
 
 
@@ -132,6 +142,7 @@ def test_public_repo_defaults_are_conservative():
     assert report["capabilities"]["conduct_restrained_loaded_bench"]["allowed"] is False
     assert report["capabilities"]["conduct_rider_free_controlled_ground"]["allowed"] is False
     assert report["capabilities"]["conduct_rider_only_very_low_speed_commissioning"]["allowed"] is False
+    assert report["gates"]["lifecycle_health_ready"]["satisfied"] is False
 
 
 def test_rev_c_blocks_measurement_chassis_procurement_until_release_conditions_close():
@@ -435,9 +446,97 @@ def test_power_ordering_stays_blocked_by_procurement_policy():
     assert report["gates"]["environmental_inert_candidate_qualified"]["satisfied"] is True
     assert report["gates"]["powertrain_envelope_qualified"]["satisfied"] is True
     assert report["gates"]["power_architecture_frozen"]["satisfied"] is True
+    assert report["gates"]["lifecycle_health_ready"]["satisfied"] is True
     assert report["capabilities"]["order_power_hardware"]["allowed"] is False
     assert "procurement stage blocked: POWER_GATED" in report["capabilities"]["order_power_hardware"]["blockers"]
     assert report["capabilities"]["powered_operation"]["allowed"] is False
+
+
+def test_lifecycle_health_ready_requires_chassis_and_ready_health_evidence():
+    health = _stamp({
+        "authority": "x1_lifecycle_health_state",
+        "schema_version": 1,
+        "valid": True,
+        "health_state": "READY_FOR_ALLOWED_ACTIVITY",
+        "ready_for_allowed_activity": True,
+        "powered_operation_authorized": False,
+        "public_operation_authorized": False,
+        "dog_accompanied_operation_authorized": False,
+    })
+
+    report = evaluate(_plan(), _procurement(), [health])
+    gate = report["gates"]["lifecycle_health_ready"]
+    assert gate["evidence_matched"] is True
+    assert gate["satisfied"] is False
+    assert any(
+        "rolling_chassis_physical_qualified" in blocker
+        for blocker in gate["blockers"]
+    )
+
+    report = evaluate(_plan(), _procurement(), _all_physical_evidence())
+    assert report["gates"]["lifecycle_health_ready"]["satisfied"] is True
+
+
+def test_missing_lifecycle_health_blocks_every_commissioning_action():
+    evidence = [
+        doc for doc in _all_physical_evidence()
+        if doc.get("authority") != "x1_lifecycle_health_state"
+    ]
+    report = evaluate(_plan(), _procurement(), evidence)
+
+    assert report["gates"]["power_architecture_frozen"]["satisfied"] is True
+    assert report["gates"]["lifecycle_health_ready"]["satisfied"] is False
+
+    for capability in (
+        "prepare_powered_bench_readiness",
+        "conduct_secured_unloaded_spin",
+        "conduct_restrained_loaded_bench",
+        "conduct_rider_free_controlled_ground",
+        "conduct_rider_only_very_low_speed_commissioning",
+    ):
+        assert report["capabilities"][capability]["allowed"] is False
+        assert any(
+            "lifecycle_health_ready" in blocker
+            for blocker in report["capabilities"][capability]["blockers"]
+        )
+
+
+def test_nonready_lifecycle_health_blocks_commissioning_and_operation_paths():
+    evidence = _all_physical_evidence()
+    index = next(
+        i for i, doc in enumerate(evidence)
+        if doc.get("authority") == "x1_lifecycle_health_state"
+    )
+    evidence[index] = _stamp({
+        "authority": "x1_lifecycle_health_state",
+        "schema_version": 1,
+        "valid": True,
+        "health_state": "SERVICE_REQUIRED",
+        "ready_for_allowed_activity": False,
+        "powered_operation_authorized": False,
+        "public_operation_authorized": False,
+        "dog_accompanied_operation_authorized": False,
+    })
+    evidence += _commissioning_evidence()
+
+    report = evaluate(_plan(), _procurement(), evidence)
+    assert report["gates"]["lifecycle_health_ready"]["satisfied"] is False
+
+    for capability in (
+        "prepare_powered_bench_readiness",
+        "conduct_secured_unloaded_spin",
+        "conduct_restrained_loaded_bench",
+        "conduct_rider_free_controlled_ground",
+        "conduct_rider_only_very_low_speed_commissioning",
+        "powered_operation",
+        "public_operation",
+        "dog_accompanied_operation",
+    ):
+        assert report["capabilities"][capability]["allowed"] is False
+        assert any(
+            "lifecycle_health_ready" in blocker
+            for blocker in report["capabilities"][capability]["blockers"]
+        )
 
 
 def test_commissioning_capabilities_open_only_stage_by_stage():
