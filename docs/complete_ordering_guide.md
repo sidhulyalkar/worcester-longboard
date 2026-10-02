@@ -10,6 +10,22 @@ It is intentionally conservative. Ordering a part is not fabrication authority, 
 
 ## 0. Before buying anything
 
+If no parts have been ordered yet, initialize the complete private Day-0 workspace first:
+
+```bash
+python tools/init_x1_physical_kickoff.py rider/private/physical_kickoff
+```
+
+Then physically inventory `owned_inventory.json` and re-render the evidence-aware kickoff packet:
+
+```bash
+python tools/render_physical_kickoff_packet.py \
+  --inventory rider/private/physical_kickoff/owned_inventory.json \
+  --out rider/private/physical_kickoff/DAY0_KICKOFF.md
+```
+
+Issue #51 is convenience only. It reuses the same build/procurement authority below and must fail if any non-`BUY_NOW` item opens in the public/no-evidence state.
+
 Check whether you already own equivalent versions of these optional Issue #4 items:
 
 - ESP32-S3 DevKitC-1-compatible board;
