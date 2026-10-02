@@ -38,7 +38,8 @@
         "regen_command_left_a",
         "regen_command_right_a",
         "controller_fault_bits"
-      ]
+      ],
+      "sampling_mode": "continuous"
     },
     {
       "stream_type": "electrical",
@@ -72,7 +73,8 @@
         "right_motor_temperature_c",
         "left_controller_temperature_c",
         "right_controller_temperature_c"
-      ]
+      ],
+      "sampling_mode": "continuous"
     },
     {
       "stream_type": "motion",
@@ -104,7 +106,8 @@
         "gyro_x_dps",
         "gyro_y_dps",
         "gyro_z_dps"
-      ]
+      ],
+      "sampling_mode": "continuous"
     },
     {
       "stream_type": "events",
@@ -117,7 +120,8 @@
       ],
       "numeric_columns": [
         "time_s"
-      ]
+      ],
+      "sampling_mode": "event_driven"
     }
   ],
   "event_codes": {
@@ -231,6 +235,8 @@
     "Every stream declares how timestamps were normalized to the reference clock.",
     "Every stream declares synchronization uncertainty in seconds.",
     "Synchronization uncertainty must not exceed the per-stream declared maximum.",
+    "Continuous streams declare nominal_rate_hz, nominal_rate_tolerance_fraction and max_gap_s.",
+    "Event streams are explicitly event_driven and do not fabricate a nominal sampling rate.",
     "Required streams must have a nonzero common reference-time overlap.",
     "Continuous streams must not contain a timestamp gap larger than the declared max_gap_s.",
     "File SHA-256 must match the finalized manifest."
