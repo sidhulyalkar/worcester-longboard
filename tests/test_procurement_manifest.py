@@ -88,3 +88,27 @@ def test_procurement_manifest_points_to_october_source_refresh():
     assert data["rules"]["source_snapshot_path"] == (
         "hardware/order_sources_2026-10-01.json"
     )
+
+
+def test_cart_a_checkout_policy_cannot_be_relaxed():
+    data = _manifest()
+    rules = data["rules"]
+    assert rules["cart_a_checkout_issue"] == 56
+    assert rules["cart_a_refresh_scope_max_age_days"] == 7
+    assert rules["cart_a_require_stock_recheck_at_checkout"] is True
+    assert (
+        rules["cart_a_price_or_stock_change_requires_source_refresh"]
+        is True
+    )
+
+    weakened = copy.deepcopy(data)
+    weakened["rules"]["cart_a_refresh_scope_max_age_days"] = 365
+    weakened["rules"]["cart_a_require_stock_recheck_at_checkout"] = False
+    weakened["rules"][
+        "cart_a_price_or_stock_change_requires_source_refresh"
+    ] = False
+    report = validate_manifest(weakened)
+    assert report["valid"] is False
+    assert any("cart_a_refresh_scope_max_age_days" in x for x in report["errors"])
+    assert any("stock recheck" in x for x in report["errors"])
+    assert any("price/stock change" in x for x in report["errors"])
