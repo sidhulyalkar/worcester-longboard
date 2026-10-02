@@ -51,6 +51,13 @@ jobs:
           assert report['capabilities']['public_operation']['allowed'] is False
           assert report['capabilities']['dog_accompanied_operation']['allowed'] is False
           assert report['capabilities']['qualify_inert_trail_armor']['allowed'] is False
+          assert report['capabilities']['prepare_powered_bench_readiness']['allowed'] is False
+          assert report['capabilities']['conduct_secured_unloaded_spin']['allowed'] is False
+          assert report['capabilities']['conduct_restrained_loaded_bench']['allowed'] is False
+          assert report['capabilities']['conduct_rider_free_controlled_ground']['allowed'] is False
+          assert report['capabilities']['conduct_rider_only_very_low_speed_commissioning']['allowed'] is False
+          assert report['gates']['commissioning_stage_0_qualified']['satisfied'] is False
+          assert report['gates']['commissioning_stage_4_qualified']['satisfied'] is False
           assert report['gates']['brake_drive_topology_qualified']['satisfied'] is False
           assert report['gates']['power_packaging_candidate_defined']['satisfied'] is False
           assert report['gates']['dummy_pack_mount_qualified']['satisfied'] is False
@@ -614,6 +621,97 @@ jobs:
           assert report['controller_configuration_authority'] is False
           assert report['battery_configuration_authority'] is False
           assert report['powered_operation_authorized'] is False
+          PY
+      - name: Smoke-test Issue 45 powered commissioning tools
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          def stamp(doc):
+              payload = json.dumps(
+                  doc,
+                  sort_keys=True,
+                  separators=(',', ':'),
+                  allow_nan=False,
+              ).encode('utf-8')
+              out = dict(doc)
+              out['authority_fingerprint_sha256'] = hashlib.sha256(payload).hexdigest()
+              return out
+
+          power = stamp({
+              'schema_version': 1,
+              'authority': 'x1_power_architecture',
+              'qualified': True,
+          })
+          health = stamp({
+              'schema_version': 1,
+              'authority': 'x1_lifecycle_health_state',
+              'valid': True,
+              'errors': [],
+              'board_id': 'X1-CI',
+              'current_configuration_id': 'CFG-CI',
+              'latest_event_timestamp_utc': '2026-10-01T11:59:00Z',
+              'health_state': 'READY_FOR_ALLOWED_ACTIVITY',
+              'ready_for_allowed_activity': True,
+              'powered_operation_authorized': False,
+              'public_operation_authorized': False,
+              'dog_accompanied_operation_authorized': False,
+          })
+          Path('/tmp/x1-ci-power.json').write_text(json.dumps(power, indent=2) + '\n')
+          Path('/tmp/x1-ci-health.json').write_text(json.dumps(health, indent=2) + '\n')
+          PY
+          python tools/init_rev_c_powered_commissioning_stage.py \
+            /tmp/x1-commission-stage0 \
+            --stage-id BENCH_READINESS \
+            --board-id X1-CI \
+            --configuration-id CFG-CI \
+            --power-architecture /tmp/x1-ci-power.json \
+            --pre-health-state /tmp/x1-ci-health.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('/tmp/x1-commission-stage0/commissioning_manifest.json')
+          data = json.loads(path.read_text())
+          data['started_at_utc'] = '2026-10-01T12:00:00Z'
+          data['completed_at_utc'] = '2026-10-01T12:01:00Z'
+          data['independent_mechanical_brake_available'] = True
+          data['emergency_power_removal_available'] = True
+          data['declared_stage_limits'] = {
+              'source_reference': 'CI synthetic final architecture fixture',
+              'max_commanded_speed_mps': 1.0,
+              'max_motor_phase_current_a': 5.0,
+              'max_battery_current_a': 3.0,
+              'max_pack_voltage_v': 60.0,
+              'max_motor_erpm': 5000.0,
+              'max_motor_temperature_c': 50.0,
+              'max_controller_temperature_c': 50.0,
+          }
+          for check in data['checks'].values():
+              check['status'] = 'PASS'
+              check['notes'] = 'CI synthetic pass'
+          path.write_text(json.dumps(data, indent=2) + '\n')
+          PY
+          python tools/qualify_rev_c_powered_commissioning_stage.py \
+            /tmp/x1-commission-stage0/commissioning_manifest.json \
+            --power-architecture /tmp/x1-ci-power.json \
+            --pre-health-state /tmp/x1-ci-health.json \
+            --out /tmp/x1-commission-stage0/authority.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(
+              Path('/tmp/x1-commission-stage0/authority.json').read_text()
+          )
+          assert report['qualified'] is True
+          assert report['stage_index'] == 0
+          assert report['stage_id'] == 'BENCH_READINESS'
+          assert report['energized_stage_completed'] is False
+          assert report['general_powered_operation_authorized'] is False
+          assert report['public_operation_authorized'] is False
+          assert report['dog_accompanied_operation_authorized'] is False
+          assert len(report['authority_fingerprint_sha256']) == 64
           PY
       - name: Smoke-test Rev-C energy and charge-dock tools
         run: |
