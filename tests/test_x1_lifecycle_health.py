@@ -125,6 +125,28 @@ def _event(
     return data
 
 
+def _baseline(
+    event_id="BASELINE-01",
+    timestamp="2026-10-01T12:01:00Z",
+    *,
+    config="CFG-A",
+    odometer=0.0,
+    hours=0.0,
+):
+    return _event(
+        event_id,
+        timestamp,
+        "BASELINE",
+        config=config,
+        odometer=odometer,
+        hours=hours,
+    )
+
+
+def _history(*events):
+    return [_baseline(), *events]
+
+
 def _pass_preflight(
     event_id="PREFLIGHT-01",
     timestamp="2026-10-01T12:10:00Z",
@@ -152,7 +174,7 @@ def _pass_preflight(
 
 def test_clean_preflight_is_ready_but_never_authorizes_operation():
     chassis = _chassis()
-    report = evaluate(_registry(chassis=chassis), [_pass_preflight()], chassis, SNAPSHOT)
+    report = evaluate(_registry(chassis=chassis), _history(_pass_preflight()), chassis, SNAPSHOT)
 
     assert report["valid"] is True
     assert report["health_state"] == "READY_FOR_ALLOWED_ACTIVITY"
@@ -173,7 +195,7 @@ def test_health_report_rejects_wrong_or_tampered_chassis_authority():
 
     other = _chassis()
     other["authority_fingerprint_sha256"] = "0" * 64
-    report = evaluate(registry, [_pass_preflight()], other, SNAPSHOT)
+    report = evaluate(registry, _history(_pass_preflight()), other, SNAPSHOT)
     assert report["valid"] is False
     assert any("fingerprint-valid" in error for error in report["errors"])
     assert any(
@@ -198,7 +220,7 @@ def test_no_event_or_non_preflight_latest_event_requires_inspection():
         odometer=0.2,
         hours=0.1,
     )
-    report = evaluate(registry, [_pass_preflight(), post], chassis, SNAPSHOT)
+    report = evaluate(registry, _history(_pass_preflight(), post), chassis, SNAPSHOT)
     assert report["health_state"] == "INSPECTION_REQUIRED"
     assert "latest event is not a PREFLIGHT" in report["preflight_blockers"]
 
@@ -234,7 +256,7 @@ def test_stop_finding_survives_later_green_preflight_until_explicit_service_clos
     )
     report = evaluate(
         registry,
-        [_pass_preflight(), impact, later_preflight],
+        _history(_pass_preflight(), impact, later_preflight),
         chassis,
         SNAPSHOT,
     )
@@ -274,7 +296,7 @@ def test_stop_finding_survives_later_green_preflight_until_explicit_service_clos
 
     report = evaluate(
         registry,
-        [_pass_preflight(), impact, later_preflight, service],
+        _history(_pass_preflight(), impact, later_preflight, service),
         chassis,
         SNAPSHOT,
     )
@@ -289,7 +311,7 @@ def test_stop_finding_survives_later_green_preflight_until_explicit_service_clos
     )
     report = evaluate(
         registry,
-        [_pass_preflight(), impact, later_preflight, service, fresh],
+        _history(_pass_preflight(), impact, later_preflight, service, fresh),
         chassis,
         SNAPSHOT,
     )
@@ -301,7 +323,7 @@ def test_failed_preflight_check_requires_explicit_finding():
     data = _pass_preflight()
     data["checks"]["mechanical_brake_function"]["status"] = "FAIL"
 
-    report = evaluate(_registry(chassis=chassis), [data], chassis, SNAPSHOT)
+    report = evaluate(_registry(chassis=chassis), _history(data), chassis, SNAPSHOT)
     assert report["valid"] is False
     assert report["ready_for_allowed_activity"] is False
     assert any(
@@ -327,7 +349,7 @@ def test_trigger_cannot_be_recorded_below_minimum_severity():
         }
     ]
 
-    report = evaluate(_registry(chassis=chassis), [data], chassis, SNAPSHOT)
+    report = evaluate(_registry(chassis=chassis), _history(data), chassis, SNAPSHOT)
     assert report["valid"] is False
     assert any(
         "requires a finding at severity STOP or higher" in error
@@ -352,7 +374,7 @@ def test_sourced_distance_interval_becomes_service_required_and_can_be_reset():
         odometer=10.0,
         hours=0.5,
     )
-    report = evaluate(registry, [due_preflight], chassis, SNAPSHOT)
+    report = evaluate(registry, _history(due_preflight), chassis, SNAPSHOT)
     assert report["valid"] is True
     assert report["health_state"] == "SERVICE_REQUIRED"
     assert any("BRAKE-A: interval_km reached" in item for item in report["service_due"])
@@ -379,7 +401,7 @@ def test_sourced_distance_interval_becomes_service_required_and_can_be_reset():
         odometer=11.0,
         hours=0.6,
     )
-    report = evaluate(registry, [due_preflight, service, fresh], chassis, SNAPSHOT)
+    report = evaluate(registry, _history(due_preflight, service, fresh), chassis, SNAPSHOT)
     assert report["valid"] is True
     assert report["service_due"] == []
     assert report["health_state"] == "READY_FOR_ALLOWED_ACTIVITY"
@@ -390,7 +412,7 @@ def test_declared_interval_without_source_is_invalid():
     component = _component("BEARING-A", "wheel_bearing", interval_hours=5.0)
     report = evaluate(
         _registry([component], chassis=chassis),
-        [_pass_preflight()],
+        _history(_pass_preflight()),
         chassis,
         SNAPSHOT,
     )
@@ -421,7 +443,7 @@ def test_missing_counter_for_declared_interval_fails_closed_to_inspection():
 
     report = evaluate(
         _registry([component], chassis=chassis),
-        [preflight],
+        _history(preflight),
         chassis,
         SNAPSHOT,
     )
@@ -445,13 +467,13 @@ def test_remote_and_lighting_checks_are_conditionally_required():
     preflight = _pass_preflight(lights=True)
     preflight["checks"]["remote_deadman_function"]["status"] = "UNSET"
 
-    report = evaluate(registry, [preflight], chassis, SNAPSHOT)
+    report = evaluate(registry, _history(preflight), chassis, SNAPSHOT)
     assert report["valid"] is True
     assert report["health_state"] == "INSPECTION_REQUIRED"
     assert any("remote_deadman_function" in x for x in report["preflight_blockers"])
 
     preflight["checks"]["remote_deadman_function"]["status"] = "PASS"
-    report = evaluate(registry, [preflight], chassis, SNAPSHOT)
+    report = evaluate(registry, _history(preflight), chassis, SNAPSHOT)
     assert report["health_state"] == "READY_FOR_ALLOWED_ACTIVITY"
 
 
@@ -499,7 +521,7 @@ def test_component_replacement_creates_new_configuration_lineage():
         odometer=1.0,
         hours=0.2,
     )
-    report = evaluate(registry, [replacement, fresh], chassis, SNAPSHOT)
+    report = evaluate(registry, _history(replacement, fresh), chassis, SNAPSHOT)
 
     assert report["valid"] is True
     assert report["current_configuration_id"] == "CFG-B"
@@ -524,7 +546,7 @@ def test_odometer_and_ride_hours_cannot_go_backwards():
     )
     report = evaluate(
         _registry(chassis=chassis),
-        [first, second],
+        _history(first, second),
         chassis,
         SNAPSHOT,
     )
@@ -532,6 +554,52 @@ def test_odometer_and_ride_hours_cannot_go_backwards():
     assert report["valid"] is False
     assert any("odometer_km decreased" in x for x in report["errors"])
     assert any("ride_hours decreased" in x for x in report["errors"])
+
+
+def test_missing_baseline_cannot_be_ready_and_duplicate_baseline_is_invalid():
+    chassis = _chassis()
+    registry = _registry(chassis=chassis)
+
+    report = evaluate(registry, [_pass_preflight()], chassis, SNAPSHOT)
+    assert report["valid"] is True
+    assert report["health_state"] == "INSPECTION_REQUIRED"
+    assert report["baseline_recorded"] is False
+    assert any("BASELINE event is required" in x for x in report["preflight_blockers"])
+
+    duplicate = [
+        _baseline(),
+        _baseline(
+            event_id="BASELINE-02",
+            timestamp="2026-10-01T12:02:00Z",
+        ),
+        _pass_preflight(),
+    ]
+    report = evaluate(registry, duplicate, chassis, SNAPSHOT)
+    assert report["valid"] is False
+    assert any("exactly one BASELINE event is allowed" in x for x in report["errors"])
+
+
+def test_service_interval_reset_requires_declared_interval_and_source_reference():
+    chassis = _chassis()
+    registry = _registry(chassis=chassis)
+    service = _event(
+        "SERVICE-NO-INTERVAL",
+        "2026-10-01T12:10:00Z",
+        "SERVICE",
+    )
+    service["service_actions"] = [
+        {
+            "component_id": "DECK-A",
+            "action": "synthetic service",
+            "resets_service_interval": True,
+            "source_reference": "",
+            "notes": "",
+        }
+    ]
+    report = evaluate(registry, _history(service), chassis, SNAPSHOT)
+    assert report["valid"] is False
+    assert any("no interval is declared" in x for x in report["errors"])
+    assert any("requires source_reference" in x for x in report["errors"])
 
 
 def test_event_cannot_predate_workspace_or_component_installation():
@@ -548,7 +616,7 @@ def test_event_cannot_predate_workspace_or_component_installation():
         "PREFLIGHT-EARLY",
         "2026-10-01T11:59:00Z",
     )
-    report = evaluate(registry, [event], chassis, SNAPSHOT)
+    report = evaluate(registry, _history(event), chassis, SNAPSHOT)
 
     assert report["valid"] is False
     assert any("event predates registry creation" in x for x in report["errors"])
