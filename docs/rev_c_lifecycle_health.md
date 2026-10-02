@@ -21,6 +21,8 @@ A board can be mechanically well designed and still become unsafe because:
 
 Issue #41 turns those events into an append-only longitudinal record.
 
+Every valid vehicle history begins with exactly one `BASELINE` event, and it must be the first event. A later preflight can establish current readiness, but it cannot substitute for the baseline configuration record.
+
 The key rule is:
 
 > **healthy does not mean authorized.**
@@ -39,9 +41,9 @@ That gives the health record a stable physical anchor:
 
 The private component registry stores that exact authority fingerprint.
 
-The lifecycle evaluator verifies the fingerprint every time it computes health state.
+The lifecycle evaluator verifies the fingerprint every time it computes health state. The central build-authority evaluator also cross-checks the READY health report's chassis fingerprint against the exact `x1_rolling_chassis_physical` evidence satisfying the chassis gate.
 
-This prevents a maintenance log from one donor chassis being copied onto another board.
+This prevents a maintenance log from one donor chassis being copied onto another board, even if both documents are individually fingerprint-valid.
 
 ## 2. Health states
 
@@ -168,6 +170,8 @@ Accepted service-interval sources are:
 
 If a service interval exists, record the source.
 
+A service action may reset that interval only when the component actually has a declared sourced interval and the service event records a nonempty `source_reference`. The event's current distance/hour/time counters then become the new interval baseline. A generic "serviced" note cannot silently reset the clock.
+
 ## 5. Event history is append-only
 
 Do not overwrite yesterday's inspection because the board looks better today.
@@ -187,12 +191,24 @@ Supported event types:
 - `FAULT`
 - `CONFIGURATION_CHANGE`
 
-Generate a new event skeleton:
+Create the one-time baseline first:
 
 ```bash
 python tools/new_x1_health_event.py \
   rider/private/health/x1-a/component_registry.json \
-  rider/private/health/x1-a/events/0001-preflight.json \
+  rider/private/health/x1-a/events/0001-baseline.json \
+  --event-id BASELINE-0001 \
+  --timestamp-utc 2026-10-01T12:30:00Z \
+  --event-type BASELINE \
+  --activity-type UNPOWERED_BASELINE
+```
+
+Then create the fresh preflight:
+
+```bash
+python tools/new_x1_health_event.py \
+  rider/private/health/x1-a/component_registry.json \
+  rider/private/health/x1-a/events/0002-preflight.json \
   --event-id PREFLIGHT-0001 \
   --timestamp-utc 2026-10-01T13:00:00Z \
   --event-type PREFLIGHT \

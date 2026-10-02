@@ -54,11 +54,32 @@ def _validate_plan(plan: dict) -> None:
         raise ValueError("plan requires gates and capabilities objects")
 
     for name, gate in gates.items():
-        for dep in gate.get("requires", []):
+        requires = gate.get("requires", [])
+        for dep in requires:
             if dep not in gates:
                 raise ValueError(f"gate {name} requires unknown gate {dep}")
         if not isinstance(gate.get("evidence"), list) or not gate["evidence"]:
             raise ValueError(f"gate {name} requires a nonempty evidence contract")
+        links = gate.get("evidence_links", [])
+        if not isinstance(links, list):
+            raise ValueError(f"gate {name} evidence_links must be a list")
+        for link in links:
+            if not isinstance(link, dict):
+                raise ValueError(f"gate {name} evidence link must be an object")
+            dep_gate = link.get("gate")
+            if dep_gate not in gates:
+                raise ValueError(
+                    f"gate {name} evidence link references unknown gate {dep_gate}"
+                )
+            if dep_gate not in requires:
+                raise ValueError(
+                    f"gate {name} evidence link gate {dep_gate} must also be a dependency"
+                )
+            if not isinstance(link.get("path"), str) or not link["path"]:
+                raise ValueError(f"gate {name} evidence link requires path")
+            target_path = link.get("target_path", "authority_fingerprint_sha256")
+            if not isinstance(target_path, str) or not target_path:
+                raise ValueError(f"gate {name} evidence link requires target_path")
 
     for name, cap in capabilities.items():
         for dep in cap.get("requires", []):
@@ -208,11 +229,39 @@ def evaluate(plan: dict, procurement: dict, evidence_docs: list[dict]) -> dict:
         gate = gates[name]
         missing_dependencies = [dep for dep in gate.get("requires", []) if not resolve(dep)]
         evidence_matched = direct_match[name]
-        satisfied = evidence_matched and not missing_dependencies
         blockers: list[str] = []
         if not evidence_matched:
             blockers.append("matching authority evidence not supplied")
         blockers.extend(f"upstream gate blocked: {dep}" for dep in missing_dependencies)
+
+        evidence_link_blockers: list[str] = []
+        matched_doc = gate_evidence.get(name)
+        if matched_doc is not None:
+            for link in gate.get("evidence_links", []):
+                dep_gate = link["gate"]
+                dep_doc = gate_evidence.get(dep_gate)
+                if dep_doc is None:
+                    evidence_link_blockers.append(
+                        f"linked upstream evidence unavailable: {dep_gate}"
+                    )
+                    continue
+                actual = _value_at(matched_doc, link["path"])
+                target_path = link.get(
+                    "target_path", "authority_fingerprint_sha256"
+                )
+                expected = _value_at(dep_doc, target_path)
+                if actual != expected:
+                    evidence_link_blockers.append(
+                        "evidence link mismatch: "
+                        f"{link['path']}={actual!r}, expected "
+                        f"{dep_gate}.{target_path}={expected!r}"
+                    )
+        blockers.extend(evidence_link_blockers)
+        satisfied = (
+            evidence_matched
+            and not missing_dependencies
+            and not evidence_link_blockers
+        )
         gate_state[name] = {
             "satisfied": satisfied,
             "evidence_matched": evidence_matched,

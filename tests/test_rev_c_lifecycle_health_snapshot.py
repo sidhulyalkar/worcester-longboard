@@ -66,3 +66,31 @@ def test_core_preflight_covers_mechanical_environmental_and_harness_health():
     assert "guard_skid_retention_and_clearance" in checks
     assert "drainage_and_contamination_paths" in checks
     assert "harness_hose_and_connector_condition" in checks
+
+
+def test_ready_requires_first_event_baseline_and_current_preflight():
+    data = _snapshot()
+    rules = data["chronology_rules"]
+    boundaries = data["hard_boundaries"]
+    assert (
+        "exactly one BASELINE event is allowed and it must be the first health event"
+        in rules
+    )
+    assert (
+        "READY state requires exactly one first-event BASELINE plus a fresh current-configuration PREFLIGHT"
+        in boundaries
+    )
+
+
+def test_service_interval_reset_must_be_traceable():
+    policy = _snapshot()["service_interval_policy"]
+    assert "declared sourced interval" in policy["reset_rule"]
+    assert "source_reference" in policy["reset_rule"]
+
+
+def test_health_evidence_must_bind_to_exact_chassis_authority():
+    boundaries = _snapshot()["hard_boundaries"]
+    assert (
+        "lifecycle health evidence must link to the exact rolling-chassis authority fingerprint used by the central build graph"
+        in boundaries
+    )
