@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "scope": "x1_telemetry_session",
+  "issue": 49,
+  "session_id": "",
+  "board_id": "",
+  "configuration_id": "",
+  "commissioning_stage_id": "",
+  "commissioning_stage_index": null,
+  "started_at_utc": "",
+  "completed_at_utc": "",
+  "power_architecture_fingerprint_sha256": "",
+  "pre_lifecycle_health_fingerprint_sha256": "",
+  "logger_identity": {
+    "firmware_build_id": "",
+    "firmware_source_revision": "",
+    "hardware_id": "",
+    "storage_type": "",
+    "real_time_control_task_separate_from_storage_task": false,
+    "bounded_nonblocking_enqueue_design": false
+  },
+  "signal_registry_path": "hardware/x1_telemetry_signal_registry.json",
+  "declared_channels": [
+    {
+      "signal_id": "",
+      "source_kind": "",
+      "source_id": "",
+      "expected_hz": null,
+      "max_source_age_us": null,
+      "derivation_method_reference": "",
+      "frame_or_sign_convention": "",
+      "enabled": false
+    }
+  ],
+  "files": {
+    "telemetry_csv": "telemetry.csv",
+    "events_jsonl": "events.jsonl",
+    "metrics_json": "metrics.json"
+  },
+  "session_summary": {
+    "expected_records": null,
+    "reported_dropped_records": 0,
+    "persistent_write_error_count": 0,
+    "unclean_shutdown": false
+  },
+  "fault_edge_logging_enabled": false,
+  "stage_marker_recorded": false,
+  "powered_operation_authorized": false,
+  "controller_configuration_authority": false,
+  "battery_configuration_authority": false,
+  "public_operation_authorized": false,
+  "dog_accompanied_operation_authorized": false
+}
