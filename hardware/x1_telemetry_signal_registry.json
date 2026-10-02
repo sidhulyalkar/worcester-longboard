@@ -166,22 +166,6 @@
           "commissioning_requires_qualified_source": true
         },
         {
-          "name": "left_motor_speed",
-          "unit": "ERPM",
-          "type": "float",
-          "raw": false,
-          "commissioning_requires_qualified_source": true,
-          "derived_from": "left_motor_erpm"
-        },
-        {
-          "name": "right_motor_speed",
-          "unit": "ERPM",
-          "type": "float",
-          "raw": false,
-          "commissioning_requires_qualified_source": true,
-          "derived_from": "right_motor_erpm"
-        },
-        {
           "name": "left_motor_temperature_c",
           "unit": "degC",
           "type": "float",
@@ -355,6 +339,20 @@
         "events.MECHANICAL_BRAKE_MARKER_OR_OPERATOR_STOP"
       ],
       "method_id": "trapezoid_until_stop_threshold_v1"
+    },
+    "left_motor_speed": {
+      "unit": "ERPM",
+      "required_inputs": [
+        "powertrain.left_motor_erpm"
+      ],
+      "method_id": "identity_alias_erpm_v1"
+    },
+    "right_motor_speed": {
+      "unit": "ERPM",
+      "required_inputs": [
+        "powertrain.right_motor_erpm"
+      ],
+      "method_id": "identity_alias_erpm_v1"
     }
   }
 }
