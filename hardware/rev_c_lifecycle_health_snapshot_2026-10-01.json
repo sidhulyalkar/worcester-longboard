@@ -132,10 +132,14 @@
       "selected_system_integrator_or_battery_builder",
       "qualified_x1_physical_evidence"
     ],
-    "due_rule": "When multiple sourced limits exist, the earliest applicable condition wins. Event/condition findings can require service sooner than any interval."
+    "due_rule": "When multiple sourced limits exist, the earliest applicable condition wins. Event/condition findings can require service sooner than any interval.",
+    "reset_rule": "A service action may reset an interval only when the component has a declared sourced interval and the action records a nonempty source_reference."
   },
   "chronology_rules": [
-    "event timestamps must be unique and strictly increasing after sorting by timestamp",
+    "exactly one BASELINE event is allowed and it must be the first health event",
+    "event timestamps must be unique after normalization to UTC",
+    "events cannot predate workspace creation",
+    "active components cannot appear in events before their installation timestamp",
     "odometer cannot decrease when present",
     "ride hours cannot decrease when present",
     "event IDs are unique",
@@ -154,7 +158,9 @@
     "READY_FOR_ALLOWED_ACTIVITY means ready only for an activity independently permitted elsewhere",
     "missing required preflight checks cannot produce READY_FOR_ALLOWED_ACTIVITY",
     "open STOP findings cannot be downgraded by a later preflight without an explicit closure/service event",
-    "manufacturer service requirements cannot be weakened by this project"
+    "manufacturer service requirements cannot be weakened by this project",
+    "READY state requires exactly one first-event BASELINE plus a fresh current-configuration PREFLIGHT",
+    "lifecycle health evidence must link to the exact rolling-chassis authority fingerprint used by the central build graph"
   ],
   "powered_operation_authorized": false,
   "public_operation_authorized": false,
