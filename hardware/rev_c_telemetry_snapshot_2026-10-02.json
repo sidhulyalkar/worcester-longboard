@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-02",
+  "scope": "rev_c_telemetry_evidence_reference",
+  "authority": "REFERENCE_ONLY",
+  "issues": [
+    49,
+    47
+  ],
+  "architecture": {
+    "canonical_contract_issue": 49,
+    "commissioning_replay_issue": 47,
+    "principle": "Issue #49 defines one vehicle black-box contract; Issue #47 derives synchronized commissioning evidence from only validated sessions."
+  },
+  "hard_boundaries": [
+    "logging is never a real-time control dependency",
+    "logger failure must not delay or preserve propulsion",
+    "telemetry validity is evidence quality only",
+    "sensor calibration is not implied by schema validity",
+    "derived metrics remain distinct from raw source signals",
+    "raw logs precise routes serials and personal motion data remain private",
+    "missing corrupt stale or unsynchronized required telemetry invalidates commissioning evidence but does not change controller fail-safe behavior",
+    "telemetry evidence never authorizes powered public wet or dog-accompanied operation"
+  ],
+  "stage_requirements": {
+    "BENCH_READINESS": {
+      "stage_index": 0,
+      "required_streams": [],
+      "telemetry_required": false
+    },
+    "SECURED_UNLOADED_SPIN": {
+      "stage_index": 1,
+      "required_streams": [
+        "control",
+        "powertrain",
+        "events"
+      ],
+      "telemetry_required": true,
+      "required_measurements": [
+        "pack_voltage_v",
+        "battery_current_a",
+        "left_motor_speed",
+        "right_motor_speed",
+        "left_motor_temperature_c",
+        "right_motor_temperature_c",
+        "left_controller_temperature_c",
+        "right_controller_temperature_c"
+      ],
+      "max_sync_uncertainty_s": 0.02
+    },
+    "RESTRAINED_LOADED_BENCH": {
+      "stage_index": 2,
+      "required_streams": [
+        "control",
+        "powertrain",
+        "events"
+      ],
+      "telemetry_required": true,
+      "required_measurements": [
+        "pack_voltage_v",
+        "battery_current_a",
+        "left_phase_current_a",
+        "right_phase_current_a",
+        "left_motor_erpm",
+        "right_motor_erpm",
+        "left_motor_temperature_c",
+        "right_motor_temperature_c",
+        "left_controller_temperature_c",
+        "right_controller_temperature_c"
+      ],
+      "max_sync_uncertainty_s": 0.02
+    },
+    "RIDER_FREE_CONTROLLED_GROUND": {
+      "stage_index": 3,
+      "required_streams": [
+        "control",
+        "powertrain",
+        "motion",
+        "events"
+      ],
+      "telemetry_required": true,
+      "required_measurements": [
+        "ground_speed_mps",
+        "pack_voltage_v",
+        "battery_current_a",
+        "left_phase_current_a",
+        "right_phase_current_a",
+        "remote_release_propulsion_decay_s",
+        "left_motor_temperature_c",
+        "right_motor_temperature_c",
+        "left_controller_temperature_c",
+        "right_controller_temperature_c"
+      ],
+      "max_sync_uncertainty_s": 0.02
+    },
+    "RIDER_ONLY_VERY_LOW_SPEED": {
+      "stage_index": 4,
+      "required_streams": [
+        "control",
+        "powertrain",
+        "motion",
+        "events"
+      ],
+      "telemetry_required": true,
+      "required_measurements": [
+        "ground_speed_mps",
+        "longitudinal_accel_mps2",
+        "longitudinal_jerk_mps3",
+        "stopping_distance_m",
+        "pack_voltage_v",
+        "battery_current_a",
+        "left_phase_current_a",
+        "right_phase_current_a",
+        "remote_release_propulsion_decay_s",
+        "left_motor_temperature_c",
+        "right_motor_temperature_c",
+        "left_controller_temperature_c",
+        "right_controller_temperature_c"
+      ],
+      "max_sync_uncertainty_s": 0.01
+    }
+  },
+  "periodic_stream_policy": {
+    "required_prefix_columns": [
+      "seq",
+      "source_time_s",
+      "session_time_s"
+    ],
+    "minimum_samples": 10,
+    "max_drop_fraction": 0.01,
+    "minimum_common_overlap_fraction": 0.9,
+    "timestamp_monotonic_strict": true,
+    "sequence_monotonic_strict": true,
+    "declared_drops_must_match_sequence_gaps": true,
+    "finite_required_numeric_values": true
+  },
+  "event_stream_policy": {
+    "format": "jsonl",
+    "required_fields": [
+      "seq",
+      "session_time_s",
+      "event_type",
+      "source_id",
+      "payload"
+    ],
+    "timestamp_monotonic_non_decreasing": true,
+    "sequence_monotonic_strict": true,
+    "required_event_types": [
+      "SESSION_START",
+      "STAGE_START",
+      "STAGE_STOP",
+      "SESSION_STOP"
+    ],
+    "edge_event_types": [
+      "DEADMAN_RELEASE",
+      "DEADMAN_RESTORED",
+      "REMOTE_TIMEOUT",
+      "FAULT_SET",
+      "FAULT_CLEAR",
+      "MECHANICAL_BRAKE_MARKER",
+      "OPERATOR_STOP",
+      "ANOMALY",
+      "STOP_CONDITION"
+    ]
+  },
+  "synchronization_policy": {
+    "every_periodic_stream_declares_clock_id": true,
+    "every_clock_declares_source_id_timestamp_unit_sync_method_uncertainty": true,
+    "allowed_timestamp_unit": "s",
+    "required_streams_must_share_a_common_session_time_overlap": true,
+    "session_time_is_normalized_not_assumed_native": true
+  },
+  "source_qualification_policy": {
+    "statuses": [
+      "DECLARED",
+      "QUALIFIED"
+    ],
+    "raw_session_can_validate_with_declared_sources": true,
+    "commissioning_evidence_requires_qualified_sources": true,
+    "qualified_source_requires_nonempty_calibration_evidence_ref": true
+  },
+  "derived_metric_methods": {
+    "remote_release_propulsion_decay_s": "From DEADMAN_RELEASE or REMOTE_TIMEOUT event time to the first subsequent stable window where absolute commanded left and right drive current remain at or below the declared current threshold.",
+    "longitudinal_accel_mps2": "Use the qualified longitudinal IMU acceleration channel; report stage peak absolute value and preserve the raw stream reference.",
+    "longitudinal_jerk_mps3": "Finite-difference the qualified longitudinal acceleration over session_time_s; reject gaps beyond the stream limit; report peak absolute value and method metadata.",
+    "stopping_distance_m": "Integrate nonnegative qualified ground_speed_mps from MECHANICAL_BRAKE_MARKER or OPERATOR_STOP marker to the declared stop-speed threshold; preserve start/end event references."
+  },
+  "replay_defaults": {
+    "drive_current_zero_threshold_a": 0.5,
+    "stable_zero_window_s": 0.1,
+    "stop_speed_threshold_mps": 0.1
+  },
+  "privacy": {
+    "public_repo": "schemas validators synthetic fixtures and non-sensitive derived logic",
+    "private_workspace": "raw CSV JSONL exact routes device identifiers calibration records and ride telemetry"
+  },
+  "powered_operation_authorized": false,
+  "public_operation_authorized": false,
+  "dog_accompanied_operation_authorized": false
+}
