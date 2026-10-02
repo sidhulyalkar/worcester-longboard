@@ -46,17 +46,33 @@ Issue #28 ride compliance    Issue #19 brake/drive topology
                                                                         |
                                                                         v
                                                            final power architecture freeze
-                                                   |
-                                                   v
-                                   Issue #35 authorized venue evidence
-                                                   |
-                                                   v
-                             current Issue #41 health state must be READY
-                                                   |
-                                                   v
-                                       future powered commissioning
-                                                   |
-                                                   v
+                                                                        |
+                                                                        v
+                                            current Issue #41 health state must be READY
+                                                                        |
+                                                                        v
+                                               Issue #45 Stage 0 bench readiness
+                                                                        |
+                                                                        v
+                                         Stage 1 secured unloaded wheel spin
+                                                                        |
+                                                                        v
+                                          Stage 2 restrained loaded bench
+                                                                        |
+                                              +-------------------------+
+                                              |                         |
+                                              v                         v
+                                Issue #35 authorized venue       fresh Issue #41 READY
+                                              |                         |
+                                              +------------+------------+
+                                                           |
+                                                           v
+                                      Stage 3 rider-free controlled ground
+                                                           |
+                                                           v
+                                      Stage 4 rider-only very-low-speed
+                                                           |
+                                                           v
                                   Issue #33 rider-only Shasta qualification
                                                    |
                                                    v
