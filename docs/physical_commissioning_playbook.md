@@ -18,6 +18,9 @@ Issue #4 one-zone fit pilot
                  v
           Issue #12 rolling chassis
                  |
+                 +----> Issue #41 lifecycle-health history
+                 |      begins and persists through every later stage
+                 |
         +--------+------------------+
         |                           |
         v                           v
@@ -44,6 +47,9 @@ Issue #28 ride compliance    Issue #19 brake/drive topology
                                                    |
                                                    v
                                    Issue #35 authorized venue evidence
+                                                   |
+                                                   v
+                             current Issue #41 health state must be READY
                                                    |
                                                    v
                                        future powered commissioning
@@ -146,6 +152,54 @@ PYTHONPATH=. python tools/qualify_rolling_chassis.py \
 The qualifier intentionally does not promote a catalog clearance number into a physical threshold. It requires real measured clearance plus passing full-steer, full-lean and rough-surface tests.
 
 A passing report is `x1_rolling_chassis_physical`; it still cannot authorize power.
+
+## 4B. Issue #41 lifecycle health begins
+
+Once the rolling chassis emits valid fingerprinted `x1_rolling_chassis_physical` authority, initialize the persistent private health workspace:
+
+```bash
+python tools/init_x1_lifecycle_health.py \
+  rider/private/health/x1-a \
+  --board-id X1-A \
+  --configuration-id CFG-A \
+  --created-at-utc 2026-10-01T12:00:00Z \
+  --rolling-chassis-authority \
+    rider/private/chassis/donor-a/chassis_authority.json
+```
+
+Populate the component registry with the real chassis hardware IDs.
+
+Record a `BASELINE` event, then create a fresh `PREFLIGHT` before the next independently permitted activity.
+
+From this point onward, every meaningful:
+
+- inspection;
+- service;
+- component replacement;
+- impact;
+- contamination event;
+- fault;
+- configuration change;
+
+belongs in the same append-only history.
+
+Evaluate with:
+
+```bash
+python tools/evaluate_x1_lifecycle_health.py \
+  rider/private/health/x1-a/component_registry.json \
+  --rolling-chassis-authority \
+    rider/private/chassis/donor-a/chassis_authority.json \
+  --event rider/private/health/x1-a/events/0001-baseline.json \
+  --event rider/private/health/x1-a/events/0002-preflight.json \
+  --out rider/private/health/x1-a/health_state.json
+```
+
+A report may return `READY_FOR_ALLOWED_ACTIVITY`, `INSPECTION_REQUIRED`, `SERVICE_REQUIRED`, or `STOP_USE`.
+
+Even READY has no power, public-use, venue, environmental, or companion authority.
+
+Follow `docs/rev_c_lifecycle_health.md`.
 
 ## 4A. Issue #28 unpowered ride-compliance characterization
 
