@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "scope": "rev_c_powertrain_envelope",
+  "vehicle": {
+    "total_mass_kg": null,
+    "wheelbase_m": null,
+    "cg_from_rear_m": null,
+    "cg_height_m": null,
+    "wheel_diameter_m": null,
+    "rolling_resistance_coeff": null,
+    "aero_drag_area_m2": 0,
+    "air_density_kg_m3": 1.225
+  },
+  "candidate": {
+    "id": "",
+    "topology": "",
+    "motor_count": null,
+    "motor_kv_rpm_per_v": null,
+    "motor_pole_pairs": null,
+    "wheel_gear_teeth": null,
+    "motor_gear_teeth": null,
+    "nominal_voltage_v": null,
+    "full_voltage_v": null,
+    "speed_voltage_basis": "nominal",
+    "phase_current_limit_a_per_motor": null,
+    "battery_current_limit_a_total": null,
+    "electrical_power_limit_w_total": null,
+    "erpm_limit": null,
+    "drivetrain_efficiency": null,
+    "electrical_efficiency": null
+  },
+  "scenarios": [
+    {
+      "name": "",
+      "grade": null,
+      "target_speed_mps": null,
+      "acceleration_mps2": null,
+      "assumed_mu": null
+    }
+  ],
+  "physical_authority": false,
+  "procurement_authority": false,
+  "controller_configuration_authority": false,
+  "battery_configuration_authority": false,
+  "powered_operation_authorized": false
+}

@@ -35,15 +35,17 @@ Issue #28 ride compliance    Issue #19 brake/drive topology
                               v                                         v
                 Issue #37 inert trail armor                 Issue #21 inert dummy-pack mount
                 geometry / service path                     structural pack load path
-                              |                                         |
-                              +--------------------+--------------------+
-                                                   |
-                                                   v
-                                Issue #39 inert environmental candidate
-                                contamination / drainage / service recovery
-                                                   |
-                                                   v
-                                      final power architecture freeze
+                                                                        |
+                                                  +---------------------+---------------------+
+                                                  |                                           |
+                                                  v                                           v
+                              Issue #39 inert environmental candidate      Issue #43 sourced powertrain envelope
+                              contamination / drainage / service            force / traction / current / ERPM
+                                                  |                                           |
+                                                  +---------------------+---------------------+
+                                                                        |
+                                                                        v
+                                                           final power architecture freeze
                                                    |
                                                    v
                                    Issue #35 authorized venue evidence
@@ -153,7 +155,7 @@ The qualifier intentionally does not promote a catalog clearance number into a p
 
 A passing report is `x1_rolling_chassis_physical`; it still cannot authorize power.
 
-## 4B. Issue #41 lifecycle health begins
+## 4A. Issue #41 lifecycle health begins
 
 Once the rolling chassis emits valid fingerprinted `x1_rolling_chassis_physical` authority, initialize the persistent private health workspace:
 
@@ -201,7 +203,7 @@ Even READY has no power, public-use, venue, environmental, or companion authorit
 
 Follow `docs/rev_c_lifecycle_health.md`.
 
-## 4A. Issue #28 unpowered ride-compliance characterization
+## 4B. Issue #28 unpowered ride-compliance characterization
 
 Issue #28 may run after a real `x1_rolling_chassis_physical` authority exists. It is parallel evidence, not a prerequisite for beginning Issue #19.
 
@@ -475,9 +477,92 @@ This gate exists so the enclosure, harness entries, drainage, connector access a
 
 Future energized environmental validation remains separate.
 
+## 8B. Issue #43 sourced powertrain envelope
+
+Issue #43 runs after Issue #19 topology and the qualified Issue #21 dummy-pack state exist.
+
+The purpose is to reject impossible or poorly matched motor/ratio/voltage candidates before final power architecture freeze.
+
+Start with a private copy of:
+
+`hardware/rev_c_powertrain_candidate_template.json`
+
+Populate the envelope from the current physical state and explicit candidate sources.
+
+Required scenario classes:
+
+1. `flat_cruise`;
+2. `grade_climb`;
+3. `low_speed_accel`.
+
+Run the non-authoritative envelope directly while iterating:
+
+```bash
+python simulation/rev_c_powertrain_envelope.py \
+  rider/private/powertrain/candidate-a/envelope.json \
+  --out rider/private/powertrain/candidate-a/envelope_analysis.json
+```
+
+For a fixed wheel gear, compare candidate pinions without selecting one:
+
+```bash
+python simulation/rev_c_powertrain_envelope.py \
+  rider/private/powertrain/candidate-a/envelope.json \
+  --sweep-pinions 13 15 17 \
+  --out rider/private/powertrain/candidate-a/ratio_sweep.json
+```
+
+The solver reports:
+
+- grade / rolling / acceleration / aero force;
+- driven-axle normal load and required traction coefficient;
+- wheel torque;
+- per-motor torque;
+- idealized phase-current demand;
+- wheel mechanical power;
+- estimated battery input power/current;
+- motor RPM and ERPM;
+- nominal/full-voltage geometric no-load speed;
+- explicit rejection reasons.
+
+Do not treat phase current and battery current as the same quantity.
+
+Do not treat geometric no-load speed as predicted ride speed.
+
+Do not use this first-order model as thermal qualification.
+
+Before the candidate can enter the final architecture gate, qualify the sourced manifest against the real physical authorities:
+
+```bash
+python tools/qualify_rev_c_powertrain_candidate.py \
+  rider/private/powertrain/candidate-a/manifest.json \
+  --chassis-authority \
+    rider/private/chassis/donor-a/chassis_authority.json \
+  --topology-authority \
+    rider/private/topology/v1/topology_authority.json \
+  --dummy-pack-authority \
+    rider/private/dummy_pack/v1/dummy_pack_authority.json \
+  --out rider/private/powertrain/candidate-a/authority.json
+```
+
+A passing report is fingerprinted `x1_powertrain_envelope_candidate`.
+
+It must still report:
+
+```text
+thermal_qualification = false
+physical_authority = false
+procurement_authority = false
+controller_configuration_authority = false
+battery_configuration_authority = false
+powered_operation_authorized = false
+```
+
+Follow `docs/rev_c_powertrain_envelope.md`.
+
 ## 9. Final power architecture freeze
 
-Only after Issue #21 **and Issue #39** pass may the project freeze the coupled powered system:
+Only after Issue #21, **Issue #39, and Issue #43** pass may the project freeze the coupled powered system:
 
 - selected drive architecture;
 - final axle configuration;

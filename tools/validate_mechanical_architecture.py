@@ -182,6 +182,23 @@ def validate(
                 "lifecycle-health capability must require rolling-chassis authority"
             )
 
+    powertrain = gates.get("powertrain_envelope_qualified")
+    if not isinstance(powertrain, dict):
+        errors.append("build authority lacks powertrain_envelope_qualified gate")
+    else:
+        if powertrain.get("issue") != 43:
+            errors.append("powertrain envelope gate must point to Issue #43")
+        required = set(powertrain.get("requires", []))
+        expected = {
+            "brake_drive_topology_qualified",
+            "rolling_chassis_physical_qualified",
+            "dummy_pack_mount_qualified",
+        }
+        if not expected.issubset(required):
+            errors.append(
+                "powertrain envelope gate lacks topology/chassis/dummy-pack prerequisites"
+            )
+
     power = gates.get("power_architecture_frozen", {})
     required_power = set(power.get("requires", []))
     if "brake_drive_topology_qualified" not in required_power:
@@ -193,6 +210,10 @@ def validate(
     if "environmental_inert_candidate_qualified" not in required_power:
         errors.append(
             "power architecture can freeze without inert environmental candidate"
+        )
+    if "powertrain_envelope_qualified" not in required_power:
+        errors.append(
+            "power architecture can freeze without Issue #43 powertrain envelope"
         )
 
     subsystems = {x.get("id"): x for x in planned_bom.get("subsystems", []) if isinstance(x, dict)}
@@ -233,6 +254,33 @@ def validate(
     ):
         errors.append(
             "planned BOM must require environmental candidate before final power freeze"
+        )
+
+    powertrain_subsystem = subsystems.get("POWERTRAIN-ENVELOPE")
+    if (
+        not powertrain_subsystem
+        or powertrain_subsystem.get("freeze_gate") != "powertrain_envelope_qualified"
+    ):
+        errors.append("planned BOM must preserve explicit POWERTRAIN-ENVELOPE subsystem")
+    else:
+        authority = str(powertrain_subsystem.get("authority", ""))
+        for phrase in (
+            "Issue #43",
+            "cannot authorize procurement",
+            "thermal capability",
+        ):
+            if phrase not in authority:
+                errors.append(
+                    f"POWERTRAIN-ENVELOPE authority must preserve boundary: {phrase}"
+                )
+    if (
+        planned_bom.get("rules", {}).get(
+            "final_power_freeze_requires_powertrain_envelope_candidate"
+        )
+        is not True
+    ):
+        errors.append(
+            "planned BOM must require Issue #43 envelope before final power freeze"
         )
 
     lifecycle_subsystem = subsystems.get("LIFECYCLE-HEALTH")

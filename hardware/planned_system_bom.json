@@ -12,7 +12,8 @@
     "rev_c_requirements_path": "hardware/rev_c_requirements.json",
     "chassis_procurement_requires_rev_c_release": true,
     "final_power_freeze_requires_environmental_inert_candidate": true,
-    "future_powered_operation_requires_current_lifecycle_health_ready": true
+    "future_powered_operation_requires_current_lifecycle_health_ready": true,
+    "final_power_freeze_requires_powertrain_envelope_candidate": true
   },
   "subsystems": [
     {
@@ -160,6 +161,24 @@
       "authority": "Rev-C studies tire air volume before diameter. No wheel upgrade is purchase-authorized until the brake/hub path is credible."
     },
     {
+      "id": "POWERTRAIN-ENVELOPE",
+      "status": "PLAN_ONLY",
+      "freeze_gate": "powertrain_envelope_qualified",
+      "contents": [
+        "candidate motor KV and pole-pair data from an explicit source",
+        "candidate motor phase-current limit source",
+        "candidate controller ERPM limit source",
+        "candidate battery current/power/voltage limit source",
+        "selected wheel and motor gear tooth counts",
+        "measured/declared total mass wheel diameter wheelbase and CG inputs",
+        "declared rolling-resistance traction and efficiency assumptions with references",
+        "flat-cruise grade-climb and low-speed-acceleration scenarios",
+        "phase-current battery-current power ERPM speed and traction margins",
+        "explicit rejection reasons for failed candidates/ratios"
+      ],
+      "authority": "Issue #43 can qualify a sourced first-order architecture envelope only after Issue #19 topology and Issue #21 dummy-pack evidence. It cannot authorize procurement, VESC settings, battery settings, thermal capability, or powered operation."
+    },
+    {
       "id": "DRIVE",
       "status": "POWER_GATED_TBD",
       "freeze_gate": "power_architecture_frozen",
@@ -171,7 +190,7 @@
         "replaceable motor/gear/belt/chain guard or skid as appropriate",
         "drive-specific service consumables"
       ],
-      "authority": "G1 is a comparison reference, not the chosen drive. No purchase until Issue #19, dummy-pack mechanics, ratio, wheel and voltage freeze together."
+      "authority": "G1 is a comparison reference, not the chosen drive. No purchase until Issue #19, dummy-pack mechanics, ratio, wheel and voltage freeze together. Issue #43 must also qualify the coupled first-order propulsion envelope before final power architecture freeze."
     },
     {
       "id": "MOTOR-CONTROL",
@@ -184,7 +203,7 @@
         "CAN integration",
         "remote receiver interface"
       ],
-      "authority": "Exact vendor/model intentionally TBD until mechanical topology, dummy-pack load path and voltage architecture freeze"
+      "authority": "Exact vendor/model intentionally TBD until mechanical topology, dummy-pack load path and voltage architecture freeze Issue #43 must also qualify the coupled first-order propulsion envelope before final power architecture freeze."
     },
     {
       "id": "TRACTION-BATTERY",
@@ -205,7 +224,7 @@
         "mission-selected installed pack class rather than permanently maximizing installed energy",
         "no default body-carried unprotected spare traction pack"
       ],
-      "authority": "Rev-C energy classes replace the old implicit 12S4P assumption. Exact voltage, cells, BMS, connector and enclosure remain blocked until inert packaging and drive topology qualify."
+      "authority": "Rev-C energy classes replace the old implicit 12S4P assumption. Exact voltage, cells, BMS, connector and enclosure remain blocked until inert packaging and drive topology qualify. Issue #43 must also qualify the coupled first-order propulsion envelope before final power architecture freeze."
     },
     {
       "id": "CHARGE-DOCK",

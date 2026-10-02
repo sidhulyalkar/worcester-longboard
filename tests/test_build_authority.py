@@ -57,6 +57,17 @@ def _all_physical_evidence():
             "electrical_wet_operation_qualified": False,
             "powered_operation_authorized": False,
         }),
+        _stamp({
+            "authority": "x1_powertrain_envelope_candidate",
+            "schema_version": 1,
+            "qualified": True,
+            "all_declared_scenarios_pass": True,
+            "thermal_qualification": False,
+            "procurement_authority": False,
+            "controller_configuration_authority": False,
+            "battery_configuration_authority": False,
+            "powered_operation_authorized": False,
+        }),
         _stamp({"authority": "x1_power_architecture", "qualified": True}),
     ]
 
@@ -78,6 +89,7 @@ def test_public_repo_defaults_are_conservative():
     assert report["capabilities"]["qualify_inert_trail_armor"]["allowed"] is False
     assert report["capabilities"]["qualify_environmental_inert_candidate"]["allowed"] is False
     assert report["capabilities"]["establish_lifecycle_health_history"]["allowed"] is False
+    assert report["capabilities"]["qualify_powertrain_envelope"]["allowed"] is False
 
 
 def test_rev_c_blocks_measurement_chassis_procurement_until_release_conditions_close():
@@ -311,6 +323,43 @@ def test_environmental_candidate_requires_dummy_pack_mount():
     )
 
 
+def test_powertrain_envelope_requires_topology_chassis_and_dummy_pack():
+    evidence = _all_physical_evidence()
+    report = evaluate(_plan(), _procurement(), evidence)
+    assert report["capabilities"]["qualify_powertrain_envelope"]["allowed"] is True
+    assert report["gates"]["powertrain_envelope_qualified"]["satisfied"] is True
+
+    for missing_authority, blocker in (
+        ("x1_brake_drive_topology", "brake_drive_topology_qualified"),
+        ("x1_rolling_chassis_physical", "rolling_chassis_physical_qualified"),
+        ("x1_dummy_pack_mount", "dummy_pack_mount_qualified"),
+    ):
+        reduced = [
+            doc for doc in evidence
+            if doc.get("authority") != missing_authority
+        ]
+        report = evaluate(_plan(), _procurement(), reduced)
+        state = report["gates"]["powertrain_envelope_qualified"]
+        assert state["satisfied"] is False
+        assert any(blocker in item for item in state["blockers"])
+
+
+def test_power_architecture_cannot_freeze_without_powertrain_envelope():
+    evidence = [
+        doc for doc in _all_physical_evidence()
+        if doc.get("authority") != "x1_powertrain_envelope_candidate"
+    ]
+    report = evaluate(_plan(), _procurement(), evidence)
+    assert report["gates"]["dummy_pack_mount_qualified"]["satisfied"] is True
+    assert report["gates"]["environmental_inert_candidate_qualified"]["satisfied"] is True
+    assert report["gates"]["powertrain_envelope_qualified"]["satisfied"] is False
+    assert report["gates"]["power_architecture_frozen"]["satisfied"] is False
+    assert any(
+        "powertrain_envelope_qualified" in blocker
+        for blocker in report["gates"]["power_architecture_frozen"]["blockers"]
+    )
+
+
 def test_power_architecture_cannot_freeze_without_environmental_candidate():
     evidence = [
         x for x in _all_physical_evidence()
@@ -342,6 +391,7 @@ def test_power_ordering_stays_blocked_by_procurement_policy():
     assert report["gates"]["power_packaging_candidate_defined"]["satisfied"] is True
     assert report["gates"]["dummy_pack_mount_qualified"]["satisfied"] is True
     assert report["gates"]["environmental_inert_candidate_qualified"]["satisfied"] is True
+    assert report["gates"]["powertrain_envelope_qualified"]["satisfied"] is True
     assert report["gates"]["power_architecture_frozen"]["satisfied"] is True
     assert report["capabilities"]["order_power_hardware"]["allowed"] is False
     assert "procurement stage blocked: POWER_GATED" in report["capabilities"]["order_power_hardware"]["blockers"]

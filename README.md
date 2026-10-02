@@ -17,11 +17,12 @@ X1 has moved beyond the original TRAMPA/14S Alpha sketch. Current build and purc
 5. the public-use/test-venue constraints in `docs/rev_c_public_use_and_test_venues.md` and `hardware/rev_c_public_use_constraints_2026-10-01.json`;
 6. the environmental durability program in `docs/rev_c_environmental_durability.md` and `hardware/rev_c_environmental_durability_snapshot_2026-10-01.json`;
 7. the lifecycle-health program in `docs/rev_c_lifecycle_health.md` and `hardware/rev_c_lifecycle_health_snapshot_2026-10-01.json`;
-8. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;
-9. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
-10. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
-11. dated benchmark/risk registries;
-12. older Alpha notes retained only as historical design exploration.
+8. the propulsion envelope in `docs/rev_c_powertrain_envelope.md` and `hardware/rev_c_powertrain_reference_snapshot_2026-10-01.json`;
+9. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;
+10. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
+11. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
+12. dated benchmark/risk registries;
+13. older Alpha notes retained only as historical design exploration.
 
 If an older document conflicts with a current manifest, build gate, or qualified authority, the older document does **not** authorize a purchase, fabrication step, or ride test.
 
@@ -185,6 +186,30 @@ terrain
 
 Material/thickness remain unfrozen. A passing early armor report has `impact_energy_qualified=false`, uses no live battery, and cannot authorize procurement or powered trail use.
 
+### Powertrain envelope path
+
+Issue **#43** prevents motor/ratio/voltage selection from becoming a catalog-shopping exercise.
+
+`simulation/rev_c_powertrain_envelope.py` couples:
+
+- vehicle mass / wheel diameter / CG;
+- grade, acceleration and target speed;
+- front/rear/AWD traction load;
+- motor KV and idealized Kt;
+- motor/wheel gear ratio;
+- phase-current demand;
+- battery input-power/current estimate;
+- motor RPM / ERPM;
+- nominal/full-voltage geometric no-load speed.
+
+The ratio sweep can compare pinions, including the current MBS G1/Agent 64T wheel-gear reference with 13T/15T/17T published pinion study points, without selecting one for X1.
+
+`tools/qualify_rev_c_powertrain_candidate.py` then requires explicit sources for motor/controller/battery limits, verifies the actual Issue #19 topology plus rolling-chassis and dummy-pack fingerprints, and requires flat-cruise, grade-climb and low-speed-acceleration scenarios to pass.
+
+A passing report is still only `x1_powertrain_envelope_candidate`. Thermal qualification, controller/battery configuration authority, procurement authority and powered operation remain false.
+
+See `docs/rev_c_powertrain_envelope.md`.
+
 ### Environmental durability and service-recovery path
 
 Issue **#39** closes a major trail-use gap before final power freeze: dust/grit, splash, mud, drainage, connector recovery, and post-ride service.
@@ -216,7 +241,8 @@ The power path is deliberately split into two mechanical stages before final fre
 qualified topology + qualified Rev-B
         -> x1_power_packaging_candidate
         -> Issue #21 inert dummy-pack mount
-        -> Issue #39 inert environmental candidate
+        -> {Issue #39 inert environmental candidate
+            + Issue #43 sourced powertrain envelope}
         -> x1_power_architecture final freeze
 ```
 
@@ -270,7 +296,7 @@ See `docs/rev_c_shasta_companion_mode.md`.
 
 Power hardware remains **provisional and `POWER_GATED`**. The current procurement manifest carries comparison candidates only to preserve cost/compatibility analysis. None are frozen or order-authorized yet.
 
-The G1 is a reference candidate, not the selected drive. Final drive type, ratio, axle state, wheel size, voltage, motor KV/shaft, controller, professionally built battery, BMS/charger, enclosure and harness freeze together only after Issue #19, Rev-B, Issue #21, and the inert Issue #39 environmental candidate pass.
+The G1 is a reference candidate, not the selected drive. Final drive type, ratio, axle state, wheel size, voltage, motor KV/shaft, controller, professionally built battery, BMS/charger, enclosure and harness freeze together only after Issue #19, Rev-B, Issue #21, the inert Issue #39 environmental candidate, and the sourced Issue #43 powertrain envelope pass.
 
 Regenerative braking remains supplemental.
 
@@ -317,6 +343,7 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 - **#37** qualify sacrificial trail-armor geometry/serviceability before powered trail exposure
 - **#39** qualify inert environmental durability, drainage, and service recovery before final power freeze
 - **#41** maintain chassis-fingerprint-bound lifecycle health, preflight, service, impact, and configuration history
+- **#43** qualify a sourced force/traction/current/power/ERPM propulsion envelope before final power freeze
 
 These tracks can advance in parallel only where their evidence dependencies allow.
 
