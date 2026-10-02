@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "scope": "x1_telemetry_signal_registry",
+  "as_of": "2026-10-01",
+  "boolean_encoding": "0.0=false, 1.0=true",
+  "signals": [
+    {
+      "id": "ground_speed_mps",
+      "unit": "m/s",
+      "family": "motion",
+      "kind": "MEASURED_OR_DERIVED",
+      "description": "Independent or qualified fused ground-speed estimate used for commissioning evidence."
+    },
+    {
+      "id": "front_left_wheel_speed_mps",
+      "unit": "m/s",
+      "family": "motion",
+      "kind": "MEASURED",
+      "description": "Left non-driven/front wheel linear speed when fitted."
+    },
+    {
+      "id": "front_right_wheel_speed_mps",
+      "unit": "m/s",
+      "family": "motion",
+      "kind": "MEASURED",
+      "description": "Right non-driven/front wheel linear speed when fitted."
+    },
+    {
+      "id": "rear_left_wheel_speed_mps",
+      "unit": "m/s",
+      "family": "motion",
+      "kind": "MEASURED_OR_DERIVED",
+      "description": "Left driven wheel linear speed."
+    },
+    {
+      "id": "rear_right_wheel_speed_mps",
+      "unit": "m/s",
+      "family": "motion",
+      "kind": "MEASURED_OR_DERIVED",
+      "description": "Right driven wheel linear speed."
+    },
+    {
+      "id": "longitudinal_accel_mps2",
+      "unit": "m/s^2",
+      "family": "imu",
+      "kind": "MEASURED_OR_DERIVED",
+      "description": "Board/vehicle longitudinal acceleration in a documented frame."
+    },
+    {
+      "id": "longitudinal_jerk_mps3",
+      "unit": "m/s^3",
+      "family": "imu",
+      "kind": "DERIVED",
+      "description": "Longitudinal jerk derived from documented acceleration processing."
+    },
+    {
+      "id": "gyro_roll_dps",
+      "unit": "deg/s",
+      "family": "imu",
+      "kind": "MEASURED",
+      "description": "Roll angular rate."
+    },
+    {
+      "id": "gyro_pitch_dps",
+      "unit": "deg/s",
+      "family": "imu",
+      "kind": "MEASURED",
+      "description": "Pitch angular rate."
+    },
+    {
+      "id": "gyro_yaw_dps",
+      "unit": "deg/s",
+      "family": "imu",
+      "kind": "MEASURED",
+      "description": "Yaw angular rate."
+    },
+    {
+      "id": "pack_voltage_v",
+      "unit": "V",
+      "family": "energy",
+      "kind": "MEASURED",
+      "description": "Traction-pack voltage from the selected qualified source."
+    },
+    {
+      "id": "battery_current_a",
+      "unit": "A",
+      "family": "energy",
+      "kind": "MEASURED",
+      "description": "Traction-pack current with documented sign convention."
+    },
+    {
+      "id": "pack_soc_fraction",
+      "unit": "fraction",
+      "family": "energy",
+      "kind": "MEASURED_OR_DERIVED",
+      "description": "Pack state-of-charge estimate, 0 to 1 when available."
+    },
+    {
+      "id": "battery_temp_c",
+      "unit": "degC",
+      "family": "thermal",
+      "kind": "MEASURED",
+      "description": "Representative or explicitly identified battery/BMS temperature channel."
+    },
+    {
+      "id": "left_motor_erpm",
+      "unit": "eRPM",
+      "family": "drive",
+      "kind": "MEASURED",
+      "description": "Left motor electrical RPM from the controller source."
+    },
+    {
+      "id": "right_motor_erpm",
+      "unit": "eRPM",
+      "family": "drive",
+      "kind": "MEASURED",
+      "description": "Right motor electrical RPM from the controller source."
+    },
+    {
+      "id": "left_phase_current_a",
+      "unit": "A",
+      "family": "drive",
+      "kind": "MEASURED",
+      "description": "Left motor phase current."
+    },
+    {
+      "id": "right_phase_current_a",
+      "unit": "A",
+      "family": "drive",
+      "kind": "MEASURED",
+      "description": "Right motor phase current."
+    },
+    {
+      "id": "left_motor_temperature_c",
+      "unit": "degC",
+      "family": "thermal",
+      "kind": "MEASURED",
+      "description": "Left motor temperature."
+    },
+    {
+      "id": "right_motor_temperature_c",
+      "unit": "degC",
+      "family": "thermal",
+      "kind": "MEASURED",
+      "description": "Right motor temperature."
+    },
+    {
+      "id": "left_controller_temperature_c",
+      "unit": "degC",
+      "family": "thermal",
+      "kind": "MEASURED",
+      "description": "Left motor-controller temperature."
+    },
+    {
+      "id": "right_controller_temperature_c",
+      "unit": "degC",
+      "family": "thermal",
+      "kind": "MEASURED",
+      "description": "Right motor-controller temperature."
+    },
+    {
+      "id": "throttle_command_fraction",
+      "unit": "fraction",
+      "family": "remote",
+      "kind": "MEASURED",
+      "description": "Normalized rider throttle command, documented sign convention."
+    },
+    {
+      "id": "remote_deadman_active",
+      "unit": "boolean",
+      "family": "remote",
+      "kind": "MEASURED",
+      "description": "Rider deadman state."
+    },
+    {
+      "id": "remote_age_s",
+      "unit": "s",
+      "family": "remote",
+      "kind": "DERIVED",
+      "description": "Age of the latest valid remote command at the ECU."
+    },
+    {
+      "id": "commanded_drive_current_l_a",
+      "unit": "A",
+      "family": "control",
+      "kind": "COMMANDED",
+      "description": "Left drive-current command emitted by the control core."
+    },
+    {
+      "id": "commanded_drive_current_r_a",
+      "unit": "A",
+      "family": "control",
+      "kind": "COMMANDED",
+      "description": "Right drive-current command emitted by the control core."
+    },
+    {
+      "id": "commanded_brake_current_l_a",
+      "unit": "A",
+      "family": "control",
+      "kind": "COMMANDED",
+      "description": "Left regen/brake-current command emitted by the control core."
+    },
+    {
+      "id": "commanded_brake_current_r_a",
+      "unit": "A",
+      "family": "control",
+      "kind": "COMMANDED",
+      "description": "Right regen/brake-current command emitted by the control core."
+    },
+    {
+      "id": "tc_scale_l",
+      "unit": "fraction",
+      "family": "control",
+      "kind": "DERIVED",
+      "description": "Left traction-control scale."
+    },
+    {
+      "id": "tc_scale_r",
+      "unit": "fraction",
+      "family": "control",
+      "kind": "DERIVED",
+      "description": "Right traction-control scale."
+    },
+    {
+      "id": "regen_scale_l",
+      "unit": "fraction",
+      "family": "control",
+      "kind": "DERIVED",
+      "description": "Left regen availability scale."
+    },
+    {
+      "id": "regen_scale_r",
+      "unit": "fraction",
+      "family": "control",
+      "kind": "DERIVED",
+      "description": "Right regen availability scale."
+    },
+    {
+      "id": "slip_l",
+      "unit": "fraction",
+      "family": "control",
+      "kind": "DERIVED",
+      "description": "Left wheel slip estimate."
+    },
+    {
+      "id": "slip_r",
+      "unit": "fraction",
+      "family": "control",
+      "kind": "DERIVED",
+      "description": "Right wheel slip estimate."
+    },
+    {
+      "id": "control_fault_bits",
+      "unit": "bitmask",
+      "family": "fault",
+      "kind": "DERIVED",
+      "description": "Control-core fault bitmask."
+    },
+    {
+      "id": "mechanical_brake_recommended",
+      "unit": "boolean",
+      "family": "control",
+      "kind": "DERIVED",
+      "description": "Control-core recommendation that independent mechanical braking be used."
+    },
+    {
+      "id": "lights_requested",
+      "unit": "boolean",
+      "family": "control",
+      "kind": "DERIVED",
+      "description": "Control-core lighting request."
+    },
+    {
+      "id": "ride_mode_code",
+      "unit": "enum",
+      "family": "control",
+      "kind": "DERIVED",
+      "description": "Current ride-mode enum value."
+    },
+    {
+      "id": "logger_dropped_records_total",
+      "unit": "count",
+      "family": "logger",
+      "kind": "DERIVED",
+      "description": "Cumulative logger record-drop count."
+    },
+    {
+      "id": "logger_write_error_count",
+      "unit": "count",
+      "family": "logger",
+      "kind": "DERIVED",
+      "description": "Cumulative persistent-storage write-error count."
+    },
+    {
+      "id": "logger_queue_depth",
+      "unit": "count",
+      "family": "logger",
+      "kind": "MEASURED",
+      "description": "Current buffered logger queue depth."
+    },
+    {
+      "id": "odometer_km",
+      "unit": "km",
+      "family": "lifecycle",
+      "kind": "DERIVED",
+      "description": "Future qualified cumulative ground-distance counter."
+    },
+    {
+      "id": "ride_hours",
+      "unit": "h",
+      "family": "lifecycle",
+      "kind": "DERIVED",
+      "description": "Future qualified cumulative active-ride/commissioning time counter."
+    }
+  ]
+}
