@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-02",
+  "scope": "x1_telemetry_signal_registry",
+  "value_types": [
+    "float",
+    "int",
+    "bool",
+    "uint32"
+  ],
+  "signals": [
+    {
+      "signal_id": "remote_throttle_norm",
+      "family": "control",
+      "unit": "1",
+      "value_type": "float",
+      "kind": "raw_or_controller_input"
+    },
+    {
+      "signal_id": "remote_deadman_active",
+      "family": "control",
+      "unit": "bool",
+      "value_type": "bool",
+      "kind": "raw_or_controller_input"
+    },
+    {
+      "signal_id": "remote_age_s",
+      "family": "control",
+      "unit": "s",
+      "value_type": "float",
+      "kind": "derived_controller_state"
+    },
+    {
+      "signal_id": "ride_mode",
+      "family": "control",
+      "unit": "enum",
+      "value_type": "int",
+      "kind": "controller_state"
+    },
+    {
+      "signal_id": "drive_current_cmd_left_a",
+      "family": "control",
+      "unit": "A",
+      "value_type": "float",
+      "kind": "controller_output"
+    },
+    {
+      "signal_id": "drive_current_cmd_right_a",
+      "family": "control",
+      "unit": "A",
+      "value_type": "float",
+      "kind": "controller_output"
+    },
+    {
+      "signal_id": "regen_current_cmd_left_a",
+      "family": "control",
+      "unit": "A",
+      "value_type": "float",
+      "kind": "controller_output"
+    },
+    {
+      "signal_id": "regen_current_cmd_right_a",
+      "family": "control",
+      "unit": "A",
+      "value_type": "float",
+      "kind": "controller_output"
+    },
+    {
+      "signal_id": "tc_scale_left",
+      "family": "control",
+      "unit": "1",
+      "value_type": "float",
+      "kind": "controller_state"
+    },
+    {
+      "signal_id": "tc_scale_right",
+      "family": "control",
+      "unit": "1",
+      "value_type": "float",
+      "kind": "controller_state"
+    },
+    {
+      "signal_id": "controller_fault_bits",
+      "family": "control",
+      "unit": "bitmask",
+      "value_type": "uint32",
+      "kind": "controller_state"
+    },
+    {
+      "signal_id": "pack_voltage_v",
+      "family": "electrical_drivetrain",
+      "unit": "V",
+      "value_type": "float",
+      "kind": "sensor"
+    },
+    {
+      "signal_id": "battery_current_a",
+      "family": "electrical_drivetrain",
+      "unit": "A",
+      "value_type": "float",
+      "kind": "sensor"
+    },
+    {
+      "signal_id": "pack_soc_fraction",
+      "family": "electrical_drivetrain",
+      "unit": "1",
+      "value_type": "float",
+      "kind": "sensor_or_bms_estimate"
+    },
+    {
+      "signal_id": "left_phase_current_a",
+      "family": "electrical_drivetrain",
+      "unit": "A",
+      "value_type": "float",
+      "kind": "sensor_or_esc_estimate"
+    },
+    {
+      "signal_id": "right_phase_current_a",
+      "family": "electrical_drivetrain",
+      "unit": "A",
+      "value_type": "float",
+      "kind": "sensor_or_esc_estimate"
+    },
+    {
+      "signal_id": "left_motor_erpm",
+      "family": "electrical_drivetrain",
+      "unit": "erpm",
+      "value_type": "float",
+      "kind": "sensor_or_esc_estimate"
+    },
+    {
+      "signal_id": "right_motor_erpm",
+      "family": "electrical_drivetrain",
+      "unit": "erpm",
+      "value_type": "float",
+      "kind": "sensor_or_esc_estimate"
+    },
+    {
+      "signal_id": "ground_speed_mps",
+      "family": "motion",
+      "unit": "m/s",
+      "value_type": "float",
+      "kind": "independent_ground_speed"
+    },
+    {
+      "signal_id": "front_left_wheel_speed_mps",
+      "family": "motion",
+      "unit": "m/s",
+      "value_type": "float",
+      "kind": "wheel_speed"
+    },
+    {
+      "signal_id": "front_right_wheel_speed_mps",
+      "family": "motion",
+      "unit": "m/s",
+      "value_type": "float",
+      "kind": "wheel_speed"
+    },
+    {
+      "signal_id": "longitudinal_accel_mps2",
+      "family": "motion",
+      "unit": "m/s^2",
+      "value_type": "float",
+      "kind": "calibrated_or_derived_motion"
+    },
+    {
+      "signal_id": "longitudinal_jerk_mps3",
+      "family": "motion",
+      "unit": "m/s^3",
+      "value_type": "float",
+      "kind": "derived_motion"
+    },
+    {
+      "signal_id": "imu_accel_x_mps2",
+      "family": "motion",
+      "unit": "m/s^2",
+      "value_type": "float",
+      "kind": "imu"
+    },
+    {
+      "signal_id": "imu_accel_y_mps2",
+      "family": "motion",
+      "unit": "m/s^2",
+      "value_type": "float",
+      "kind": "imu"
+    },
+    {
+      "signal_id": "imu_accel_z_mps2",
+      "family": "motion",
+      "unit": "m/s^2",
+      "value_type": "float",
+      "kind": "imu"
+    },
+    {
+      "signal_id": "imu_gyro_x_dps",
+      "family": "motion",
+      "unit": "deg/s",
+      "value_type": "float",
+      "kind": "imu"
+    },
+    {
+      "signal_id": "imu_gyro_y_dps",
+      "family": "motion",
+      "unit": "deg/s",
+      "value_type": "float",
+      "kind": "imu"
+    },
+    {
+      "signal_id": "imu_gyro_z_dps",
+      "family": "motion",
+      "unit": "deg/s",
+      "value_type": "float",
+      "kind": "imu"
+    },
+    {
+      "signal_id": "pack_temperature_c",
+      "family": "thermal",
+      "unit": "degC",
+      "value_type": "float",
+      "kind": "sensor"
+    },
+    {
+      "signal_id": "left_motor_temperature_c",
+      "family": "thermal",
+      "unit": "degC",
+      "value_type": "float",
+      "kind": "sensor"
+    },
+    {
+      "signal_id": "right_motor_temperature_c",
+      "family": "thermal",
+      "unit": "degC",
+      "value_type": "float",
+      "kind": "sensor"
+    },
+    {
+      "signal_id": "left_controller_temperature_c",
+      "family": "thermal",
+      "unit": "degC",
+      "value_type": "float",
+      "kind": "sensor"
+    },
+    {
+      "signal_id": "right_controller_temperature_c",
+      "family": "thermal",
+      "unit": "degC",
+      "value_type": "float",
+      "kind": "sensor"
+    }
+  ],
+  "provenance_contract": {
+    "every_stream_signal_declares_source_id": true,
+    "calibration_id_required_for_physical_calibration_claim": false,
+    "blank_calibration_id_means": "physical calibration status is not established by telemetry validation",
+    "derived_signal_requires_derivation_id": true
+  }
+}
