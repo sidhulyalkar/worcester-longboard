@@ -16,11 +16,12 @@ X1 has moved beyond the original TRAMPA/14S Alpha sketch. Current build and purc
 4. the ride-compliance experiment in `docs/rev_c_ride_compliance_program.md` and `hardware/rev_c_ride_compliance_snapshot_2026-10-01.json`;
 5. the public-use/test-venue constraints in `docs/rev_c_public_use_and_test_venues.md` and `hardware/rev_c_public_use_constraints_2026-10-01.json`;
 6. the environmental durability program in `docs/rev_c_environmental_durability.md` and `hardware/rev_c_environmental_durability_snapshot_2026-10-01.json`;
-7. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;
-8. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
-9. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
-10. dated benchmark/risk registries;
-11. older Alpha notes retained only as historical design exploration.
+7. the lifecycle-health program in `docs/rev_c_lifecycle_health.md` and `hardware/rev_c_lifecycle_health_snapshot_2026-10-01.json`;
+8. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;
+9. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
+10. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
+11. dated benchmark/risk registries;
+12. older Alpha notes retained only as historical design exploration.
 
 If an older document conflicts with a current manifest, build gate, or qualified authority, the older document does **not** authorize a purchase, fabrication step, or ride test.
 
@@ -47,7 +48,7 @@ The broad benchmark/critique is `docs/mechanical_architecture_review.md`. The **
 Machine-readable companions keep the review from becoming stale prose:
 
 - `hardware/mechanical_reference_benchmarks_2026-09-11.json` records comparable production/DIY mechanisms and the exact lessons X1 takes from them;
-- `hardware/mechanical_risk_register.json` tracks wheel retention, truck/axle structure, steering, brakes, brake fade, brake/drive packaging, drive mounts, guards, enclosure retention, cable routing, rider interface, serviceability and fastener migration;
+- `hardware/mechanical_risk_register.json` tracks wheel retention, truck/axle structure, steering, brakes, brake fade, brake/drive packaging, drive mounts, guards, enclosure retention, environmental ingress, cable routing, rider interface, serviceability, fastener migration and lifecycle-history integrity;
 - `hardware/critical_joint_register_v1.json` defines the minimum critical-joint retention evidence for the unpowered chassis.
 
 `tools/validate_mechanical_architecture.py` fails CI if the donor geometry, benchmark set, FMEA structure, staged packaging gates, power gating, or brake/drive topology boundary silently regresses.
@@ -84,6 +85,30 @@ The CAD preserves those as separate branches. It does not recombine brake and dr
 `hardware/rev_c_chassis_trade_snapshot_2026-10-01.json` and `tools/analyze_rev_c_chassis_trade.py` preserve the current three-way pre-purchase trade without inventing unknown Agent mass/truck data. The existing donor-grounded Comp CAD remains a **reference**, not permission to skip Issue #25. `tools/init_chassis_session.py` and `tools/qualify_rolling_chassis.py` make Issue #12 physically executable after a chassis family is deliberately released. The qualifier requires a valid linked V5 authority, real measured donor geometry, stock-baseline tests, serviceability checks, and zero detected movement across every critical retention joint.
 
 No rider-specific permanent drilling is authorized from shoe-size labels, approximate web dimensions, or Wi-Fi pose.
+
+### Lifecycle health and maintenance path
+
+Issue **#41** starts once the physical rolling chassis has qualified and then follows that chassis for the rest of its life.
+
+The private health workspace is anchored to the exact `x1_rolling_chassis_physical` fingerprint and records append-only:
+
+- preflight;
+- post-activity;
+- inspection;
+- service;
+- component replacement;
+- contamination;
+- impact;
+- fault;
+- configuration-change events.
+
+`tools/evaluate_x1_lifecycle_health.py` replays that history, enforces component/configuration lineage, tracks open findings, applies only sourced service intervals, and requires a fresh preflight before returning `READY_FOR_ALLOWED_ACTIVITY`.
+
+A moved critical witness mark, wheel-retention change, structural crack, materially unavailable friction brake, or steering binding cannot be erased by a later green checklist. The finding must be explicitly inspected/serviced and closed first.
+
+`READY_FOR_ALLOWED_ACTIVITY` is deliberately not an operating permit. Every report keeps powered, public, and dog-accompanied operation false. Future powered commissioning must eventually require both its own operation authority **and** a current READY health state for the exact active configuration.
+
+See `docs/rev_c_lifecycle_health.md`.
 
 ### Public-use and authorized-test-venue path
 
@@ -291,6 +316,7 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 - **#35** resolve public-use classification and maintain an authorized powered-test venue record
 - **#37** qualify sacrificial trail-armor geometry/serviceability before powered trail exposure
 - **#39** qualify inert environmental durability, drainage, and service recovery before final power freeze
+- **#41** maintain chassis-fingerprint-bound lifecycle health, preflight, service, impact, and configuration history
 
 These tracks can advance in parallel only where their evidence dependencies allow.
 
