@@ -686,12 +686,14 @@ def evaluate(
                 )
 
     baseline_errors: list[str] = []
-    if len(baseline_event_ids) != 1:
-        baseline_errors.append(
-            f"exactly one BASELINE event is required, found {len(baseline_event_ids)}"
+    if len(baseline_event_ids) == 0:
+        baseline_errors.append("BASELINE event is required before READY state")
+    elif len(baseline_event_ids) > 1:
+        errors.append(
+            f"exactly one BASELINE event is allowed, found {len(baseline_event_ids)}"
         )
     elif parsed_events and parsed_events[0][1].get("event_type") != "BASELINE":
-        baseline_errors.append("BASELINE must be the first health event")
+        errors.append("BASELINE must be the first health event")
 
     current_at = latest_at
     due_items: list[str] = []
