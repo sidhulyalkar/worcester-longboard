@@ -163,6 +163,7 @@ def initialize(
         {
             "checkout_id": checkout_id,
             "inventory_checked_at_utc": inventory.get("inventory_checked_at_utc", ""),
+            "inventory_record_sha256": _digest(inventory),
             "source_snapshot_path": procurement["rules"]["source_snapshot_path"],
             "source_snapshot_as_of": sources["as_of"],
             "source_snapshot_sha256": _digest(sources),
