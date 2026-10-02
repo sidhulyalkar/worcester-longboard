@@ -18,11 +18,12 @@ X1 has moved beyond the original TRAMPA/14S Alpha sketch. Current build and purc
 6. the environmental durability program in `docs/rev_c_environmental_durability.md` and `hardware/rev_c_environmental_durability_snapshot_2026-10-01.json`;
 7. the lifecycle-health program in `docs/rev_c_lifecycle_health.md` and `hardware/rev_c_lifecycle_health_snapshot_2026-10-01.json`;
 8. the propulsion envelope in `docs/rev_c_powertrain_envelope.md` and `hardware/rev_c_powertrain_reference_snapshot_2026-10-01.json`;
-9. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;
-10. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
-11. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
-12. dated benchmark/risk registries;
-13. older Alpha notes retained only as historical design exploration.
+9. the staged powered-commissioning contract in `docs/rev_c_powered_commissioning.md` and `hardware/rev_c_powered_commissioning_snapshot_2026-10-01.json`;
+10. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;
+11. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
+12. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
+13. dated benchmark/risk registries;
+14. older Alpha notes retained only as historical design exploration.
 
 If an older document conflicts with a current manifest, build gate, or qualified authority, the older document does **not** authorize a purchase, fabrication step, or ride test.
 
@@ -270,6 +271,32 @@ The current planning policy is:
 
 Issue **#30** defines the future charge dock as a **passive mechanical alignment cradle**. The dock may self-center the board, manage cable strain and make approved-charger connection easier, but it does not replace the selected battery/system-approved charger, add exposed traction-voltage contacts, or authorize live charging. See `docs/rev_c_energy_and_charging.md`.
 
+### Staged powered-commissioning path
+
+Issue **#45** replaces the old "future powered commissioning" placeholder with a five-stage authority ladder:
+
+```text
+Stage 0  bench readiness
+        -> Stage 1 secured unloaded wheel spin
+        -> Stage 2 restrained loaded bench
+        -> Stage 3 rider-free controlled ground
+        -> Stage 4 rider-only very-low-speed closed-course commissioning
+```
+
+Each stage binds to the exact final power-architecture fingerprint and a current `READY_FOR_ALLOWED_ACTIVITY` lifecycle-health state. Every energized stage must close with a new READY post-stage health report. Stage 3 and Stage 4 additionally require fingerprinted Issue #35 venue evidence.
+
+The build graph can therefore authorize a **specific next commissioning activity** without authorizing normal powered riding.
+
+Even a passing Stage 4 report keeps:
+
+```text
+general_powered_operation_authorized = false
+public_operation_authorized = false
+dog_accompanied_operation_authorized = false
+```
+
+See `docs/rev_c_powered_commissioning.md`.
+
 ### Shasta companion-mode path
 
 Issue **#33** defines a future very-low-speed companion mode for eventual dog-accompanied neighborhood use.
@@ -344,6 +371,7 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 - **#39** qualify inert environmental durability, drainage, and service recovery before final power freeze
 - **#41** maintain chassis-fingerprint-bound lifecycle health, preflight, service, impact, and configuration history
 - **#43** qualify a sourced force/traction/current/power/ERPM propulsion envelope before final power freeze
+- **#45** qualify Stage 0-4 powered commissioning without granting normal powered operation
 
 These tracks can advance in parallel only where their evidence dependencies allow.
 
