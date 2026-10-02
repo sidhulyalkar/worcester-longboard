@@ -13,7 +13,8 @@
     "chassis_procurement_requires_rev_c_release": true,
     "final_power_freeze_requires_environmental_inert_candidate": true,
     "future_powered_operation_requires_current_lifecycle_health_ready": true,
-    "final_power_freeze_requires_powertrain_envelope_candidate": true
+    "final_power_freeze_requires_powertrain_envelope_candidate": true,
+    "future_powered_operation_requires_stage4_commissioning": true
   },
   "subsystems": [
     {
@@ -333,6 +334,23 @@
         "drive consumables only after final drive selection"
       ],
       "authority": "Buy spares only after the installed revision/size is known"
+    },
+    {
+      "id": "POWERED-COMMISSIONING",
+      "status": "PLAN_ONLY",
+      "freeze_gate": "power_architecture_frozen",
+      "contents": [
+        "Stage 0 final-architecture and lifecycle-health readiness record",
+        "secured unloaded wheel-spin fixture and exact stage-limit record",
+        "restrained loaded bench or roller evidence path",
+        "fingerprinted private/controlled powered-test venue authority for ground stages",
+        "ground-speed current voltage ERPM and thermal measurement/logging evidence",
+        "remote/deadman response evidence",
+        "independent mechanical-brake fallback evidence",
+        "post-stage lifecycle-health inspection and fresh preflight",
+        "Stage 4 rider-only very-low-speed commissioning record"
+      ],
+      "authority": "Issue #45 stages commissioning from bench readiness through rider-only very-low-speed evidence. Every energized stage requires fresh post-stage lifecycle health, ground stages require Issue #35 venue evidence, and Stage 4 cannot authorize general powered, public, or dog-accompanied operation."
     }
   ]
 }
