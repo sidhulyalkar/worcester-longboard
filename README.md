@@ -15,11 +15,12 @@ X1 has moved beyond the original TRAMPA/14S Alpha sketch. Current build and purc
 3. the Rev-C mission and purchase boundary in `hardware/rev_c_requirements.json`, `docs/rev_c_trail_carver_architecture.md`, and `docs/rev_c_chassis_trade.md`;
 4. the ride-compliance experiment in `docs/rev_c_ride_compliance_program.md` and `hardware/rev_c_ride_compliance_snapshot_2026-10-01.json`;
 5. the public-use/test-venue constraints in `docs/rev_c_public_use_and_test_venues.md` and `hardware/rev_c_public_use_constraints_2026-10-01.json`;
-6. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;
-7. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
-8. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
-9. dated benchmark/risk registries;
-10. older Alpha notes retained only as historical design exploration.
+6. the environmental durability program in `docs/rev_c_environmental_durability.md` and `hardware/rev_c_environmental_durability_snapshot_2026-10-01.json`;
+7. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;
+8. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
+9. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
+10. dated benchmark/risk registries;
+11. older Alpha notes retained only as historical design exploration.
 
 If an older document conflicts with a current manifest, build gate, or qualified authority, the older document does **not** authorize a purchase, fabrication step, or ride test.
 
@@ -159,6 +160,29 @@ terrain
 
 Material/thickness remain unfrozen. A passing early armor report has `impact_energy_qualified=false`, uses no live battery, and cannot authorize procurement or powered trail use.
 
+### Environmental durability and service-recovery path
+
+Issue **#39** closes a major trail-use gap before final power freeze: dust/grit, splash, mud, drainage, connector recovery, and post-ride service.
+
+The sequence is intentionally inert-first:
+
+```text
+qualified rolling chassis + Issue #21 inert dummy-pack mount
+        -> interface inventory
+        -> dry-grit / splash / mud-surrogate cycles
+        -> disconnected connector service recovery
+        -> wheel / bearing / brake / steering recovery
+        -> drying and post-exposure inspection
+        -> x1_environmental_inert_candidate
+        -> final power architecture freeze
+```
+
+The initial program uses no live traction battery, traction voltage, charger, powered vehicle, pressure washer, or immersion. It does not create an IP rating, waterproof claim, corrosion-life claim, or energized wet-operation authority.
+
+`tools/init_rev_c_environmental_session.py` seeds a private workspace from the real rolling-chassis and dummy-pack fingerprints. `tools/qualify_rev_c_environmental_durability.py` produces a fingerprinted inert environmental authority only when all three contamination modes and service-recovery checks pass.
+
+See `docs/rev_c_environmental_durability.md`.
+
 ### Power packaging and inert-load path
 
 The power path is deliberately split into two mechanical stages before final freeze:
@@ -167,6 +191,7 @@ The power path is deliberately split into two mechanical stages before final fre
 qualified topology + qualified Rev-B
         -> x1_power_packaging_candidate
         -> Issue #21 inert dummy-pack mount
+        -> Issue #39 inert environmental candidate
         -> x1_power_architecture final freeze
 ```
 
@@ -220,7 +245,7 @@ See `docs/rev_c_shasta_companion_mode.md`.
 
 Power hardware remains **provisional and `POWER_GATED`**. The current procurement manifest carries comparison candidates only to preserve cost/compatibility analysis. None are frozen or order-authorized yet.
 
-The G1 is a reference candidate, not the selected drive. Final drive type, ratio, axle state, wheel size, voltage, motor KV/shaft, controller, professionally built battery, BMS/charger, enclosure and harness freeze together only after Issue #19, Rev-B and Issue #21 pass.
+The G1 is a reference candidate, not the selected drive. Final drive type, ratio, axle state, wheel size, voltage, motor KV/shaft, controller, professionally built battery, BMS/charger, enclosure and harness freeze together only after Issue #19, Rev-B, Issue #21, and the inert Issue #39 environmental candidate pass.
 
 Regenerative braking remains supplemental.
 
@@ -265,6 +290,7 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 - **#33** qualify the Shasta companion mode only after rider-only low-speed powered evidence exists
 - **#35** resolve public-use classification and maintain an authorized powered-test venue record
 - **#37** qualify sacrificial trail-armor geometry/serviceability before powered trail exposure
+- **#39** qualify inert environmental durability, drainage, and service recovery before final power freeze
 
 These tracks can advance in parallel only where their evidence dependencies allow.
 

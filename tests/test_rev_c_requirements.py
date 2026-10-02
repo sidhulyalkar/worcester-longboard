@@ -230,3 +230,36 @@ def test_issue_37_keeps_battery_shell_connectors_and_material_choice_out_of_shor
         in boundaries
     )
     assert "inert geometry qualification is not impact-energy authority" in boundaries
+
+
+def test_issue_39_environmental_program_is_inert_and_pre_power_freeze():
+    program = _requirements()["environmental_durability_program"]
+    assert program["issue"] == 39
+    assert program["phase"] == "POST_DUMMY_PACK_PRE_FINAL_POWER_FREEZE"
+    assert program["initial_scope"] == (
+        "INERT_PACKAGING_DRAINAGE_AND_SERVICE_RECOVERY_ONLY"
+    )
+    assert program["required_exposure_types"] == [
+        "dry_grit",
+        "splash",
+        "mud_surrogate",
+    ]
+    assert program["must_close_before"] == "power_architecture_frozen"
+    assert program["powered_operation_authorized"] is False
+
+
+def test_issue_39_forbids_ip_shortcuts_and_live_ingress_discovery():
+    boundaries = _requirements()["environmental_durability_program"][
+        "hard_boundaries"
+    ]
+    assert "no live traction battery in initial environmental trials" in boundaries
+    assert "no energized traction voltage in initial environmental trials" in boundaries
+    assert "no pressure washer or immersion as leak-discovery methods" in boundaries
+    assert (
+        "no IP rating waterproof claim or corrosion-life claim from project surrogate tests"
+        in boundaries
+    )
+    assert (
+        "passing inert environmental evidence does not authorize energized wet operation"
+        in boundaries
+    )

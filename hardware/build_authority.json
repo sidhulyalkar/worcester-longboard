@@ -269,6 +269,7 @@
       "issue": null,
       "requires": [
         "dummy_pack_mount_qualified",
+        "environmental_inert_candidate_qualified",
         "brake_drive_topology_qualified",
         "rev_b_template_qualified"
       ],
@@ -280,6 +281,42 @@
         {
           "path": "qualified",
           "equals": true
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
+      ]
+    },
+    "environmental_inert_candidate_qualified": {
+      "issue": 39,
+      "requires": [
+        "dummy_pack_mount_qualified"
+      ],
+      "evidence": [
+        {
+          "path": "authority",
+          "equals": "x1_environmental_inert_candidate"
+        },
+        {
+          "path": "schema_version",
+          "equals": 1
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "environmental_inert_candidate_qualified",
+          "equals": true
+        },
+        {
+          "path": "electrical_wet_operation_qualified",
+          "equals": false
+        },
+        {
+          "path": "powered_operation_authorized",
+          "equals": false
         },
         {
           "path": "authority_fingerprint_sha256",
@@ -371,6 +408,12 @@
       "requires": [
         "brake_drive_topology_qualified",
         "power_packaging_candidate_defined"
+      ]
+    },
+    "qualify_environmental_inert_candidate": {
+      "issue": 39,
+      "requires": [
+        "dummy_pack_mount_qualified"
       ]
     }
   }

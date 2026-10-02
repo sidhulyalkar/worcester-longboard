@@ -10,7 +10,8 @@
     "power_architecture_requires_brake_drive_topology": true,
     "final_power_freeze_requires_inert_dummy_pack_mount": true,
     "rev_c_requirements_path": "hardware/rev_c_requirements.json",
-    "chassis_procurement_requires_rev_c_release": true
+    "chassis_procurement_requires_rev_c_release": true,
+    "final_power_freeze_requires_environmental_inert_candidate": true
   },
   "subsystems": [
     {
@@ -251,6 +252,22 @@
         "material/thickness selected only after final topology, contact geometry, mass and thermal environment are known"
       ],
       "authority": "Issue #37 may qualify inert armor geometry, serviceability and low-energy snag behavior. Material/thickness and powered impact-energy authority remain blocked until the final protected subsystem and structural load case exist."
+    },
+    {
+      "id": "ENVIRONMENTAL-DURABILITY",
+      "status": "PLAN_ONLY",
+      "freeze_gate": "environmental_inert_candidate_qualified",
+      "contents": [
+        "interface inventory for enclosure seams connectors glands drains bearings brake and steering exposure paths",
+        "inert dry-grit splash and mud-surrogate exposure fixtures/materials",
+        "protected-zone ingress witness strategy",
+        "replaceable contamination shields or labyrinth features where justified",
+        "drainage and drying features",
+        "disconnected connector inspection/clean/re-seat tooling",
+        "wheel bearing brake and steering service-recovery procedure",
+        "post-exposure moisture chafe migration and corrosion inspection records"
+      ],
+      "authority": "Issue #39 qualifies only the inert packaging/drainage/service-recovery candidate. It creates no IP rating, waterproof claim, corrosion-life claim, energized wet-operation authority, or powered-operation authority."
     },
     {
       "id": "ENCLOSURES-HARNESS",

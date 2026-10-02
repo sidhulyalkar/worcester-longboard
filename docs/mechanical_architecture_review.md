@@ -319,6 +319,21 @@ Control strategy:
 - service removal without disturbing truck structure;
 - inspection for insert pull-through, cracked enclosure, fretting and fastener migration.
 
+### Environmental ingress and service recovery
+
+This now ties the battery/enclosure mount for the highest current risk score: a trail board is repeatedly exposed to grit, mud, splash, cleaning, trapped moisture, and service handling. "Water resistant" at the component level does not prove that the assembled board drains, dries, remains serviceable, or keeps brake/steering interfaces clean.
+
+Control strategy:
+
+- Issue #39 inventories every exposed interface;
+- initial grit/splash/mud trials use inert/disconnected hardware only;
+- use drainage, shielding, labyrinths and replaceable contamination barriers before relying on perfect sealing;
+- no pressure washer or immersion as leak-discovery methods;
+- connector service recovery must preserve seals, contacts and positive latching;
+- wheel/bearing/brake/steering function must recover after contamination and cleaning;
+- no final IP/waterproof/corrosion-life claim from project surrogate tests;
+- future energized wet validation remains separate after final power architecture.
+
 ### Brake/drive packaging
 
 This is the architecture risk that can strand the most expensive purchases.

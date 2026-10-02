@@ -111,7 +111,7 @@ A passing report is `x1_rolling_chassis_physical` and still cannot authorize pow
 
 ## Staged power packaging architecture
 
-Power is intentionally **not frozen** and is now split into preliminary packaging, inert physical qualification, and final freeze.
+Power is intentionally **not frozen** and is now split into preliminary packaging, inert structural qualification, inert environmental/service qualification, and final freeze.
 
 ### Stage A: power packaging candidate
 
@@ -151,11 +151,17 @@ The highest current FMEA risk, battery/enclosure structural retention, is closed
 - no witness movement, cracking, crushing, pull-through or fretting;
 - no live cells or powered test.
 
-A passing report is `x1_dummy_pack_mount` and is required before final power freeze.
+A passing report is `x1_dummy_pack_mount`.
+
+### Stage B2: Issue #39 inert environmental durability candidate
+
+Before final power freeze, the real inert enclosure/harness concept must also pass contamination, drainage, connector-service, wheel/brake/steering recovery, and post-dry inspection through `tools/qualify_rev_c_environmental_durability.py`.
+
+The initial Issue #39 campaign has no live traction battery, traction voltage, charger, powered vehicle, pressure washing, or immersion. A passing report is fingerprinted `x1_environmental_inert_candidate`, while explicitly keeping IP rating, waterproofing, corrosion life, energized wet operation, procurement, and powered operation false.
 
 ### Stage C: final power architecture freeze
 
-Only after the dummy-pack load path passes may the project freeze the coupled powered system:
+Only after the dummy-pack load path **and** Issue #39 inert environmental candidate pass may the project freeze the coupled powered system:
 
 - drive type and ratio;
 - axle configuration;

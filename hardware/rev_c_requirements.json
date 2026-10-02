@@ -476,5 +476,31 @@
     ],
     "procurement_authority": false,
     "powered_operation_authorized": false
+  },
+  "environmental_durability_program": {
+    "issue": 39,
+    "phase": "POST_DUMMY_PACK_PRE_FINAL_POWER_FREEZE",
+    "snapshot": "hardware/rev_c_environmental_durability_snapshot_2026-10-01.json",
+    "trial_template": "hardware/rev_c_environmental_trial_template.json",
+    "protocol": "docs/rev_c_environmental_durability.md",
+    "session_initializer": "tools/init_rev_c_environmental_session.py",
+    "qualifier": "tools/qualify_rev_c_environmental_durability.py",
+    "initial_scope": "INERT_PACKAGING_DRAINAGE_AND_SERVICE_RECOVERY_ONLY",
+    "required_exposure_types": [
+      "dry_grit",
+      "splash",
+      "mud_surrogate"
+    ],
+    "hard_boundaries": [
+      "no live traction battery in initial environmental trials",
+      "no energized traction voltage in initial environmental trials",
+      "no charger connected in initial environmental trials",
+      "no pressure washer or immersion as leak-discovery methods",
+      "no IP rating waterproof claim or corrosion-life claim from project surrogate tests",
+      "passing inert environmental evidence does not authorize energized wet operation",
+      "future wet dirty powered ground testing requires separate powered and venue authority"
+    ],
+    "must_close_before": "power_architecture_frozen",
+    "powered_operation_authorized": false
   }
 }
