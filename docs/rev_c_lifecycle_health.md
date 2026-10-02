@@ -21,6 +21,8 @@ A board can be mechanically well designed and still become unsafe because:
 
 Issue #41 turns those events into an append-only longitudinal record.
 
+Every valid vehicle history begins with exactly one `BASELINE` event. It must be the first event. A later preflight can establish current readiness, but it cannot substitute for the baseline configuration record.
+
 The key rule is:
 
 > **healthy does not mean authorized.**
@@ -39,9 +41,9 @@ That gives the health record a stable physical anchor:
 
 The private component registry stores that exact authority fingerprint.
 
-The lifecycle evaluator verifies the fingerprint every time it computes health state.
+The lifecycle evaluator verifies the fingerprint every time it computes health state. The central build-authority evaluator also cross-checks the READY health report's chassis fingerprint against the exact `x1_rolling_chassis_physical` evidence satisfying the chassis gate.
 
-This prevents a maintenance log from one donor chassis being copied onto another board.
+This prevents a maintenance log from one donor chassis being copied onto another board, even if both health reports are individually fingerprint-valid.
 
 ## 2. Health states
 
@@ -167,6 +169,14 @@ Accepted service-interval sources are:
 - later qualified X1 physical evidence.
 
 If a service interval exists, record the source.
+
+A service action may reset that interval only when:
+
+- the component actually has a declared sourced interval;
+- the service event records a nonempty `source_reference`;
+- the event's current distance/hour/time counters become the new interval baseline.
+
+A generic "serviced" note cannot silently reset the clock.
 
 ## 5. Event history is append-only
 
