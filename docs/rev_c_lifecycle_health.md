@@ -648,14 +648,19 @@ Do not compress it into memory.
 
 ## 21. Future powered commissioning rule
 
-When a future powered-operation authority contract is eventually created, it should require all of the following independently:
+The central build-authority graph now exposes the gate `lifecycle_health_ready`.
+
+Every staged commissioning **action** requires that current gate in addition to its stage prerequisites. Future powered, public, and dog-accompanied operation paths also require it.
+
+Issue #45 separately binds each actual commissioning-stage authority to explicit pre/post lifecycle-health evidence, so the generic gate does not replace stage-specific freshness checks.
+
+The logical relationship is:
 
 ```text
-powered vehicle authority
-+ authorized test venue
-+ applicable environmental authority
-+ current configuration identity
-+ latest lifecycle health state == READY_FOR_ALLOWED_ACTIVITY
+current lifecycle health == READY_FOR_ALLOWED_ACTIVITY
++ stage-specific commissioning prerequisites
++ any venue/environmental requirements
++ the independent activity authority
 ```
 
 The health state is necessary but never sufficient.
