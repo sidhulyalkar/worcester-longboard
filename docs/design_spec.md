@@ -130,7 +130,7 @@ It emits `x1_lifecycle_health_state`.
 
 A READY result means only maintenance-ready for an activity already permitted elsewhere. It cannot authorize power, public operation, or companion use.
 
-Any future powered-operation authority must consume a fresh READY health state for the current configuration rather than assuming that an old commissioning result remains valid forever.
+The central build-authority graph now requires `lifecycle_health_ready` for future powered, public, and dog-accompanied operation paths. A fresh READY health state for the current configuration is therefore necessary alongside, but never a substitute for, those independent authorities.
 
 ## Staged power packaging architecture
 
