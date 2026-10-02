@@ -104,6 +104,19 @@ def test_ordered_checkout_requires_confirmation_and_total_reconciliation(tmp_pat
     assert "order_total_usd does not match merchandise + shipping + tax" in report["errors"]
 
 
+def test_checkout_binds_exact_inventory_record(tmp_path: Path):
+    checkout, inventory = _initialized(tmp_path)
+    _complete_checkout_fields(checkout)
+
+    changed = copy.deepcopy(inventory)
+    row = next(x for x in changed["items"] if x["id"] == "USB-DATA")
+    row["notes"] = "inventory changed after checkout draft"
+
+    report = validate(checkout, changed)
+    assert report["valid"] is False
+    assert "checkout inventory fingerprint is stale or incorrect" in report["errors"]
+
+
 def test_private_checkout_cannot_relax_public_freshness_policy(tmp_path: Path):
     checkout, inventory = _initialized(tmp_path)
     _complete_checkout_fields(checkout)
