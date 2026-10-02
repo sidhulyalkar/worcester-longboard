@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "scope": "x1_vehicle_health_event",
+  "event_id": "",
+  "board_id": "",
+  "configuration_id": "",
+  "timestamp_utc": "",
+  "event_type": "",
+  "activity_type": "",
+  "odometer_km": null,
+  "ride_hours": null,
+  "activity_requirements": {
+    "lights_required": false
+  },
+  "checks": {
+    "tire_pressure_and_visible_condition": {
+      "status": "UNSET",
+      "notes": ""
+    },
+    "wheel_retention_and_axial_play": {
+      "status": "UNSET",
+      "notes": ""
+    },
+    "bearing_spin_noise_and_play": {
+      "status": "UNSET",
+      "notes": ""
+    },
+    "mechanical_brake_function": {
+      "status": "UNSET",
+      "notes": ""
+    },
+    "steering_return_and_free_motion": {
+      "status": "UNSET",
+      "notes": ""
+    },
+    "critical_witness_marks": {
+      "status": "UNSET",
+      "notes": ""
+    },
+    "deck_truck_mount_condition": {
+      "status": "UNSET",
+      "notes": ""
+    },
+    "rider_interface_retention_and_stepoff": {
+      "status": "UNSET",
+      "notes": ""
+    },
+    "guard_skid_retention_and_clearance": {
+      "status": "UNSET",
+      "notes": ""
+    },
+    "drainage_and_contamination_paths": {
+      "status": "UNSET",
+      "notes": ""
+    },
+    "harness_hose_and_connector_condition": {
+      "status": "UNSET",
+      "notes": ""
+    },
+    "remote_deadman_function": {
+      "status": "UNSET",
+      "notes": ""
+    },
+    "traction_enclosure_retention_and_service_disconnect": {
+      "status": "UNSET",
+      "notes": ""
+    },
+    "lights_and_reflective_visibility": {
+      "status": "UNSET",
+      "notes": ""
+    }
+  },
+  "measurements": [],
+  "observed_triggers": [],
+  "findings_opened": [],
+  "findings_closed": [],
+  "service_actions": [],
+  "configuration_change": {
+    "applied": false,
+    "new_configuration_id": "",
+    "component_changes": []
+  },
+  "notes": "",
+  "powered_operation_authorized": false,
+  "public_operation_authorized": false,
+  "dog_accompanied_operation_authorized": false
+}
