@@ -49,6 +49,7 @@ def test_private_controlled_venue_record_can_qualify_without_vehicle_authority()
     assert report["vehicle_powered_operation_authority"] is False
     assert report["public_operation_authority"] is False
     assert report["dog_accompanied_operation_authority"] is False
+    assert len(report["authority_fingerprint_sha256"]) == 64
 
 
 def test_worcester_park_is_blocked_by_current_dated_qualifier():
