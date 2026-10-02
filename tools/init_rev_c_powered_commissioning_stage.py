@@ -85,6 +85,9 @@ def initialize(
         or health.get("ready_for_allowed_activity") is not True
         or health.get("board_id") != board_id
         or health.get("current_configuration_id") != configuration_id
+        or health.get("powered_operation_authorized") is not False
+        or health.get("public_operation_authorized") is not False
+        or health.get("dog_accompanied_operation_authorized") is not False
         or not _valid_fp(health)
     ):
         raise ValueError(
@@ -100,6 +103,11 @@ def initialize(
             or previous.get("stage_index") != stage["stage_index"] - 1
             or previous.get("board_id") != board_id
             or previous.get("configuration_id") != configuration_id
+            or previous.get("power_architecture_fingerprint_sha256")
+                != power.get("authority_fingerprint_sha256")
+            or previous.get("general_powered_operation_authorized") is not False
+            or previous.get("public_operation_authorized") is not False
+            or previous.get("dog_accompanied_operation_authorized") is not False
             or not _valid_fp(previous)
         ):
             raise ValueError(
@@ -122,6 +130,9 @@ def initialize(
             venue.get("authority") != "x1_powered_test_venue_evidence"
             or venue.get("qualified") is not True
             or venue.get("venue_permission_qualified") is not True
+            or venue.get("vehicle_powered_operation_authority") is not False
+            or venue.get("public_operation_authority") is not False
+            or venue.get("dog_accompanied_operation_authority") is not False
             or not _valid_fp(venue)
         ):
             raise ValueError("venue authority must be qualified and fingerprint-valid")
