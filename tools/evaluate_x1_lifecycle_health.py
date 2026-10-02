@@ -57,6 +57,22 @@ def _digest(data: dict) -> str:
     ).hexdigest()
 
 
+def _valid_authority(data: dict, expected: str) -> bool:
+    if data.get("authority") != expected or data.get("qualified") is not True:
+        return False
+    if data.get("powered_operation_authorized") is not False:
+        return False
+    actual = data.get("authority_fingerprint_sha256")
+    if not isinstance(actual, str) or not actual:
+        return False
+    unsigned = dict(data)
+    unsigned.pop("authority_fingerprint_sha256", None)
+    try:
+        return actual == _digest(unsigned)
+    except (TypeError, ValueError):
+        return False
+
+
 def _nonempty(value: Any) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
@@ -237,14 +253,36 @@ def _component_due_state(
     return due, unknown
 
 
-def evaluate(registry: dict, events: list[dict], snapshot: dict | None = None) -> dict:
+def evaluate(
+    registry: dict,
+    events: list[dict],
+    chassis_authority: dict,
+    snapshot: dict | None = None,
+) -> dict:
     snapshot = snapshot or json.loads(SNAPSHOT.read_text(encoding="utf-8"))
     errors: list[str] = []
+
+    if not _valid_authority(chassis_authority, "x1_rolling_chassis_physical"):
+        errors.append(
+            "linked rolling-chassis authority must be qualified and fingerprint-valid"
+        )
 
     if registry.get("schema_version") != 1:
         errors.append("registry schema_version must be 1")
     if registry.get("scope") != "x1_vehicle_component_registry":
         errors.append("wrong component registry scope")
+
+    upstream = registry.get("upstream_authorities")
+    if not isinstance(upstream, dict):
+        errors.append("registry upstream_authorities must be an object")
+        upstream = {}
+    if (
+        upstream.get("rolling_chassis_fingerprint_sha256")
+        != chassis_authority.get("authority_fingerprint_sha256")
+    ):
+        errors.append(
+            "registry does not link the supplied rolling-chassis authority"
+        )
 
     board_id = registry.get("board_id")
     current_configuration_id = registry.get("configuration_id")
@@ -708,6 +746,9 @@ def evaluate(registry: dict, events: list[dict], snapshot: dict | None = None) -
         "board_id": board_id,
         "current_configuration_id": current_configuration_id,
         "active_component_ids": sorted(active_components),
+        "rolling_chassis_fingerprint_sha256": chassis_authority.get(
+            "authority_fingerprint_sha256"
+        ),
         "event_count": len(parsed_events),
         "latest_event_id": (
             latest_event.get("event_id") if latest_event is not None else None
@@ -750,6 +791,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("registry", type=Path)
     parser.add_argument("--event", type=Path, action="append", default=[])
+    parser.add_argument("--rolling-chassis-authority", type=Path, required=True)
     parser.add_argument("--snapshot", type=Path, default=SNAPSHOT)
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
@@ -759,8 +801,11 @@ def main() -> None:
         json.loads(path.read_text(encoding="utf-8"))
         for path in args.event
     ]
+    chassis_authority = json.loads(
+        args.rolling_chassis_authority.read_text(encoding="utf-8")
+    )
     snapshot = json.loads(args.snapshot.read_text(encoding="utf-8"))
-    report = evaluate(registry, events, snapshot)
+    report = evaluate(registry, events, chassis_authority, snapshot)
     text = json.dumps(report, indent=2, sort_keys=True) + "\n"
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
