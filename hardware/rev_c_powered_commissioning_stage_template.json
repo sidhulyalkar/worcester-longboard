@@ -44,5 +44,6 @@
   "notes": "",
   "general_powered_operation_authorized": false,
   "public_operation_authorized": false,
-  "dog_accompanied_operation_authorized": false
+  "dog_accompanied_operation_authorized": false,
+  "telemetry_evidence_fingerprint_sha256": ""
 }
