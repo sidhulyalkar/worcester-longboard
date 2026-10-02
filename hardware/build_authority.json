@@ -270,6 +270,7 @@
       "requires": [
         "dummy_pack_mount_qualified",
         "environmental_inert_candidate_qualified",
+        "powertrain_envelope_qualified",
         "brake_drive_topology_qualified",
         "rev_b_template_qualified"
       ],
@@ -312,6 +313,56 @@
         },
         {
           "path": "electrical_wet_operation_qualified",
+          "equals": false
+        },
+        {
+          "path": "powered_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
+      ]
+    },
+    "powertrain_envelope_qualified": {
+      "issue": 43,
+      "requires": [
+        "brake_drive_topology_qualified",
+        "rolling_chassis_physical_qualified",
+        "dummy_pack_mount_qualified"
+      ],
+      "evidence": [
+        {
+          "path": "authority",
+          "equals": "x1_powertrain_envelope_candidate"
+        },
+        {
+          "path": "schema_version",
+          "equals": 1
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "all_declared_scenarios_pass",
+          "equals": true
+        },
+        {
+          "path": "thermal_qualification",
+          "equals": false
+        },
+        {
+          "path": "procurement_authority",
+          "equals": false
+        },
+        {
+          "path": "controller_configuration_authority",
+          "equals": false
+        },
+        {
+          "path": "battery_configuration_authority",
           "equals": false
         },
         {
@@ -422,6 +473,14 @@
         "rolling_chassis_physical_qualified"
       ],
       "note": "Creates/evaluates maintenance health only; READY_FOR_ALLOWED_ACTIVITY never authorizes an otherwise blocked activity."
+    },
+    "qualify_powertrain_envelope": {
+      "issue": 43,
+      "requires": [
+        "brake_drive_topology_qualified",
+        "rolling_chassis_physical_qualified",
+        "dummy_pack_mount_qualified"
+      ]
     }
   }
 }
