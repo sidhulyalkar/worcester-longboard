@@ -1,4 +1,5 @@
 import copy
+import hashlib
 import json
 from pathlib import Path
 
@@ -59,6 +60,20 @@ def _ordered_checkout(tmp_path: Path):
     authority_path = tmp_path / "checkout_authority.json"
     authority_path.write_text(json.dumps(authority, indent=2), encoding="utf-8")
     return checkout_path, authority_path, checkout, authority
+
+
+def _restamp(report):
+    unsigned = dict(report)
+    unsigned.pop("authority_fingerprint_sha256", None)
+    payload = json.dumps(
+        unsigned,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    out = dict(unsigned)
+    out["authority_fingerprint_sha256"] = hashlib.sha256(payload).hexdigest()
+    return out
 
 
 def _unit(hardware_id, role):
@@ -227,6 +242,29 @@ def test_required_active_and_untouched_spare_roles_are_enforced(tmp_path: Path):
     report = validate_receiving(receiving, checkout, authority)
     assert report["valid"] is False
     assert any("must assign roles" in error for error in report["errors"])
+
+
+def test_receiving_rejects_fingerprint_valid_elevated_checkout_authority(tmp_path: Path):
+    checkout_path, authority_path, checkout, authority = _ordered_checkout(tmp_path)
+    receiving = init_receiving(
+        tmp_path / "receiving.json",
+        checkout_path,
+        authority_path,
+        "RECEIVE-AUTH",
+    )
+    _complete_receiving(receiving)
+
+    elevated = copy.deepcopy(authority)
+    elevated["powered_operation_authorized"] = True
+    elevated = _restamp(elevated)
+
+    report = validate_receiving(receiving, checkout, elevated)
+    assert report["valid"] is False
+    assert any(
+        "checkout authority boundary violated: powered_operation_authorized"
+        in error
+        for error in report["errors"]
+    )
 
 
 def test_checkout_fingerprint_mismatch_is_rejected(tmp_path: Path):
