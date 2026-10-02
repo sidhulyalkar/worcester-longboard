@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "scope": "x1_vehicle_component_registry",
+  "board_id": "",
+  "configuration_id": "",
+  "created_at_utc": "",
+  "upstream_authorities": {
+    "rolling_chassis_fingerprint_sha256": "",
+    "brake_interface_fingerprint_sha256": "",
+    "rev_b_template_fingerprint_sha256": "",
+    "dummy_pack_fingerprint_sha256": "",
+    "environmental_candidate_fingerprint_sha256": ""
+  },
+  "components": [
+    {
+      "component_id": "",
+      "subsystem": "",
+      "role": "",
+      "manufacturer": "",
+      "model": "",
+      "revision": "",
+      "serial_or_private_identifier": "",
+      "active": true,
+      "installed_at_utc": "",
+      "installed_odometer_km": null,
+      "installed_ride_hours": null,
+      "service_policy": {
+        "source_type": "",
+        "source_reference": "",
+        "interval_km": null,
+        "interval_hours": null,
+        "interval_days": null,
+        "notes": ""
+      }
+    }
+  ],
+  "configuration_notes": "",
+  "powered_operation_authorized": false,
+  "public_operation_authorized": false,
+  "dog_accompanied_operation_authorized": false
+}
