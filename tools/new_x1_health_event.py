@@ -30,6 +30,7 @@ def create_event(
     timestamp_utc: str,
     event_type: str,
     activity_type: str,
+    configuration_id: str | None = None,
 ) -> dict:
     registry = json.loads(registry_path.read_text(encoding="utf-8"))
     if registry.get("scope") != "x1_vehicle_component_registry":
@@ -46,7 +47,7 @@ def create_event(
         {
             "event_id": event_id,
             "board_id": registry["board_id"],
-            "configuration_id": registry["configuration_id"],
+            "configuration_id": configuration_id or registry["configuration_id"],
             "timestamp_utc": timestamp_utc,
             "event_type": event_type,
             "activity_type": activity_type,
@@ -68,6 +69,10 @@ def main() -> None:
     parser.add_argument("--timestamp-utc", required=True)
     parser.add_argument("--event-type", required=True)
     parser.add_argument("--activity-type", required=True)
+    parser.add_argument(
+        "--configuration-id",
+        help="current event-sourced configuration ID; defaults to registry baseline",
+    )
     args = parser.parse_args()
 
     print(
@@ -79,6 +84,7 @@ def main() -> None:
                 args.timestamp_utc,
                 args.event_type,
                 args.activity_type,
+                args.configuration_id,
             ),
             indent=2,
         )
