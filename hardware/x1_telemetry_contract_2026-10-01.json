@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-01",
+  "scope": "x1_telemetry_flight_recorder_reference",
+  "authority": "REFERENCE_ONLY",
+  "issue": 47,
+  "purpose": "Define synchronized, hash-verifiable private telemetry sessions that can support Worcester X1 commissioning evidence without granting sensor calibration, vehicle safety, or operation authority.",
+  "reference_timebase": {
+    "timestamp_column": "time_s",
+    "unit": "seconds",
+    "zero_definition": "session-local monotonic reference; all streams normalized to the declared reference clock",
+    "strict_monotonic_continuous_streams": true,
+    "strict_monotonic_event_stream": true,
+    "timestamps_must_be_finite": true
+  },
+  "streams": [
+    {
+      "stream_type": "control",
+      "filename": "control.csv",
+      "required_columns": [
+        "time_s",
+        "throttle_request",
+        "brake_request",
+        "ride_mode",
+        "remote_deadman_active",
+        "drive_command_left_a",
+        "drive_command_right_a",
+        "regen_command_left_a",
+        "regen_command_right_a",
+        "controller_fault_bits"
+      ],
+      "numeric_columns": [
+        "time_s",
+        "throttle_request",
+        "brake_request",
+        "drive_command_left_a",
+        "drive_command_right_a",
+        "regen_command_left_a",
+        "regen_command_right_a",
+        "controller_fault_bits"
+      ]
+    },
+    {
+      "stream_type": "electrical",
+      "filename": "electrical.csv",
+      "required_columns": [
+        "time_s",
+        "pack_voltage_v",
+        "battery_current_a",
+        "left_phase_current_a",
+        "right_phase_current_a",
+        "left_motor_erpm",
+        "right_motor_erpm",
+        "left_motor_speed_rpm",
+        "right_motor_speed_rpm",
+        "left_motor_temperature_c",
+        "right_motor_temperature_c",
+        "left_controller_temperature_c",
+        "right_controller_temperature_c"
+      ],
+      "numeric_columns": [
+        "time_s",
+        "pack_voltage_v",
+        "battery_current_a",
+        "left_phase_current_a",
+        "right_phase_current_a",
+        "left_motor_erpm",
+        "right_motor_erpm",
+        "left_motor_speed_rpm",
+        "right_motor_speed_rpm",
+        "left_motor_temperature_c",
+        "right_motor_temperature_c",
+        "left_controller_temperature_c",
+        "right_controller_temperature_c"
+      ]
+    },
+    {
+      "stream_type": "motion",
+      "filename": "motion.csv",
+      "required_columns": [
+        "time_s",
+        "ground_speed_mps",
+        "front_left_speed_mps",
+        "front_right_speed_mps",
+        "rear_left_speed_mps",
+        "rear_right_speed_mps",
+        "accel_x_mps2",
+        "accel_y_mps2",
+        "accel_z_mps2",
+        "gyro_x_dps",
+        "gyro_y_dps",
+        "gyro_z_dps"
+      ],
+      "numeric_columns": [
+        "time_s",
+        "ground_speed_mps",
+        "front_left_speed_mps",
+        "front_right_speed_mps",
+        "rear_left_speed_mps",
+        "rear_right_speed_mps",
+        "accel_x_mps2",
+        "accel_y_mps2",
+        "accel_z_mps2",
+        "gyro_x_dps",
+        "gyro_y_dps",
+        "gyro_z_dps"
+      ]
+    },
+    {
+      "stream_type": "events",
+      "filename": "events.csv",
+      "required_columns": [
+        "time_s",
+        "event_type",
+        "event_code",
+        "detail"
+      ],
+      "numeric_columns": [
+        "time_s"
+      ]
+    }
+  ],
+  "event_codes": {
+    "commissioning": [
+      "SESSION_START",
+      "SESSION_STOP",
+      "COMMISSIONING_STAGE_START",
+      "COMMISSIONING_STAGE_STOP",
+      "OPERATOR_STOP",
+      "ANOMALY"
+    ],
+    "control": [
+      "REMOTE_DEADMAN_RELEASE",
+      "REMOTE_DEADMAN_ASSERT",
+      "REMOTE_TIMEOUT",
+      "STALE_COMMAND"
+    ],
+    "stopping": [
+      "STOPPING_START",
+      "VEHICLE_STOPPED",
+      "MECHANICAL_BRAKE_APPLIED"
+    ],
+    "faults": [
+      "FAULT_ASSERT",
+      "FAULT_CLEAR"
+    ]
+  },
+  "stage_requirements": {
+    "SECURED_UNLOADED_SPIN": {
+      "required_stream_types": [
+        "control",
+        "electrical",
+        "events"
+      ],
+      "required_metric_ids": [
+        "pack_voltage_v",
+        "battery_current_a",
+        "left_motor_speed",
+        "right_motor_speed",
+        "left_motor_temperature_c",
+        "right_motor_temperature_c",
+        "left_controller_temperature_c",
+        "right_controller_temperature_c"
+      ]
+    },
+    "RESTRAINED_LOADED_BENCH": {
+      "required_stream_types": [
+        "control",
+        "electrical",
+        "events"
+      ],
+      "required_metric_ids": [
+        "pack_voltage_v",
+        "battery_current_a",
+        "left_phase_current_a",
+        "right_phase_current_a",
+        "left_motor_erpm",
+        "right_motor_erpm",
+        "left_motor_temperature_c",
+        "right_motor_temperature_c",
+        "left_controller_temperature_c",
+        "right_controller_temperature_c"
+      ]
+    },
+    "RIDER_FREE_CONTROLLED_GROUND": {
+      "required_stream_types": [
+        "control",
+        "electrical",
+        "motion",
+        "events"
+      ],
+      "required_metric_ids": [
+        "ground_speed_mps",
+        "pack_voltage_v",
+        "battery_current_a",
+        "left_phase_current_a",
+        "right_phase_current_a",
+        "remote_release_propulsion_decay_s",
+        "left_motor_temperature_c",
+        "right_motor_temperature_c",
+        "left_controller_temperature_c",
+        "right_controller_temperature_c"
+      ]
+    },
+    "RIDER_ONLY_VERY_LOW_SPEED": {
+      "required_stream_types": [
+        "control",
+        "electrical",
+        "motion",
+        "events"
+      ],
+      "required_metric_ids": [
+        "ground_speed_mps",
+        "longitudinal_accel_mps2",
+        "longitudinal_jerk_mps3",
+        "stopping_distance_m",
+        "pack_voltage_v",
+        "battery_current_a",
+        "left_phase_current_a",
+        "right_phase_current_a",
+        "remote_release_propulsion_decay_s",
+        "left_motor_temperature_c",
+        "right_motor_temperature_c",
+        "left_controller_temperature_c",
+        "right_controller_temperature_c"
+      ]
+    }
+  },
+  "synchronization_rules": [
+    "Every stream declares clock_id and source_id.",
+    "Every stream declares how timestamps were normalized to the reference clock.",
+    "Every stream declares synchronization uncertainty in seconds.",
+    "Synchronization uncertainty must not exceed the per-stream declared maximum.",
+    "Required streams must have a nonzero common reference-time overlap.",
+    "Continuous streams must not contain a timestamp gap larger than the declared max_gap_s.",
+    "File SHA-256 must match the finalized manifest."
+  ],
+  "processing_contract": {
+    "longitudinal_acceleration_default_column": "accel_x_mps2",
+    "jerk_method": "first difference of declared smoothed longitudinal acceleration divided by reference-time delta",
+    "jerk_window_rule": "session declares odd positive moving-average window size; no hidden filter",
+    "propulsion_decay_rule": "from REMOTE_DEADMAN_RELEASE event to first control sample where both absolute drive commands remain below declared threshold for declared hold duration",
+    "stopping_distance_rule": "trapezoidal integral of absolute ground speed between STOPPING_START and following VEHICLE_STOPPED event",
+    "no_pass_thresholds_implied": true
+  },
+  "privacy": {
+    "raw_session_location": "rider/private/telemetry/",
+    "public_repository_content": "schemas, validators, replay logic, synthetic fixtures only",
+    "precise_routes_public": false,
+    "personal_motion_raw_public": false,
+    "hardware_serials_public": false
+  },
+  "authority_boundaries": [
+    "Telemetry validity establishes file/schema/time/hash integrity only.",
+    "Telemetry validity does not establish physical sensor calibration unless separate calibration evidence exists.",
+    "Derived summaries are descriptive evidence and do not by themselves establish pass thresholds.",
+    "Telemetry authority does not authorize powered operation.",
+    "Telemetry authority does not authorize public operation.",
+    "Telemetry authority does not authorize dog-accompanied operation."
+  ],
+  "powered_operation_authorized": false,
+  "public_operation_authorized": false,
+  "dog_accompanied_operation_authorized": false
+}
