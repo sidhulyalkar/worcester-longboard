@@ -262,15 +262,16 @@ def evaluate(
     snapshot = snapshot or json.loads(SNAPSHOT.read_text(encoding="utf-8"))
     errors: list[str] = []
 
-    if not _valid_authority(chassis_authority, "x1_rolling_chassis_physical"):
-        errors.append(
-            "linked rolling-chassis authority must be qualified and fingerprint-valid"
-        )
-
     if registry.get("schema_version") != 1:
         errors.append("registry schema_version must be 1")
     if registry.get("scope") != "x1_vehicle_component_registry":
         errors.append("wrong component registry scope")
+
+    if not _valid_authority(chassis_authority, "x1_rolling_chassis_physical"):
+        errors.append(
+            "linked rolling-chassis authority must be qualified, "
+            "fingerprint-valid, and non-powered"
+        )
 
     upstream = registry.get("upstream_authorities")
     if not isinstance(upstream, dict):
@@ -744,11 +745,11 @@ def evaluate(
         "valid": not errors,
         "errors": errors,
         "board_id": board_id,
-        "current_configuration_id": current_configuration_id,
-        "active_component_ids": sorted(active_components),
         "rolling_chassis_fingerprint_sha256": chassis_authority.get(
             "authority_fingerprint_sha256"
         ),
+        "current_configuration_id": current_configuration_id,
+        "active_component_ids": sorted(active_components),
         "event_count": len(parsed_events),
         "latest_event_id": (
             latest_event.get("event_id") if latest_event is not None else None
