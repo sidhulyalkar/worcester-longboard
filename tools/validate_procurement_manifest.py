@@ -107,6 +107,28 @@ def validate_manifest(data: dict) -> dict:
                     f"{item_id}: Rev-C release selection constraints mismatch"
                 )
 
+    if rules.get("cart_a_checkout_issue") != 56:
+        errors.append("Cart A checkout evidence must remain tied to Issue #56")
+    max_source_age = rules.get("cart_a_refresh_scope_max_age_days")
+    if (
+        not isinstance(max_source_age, int)
+        or isinstance(max_source_age, bool)
+        or max_source_age < 0
+        or max_source_age > 30
+    ):
+        errors.append(
+            "cart_a_refresh_scope_max_age_days must be an integer in [0, 30]"
+        )
+    if rules.get("cart_a_require_stock_recheck_at_checkout") is not True:
+        errors.append("Cart A checkout must require stock recheck")
+    if (
+        rules.get("cart_a_price_or_stock_change_requires_source_refresh")
+        is not True
+    ):
+        errors.append(
+            "Cart A checkout must require source refresh after price/stock change"
+        )
+
     ceiling = float(rules.get("buy_now_max_total_usd", 0))
     if buy_now_total > ceiling:
         errors.append(f"BUY_NOW ceiling exceeded: ${buy_now_total:.2f} > ${ceiling:.2f}")
