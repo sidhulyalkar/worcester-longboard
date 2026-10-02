@@ -453,6 +453,168 @@ jobs:
           assert report['open_findings'][0]['finding_id'] == 'F-CI-STOP'
           assert report['powered_operation_authorized'] is False
           PY
+      - name: Smoke-test Issue 43 powertrain envelope
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          def stamp(doc):
+              payload = json.dumps(
+                  doc,
+                  sort_keys=True,
+                  separators=(',', ':'),
+                  allow_nan=False,
+              ).encode('utf-8')
+              out = dict(doc)
+              out['authority_fingerprint_sha256'] = hashlib.sha256(payload).hexdigest()
+              return out
+
+          chassis = stamp({
+              'schema_version': 1,
+              'authority': 'x1_rolling_chassis_physical',
+              'qualified': True,
+              'powered_operation_authorized': False,
+          })
+          topology = stamp({
+              'schema_version': 1,
+              'authority': 'x1_brake_drive_topology',
+              'qualified': True,
+              'selected_topology': 'same_rear_axle_v5_plus_drive',
+              'powered_operation_authorized': False,
+          })
+          dummy = stamp({
+              'schema_version': 1,
+              'authority': 'x1_dummy_pack_mount',
+              'qualified': True,
+              'powered_operation_authorized': False,
+          })
+          Path('/tmp/x1-pt-chassis.json').write_text(json.dumps(chassis, indent=2) + '\n')
+          Path('/tmp/x1-pt-topology.json').write_text(json.dumps(topology, indent=2) + '\n')
+          Path('/tmp/x1-pt-dummy.json').write_text(json.dumps(dummy, indent=2) + '\n')
+
+          manifest = json.loads(
+              Path('hardware/rev_c_powertrain_candidate_template.json').read_text()
+          )
+          manifest['candidate_id'] = 'CI-POWERTRAIN-A'
+          manifest['selected_drive_family'] = 'ci-synthetic-family'
+          manifest['linked_authorities'] = {
+              'rolling_chassis_fingerprint_sha256': chassis['authority_fingerprint_sha256'],
+              'brake_drive_topology_fingerprint_sha256': topology['authority_fingerprint_sha256'],
+              'dummy_pack_fingerprint_sha256': dummy['authority_fingerprint_sha256'],
+          }
+          manifest['source_refs'] = {
+              'motor_kv_rpm_per_v': 'ci synthetic motor source',
+              'motor_pole_pairs': 'ci synthetic motor source',
+              'phase_current_limit_a_per_motor': 'ci synthetic motor/controller source',
+              'battery_current_limit_a_total': 'ci synthetic battery-builder source',
+              'erpm_limit': 'ci synthetic controller source',
+              'nominal_voltage_v': 'ci synthetic battery-builder source',
+              'full_voltage_v': 'ci synthetic battery-builder source',
+              'motor_mount_and_shaft': 'ci synthetic mechanical drawing',
+              'wheel_gear_teeth': 'ci synthetic drive drawing',
+              'motor_gear_teeth': 'ci synthetic drive drawing',
+              'drivetrain_efficiency_basis': 'study-assumption: 0.90',
+              'electrical_efficiency_basis': 'study-assumption: 0.92',
+              'rolling_resistance_basis': 'study-assumption: 0.03',
+              'traction_mu_basis': 'study-assumption: scenario-specific',
+          }
+          config = manifest['envelope_config']
+          config['vehicle'] = {
+              'total_mass_kg': 80.0,
+              'wheelbase_m': 0.94,
+              'cg_from_rear_m': 0.47,
+              'cg_height_m': 0.35,
+              'wheel_diameter_m': 0.20,
+              'rolling_resistance_coeff': 0.03,
+              'aero_drag_area_m2': 0.0,
+              'air_density_kg_m3': 1.225,
+          }
+          config['candidate'] = {
+              'id': 'CI-POWERTRAIN-A',
+              'topology': 'rear',
+              'motor_count': 2,
+              'motor_kv_rpm_per_v': 120.0,
+              'motor_pole_pairs': 7,
+              'wheel_gear_teeth': 64,
+              'motor_gear_teeth': 15,
+              'nominal_voltage_v': 50.4,
+              'full_voltage_v': 58.8,
+              'speed_voltage_basis': 'nominal',
+              'phase_current_limit_a_per_motor': 80.0,
+              'battery_current_limit_a_total': 60.0,
+              'electrical_power_limit_w_total': 3000.0,
+              'erpm_limit': 100000.0,
+              'drivetrain_efficiency': 0.90,
+              'electrical_efficiency': 0.92,
+          }
+          config['scenarios'] = [
+              {
+                  'name': 'flat',
+                  'scenario_class': 'flat_cruise',
+                  'grade': 0.0,
+                  'target_speed_mps': 5.0,
+                  'acceleration_mps2': 0.0,
+                  'assumed_mu': 0.7,
+              },
+              {
+                  'name': 'climb',
+                  'scenario_class': 'grade_climb',
+                  'grade': 0.20,
+                  'target_speed_mps': 4.0,
+                  'acceleration_mps2': 0.2,
+                  'assumed_mu': 0.8,
+              },
+              {
+                  'name': 'launch',
+                  'scenario_class': 'low_speed_accel',
+                  'grade': 0.05,
+                  'target_speed_mps': 2.0,
+                  'acceleration_mps2': 0.5,
+                  'assumed_mu': 0.8,
+              },
+          ]
+          Path('/tmp/x1-powertrain-manifest.json').write_text(
+              json.dumps(manifest, indent=2) + '\n'
+          )
+          Path('/tmp/x1-powertrain-envelope.json').write_text(
+              json.dumps(config, indent=2) + '\n'
+          )
+          PY
+          python simulation/rev_c_powertrain_envelope.py             /tmp/x1-powertrain-envelope.json             --out /tmp/x1-powertrain-analysis.json
+          python simulation/rev_c_powertrain_envelope.py             /tmp/x1-powertrain-envelope.json             --sweep-pinions 13 15 17             --out /tmp/x1-powertrain-sweep.json
+          python tools/qualify_rev_c_powertrain_candidate.py             /tmp/x1-powertrain-manifest.json             --chassis-authority /tmp/x1-pt-chassis.json             --topology-authority /tmp/x1-pt-topology.json             --dummy-pack-authority /tmp/x1-pt-dummy.json             --out /tmp/x1-powertrain-authority.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          analysis = json.loads(Path('/tmp/x1-powertrain-analysis.json').read_text())
+          assert analysis['valid'] is True
+          assert analysis['all_scenarios_pass_declared_first_order_envelope'] is True
+          assert analysis['thermal_qualification'] is False
+          assert analysis['procurement_authority'] is False
+
+          sweep = json.loads(Path('/tmp/x1-powertrain-sweep.json').read_text())
+          assert sweep['valid'] is True
+          rows = {row['motor_gear_teeth']: row for row in sweep['pinion_results']}
+          r13 = next(x for x in rows[13]['scenario_results'] if x['name'] == 'climb')
+          r17 = next(x for x in rows[17]['scenario_results'] if x['name'] == 'climb')
+          assert r13['drivetrain']['ideal_phase_current_a_per_motor'] < r17['drivetrain']['ideal_phase_current_a_per_motor']
+          assert r13['speed_electrical']['erpm'] > r17['speed_electrical']['erpm']
+          assert r13['speed_electrical']['no_load_speed_nominal_mps'] < r17['speed_electrical']['no_load_speed_nominal_mps']
+          assert sweep['selection_made'] is False
+
+          report = json.loads(Path('/tmp/x1-powertrain-authority.json').read_text())
+          assert report['qualified'] is True
+          assert report['all_declared_scenarios_pass'] is True
+          assert report['thermal_qualification'] is False
+          assert report['physical_authority'] is False
+          assert report['procurement_authority'] is False
+          assert report['controller_configuration_authority'] is False
+          assert report['battery_configuration_authority'] is False
+          assert report['powered_operation_authorized'] is False
+          PY
       - name: Smoke-test Rev-C energy and charge-dock tools
         run: |
           python simulation/rev_c_energy_planner.py \
