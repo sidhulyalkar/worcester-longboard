@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "scope": "x1_cart_a_receiving_record",
+  "issue": 56,
+  "status": "DRAFT",
+  "receiving_id": "",
+  "received_at_utc": "",
+  "checkout_authority_fingerprint_sha256": "",
+  "checkout_id": "",
+  "items": [],
+  "notes": "",
+  "physical_qualification_authority": false,
+  "fabrication_authority": false,
+  "powered_operation_authorized": false,
+  "public_operation_authorized": false,
+  "dog_accompanied_operation_authorized": false
+}

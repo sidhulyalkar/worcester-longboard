@@ -57,6 +57,36 @@ The renderer consumes hardware/build_authority.json and hardware/procurement_man
 
 It deliberately refuses to run if the no-evidence state unexpectedly makes any non-BUY_NOW item orderable.
 
+## Fingerprint the actual checkout
+
+Issue #56 adds a private checkout/receiving evidence layer after the inventory is resolved.
+
+Before payment, initialize a checkout record:
+
+```bash
+python tools/init_x1_cart_a_checkout.py \
+  rider/private/physical_kickoff/cart_a_checkout.json \
+  --inventory rider/private/physical_kickoff/owned_inventory.json \
+  --checkout-id CART-A-2026-10-02-A
+```
+
+Set the record to `READY_TO_ORDER`, recheck stock/price, and validate it with:
+
+```bash
+python tools/validate_x1_cart_a_checkout.py \
+  rider/private/physical_kickoff/cart_a_checkout.json \
+  --inventory rider/private/physical_kickoff/owned_inventory.json \
+  --out rider/private/physical_kickoff/cart_a_checkout_authority.json
+```
+
+The private record cannot relax the public source-freshness policy. Current refreshed exact-source entries have a maximum seven-day age, require stock recheck, and require the public source snapshot to be refreshed if price or stock changes.
+
+After payment, record confirmation references, shipping/tax, and final total, switch to `ORDERED`, and validate again.
+
+When packages arrive, use `docs/x1_cart_a_checkout_receiving.md` to create the fingerprint-bound receiving record before Issue #4 assembly.
+
+This layer records what was actually bought and received. It does not qualify the sensor path.
+
 ## Current Cart A
 
 The no-inventory worst-case ceiling remains **$120.90 before tax/shipping**.
@@ -149,9 +179,11 @@ Day-0 is complete when:
 1. owned optional items are physically inventoried;
 2. the live Cart A packet has been rendered;
 3. only actually-needed Cart A items are ordered or positively accounted for;
-4. all three stance envelopes exist;
-5. zero-cost chassis trials can begin;
-6. every expensive and powered stage remains blocked.
+4. any placed order has a valid Issue #56 checkout record;
+5. received shipments are reconciled through Issue #56 before assembly;
+6. all three stance envelopes exist;
+7. zero-cost chassis trials can begin;
+8. every expensive and powered stage remains blocked.
 
 The next evidence milestones remain:
 

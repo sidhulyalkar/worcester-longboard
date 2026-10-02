@@ -112,6 +112,148 @@ jobs:
           assert '| DONOR-COMP95 | MEASURE_FIRST | BLOCKED |' in packet
           assert '| BATTERY-PRO-MODULAR | POWER_GATED | BLOCKED |' in packet
           PY
+      - name: Smoke-test Issue 56 Cart A checkout and receiving
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          inventory_path = Path('/tmp/x1-physical-kickoff/owned_inventory.json')
+          inventory = json.loads(inventory_path.read_text())
+          inventory['inventory_checked_at_utc'] = '2026-10-02T12:00:00-07:00'
+          for row in inventory['items']:
+              row.update({
+                  'status': 'NEED_BUY',
+                  'qty_owned_verified': 0,
+                  'exact_part_match': False,
+                  'unused_or_known_history': False,
+              })
+          inventory_path.write_text(json.dumps(inventory, indent=2) + '\n')
+          PY
+          python tools/init_x1_cart_a_checkout.py \
+            /tmp/x1-physical-kickoff/cart_a_checkout.json \
+            --inventory /tmp/x1-physical-kickoff/owned_inventory.json \
+            --checkout-id CI-CART-A
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('/tmp/x1-physical-kickoff/cart_a_checkout.json')
+          checkout = json.loads(path.read_text())
+          checkout['status'] = 'ORDERED'
+          checkout['checkout_at_utc'] = '2026-10-02T12:30:00-07:00'
+          for row in checkout['items']:
+              if row['resolution'] != 'ORDER':
+                  continue
+              row['stock_confirmed_at_checkout'] = True
+              if row['source_snapshot_required']:
+                  row['source_rechecked_at_checkout'] = True
+              if row['unit_price_usd'] is None:
+                  row['unit_price_usd'] = 1.0
+              row['order_confirmation_ref'] = 'ci-order-' + row['id']
+
+          merchandise = sum(
+              row['ordered_qty'] * float(row['unit_price_usd'])
+              for row in checkout['items']
+              if row['resolution'] == 'ORDER'
+          )
+          checkout['merchandise_total_usd'] = round(merchandise, 2)
+          checkout['shipping_usd'] = 5.0
+          checkout['tax_usd'] = 4.0
+          checkout['order_total_usd'] = round(merchandise + 9.0, 2)
+          path.write_text(json.dumps(checkout, indent=2) + '\n')
+          PY
+          python tools/validate_x1_cart_a_checkout.py \
+            /tmp/x1-physical-kickoff/cart_a_checkout.json \
+            --inventory /tmp/x1-physical-kickoff/owned_inventory.json \
+            --out /tmp/x1-physical-kickoff/cart_a_checkout_authority.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(
+              Path('/tmp/x1-physical-kickoff/cart_a_checkout_authority.json').read_text()
+          )
+          assert report['valid'] is True
+          assert report['checkout_ready'] is True
+          assert report['order_record_complete'] is True
+          assert report['checkout_within_existing_buy_now_authority'] is True
+          assert report['procurement_authority'] is False
+          assert report['physical_qualification_authority'] is False
+          assert report['powered_operation_authorized'] is False
+          assert 'DONOR-COMP95' not in report['ordered_item_ids']
+          assert 'BATTERY-PRO-MODULAR' not in report['ordered_item_ids']
+          PY
+          python tools/init_x1_cart_a_receiving.py \
+            /tmp/x1-physical-kickoff/cart_a_receiving.json \
+            --checkout /tmp/x1-physical-kickoff/cart_a_checkout.json \
+            --checkout-authority /tmp/x1-physical-kickoff/cart_a_checkout_authority.json \
+            --receiving-id CI-RECEIVE-A
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('/tmp/x1-physical-kickoff/cart_a_receiving.json')
+          receiving = json.loads(path.read_text())
+          receiving['status'] = 'COMPLETE'
+          receiving['received_at_utc'] = '2026-10-03T12:00:00-07:00'
+
+          def unit(hardware_id, role):
+              return {
+                  'hardware_id': hardware_id,
+                  'role': role,
+                  'exact_part_match': True,
+                  'visible_damage_observed': False,
+                  'packaging_and_markings_recorded': True,
+                  'condition_note': 'CI synthetic clean receipt.',
+              }
+
+          for row in receiving['items']:
+              row['qty_received'] = row['expected_qty']
+              row['package_sku_observed'] = row['expected_sku']
+              row['substitution_observed'] = False
+              row['visible_damage_observed'] = False
+              if row['id'] == 'LC-3135':
+                  row['hardware_units'] = [
+                      unit('LC-CI-A', 'PILOT_ACTIVE_CANDIDATE'),
+                      unit('LC-CI-SPARE', 'SPARE_UNTOUCHED'),
+                  ]
+              elif row['id'] == 'ADC-HX711':
+                  row['hardware_units'] = [
+                      unit('ADC-CI-A', 'PILOT_ACTIVE_CANDIDATE'),
+                      unit('ADC-CI-SPARE', 'SPARE_UNTOUCHED'),
+                  ]
+              elif row['id'] == 'MCU-ESP32S3':
+                  row['hardware_units'] = [
+                      unit('MCU-CI-A', 'PILOT_ACTIVE_CANDIDATE'),
+                  ]
+
+          path.write_text(json.dumps(receiving, indent=2) + '\n')
+          PY
+          python tools/validate_x1_cart_a_receiving.py \
+            /tmp/x1-physical-kickoff/cart_a_receiving.json \
+            --checkout /tmp/x1-physical-kickoff/cart_a_checkout.json \
+            --checkout-authority /tmp/x1-physical-kickoff/cart_a_checkout_authority.json \
+            --out /tmp/x1-physical-kickoff/cart_a_receiving_authority.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(
+              Path('/tmp/x1-physical-kickoff/cart_a_receiving_authority.json').read_text()
+          )
+          assert report['valid'] is True
+          assert report['receiving_complete'] is True
+          assert report['issue4_materials_accounted_for'] is True
+          assert report['physical_qualification_authority'] is False
+          assert report['fabrication_authority'] is False
+          assert report['powered_operation_authorized'] is False
+          assert set(report['tracked_hardware_item_ids_ready']) == {
+              'LC-3135',
+              'ADC-HX711',
+              'MCU-ESP32S3',
+          }
+          PY
       - name: Smoke-test Rev-C pre-purchase tools
         run: |
           python simulation/rev_c_mass_budget.py --configuration trail --chassis comp95

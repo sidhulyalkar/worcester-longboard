@@ -12,7 +12,11 @@
     "source_snapshot_as_of": "2026-10-01",
     "rev_c_chassis_release_gate": "rev_c_chassis_release_qualified",
     "instantiated_chassis_item_id": "DONOR-COMP95",
-    "source_snapshot_path": "hardware/order_sources_2026-10-01.json"
+    "source_snapshot_path": "hardware/order_sources_2026-10-01.json",
+    "cart_a_checkout_issue": 56,
+    "cart_a_refresh_scope_max_age_days": 7,
+    "cart_a_require_stock_recheck_at_checkout": true,
+    "cart_a_price_or_stock_change_requires_source_refresh": true
   },
   "items": [
     {

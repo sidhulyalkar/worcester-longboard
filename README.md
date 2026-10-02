@@ -46,6 +46,8 @@ The ordering stack is deliberately split by function:
 - `tools/render_procurement_packet.py` renders the currently authorized checkout packet;
 - `tools/render_physical_kickoff_packet.py` combines that authority with a private owned-item inventory while refusing to open non-BUY_NOW hardware;
 - `tools/init_x1_physical_kickoff.py` creates the one-command Issue #51 Day-0 workspace;
+- `tools/init_x1_cart_a_checkout.py` and `tools/validate_x1_cart_a_checkout.py` turn resolved private inventory into a source-fingerprinted Issue #56 checkout record without creating new procurement authority;
+- `tools/init_x1_cart_a_receiving.py` and `tools/validate_x1_cart_a_receiving.py` reconcile delivered Cart A hardware against that exact checkout and preserve stable active/spare hardware IDs;
 - `tools/validate_ordering_spec.py` detects source/price/compatibility drift against repository authority.
 
 The current complete Issue #4 convenience ceiling remains **$120.90 before shipping/tax**, and optional owned tools/materials should be skipped. Rev-C now holds the previously preferred Comp 95 + V5 chassis purchase until rider-scale deck comparison and wheel/brake/drive topology release conditions close. Standard Rockstar II hubs are not assumed to accept the optional T2 9-inch tire; the 9-inch path remains physically and compatibility gated.
@@ -365,6 +367,7 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 ## Current physical milestones
 
 - **#51** create the Day-0 private physical-kickoff workspace; orchestration only, no new authority
+- **#56** validate Cart A checkout freshness, order evidence, receiving condition, and stable hardware IDs
 - **#4** qualify one load-cell/HX711/pod zone before four-zone duplication
 - **#25** qualify Rev-C pre-purchase chassis release from deck/topology/inert-envelope evidence
 - **#2** build and qualify X1 Fit Rig v0.3

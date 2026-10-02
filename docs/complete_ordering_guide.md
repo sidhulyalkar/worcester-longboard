@@ -46,6 +46,36 @@ PYTHONPATH=. python tools/render_procurement_packet.py \
   --out rider/private/current_procurement_packet.md
 ```
 
+### Issue #56 checkout record
+
+Once `owned_inventory.json` is resolved, do not jump directly from the rendered packet to an undocumented order.
+
+Initialize:
+
+```bash
+python tools/init_x1_cart_a_checkout.py \
+  rider/private/physical_kickoff/cart_a_checkout.json \
+  --inventory rider/private/physical_kickoff/owned_inventory.json \
+  --checkout-id CART-A-2026-10-02-A
+```
+
+Before payment, make the record `READY_TO_ORDER`, recheck stock and actual price, and run `tools/validate_x1_cart_a_checkout.py`.
+
+Current public checkout policy requires:
+
+- refreshed exact-source entries no older than seven days;
+- stock rechecked at checkout;
+- public source snapshot refresh if the price or stock state changed;
+- every current BUY_NOW line resolved to order or physically verified owned stock;
+- no MEASURE_FIRST or POWER_GATED item in the checkout;
+- merchandise inside the BUY_NOW ceiling.
+
+After payment, record confirmation references, shipping/tax, final total, set `ORDERED`, and validate again.
+
+When shipments arrive, use `tools/init_x1_cart_a_receiving.py` and `tools/validate_x1_cart_a_receiving.py`. The receiving record is fingerprint-bound to the completed checkout, rejects unresolved substitutions/damage, and preserves one active plus one untouched spare for the load-cell and HX711 paths.
+
+Full procedure: `docs/x1_cart_a_checkout_receiving.md`.
+
 ## 1. Cart A: order now for Issue #4
 
 ### October 1 source refresh

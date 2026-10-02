@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "scope": "x1_cart_a_checkout_record",
+  "issue": 56,
+  "status": "DRAFT",
+  "checkout_id": "",
+  "checkout_at_utc": "",
+  "inventory_checked_at_utc": "",
+  "inventory_record_sha256": "",
+  "source_snapshot_path": "hardware/order_sources_2026-10-01.json",
+  "source_snapshot_as_of": "2026-10-01",
+  "source_snapshot_sha256": "",
+  "source_freshness_policy": {
+    "max_refresh_scope_age_days": 7,
+    "require_in_stock_for_refresh_scope": true,
+    "price_or_stock_change_requires_snapshot_refresh": true,
+    "authority_source": "hardware/procurement_manifest.json"
+  },
+  "items": [],
+  "shipping_usd": null,
+  "tax_usd": null,
+  "merchandise_total_usd": null,
+  "order_total_usd": null,
+  "notes": "",
+  "fabrication_authority": false,
+  "powered_operation_authorized": false,
+  "public_operation_authorized": false,
+  "dog_accompanied_operation_authorized": false
+}
