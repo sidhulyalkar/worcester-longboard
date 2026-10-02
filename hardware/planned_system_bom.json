@@ -11,7 +11,8 @@
     "final_power_freeze_requires_inert_dummy_pack_mount": true,
     "rev_c_requirements_path": "hardware/rev_c_requirements.json",
     "chassis_procurement_requires_rev_c_release": true,
-    "final_power_freeze_requires_environmental_inert_candidate": true
+    "final_power_freeze_requires_environmental_inert_candidate": true,
+    "future_powered_operation_requires_current_lifecycle_health_ready": true
   },
   "subsystems": [
     {
@@ -282,6 +283,23 @@
         "labeled harnesses and witness-marked structural fasteners"
       ],
       "authority": "Final fabrication inherits the qualified inert load path; live battery is never the first enclosure mechanical test mass."
+    },
+    {
+      "id": "LIFECYCLE-HEALTH",
+      "status": "PLAN_ONLY",
+      "freeze_gate": "rolling_chassis_physical_qualified",
+      "contents": [
+        "private component registry anchored to the rolling-chassis authority fingerprint",
+        "append-only preflight post-activity inspection service impact contamination fault and configuration-change events",
+        "cold tire-pressure measurement method appropriate to the selected tires",
+        "wheel/bearing play and free-spin inspection method",
+        "mechanical brake functional inspection",
+        "critical fastener witness-mark inspection",
+        "guard skid drain harness hose connector and enclosure inspection",
+        "manufacturer or qualified-X1 sourced service interval references where they actually exist",
+        "future telemetry counters such as odometer ride hours thermal and fault history when qualified"
+      ],
+      "authority": "Issue #41 tracks lifecycle health after the physical rolling chassis exists. READY_FOR_ALLOWED_ACTIVITY means maintenance-ready only for an activity independently authorized elsewhere; it cannot authorize powered, public, wet, or dog-accompanied operation."
     },
     {
       "id": "SPARES",

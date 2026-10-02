@@ -77,6 +77,7 @@ def test_public_repo_defaults_are_conservative():
     assert report["capabilities"]["public_operation"]["allowed"] is False
     assert report["capabilities"]["qualify_inert_trail_armor"]["allowed"] is False
     assert report["capabilities"]["qualify_environmental_inert_candidate"]["allowed"] is False
+    assert report["capabilities"]["establish_lifecycle_health_history"]["allowed"] is False
 
 
 def test_rev_c_blocks_measurement_chassis_procurement_until_release_conditions_close():
@@ -213,6 +214,25 @@ def test_topology_evidence_cannot_skip_brake_or_chassis():
     assert state["satisfied"] is False
     assert any("brake_interface_qualified" in x for x in state["blockers"])
     assert any("rolling_chassis_physical_qualified" in x for x in state["blockers"])
+
+
+def test_lifecycle_health_tracking_begins_only_after_rolling_chassis_qualification():
+    evidence = _all_physical_evidence()
+    report = evaluate(_plan(), _procurement(), evidence)
+    health = report["capabilities"]["establish_lifecycle_health_history"]
+    assert health["allowed"] is True
+
+    without_chassis = [
+        doc for doc in evidence
+        if doc.get("authority") != "x1_rolling_chassis_physical"
+    ]
+    report = evaluate(_plan(), _procurement(), without_chassis)
+    health = report["capabilities"]["establish_lifecycle_health_history"]
+    assert health["allowed"] is False
+    assert any(
+        "rolling_chassis_physical_qualified" in blocker
+        for blocker in health["blockers"]
+    )
 
 
 def test_inert_trail_armor_requires_topology_and_packaging_geometry():

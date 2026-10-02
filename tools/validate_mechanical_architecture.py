@@ -91,6 +91,12 @@ def validate(
             errors.append(f"{risk_id} must close at dummy_pack_mount_qualified")
     if risks.get("rules", {}).get("final_power_freeze_requires_dummy_pack_mount_authority") is not True:
         errors.append("risk rules must require dummy-pack authority before final power freeze")
+    if risk_map.get("M22", {}).get("must_close_before") != "future_powered_operation_authority":
+        errors.append("M22 must close before future powered-operation authority")
+    if risks.get("rules", {}).get("lifecycle_health_history_required_before_future_powered_operation") is not True:
+        errors.append(
+            "risk rules must require lifecycle-health history before future powered operation"
+        )
 
     # Donor-grounded reference must reflect the selected Comp 95 family while
     # remaining explicitly catalog-derived until the received board is measured.
@@ -151,6 +157,31 @@ def validate(
         if not {"power_packaging_candidate_defined", "rolling_chassis_physical_qualified"}.issubset(required):
             errors.append("dummy-pack mount gate lacks candidate/chassis prerequisites")
 
+    environmental = gates.get("environmental_inert_candidate_qualified")
+    if not isinstance(environmental, dict):
+        errors.append("build authority lacks environmental_inert_candidate_qualified gate")
+    else:
+        if environmental.get("issue") != 39:
+            errors.append("environmental gate must point to Issue #39")
+        required = set(environmental.get("requires", []))
+        if "dummy_pack_mount_qualified" not in required:
+            errors.append("environmental candidate must require dummy-pack authority")
+
+    lifecycle_capability = build.get("capabilities", {}).get(
+        "establish_lifecycle_health_history"
+    )
+    if not isinstance(lifecycle_capability, dict):
+        errors.append("build authority lacks establish_lifecycle_health_history capability")
+    else:
+        if lifecycle_capability.get("issue") != 41:
+            errors.append("lifecycle-health capability must point to Issue #41")
+        if "rolling_chassis_physical_qualified" not in set(
+            lifecycle_capability.get("requires", [])
+        ):
+            errors.append(
+                "lifecycle-health capability must require rolling-chassis authority"
+            )
+
     power = gates.get("power_architecture_frozen", {})
     required_power = set(power.get("requires", []))
     if "brake_drive_topology_qualified" not in required_power:
@@ -159,6 +190,10 @@ def validate(
         errors.append("power architecture can freeze without inert dummy-pack mount authority")
     if "rev_b_template_qualified" not in required_power:
         errors.append("power architecture can freeze without Rev-B template authority")
+    if "environmental_inert_candidate_qualified" not in required_power:
+        errors.append(
+            "power architecture can freeze without inert environmental candidate"
+        )
 
     subsystems = {x.get("id"): x for x in planned_bom.get("subsystems", []) if isinstance(x, dict)}
     release_subsystem = subsystems.get("REV-C-CHASSIS-RELEASE")
@@ -180,6 +215,53 @@ def validate(
         errors.append("planned BOM must preserve explicit DUMMY-PACK-MOUNT subsystem")
     if planned_bom.get("rules", {}).get("final_power_freeze_requires_inert_dummy_pack_mount") is not True:
         errors.append("planned BOM must require inert dummy-pack mount before final power freeze")
+
+    environmental_subsystem = subsystems.get("ENVIRONMENTAL-DURABILITY")
+    if (
+        not environmental_subsystem
+        or environmental_subsystem.get("freeze_gate")
+        != "environmental_inert_candidate_qualified"
+    ):
+        errors.append(
+            "planned BOM must preserve explicit ENVIRONMENTAL-DURABILITY subsystem"
+        )
+    if (
+        planned_bom.get("rules", {}).get(
+            "final_power_freeze_requires_environmental_inert_candidate"
+        )
+        is not True
+    ):
+        errors.append(
+            "planned BOM must require environmental candidate before final power freeze"
+        )
+
+    lifecycle_subsystem = subsystems.get("LIFECYCLE-HEALTH")
+    if (
+        not lifecycle_subsystem
+        or lifecycle_subsystem.get("freeze_gate")
+        != "rolling_chassis_physical_qualified"
+    ):
+        errors.append("planned BOM must preserve explicit LIFECYCLE-HEALTH subsystem")
+    else:
+        lifecycle_authority = str(lifecycle_subsystem.get("authority", ""))
+        for phrase in (
+            "Issue #41",
+            "READY_FOR_ALLOWED_ACTIVITY",
+            "cannot authorize powered",
+        ):
+            if phrase not in lifecycle_authority:
+                errors.append(
+                    f"LIFECYCLE-HEALTH authority must preserve boundary: {phrase}"
+                )
+    if (
+        planned_bom.get("rules", {}).get(
+            "future_powered_operation_requires_current_lifecycle_health_ready"
+        )
+        is not True
+    ):
+        errors.append(
+            "planned BOM must require current lifecycle health before future powered operation"
+        )
 
     for sid in ("DRIVE", "MOTOR-CONTROL", "TRACTION-BATTERY"):
         item = subsystems.get(sid)

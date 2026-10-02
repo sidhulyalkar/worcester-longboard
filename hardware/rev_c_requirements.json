@@ -502,5 +502,42 @@
     ],
     "must_close_before": "power_architecture_frozen",
     "powered_operation_authorized": false
+  },
+  "lifecycle_health_program": {
+    "issue": 41,
+    "phase": "START_AFTER_ROLLING_CHASSIS_AND_CONTINUE_FOR_VEHICLE_LIFE",
+    "snapshot": "hardware/rev_c_lifecycle_health_snapshot_2026-10-01.json",
+    "component_registry_template": "hardware/x1_component_registry_template.json",
+    "event_template": "hardware/x1_health_event_template.json",
+    "protocol": "docs/rev_c_lifecycle_health.md",
+    "workspace_initializer": "tools/init_x1_lifecycle_health.py",
+    "event_generator": "tools/new_x1_health_event.py",
+    "evaluator": "tools/evaluate_x1_lifecycle_health.py",
+    "upstream_anchor": "fingerprinted x1_rolling_chassis_physical authority",
+    "health_states": [
+      "READY_FOR_ALLOWED_ACTIVITY",
+      "INSPECTION_REQUIRED",
+      "SERVICE_REQUIRED",
+      "STOP_USE"
+    ],
+    "policies": [
+      "append-only event history rather than rewriting prior inspections",
+      "component replacement creates explicit configuration lineage",
+      "missing required preflight checks fail closed",
+      "open STOP findings require explicit inspection/service closure and a fresh preflight",
+      "no fixed mileage hour or calendar service interval without an accepted source",
+      "condition and impact events can require service before any sourced interval",
+      "future powered commissioning must require a fresh READY_FOR_ALLOWED_ACTIVITY state on the current configuration in addition to all other authorities"
+    ],
+    "hard_boundaries": [
+      "health state never authorizes powered operation",
+      "health state never authorizes public operation",
+      "health state never authorizes dog-accompanied operation",
+      "health state never overrides blocked build authority",
+      "manufacturer maintenance requirements cannot be weakened by project policy"
+    ],
+    "powered_operation_authorized": false,
+    "public_operation_authorized": false,
+    "dog_accompanied_operation_authorized": false
   }
 }

@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-01",
+  "scope": "rev_c_lifecycle_health_reference_snapshot",
+  "authority": "REFERENCE_ONLY",
+  "issue": 41,
+  "objective": "Maintain a longitudinal, configuration-specific record of X1 inspection, wear, service, contamination, impact, and future telemetry-triggered findings without allowing maintenance state to substitute for build or operating authority.",
+  "health_states": [
+    {
+      "state": "READY_FOR_ALLOWED_ACTIVITY",
+      "meaning": "No unresolved inspect/service/stop findings are present and the latest applicable preflight is complete.",
+      "authorization_effect": "NONE"
+    },
+    {
+      "state": "INSPECTION_REQUIRED",
+      "meaning": "At least one unresolved condition requires inspection before the next activity.",
+      "authorization_effect": "NONE"
+    },
+    {
+      "state": "SERVICE_REQUIRED",
+      "meaning": "At least one unresolved condition requires corrective service before the next activity.",
+      "authorization_effect": "NONE"
+    },
+    {
+      "state": "STOP_USE",
+      "meaning": "At least one unresolved stop-use finding exists; no further ride/test activity should proceed until repaired and explicitly closed.",
+      "authorization_effect": "NONE"
+    }
+  ],
+  "finding_severity_order": [
+    "INFO",
+    "INSPECT",
+    "SERVICE",
+    "STOP"
+  ],
+  "event_types": [
+    "BASELINE",
+    "PREFLIGHT",
+    "POST_ACTIVITY",
+    "INSPECTION",
+    "SERVICE",
+    "COMPONENT_REPLACEMENT",
+    "CONTAMINATION_EXPOSURE",
+    "IMPACT",
+    "FAULT",
+    "CONFIGURATION_CHANGE"
+  ],
+  "required_preflight_checks": [
+    "tire_pressure_and_visible_condition",
+    "wheel_retention_and_axial_play",
+    "bearing_spin_noise_and_play",
+    "mechanical_brake_function",
+    "steering_return_and_free_motion",
+    "critical_witness_marks",
+    "deck_truck_mount_condition",
+    "rider_interface_retention_and_stepoff",
+    "guard_skid_retention_and_clearance",
+    "drainage_and_contamination_paths",
+    "harness_hose_and_connector_condition"
+  ],
+  "conditional_preflight_checks": [
+    {
+      "check_id": "remote_deadman_function",
+      "applies_when_component_role_present": "traction_remote"
+    },
+    {
+      "check_id": "traction_enclosure_retention_and_service_disconnect",
+      "applies_when_component_role_present": "traction_battery_system"
+    },
+    {
+      "check_id": "lights_and_reflective_visibility",
+      "applies_when_activity_declares_required": true
+    }
+  ],
+  "automatic_event_escalations": [
+    {
+      "trigger": "critical_witness_mark_movement",
+      "minimum_severity": "STOP",
+      "rationale": "Movement at a critical retention joint requires mechanism investigation before continued use."
+    },
+    {
+      "trigger": "wheel_retention_change_or_new_axial_play",
+      "minimum_severity": "STOP",
+      "rationale": "Wheel retention uncertainty can cause sudden component separation."
+    },
+    {
+      "trigger": "new_structural_crack_or_permanent_deformation",
+      "minimum_severity": "STOP",
+      "rationale": "Structural damage requires explicit inspection/repair before reuse."
+    },
+    {
+      "trigger": "brake_unavailable_or_materially_degraded",
+      "minimum_severity": "STOP",
+      "rationale": "Independent friction braking is a hard system requirement."
+    },
+    {
+      "trigger": "steering_binding_or_uncommanded_interference",
+      "minimum_severity": "STOP",
+      "rationale": "Steering interference can cause loss of control."
+    },
+    {
+      "trigger": "protected_zone_moisture_or_ingress",
+      "minimum_severity": "SERVICE",
+      "rationale": "Ingress requires drying, inspection, and root-cause correction before continued use."
+    },
+    {
+      "trigger": "harness_or_hose_chafe",
+      "minimum_severity": "SERVICE",
+      "rationale": "Abrasion can progress into electrical or brake failure."
+    },
+    {
+      "trigger": "bearing_play_noise_or_roughness_increase",
+      "minimum_severity": "INSPECT",
+      "rationale": "Bearing condition change should be inspected before the next allowed activity."
+    },
+    {
+      "trigger": "unexpected_tire_pressure_loss",
+      "minimum_severity": "INSPECT",
+      "rationale": "Pressure loss can indicate puncture, valve, tube, bead, or measurement problems."
+    },
+    {
+      "trigger": "significant_impact_or_crash",
+      "minimum_severity": "INSPECT",
+      "rationale": "Impact can create hidden retention, alignment, or structural damage."
+    }
+  ],
+  "service_interval_policy": {
+    "project_default_fixed_intervals": false,
+    "rule": "Do not invent mileage, hour, calendar, torque, replacement, or lubrication intervals before the selected component manufacturer or a later qualified X1 physical program provides them.",
+    "accepted_sources": [
+      "selected_component_manufacturer",
+      "selected_system_integrator_or_battery_builder",
+      "qualified_x1_physical_evidence"
+    ],
+    "due_rule": "When multiple sourced limits exist, the earliest applicable condition wins. Event/condition findings can require service sooner than any interval."
+  },
+  "chronology_rules": [
+    "event timestamps must be unique and strictly increasing after sorting by timestamp",
+    "odometer cannot decrease when present",
+    "ride hours cannot decrease when present",
+    "event IDs are unique",
+    "component IDs referenced by events must exist in the current registry or be introduced by the same configuration-change event",
+    "configuration changes must be explicit rather than silently rewriting history"
+  ],
+  "privacy_and_storage": {
+    "public_repository": "schemas, tools, reference rules, synthetic tests",
+    "private_workspace": "board identifiers, serials, exact ride history, maintenance notes, measurements, photos and future telemetry"
+  },
+  "hard_boundaries": [
+    "health state never authorizes powered operation",
+    "health state never authorizes public operation",
+    "health state never authorizes dog-accompanied operation",
+    "health state never overrides a blocked build-authority gate",
+    "READY_FOR_ALLOWED_ACTIVITY means ready only for an activity independently permitted elsewhere",
+    "missing required preflight checks cannot produce READY_FOR_ALLOWED_ACTIVITY",
+    "open STOP findings cannot be downgraded by a later preflight without an explicit closure/service event",
+    "manufacturer service requirements cannot be weakened by this project"
+  ],
+  "powered_operation_authorized": false,
+  "public_operation_authorized": false,
+  "dog_accompanied_operation_authorized": false
+}
