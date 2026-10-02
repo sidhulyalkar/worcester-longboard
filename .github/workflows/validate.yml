@@ -445,7 +445,8 @@ jobs:
           ]
           path.write_text(json.dumps(registry, indent=2) + '\n')
           PY
-          python tools/new_x1_health_event.py             /tmp/x1-health/component_registry.json             /tmp/x1-health/events/0001-preflight.json             --event-id PREFLIGHT-CI-1             --timestamp-utc 2026-10-01T12:10:00Z             --event-type PREFLIGHT             --activity-type UNPOWERED_CONTROLLED_TEST
+          python tools/new_x1_health_event.py             /tmp/x1-health/component_registry.json             /tmp/x1-health/events/0001-baseline.json             --event-id BASELINE-CI-1             --timestamp-utc 2026-10-01T12:01:00Z             --event-type BASELINE             --activity-type UNPOWERED_BASELINE
+          python tools/new_x1_health_event.py             /tmp/x1-health/component_registry.json             /tmp/x1-health/events/0002-preflight.json             --event-id PREFLIGHT-CI-1             --timestamp-utc 2026-10-01T12:10:00Z             --event-type PREFLIGHT             --activity-type UNPOWERED_CONTROLLED_TEST
           python - <<'PY'
           import json
           from pathlib import Path
@@ -453,7 +454,7 @@ jobs:
           snapshot = json.loads(
               Path('hardware/rev_c_lifecycle_health_snapshot_2026-10-01.json').read_text()
           )
-          path = Path('/tmp/x1-health/events/0001-preflight.json')
+          path = Path('/tmp/x1-health/events/0002-preflight.json')
           event = json.loads(path.read_text())
           for check in event['checks'].values():
               check['status'] = 'NA'
@@ -463,23 +464,25 @@ jobs:
           event['ride_hours'] = 0.0
           path.write_text(json.dumps(event, indent=2) + '\n')
           PY
-          python tools/evaluate_x1_lifecycle_health.py             /tmp/x1-health/component_registry.json             --rolling-chassis-authority /tmp/x1-health-chassis.json             --event /tmp/x1-health/events/0001-preflight.json             --out /tmp/x1-health/health-ready.json
+          python tools/evaluate_x1_lifecycle_health.py             /tmp/x1-health/component_registry.json             --rolling-chassis-authority /tmp/x1-health-chassis.json             --event /tmp/x1-health/events/0001-baseline.json             --event /tmp/x1-health/events/0002-preflight.json             --out /tmp/x1-health/health-ready.json
           python - <<'PY'
           import json
           from pathlib import Path
           report = json.loads(Path('/tmp/x1-health/health-ready.json').read_text())
           assert report['valid'] is True
           assert report['health_state'] == 'READY_FOR_ALLOWED_ACTIVITY'
+          assert report['baseline_recorded'] is True
+          assert report['baseline_event_id'] == 'BASELINE-CI-1'
           assert report['ready_for_allowed_activity'] is True
           assert report['powered_operation_authorized'] is False
           assert report['public_operation_authorized'] is False
           assert report['dog_accompanied_operation_authorized'] is False
           PY
-          python tools/new_x1_health_event.py             /tmp/x1-health/component_registry.json             /tmp/x1-health/events/0002-impact.json             --event-id IMPACT-CI-1             --timestamp-utc 2026-10-01T12:20:00Z             --event-type IMPACT             --activity-type UNPOWERED_CONTROLLED_TEST
+          python tools/new_x1_health_event.py             /tmp/x1-health/component_registry.json             /tmp/x1-health/events/0003-impact.json             --event-id IMPACT-CI-1             --timestamp-utc 2026-10-01T12:20:00Z             --event-type IMPACT             --activity-type UNPOWERED_CONTROLLED_TEST
           python - <<'PY'
           import json
           from pathlib import Path
-          path = Path('/tmp/x1-health/events/0002-impact.json')
+          path = Path('/tmp/x1-health/events/0003-impact.json')
           event = json.loads(path.read_text())
           event['odometer_km'] = 0.1
           event['ride_hours'] = 0.05
@@ -497,7 +500,7 @@ jobs:
           ]
           path.write_text(json.dumps(event, indent=2) + '\n')
           PY
-          python tools/evaluate_x1_lifecycle_health.py             /tmp/x1-health/component_registry.json             --rolling-chassis-authority /tmp/x1-health-chassis.json             --event /tmp/x1-health/events/0001-preflight.json             --event /tmp/x1-health/events/0002-impact.json             --out /tmp/x1-health/health-stop.json
+          python tools/evaluate_x1_lifecycle_health.py             /tmp/x1-health/component_registry.json             --rolling-chassis-authority /tmp/x1-health-chassis.json             --event /tmp/x1-health/events/0001-baseline.json             --event /tmp/x1-health/events/0002-preflight.json             --event /tmp/x1-health/events/0003-impact.json             --out /tmp/x1-health/health-stop.json
           python - <<'PY'
           import json
           from pathlib import Path
