@@ -152,6 +152,55 @@
       "heel_ramp",
       "toe_ramp",
       "interface_compliance"
+    ],
+    "chassis_reference": {
+      "source": "cad/rolling_chassis_geometry.py",
+      "evidence_state": "REFERENCE_WITH_PROVISIONAL_Z_VALUES",
+      "deck_length_mm": 950,
+      "deck_width_mm": 251,
+      "deck_reference_thickness_mm": 16,
+      "wheelbase_mm": 940,
+      "wheel_diameter_mm": 194,
+      "wheel_width_mm": 51,
+      "wheel_center_lateral_mm": 175,
+      "estimated_outer_wheel_envelope_width_mm": 401,
+      "truck_total_width_mm": 400,
+      "max_steer_deg": 22,
+      "static_ground_clearance_mm": 65,
+      "minimum_compressed_clearance_mm": 45,
+      "note": "Published donor dimensions plus provisional packaging Z values. Received-unit measurements supersede this reference."
+    },
+    "topology_branches": [
+      {
+        "id": "brake_first_400mm",
+        "short_label": "Brake-first 400",
+        "label": "400 mm / 50 mm axle brake-first reference",
+        "truck_total_width_mm": 400,
+        "wheel_center_lateral_mm": 175,
+        "brake_reference_compatible": true,
+        "drive_reference_compatible": false,
+        "evidence_state": "REFERENCE"
+      },
+      {
+        "id": "drive_clearance_420mm",
+        "short_label": "Drive 420",
+        "label": "420 mm / 70 mm axle drive-clearance reference",
+        "truck_total_width_mm": 420,
+        "wheel_center_lateral_mm": 175,
+        "brake_reference_compatible": false,
+        "drive_reference_compatible": true,
+        "evidence_state": "REFERENCE"
+      },
+      {
+        "id": "brake_hanger_70mm_topology_study",
+        "short_label": "440 study",
+        "label": "300 mm hanger + 70 mm axle topology study",
+        "truck_total_width_mm": 440,
+        "wheel_center_lateral_mm": 185,
+        "brake_reference_compatible": "UNKNOWN_AFTER_AXLE_SWAP",
+        "drive_reference_compatible": true,
+        "evidence_state": "ASSUMED"
+      }
     ]
   }
 }
