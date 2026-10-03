@@ -117,5 +117,41 @@
       },
       "context_gates": []
     }
-  ]
+  ],
+  "design_studies": {
+    "deck_candidates": [
+      {
+        "id": "comp95",
+        "label": "Comp 95 envelope",
+        "length_mm": 950,
+        "width_mm": 251,
+        "evidence_state": "REFERENCE",
+        "source": "cad/generate_rev_c_deck_templates.py"
+      },
+      {
+        "id": "pro_warren_iii",
+        "label": "Pro Warren III envelope",
+        "length_mm": 980,
+        "width_mm": 244,
+        "evidence_state": "REFERENCE",
+        "source": "cad/generate_rev_c_deck_templates.py"
+      },
+      {
+        "id": "agent",
+        "label": "Agent envelope",
+        "length_mm": 1020,
+        "width_mm": 284,
+        "evidence_state": "REFERENCE",
+        "source": "cad/generate_rev_c_deck_templates.py"
+      }
+    ],
+    "snowdeck_variables": [
+      "fore_aft_position",
+      "yaw",
+      "cant",
+      "heel_ramp",
+      "toe_ramp",
+      "interface_compliance"
+    ]
+  }
 }
