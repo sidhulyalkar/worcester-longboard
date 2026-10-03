@@ -255,7 +255,13 @@ dog_accompanied_operation_authorized = false
 
 ## 10. What happens next
 
-Only after receiving inspection should the active pilot path move into Issue #4:
+Only after receiving inspection should the hardware move into **Issue #59 selection**, then Issue #4. Receiving proves what arrived; it does not choose or qualify the sensor path.
+
+Follow `docs/x1_fit_pilot_hardware_provenance.md`.
+
+For ordered/received evidence hardware, Issue #59 must bind the stable IDs carrying `PILOT_ACTIVE_CANDIDATE` and `SPARE_UNTOUCHED` roles into a fingerprinted `x1_fit_pilot_hardware_selection` authority.
+
+Only after that selection authority passes should the active pilot path move into Issue #4:
 
 1. confirm the received load-cell geometry;
 2. confirm fixed versus loaded end;
@@ -268,6 +274,6 @@ Only after receiving inspection should the active pilot path move into Issue #4:
 
 Receipt evidence proves identity and condition at delivery.
 
-Issue #4 proves whether the assembled sensor path actually performs.
+Issue #4 proves whether the **Issue #59-selected** assembled sensor path actually performs. If the active load cell or HX711 changes, do not reuse the old calibration session; create a new selection authority and a new Issue #4 session.
 
 Those are intentionally different authorities.
