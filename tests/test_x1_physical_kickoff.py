@@ -31,8 +31,10 @@ def _item(inventory, item_id):
 def test_public_kickoff_keeps_expensive_hardware_blocked():
     text = render(_plan(), _procurement(), _inventory())
 
+    assert "Required exact Issue #4 evidence hardware: **$23.90**" in text
+    assert "Optional-if-owned tools/materials ceiling: **$97.00**" in text
+    assert "No-inventory worst-case Cart A total: **$120.90**" in text
     assert "Current maximum remaining checkout" in text
-    assert "$120.90" in text
     assert "chassis/brake MEASURE_FIRST purchase: **BLOCKED**" in text
     assert "power ordering: **BLOCKED**" in text
     assert "powered operation: **BLOCKED**" in text
@@ -155,7 +157,8 @@ def test_initializer_creates_full_private_kickoff_workspace(tmp_path: Path):
     assert len(svgs) == 3
 
     packet = (workspace / "DAY0_KICKOFF.md").read_text()
-    assert "$120.90" in packet
+    assert "Required exact Issue #4 evidence hardware: **$23.90**" in packet
+    assert "No-inventory worst-case Cart A total: **$120.90**" in packet
     assert "MEASURE_FIRST purchase: **BLOCKED**" in packet
 
     next_steps = (workspace / "NEXT_STEPS.md").read_text()
