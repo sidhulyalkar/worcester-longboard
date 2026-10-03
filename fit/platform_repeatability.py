@@ -295,10 +295,20 @@ def qualify(manifest: dict, one_zone_authority: dict, base: Path) -> dict:
     if not isinstance(pad, dict):
         failures.append("zone_pad must be an object")
         pad = {}
-    if not math.isclose(float(pad.get("length_mm", -1)), PAD_LENGTH_MM, abs_tol=1e-9):
-        failures.append("zone_pad.length_mm must match 105 mm pilot pad")
-    if not math.isclose(float(pad.get("width_mm", -1)), PAD_WIDTH_MM, abs_tol=1e-9):
-        failures.append("zone_pad.width_mm must match 78 mm pilot pad")
+    for key, expected in (
+        ("length_mm", PAD_LENGTH_MM),
+        ("width_mm", PAD_WIDTH_MM),
+    ):
+        value = pad.get(key)
+        if (
+            not isinstance(value, (int, float))
+            or isinstance(value, bool)
+            or not math.isfinite(float(value))
+            or not math.isclose(float(value), expected, abs_tol=1e-9)
+        ):
+            failures.append(
+                f"zone_pad.{key} must match {expected:g} mm pilot pad"
+            )
 
     interface = manifest.get("load_interface")
     if not isinstance(interface, dict):
