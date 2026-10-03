@@ -336,6 +336,26 @@
       "authority": "Buy spares only after the installed revision/size is known"
     },
     {
+      "id": "TELEMETRY-FLIGHT-RECORDER",
+      "status": "PLAN_ONLY",
+      "issues": [
+        47,
+        49
+      ],
+      "procurement_authority": false,
+      "contents": [
+        "canonical control electrical/drivetrain motion and thermal signal registry",
+        "separate fault/event log",
+        "explicit clock/source IDs and affine synchronization evidence",
+        "asynchronous non-blocking logger implementation",
+        "private raw storage with SHA-256 sealing",
+        "session validator for sequence timestamp gap provenance hash and overlap integrity",
+        "commissioning replay that emits traceable measurement evidence",
+        "future bridge to lifecycle and range-calibration logic"
+      ],
+      "authority": "Telemetry validity is evidence quality only. Logging must not become a real-time control dependency, and synthetic fixtures are not eligible as physical commissioning evidence."
+    },
+    {
       "id": "POWERED-COMMISSIONING",
       "status": "PLAN_ONLY",
       "freeze_gate": "power_architecture_frozen",
