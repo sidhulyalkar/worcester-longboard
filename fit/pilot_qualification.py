@@ -324,6 +324,19 @@ def _validate_mass_links(
     mass_provenance: dict,
 ) -> list[str]:
     failures: list[str] = []
+
+    def same_numeric(value, expected, tolerance):
+        return (
+            isinstance(value, (int, float))
+            and not isinstance(value, bool)
+            and math.isfinite(float(value))
+            and math.isclose(
+                float(value),
+                float(expected),
+                rel_tol=0.0,
+                abs_tol=tolerance,
+            )
+        )
     entries = mass_provenance.get("_entries_by_id", {})
     used_calibration_ids: set[str] = set()
     used_validation_ids: set[str] = set()
@@ -351,18 +364,12 @@ def _validate_mass_links(
             continue
         if entry["role"] != "CALIBRATION":
             failures.append(f"observation {mass_id} must reference CALIBRATION mass")
-        if not math.isclose(
-            float(item.get("mass_kg", float("nan"))),
-            entry["mass_kg"],
-            rel_tol=0.0,
-            abs_tol=1e-9,
-        ):
+        if not same_numeric(item.get("mass_kg"), entry["mass_kg"], 1e-9):
             failures.append(f"observation {mass_id} mass differs from authority")
-        if not math.isclose(
-            float(item.get("mass_uncertainty_kg", float("nan"))),
+        if not same_numeric(
+            item.get("mass_uncertainty_kg"),
             entry["uncertainty_kg"],
-            rel_tol=0.0,
-            abs_tol=1e-12,
+            1e-12,
         ):
             failures.append(
                 f"observation {mass_id} uncertainty differs from authority"
@@ -382,18 +389,12 @@ def _validate_mass_links(
             continue
         if entry["role"] != "VALIDATION":
             failures.append(f"validation {mass_id} must reference VALIDATION mass")
-        if not math.isclose(
-            float(item.get("mass_kg", float("nan"))),
-            entry["mass_kg"],
-            rel_tol=0.0,
-            abs_tol=1e-9,
-        ):
+        if not same_numeric(item.get("mass_kg"), entry["mass_kg"], 1e-9):
             failures.append(f"validation {mass_id} mass differs from authority")
-        if not math.isclose(
-            float(item.get("mass_uncertainty_kg", float("nan"))),
+        if not same_numeric(
+            item.get("mass_uncertainty_kg"),
             entry["uncertainty_kg"],
-            rel_tol=0.0,
-            abs_tol=1e-12,
+            1e-12,
         ):
             failures.append(
                 f"validation {mass_id} uncertainty differs from authority"
