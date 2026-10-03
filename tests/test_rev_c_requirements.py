@@ -484,3 +484,31 @@ def test_issue_59_requires_new_session_when_active_evidence_hardware_changes():
         "Issue #4 qualification must preserve the exact Issue #59 selection fingerprint"
         in boundaries
     )
+
+
+def test_issue_61_mass_reference_program_precedes_issue4_session():
+    program = _requirements()["fit_pilot_mass_reference_program"]
+    assert program["issue"] == 61
+    assert program["phase"] == "POST_ISSUE59_PRE_ISSUE4_SESSION"
+    assert program["screening_policy"]["hard_max_mass_kg"] == 20.0
+    assert program["screening_policy"]["minimum_calibration_mass_count"] == 3
+    assert program["screening_policy"]["validation_mass_count"] == 1
+    assert program["screening_policy"]["max_relative_reference_uncertainty"] == 0.005
+    assert program["powered_operation_authorized"] is False
+    assert program["four_zone_duplication_authorized"] is False
+
+
+def test_issue_61_forbids_nominal_labels_and_propagates_uncertainty():
+    program = _requirements()["fit_pilot_mass_reference_program"]
+    assert (
+        "nominal gym plate or object label alone is not mass authority"
+        in program["hard_boundaries"]
+    )
+    assert (
+        "changing any mass value uncertainty or evidence requires a new Issue #61 authority and new Issue #4 session"
+        in program["hard_boundaries"]
+    )
+    assert any(
+        "validation-reference uncertainty" in item
+        for item in program["uncertainty_propagation"]
+    )
