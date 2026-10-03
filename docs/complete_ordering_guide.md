@@ -217,7 +217,7 @@ You need only the one-zone carrier, pod, zone pad, reference cell and alignment-
 
 For this low-load bench fixture, printed prototype parts may be used only if they are rigid, undamaged and positively fastened. If you outsource printing/machining, send the generated STL/STEP files rather than redrawing the geometry from screenshots.
 
-Do not fabricate the other three sensor pods until Issue #4 qualifies.
+Do not fabricate the other three sensor pods until Issue #4 qualifies **and Issue #63 confirms off-axis platform repeatability on that exact one-zone assembly**.
 
 ## 3. Calibration-mass evidence before assembly day
 
@@ -353,7 +353,7 @@ At snapshot prices, even the inexpensive FiveStar route pushes the example wheel
 
 The correct default is therefore simple: **use the donor's complete 8-inch wheelset first.**
 
-## 7. Cart C: four-zone sensing after Issue #4 passes
+## 7. Cart C: four-zone sensing after Issue #4 + Issue #63 pass
 
 Do not place this order now.
 
@@ -463,7 +463,7 @@ A storefront description is evidence about what was sold. The received physical 
 3. monitor chassis availability only as market information, not purchase authority;
 4. do not buy chassis, brake, standalone trucks/hubs, wheel upgrades, drivetrain, motors, ESC, battery, charger, or charge-dock electrical parts.
 
-**After Issue #4 passes:**
+**After Issue #4 passes:** run Issue #63 on the exact same one-zone assembly before duplicating four zones.
 
 1. complete the Rev-C full-scale deck comparison;
 2. run the front-vs-rear traction sweep and four-branch pre-purchase topology trade;
@@ -471,7 +471,7 @@ A storefront description is evidence about what was sold. The received physical 
 4. close Issue #25 and emit the chained `x1_rev_c_chassis_release` authority;
 5. regenerate the procurement packet with the Issue #4 + Issue #25 evidence files;
 6. only then place the released chassis/brake measurement order;
-7. complete the four-zone sensing rig and qualify rider fit;
+7. after Issue #63 passes, complete the four-zone sensing rig and qualify rider fit;
 8. physically qualify the brake and unpowered chassis;
 9. resolve final Issue #19 brake/drive topology;
 10. only then continue toward the power freeze;
