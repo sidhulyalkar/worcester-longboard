@@ -16,9 +16,14 @@
       "id": "deck_reference",
       "label": "Deck / chassis envelope",
       "evidence_state": "REFERENCE",
-      "authority_gate": "rev_c_chassis_release_qualified",
+      "authority_gate": "rolling_chassis_physical_qualified",
       "source": "cad/rolling_chassis_geometry.py",
-      "render": {"kind": "deck"}
+      "render": {
+        "kind": "deck"
+      },
+      "context_gates": [
+        "rev_c_chassis_release_qualified"
+      ]
     },
     {
       "id": "matrix_trucks",
@@ -26,7 +31,12 @@
       "evidence_state": "REFERENCE",
       "authority_gate": "rolling_chassis_physical_qualified",
       "source": "cad/rolling_chassis_geometry.py",
-      "render": {"kind": "trucks"}
+      "render": {
+        "kind": "trucks"
+      },
+      "context_gates": [
+        "rev_c_chassis_release_qualified"
+      ]
     },
     {
       "id": "t1_wheels",
@@ -34,7 +44,12 @@
       "evidence_state": "REFERENCE",
       "authority_gate": "rolling_chassis_physical_qualified",
       "source": "cad/rolling_chassis_geometry.py",
-      "render": {"kind": "wheels"}
+      "render": {
+        "kind": "wheels"
+      },
+      "context_gates": [
+        "rev_c_chassis_release_qualified"
+      ]
     },
     {
       "id": "v5_brake",
@@ -42,31 +57,54 @@
       "evidence_state": "BLOCKED",
       "authority_gate": "brake_interface_qualified",
       "source": "docs/mechanical_architecture_review.md",
-      "render": {"kind": "brake"}
+      "render": {
+        "kind": "brake"
+      },
+      "context_gates": [
+        "rev_c_chassis_release_qualified"
+      ]
     },
     {
       "id": "future_drive",
       "label": "Future drive envelope",
       "evidence_state": "BLOCKED",
-      "authority_gate": "brake_drive_topology_qualified",
+      "authority_gate": null,
       "source": "docs/mechanical_architecture_review.md",
-      "render": {"kind": "drive"}
+      "render": {
+        "kind": "drive"
+      },
+      "context_gates": [
+        "brake_drive_topology_qualified",
+        "power_architecture_frozen"
+      ]
     },
     {
       "id": "inert_pack_envelope",
       "label": "Inert range-pack envelope study",
       "evidence_state": "ASSUMED",
-      "authority_gate": "rev_c_chassis_release_qualified",
+      "authority_gate": "dummy_pack_mount_qualified",
       "source": "docs/rev_c_chassis_release_playbook.md",
-      "render": {"kind": "pack"}
+      "render": {
+        "kind": "pack"
+      },
+      "context_gates": [
+        "rev_c_chassis_release_qualified",
+        "power_packaging_candidate_defined"
+      ]
     },
     {
       "id": "snowdeck_interface",
       "label": "SnowDeck v0.1 reversible rider interface",
       "evidence_state": "ASSUMED",
-      "authority_gate": "rider_fit_qualified",
+      "authority_gate": null,
       "source": "docs/x1_snowdeck_v01.md",
-      "render": {"kind": "rider_interface"}
+      "render": {
+        "kind": "rider_interface"
+      },
+      "context_gates": [
+        "fit_platform_repeatability_qualified",
+        "rider_fit_qualified"
+      ]
     },
     {
       "id": "charge_cradle",
@@ -74,7 +112,10 @@
       "evidence_state": "ASSUMED",
       "authority_gate": null,
       "source": "hardware/rev_c_charge_dock_mechanical_template.json",
-      "render": {"kind": "dock"}
+      "render": {
+        "kind": "dock"
+      },
+      "context_gates": []
     }
   ]
 }
