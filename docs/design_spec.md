@@ -72,10 +72,10 @@ The rider-fit program is independent of the drivetrain:
 1. qualify one Phidgets 3135 + HX711 zone with Issue #59 hardware and Issue #61 mass-reference evidence;
 2. verify the complete one-zone platform across CENTER/+X/-X/+Y/-Y through Issue #63;
 3. duplicate the verified mechanical/electrical stack to four zones;
-3. collect repeated remount sessions with four-zone force and fixture-IMU coverage;
-4. record directly measured left/right foot dimensions and stance geometry privately;
-5. generate independent left/right Rev-B adapters with adjustment reserve;
-6. physically template the geometry before structural fabrication/drilling.
+4. collect repeated remount sessions with four-zone force and fixture-IMU coverage;
+5. record directly measured left/right foot dimensions and stance geometry privately;
+6. generate independent left/right Rev-B adapters with adjustment reserve;
+7. physically template the geometry before structural fabrication/drilling.
 
 Stable left/right differences are measurement data, not a reason to distort front/rear truck geometry. Truck geometry remains mechanically symmetric unless later vehicle evidence justifies otherwise.
 
