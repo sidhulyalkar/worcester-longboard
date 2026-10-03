@@ -656,5 +656,33 @@
     "general_powered_operation_authorized": false,
     "public_operation_authorized": false,
     "dog_accompanied_operation_authorized": false
+  },
+  "telemetry_evidence_program": {
+    "issues": [
+      47,
+      49
+    ],
+    "phase": "REQUIRED_FOR_COMMISSIONING_STAGE_1_THROUGH_4",
+    "reference_snapshot": "hardware/rev_c_telemetry_reference_snapshot_2026-10-02.json",
+    "signal_registry": "hardware/x1_telemetry_signal_registry_2026-10-02.json",
+    "session_template": "hardware/x1_telemetry_session_template.json",
+    "event_schema": "hardware/x1_telemetry_event_schema.json",
+    "initializer": "tools/init_x1_telemetry_session.py",
+    "sealer": "tools/seal_x1_telemetry_session.py",
+    "validator": "tools/validate_x1_telemetry_session.py",
+    "commissioning_replay": "tools/summarize_x1_commissioning_telemetry.py",
+    "raw_storage": "rider/private/",
+    "policies": [
+      "logging is never a real-time control dependency",
+      "raw files are sealed by SHA-256 before validation",
+      "every stream declares clock source synchronization model uncertainty and provenance",
+      "periodic sequence drops must be explicitly declared and still satisfy maximum-gap limits",
+      "event-log sequence gaps are not accepted",
+      "Stage 1 through Stage 4 commissioning measurements must reference fingerprinted telemetry replay evidence",
+      "telemetry validity proves evidence integrity only and does not prove physical sensor calibration or vehicle safety"
+    ],
+    "powered_operation_authorized": false,
+    "public_operation_authorized": false,
+    "dog_accompanied_operation_authorized": false
   }
 }
