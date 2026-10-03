@@ -144,6 +144,8 @@ def test_initializer_creates_full_private_kickoff_workspace(tmp_path: Path):
     assert report["cart_a_checkout_protocol"] == "docs/x1_cart_a_checkout_receiving.md"
     assert report["cart_a_checkout_template"] == "hardware/x1_cart_a_checkout_template.json"
     assert report["cart_a_receiving_template"] == "hardware/x1_cart_a_receiving_template.json"
+    assert report["fit_pilot_mass_reference_protocol"] == "docs/x1_fit_pilot_mass_reference.md"
+    assert report["fit_pilot_mass_reference_template"] == "hardware/x1_fit_pilot_mass_reference_template.json"
 
     assert (workspace / "owned_inventory.json").is_file()
     assert (workspace / "DAY0_KICKOFF.md").is_file()
@@ -162,6 +164,8 @@ def test_initializer_creates_full_private_kickoff_workspace(tmp_path: Path):
     assert "init_x1_cart_a_checkout.py" in next_steps
     assert "x1_cart_a_checkout_receiving.md" in next_steps
     assert "fingerprinted Issue #56 receiving record" in next_steps
+    assert "Issue #61 calibration-mass reference evidence" in next_steps
+    assert "Issue #61 mass authority" in next_steps
 
 
 def test_initializer_refuses_to_overwrite_private_work(tmp_path: Path):
