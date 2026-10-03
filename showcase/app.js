@@ -109,7 +109,7 @@ function fillUI(manifest) {
     row.innerHTML =
       '<span class="dot" style="--state:' + color + '"></span>' +
       '<div><strong>' + component.label + '</strong><small>' +
-      (component.authority_gate || "concept-only") + '</small></div>' +
+      ([component.authority_gate].concat(component.context_gates || []).filter(Boolean).join(" · ") || "concept-only") + '</small></div>' +
       '<span class="state">' + component.evidence_state + '</span>';
     list.appendChild(row);
   });
