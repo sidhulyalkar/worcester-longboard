@@ -456,13 +456,21 @@
           "equals": false
         },
         {
+          "path": "telemetry_replay_fingerprint_sha256",
+          "equals": null
+        },
+        {
+          "path": "telemetry_session_fingerprint_sha256",
+          "equals": null
+        },
+        {
           "path": "authority_fingerprint_sha256",
           "type": "valid_authority_fingerprint"
         }
       ]
     },
     "commissioning_stage_1_qualified": {
-      "issue": 45,
+      "issue": "45 + 47 + 49",
       "requires": [
         "commissioning_stage_0_qualified"
       ],
@@ -504,13 +512,21 @@
           "equals": false
         },
         {
+          "path": "telemetry_replay_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
+          "path": "telemetry_session_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
           "path": "authority_fingerprint_sha256",
           "type": "valid_authority_fingerprint"
         }
       ]
     },
     "commissioning_stage_2_qualified": {
-      "issue": 45,
+      "issue": "45 + 47 + 49",
       "requires": [
         "commissioning_stage_1_qualified"
       ],
@@ -552,13 +568,21 @@
           "equals": false
         },
         {
+          "path": "telemetry_replay_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
+          "path": "telemetry_session_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
           "path": "authority_fingerprint_sha256",
           "type": "valid_authority_fingerprint"
         }
       ]
     },
     "commissioning_stage_3_qualified": {
-      "issue": 45,
+      "issue": "45 + 47 + 49",
       "requires": [
         "commissioning_stage_2_qualified",
         "powered_test_venue_qualified"
@@ -601,13 +625,21 @@
           "equals": false
         },
         {
+          "path": "telemetry_replay_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
+          "path": "telemetry_session_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
           "path": "authority_fingerprint_sha256",
           "type": "valid_authority_fingerprint"
         }
       ]
     },
     "commissioning_stage_4_qualified": {
-      "issue": 45,
+      "issue": "45 + 47 + 49",
       "requires": [
         "commissioning_stage_3_qualified",
         "powered_test_venue_qualified"
@@ -648,6 +680,14 @@
         {
           "path": "dog_accompanied_operation_authorized",
           "equals": false
+        },
+        {
+          "path": "telemetry_replay_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
+          "path": "telemetry_session_fingerprint_sha256",
+          "type": "nonempty_string"
         },
         {
           "path": "authority_fingerprint_sha256",
