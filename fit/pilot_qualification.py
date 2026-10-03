@@ -467,6 +467,10 @@ def qualify_manifest(path: Path) -> dict:
         "qualification_tool_sha256": _tool_sha256(),
         "failures": sorted(set(failures)),
         "qualified_for_four_zone_duplication": not failures,
+        "ride_hardware_authority": False,
+        "powered_operation_authorized": False,
+        "public_operation_authorized": False,
+        "dog_accompanied_operation_authorized": False,
     }
     report["authority_fingerprint_sha256"] = _digest(report)
     return report
