@@ -386,7 +386,12 @@ def test_front_hydraulic_release_does_not_unlock_v5_brake():
 def test_fallback_requires_strategy_change_after_rev_c_release():
     procurement = copy.deepcopy(_procurement())
     procurement["rules"]["instantiated_chassis_item_id"] = None
-    fit, release = _all_physical_evidence()[:2]
+    evidence = _all_physical_evidence()
+    fit = next(x for x in evidence if x.get("authority") == "x1_one_zone_pilot")
+    release = next(
+        x for x in evidence
+        if x.get("authority") == "x1_rev_c_chassis_release"
+    )
     report = evaluate(_plan(), procurement, [fit, release])
     assert report["procurement_items"]["TRUCK-M3-400"]["orderable"] is True
     assert report["procurement_items"]["HUB-RSII"]["orderable"] is True
@@ -818,7 +823,11 @@ def test_future_power_ordering_requires_explicit_manifest_promotion():
 
 def test_tampered_evidence_fingerprint_is_rejected():
     evidence = _all_physical_evidence()
-    evidence[3]["brake_interface_verified"] = False
+    brake = next(
+        x for x in evidence
+        if x.get("authority") == "x1_mechanical_brake_interface"
+    )
+    brake["brake_interface_verified"] = False
     report = evaluate(_plan(), _procurement(), evidence)
     assert report["gates"]["brake_interface_qualified"]["satisfied"] is False
 
