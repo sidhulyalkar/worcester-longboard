@@ -512,3 +512,37 @@ def test_issue_61_forbids_nominal_labels_and_propagates_uncertainty():
         "validation-reference uncertainty" in item
         for item in program["uncertainty_propagation"]
     )
+
+
+def test_issue_63_platform_repeatability_sits_after_issue4_before_four_zone():
+    program = _requirements()["fit_platform_repeatability_program"]
+    assert program["issue"] == 63
+    assert program["phase"] == "POST_ISSUE4_PRE_FOUR_ZONE_DUPLICATION"
+    assert program["required_positions"] == ["CENTER", "+X", "-X", "+Y", "-Y"]
+    assert program["minimum_repeats_per_position"] == 3
+    assert program["uses_existing_issue4_linear_fit"] is True
+    assert program["uses_issue61_validation_mass"] is True
+    assert program["four_zone_duplication_authorized"] is False
+    assert program["powered_operation_authorized"] is False
+
+
+def test_issue_63_strengthens_rider_fit_without_blocking_chassis_release():
+    policy = _requirements()["fit_platform_repeatability_program"][
+        "downstream_policy"
+    ]
+    assert policy["four_zone_duplication_requires_issue63"] is True
+    assert policy["rider_fit_qualification_requires_issue63"] is True
+    assert policy["rev_c_chassis_release_requires_issue63"] is False
+
+
+def test_issue_63_does_not_invent_corner_load_accuracy_claim():
+    program = _requirements()["fit_platform_repeatability_program"]
+    assert program["cross_position_spread_policy"] == (
+        "diagnostic only; no invented vendor corner-load tolerance"
+    )
+    assert "no rezero between position runs" in program["hard_boundaries"]
+    assert "no recalibration between position runs" in program["hard_boundaries"]
+    assert (
+        "Issue #63 does not create a new vendor accuracy specification"
+        in program["hard_boundaries"]
+    )
