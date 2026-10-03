@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-02",
+  "scope": "x1_fit_platform_repeatability_reference",
+  "issue": 63,
+  "authority": "REFERENCE_ONLY",
+  "purpose": "Verify that the complete one-zone pad/pod/load-cell assembly preserves acceptable validation behavior across repeated center and off-axis load placements before four-zone duplication.",
+  "vendor_reference": {
+    "component": "Phidgets 3135_0 single-point load cell",
+    "architecture": "single-point / platform-scale load cell",
+    "vendor_guidance": "single-point load cells support off-axis platform loading; placement on the scale surface should not materially change the result when the system is correctly installed",
+    "source": "https://www.phidgets.com/docs/Load_Cell_Guide"
+  },
+  "project_trial": {
+    "required_positions": [
+      "CENTER",
+      "+X",
+      "-X",
+      "+Y",
+      "-Y"
+    ],
+    "minimum_repeats_per_position": 3,
+    "reference_mass_role": "VALIDATION",
+    "use_same_reference_mass_for_all_positions": true,
+    "preserve_existing_linear_fit": true,
+    "no_rezero_or_recalibration_between_position_runs": true,
+    "max_mass_kg": 20,
+    "position_error_gate": "reuse canonical Issue #4 conservative max_validation_error",
+    "cross_position_spread": "report diagnostic only; do not invent a vendor corner-load tolerance"
+  },
+  "geometry_rules": [
+    "record the actual contact-footprint length, width, and centroid for every placement",
+    "entire declared rectangular contact footprint must remain inside the 105 x 78 mm zone pad",
+    "CENTER must use the smallest radial centroid offset of the five declared positions",
+    "+X and -X must lie on opposite sides of the X axis",
+    "+Y and -Y must lie on opposite sides of the Y axis",
+    "the same load object or load adapter/contact interface must be used for all position trials"
+  ],
+  "mechanical_rules": [
+    "positive overload-stop clearance must remain at every placement",
+    "no rocking or unstable support",
+    "no pad/pod/fastener interference",
+    "no cable or strain-relief force introduced by repositioning",
+    "fixture remains positively secured to the bench"
+  ],
+  "boundaries": {
+    "unpowered": true,
+    "bench_only": true,
+    "ride_structure_authority": false,
+    "four_zone_duplication_authority": false,
+    "fabrication_authority": false,
+    "powered_operation_authorized": false,
+    "public_operation_authorized": false,
+    "dog_accompanied_operation_authorized": false
+  }
+}

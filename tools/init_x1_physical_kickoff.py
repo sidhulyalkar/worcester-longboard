@@ -69,7 +69,7 @@ def initialize(workspace_dir: Path) -> dict:
         "7. Create and validate Issue #61 calibration-mass reference evidence.",
         "8. Initialize tools/init_one_zone_pilot_session.py from both the Issue #59 hardware authority and Issue #61 mass authority.",
         "9. Do not edit mass values/uncertainties or swap to a spare inside the same Issue #4 session; create new evidence and a new session instead.",
-        "10. Do not duplicate four zones until Issue #4 qualifies.",
+        "10. After Issue #4 qualifies, run Issue #63 platform repeatability; do not duplicate four zones until both gates pass.",
         "",
         "## Hard holds",
         "",

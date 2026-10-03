@@ -95,13 +95,15 @@ Create and validate the mass-reference set **before** this capture. Follow `docs
 
 The private Issue #4 session derives its exact sequence from the fingerprinted `x1_fit_pilot_mass_reference` authority. Do not replace those values with nominal 2/5/10/7.5 kg labels.
 
-Apply each authority-bound mass centrally and repeatably to the zone pad. Capture only settled plateau windows. The initializer orders the calibration loads upward, repeats the appropriate lower loads on the descending path, and then uses the separately identified independent-validation mass.
+For the **Issue #4 calibration itself**, apply each authority-bound mass centrally and repeatably to the zone pad. Capture only settled plateau windows. The initializer orders the calibration loads upward, repeats the appropriate lower loads on the descending path, and then uses the separately identified independent-validation mass.
 
 Every applied mass remains `<=20 kg`.
 
 At the largest pilot mass, measure the **minimum remaining stop clearance** without forcing the pad into the stop.
 
 If a mass value, uncertainty, or evidence source changes, stop and create a new Issue #61 authority and a new Issue #4 session.
+
+After Issue #4 passes, do **not** immediately duplicate four zones. Run Issue #63 using the same assembled one-zone fixture and the same Issue #61 independent validation mass. Issue #63 deliberately moves that validation load to CENTER, +X, -X, +Y, and -Y positions without re-zeroing or recalibrating, verifying that the complete pad/pod/load-cell stack preserves the Issue #4 validation envelope across platform loading. See `docs/x1_fit_platform_repeatability.md`.
 
 ## 10. Run authority
 
@@ -111,4 +113,4 @@ PYTHONPATH=. python tools/qualify_one_zone_pilot.py \
   --out rider/private/fit_rig/<session>/pilot_authority.json
 ```
 
-A passing software report plus completed physical checks closes only the one-zone duplication gate. It does not authorize standing on the fixture, rideable CAD, motors, batteries, or powered testing.
+A passing Issue #4 report closes the **base one-zone calibration gate**. Four-zone duplication additionally requires Issue #63 platform-repeatability authority through the project build-authority graph. Neither gate authorizes standing on the fixture, rideable CAD, motors, batteries, or powered testing.

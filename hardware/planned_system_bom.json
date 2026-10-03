@@ -39,7 +39,7 @@
     {
       "id": "FIT-FOUR-ZONE",
       "status": "PLAN_ONLY",
-      "freeze_gate": "fit_pilot_qualified",
+      "freeze_gate": "fit_platform_repeatability_qualified",
       "contents": [
         "2 additional Phidgets 3135_0 load cells to reach four active zones",
         "2 additional HX711 boards to reach four active zones",

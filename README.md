@@ -79,12 +79,13 @@ Cart A receiving or exact-unused owned evidence
         -> Issue #59 active HX711 + untouched spare
         -> Issue #61 calibration + independent-validation mass authority
         -> physical one-zone qualification
+        -> Issue #63 five-position platform repeatability
         -> four-zone unpowered fit rig
         -> repeatable stance evidence
         -> Rev-B left/right rider-interface CAD
 ```
 
-The fit layer intentionally supports independent left/right foot dimensions, yaw, position, and removable cant while keeping truck geometry symmetric by default. Before Issue #4 capture, `docs/x1_fit_pilot_hardware_provenance.md` binds the exact active load cell/HX711 and untouched spares to Issue #56 checkout/receiving or exact-unused owned-stock evidence. Then `docs/x1_fit_pilot_mass_reference.md` binds every calibration and validation mass to fingerprinted evidence with explicit conservative uncertainty. Exact rider measurements and raw recordings stay under gitignored `rider/private/`. Before any chassis order, `docs/rev_c_no_parts_chassis_experiment.md` provides a zero-cost three-way Comp/Warren/Agent stance test.
+The fit layer intentionally supports independent left/right foot dimensions, yaw, position, and removable cant while keeping truck geometry symmetric by default. Before Issue #4 capture, `docs/x1_fit_pilot_hardware_provenance.md` binds the exact active load cell/HX711 and untouched spares to Issue #56 checkout/receiving or exact-unused owned-stock evidence. Then `docs/x1_fit_pilot_mass_reference.md` binds every calibration and validation mass to fingerprinted evidence with explicit conservative uncertainty. After Issue #4 passes, `docs/x1_fit_platform_repeatability.md` verifies that the exact assembled single-point platform remains inside the existing conservative validation envelope at CENTER, +X, -X, +Y, and -Y before four-zone duplication. This Issue #63 gate does not block Rev-C chassis release. Exact rider measurements and raw recordings stay under gitignored `rider/private/`. Before any chassis order, `docs/rev_c_no_parts_chassis_experiment.md` provides a zero-cost three-way Comp/Warren/Agent stance test.
 
 ### Chassis/brake path
 
@@ -398,7 +399,8 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 - **#51** create the Day-0 private physical-kickoff workspace; orchestration only, no new authority
 - **#56** validate Cart A checkout freshness, order evidence, receiving condition, and stable hardware IDs
 - **#59** bind exact active load-cell/HX711 IDs and untouched spares to the Issue #4 session
-- **#4** qualify that provenance-locked load-cell/HX711/pod zone before four-zone duplication
+- **#4** qualify the provenance-locked one-zone calibration stack
+- **#63** verify off-axis platform repeatability before four-zone duplication
 - **#25** qualify Rev-C pre-purchase chassis release from deck/topology/inert-envelope evidence
 - **#2** build and qualify X1 Fit Rig v0.3
 - **#14** measure and qualify the V5 mechanical-brake interface

@@ -1,6 +1,6 @@
 # X1 Fit Rig v0.3: one-zone pilot qualification
 
-Before four load-cell pods are duplicated, one physical Phidgets 3135/HX711/pod/pad stack must pass a bench qualification. This is an **unpowered fixture test**. It does not qualify any rideable component.
+Before four load-cell pods are duplicated, one physical Phidgets 3135/HX711/pod/pad stack must first pass Issue #4 center calibration/validation and then Issue #63 off-axis platform repeatability. Both are **unpowered fixture tests**. Neither qualifies any rideable component.
 
 ## Why one zone first
 
@@ -38,12 +38,12 @@ PYTHONPATH=. python tools/qualify_one_zone_pilot.py \
   --out rider/private/fit_rig/pilot_authority.json
 ```
 
-A nonzero exit means four-zone duplication remains blocked. Before evaluating sensor metrics, the qualifier re-verifies the copied Issue #59 selection record/authority and the copied Issue #61 mass record/authority, including canonical recomputation of the mass authority from its source record. The report stores those provenance links alongside nominal and conservative uncertainty-aware metrics, thresholds, acquisition/mechanical evidence, raw-plateau hashes, manifest hash, qualification-tool hash, and its own authority fingerprint.
+A nonzero exit means the base Issue #4 gate remains blocked. A zero exit closes Issue #4 but four-zone duplication still remains blocked until Issue #63 passes. Before evaluating sensor metrics, the qualifier re-verifies the copied Issue #59 selection record/authority and the copied Issue #61 mass record/authority, including canonical recomputation of the mass authority from its source record. The report stores those provenance links alongside nominal and conservative uncertainty-aware metrics, thresholds, acquisition/mechanical evidence, raw-plateau hashes, manifest hash, qualification-tool hash, and its own authority fingerprint.
 
-The only field that opens the next manufacturing gate is:
+The Issue #4 report retains the historical field:
 
 ```json
 "qualified_for_four_zone_duplication": true
 ```
 
-That field must come from real physical evidence **on the Issue #59-selected sensor path against the Issue #61-qualified mass references**. A provenance-less legacy report cannot open the gate. CI proves only that the qualification machinery behaves correctly on synthetic data.
+For backward compatibility, that field now means the **base one-zone sensor/calibration prerequisite passed**. It must come from real physical evidence on the Issue #59-selected sensor path against the Issue #61-qualified mass references. It no longer grants final four-zone duplication by itself. The project build-authority graph additionally requires a passing Issue #63 `x1_fit_platform_repeatability` authority. A provenance-less legacy report cannot open either path. CI proves only that the qualification machinery behaves correctly on synthetic data.

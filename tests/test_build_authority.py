@@ -42,6 +42,17 @@ def _fit_pilot_evidence():
     })
 
 
+def _platform_repeatability_evidence():
+    return _stamp({
+        "authority": "x1_fit_platform_repeatability",
+        "scope": "unpowered_fit_platform_repeatability_only",
+        "qualified": True,
+        "position_repeatability_qualified": True,
+        "one_zone_authority_fingerprint_sha256": "5" * 64,
+        "powered_operation_authorized": False,
+    })
+
+
 def _all_physical_evidence():
     chassis = _stamp({
         "authority": "x1_rolling_chassis_physical",
@@ -50,6 +61,7 @@ def _all_physical_evidence():
     })
     return [
         _fit_pilot_evidence(),
+        _platform_repeatability_evidence(),
         _stamp({
             "authority": "x1_rev_c_chassis_release",
             "schema_version": 1,
@@ -209,7 +221,46 @@ def test_fit_pilot_gate_requires_issue_59_hardware_provenance():
 
     report = evaluate(_plan(), _procurement(), [_fit_pilot_evidence()])
     assert report["gates"]["fit_pilot_qualified"]["satisfied"] is True
+    assert report["gates"]["fit_platform_repeatability_qualified"]["satisfied"] is False
+    assert report["capabilities"]["qualify_fit_platform_repeatability"]["allowed"] is True
+    assert report["capabilities"]["duplicate_four_fit_zones"]["allowed"] is False
+
+
+def test_issue63_platform_repeatability_unlocks_four_zone_duplication():
+    fit = _fit_pilot_evidence()
+    platform = _platform_repeatability_evidence()
+
+    report = evaluate(_plan(), _procurement(), [fit])
+    assert report["gates"]["fit_pilot_qualified"]["satisfied"] is True
+    assert report["gates"]["fit_platform_repeatability_qualified"]["satisfied"] is False
+    assert report["capabilities"]["duplicate_four_fit_zones"]["allowed"] is False
+
+    report = evaluate(_plan(), _procurement(), [fit, platform])
+    assert report["gates"]["fit_platform_repeatability_qualified"]["satisfied"] is True
     assert report["capabilities"]["duplicate_four_fit_zones"]["allowed"] is True
+
+
+def test_issue63_does_not_block_rev_c_chassis_release():
+    fit = _fit_pilot_evidence()
+    release = _stamp({
+        "authority": "x1_rev_c_chassis_release",
+        "schema_version": 1,
+        "qualified": True,
+        "deck_envelope_comparison_completed": True,
+        "selected_deck_candidate_id": "comp95_class",
+        "selected_chassis_family": "COMP95_BASELINE",
+        "selected_wheel_family": "MBS_RSII_200X50",
+        "selected_brake_architecture": "MBS_V5_REAR",
+        "selected_topology_for_measurement": "REAR_V5_REAR_2WD_SHARED",
+        "range_pack_inert_envelope_plausible": True,
+        "no_unqualified_safety_critical_adapter": True,
+        "powered_operation_authorized": False,
+    })
+
+    report = evaluate(_plan(), _procurement(), [fit, release])
+    assert report["gates"]["fit_platform_repeatability_qualified"]["satisfied"] is False
+    assert report["gates"]["rev_c_chassis_release_qualified"]["satisfied"] is True
+    assert report["capabilities"]["order_measurement_chassis_parts"]["allowed"] is True
 
 
 def test_fit_pilot_gate_requires_issue_61_mass_reference_provenance():
@@ -335,7 +386,12 @@ def test_front_hydraulic_release_does_not_unlock_v5_brake():
 def test_fallback_requires_strategy_change_after_rev_c_release():
     procurement = copy.deepcopy(_procurement())
     procurement["rules"]["instantiated_chassis_item_id"] = None
-    fit, release = _all_physical_evidence()[:2]
+    evidence = _all_physical_evidence()
+    fit = next(x for x in evidence if x.get("authority") == "x1_one_zone_pilot")
+    release = next(
+        x for x in evidence
+        if x.get("authority") == "x1_rev_c_chassis_release"
+    )
     report = evaluate(_plan(), procurement, [fit, release])
     assert report["procurement_items"]["TRUCK-M3-400"]["orderable"] is True
     assert report["procurement_items"]["HUB-RSII"]["orderable"] is True
@@ -767,7 +823,11 @@ def test_future_power_ordering_requires_explicit_manifest_promotion():
 
 def test_tampered_evidence_fingerprint_is_rejected():
     evidence = _all_physical_evidence()
-    evidence[3]["brake_interface_verified"] = False
+    brake = next(
+        x for x in evidence
+        if x.get("authority") == "x1_mechanical_brake_interface"
+    )
+    brake["brake_interface_verified"] = False
     report = evaluate(_plan(), _procurement(), evidence)
     assert report["gates"]["brake_interface_qualified"]["satisfied"] is False
 

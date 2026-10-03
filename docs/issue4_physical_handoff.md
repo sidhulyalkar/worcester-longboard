@@ -97,7 +97,7 @@ There are no free-form calibration/validation mass arguments. Changing a mass va
 
 Follow `hardware/one_zone_pilot_assembly.md` and `docs/one_zone_pilot.md` for the mechanical checks, HX711 rate verification, settled plateau capture, stop-gap measurements, and logger format.
 
-The generated private `NOTES.md` contains the exact mass sequence. Keep transient loading/unloading out of plateau CSVs. Do not manufacture or duplicate the other three sensor pods merely because the CAD exists.
+The generated private `NOTES.md` contains the exact mass sequence. Keep transient loading/unloading out of plateau CSVs. Do not manufacture or duplicate the other three sensor pods merely because the CAD exists. After Issue #4 passes, run Issue #63 platform repeatability on this exact assembled sensor/pad stack first.
 
 ## 6. Qualify the real session
 
@@ -121,4 +121,4 @@ PYTHONPATH=. python tools/evaluate_build_authority.py \
   --out rider/private/fit_rig/issue4-pilot/build_authority.json
 ```
 
-Only a valid fingerprinted `x1_one_zone_pilot` report with `qualified_for_four_zone_duplication=true`, preserved Issue #59 hardware provenance, **and preserved Issue #61 mass-reference provenance** may open the four-zone duplication capability. Rider-fit Rev-B, unpowered chassis fabrication, power ordering, and powered operation remain separately gated.
+A valid fingerprinted `x1_one_zone_pilot` report with `qualified_for_four_zone_duplication=true`, preserved Issue #59 hardware provenance, **and preserved Issue #61 mass-reference provenance** closes the base Issue #4 gate. It does **not** by itself open four-zone duplication anymore. Issue #63 must then verify the same assembly at CENTER, +X, -X, +Y, and -Y using the existing fit and Issue #61 validation mass. Only the combined build-authority gates may open four-zone duplication. Rider-fit Rev-B, unpowered chassis fabrication, power ordering, and powered operation remain separately gated.

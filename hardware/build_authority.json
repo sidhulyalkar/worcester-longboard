@@ -108,7 +108,7 @@
     "rider_fit_qualified": {
       "issue": 2,
       "requires": [
-        "fit_pilot_qualified"
+        "fit_platform_repeatability_qualified"
       ],
       "evidence": [
         {
@@ -789,6 +789,42 @@
           "target_path": "authority_fingerprint_sha256"
         }
       ]
+    },
+    "fit_platform_repeatability_qualified": {
+      "issue": 63,
+      "requires": [
+        "fit_pilot_qualified"
+      ],
+      "evidence": [
+        {
+          "path": "authority",
+          "equals": "x1_fit_platform_repeatability"
+        },
+        {
+          "path": "scope",
+          "equals": "unpowered_fit_platform_repeatability_only"
+        },
+        {
+          "path": "qualified",
+          "equals": true
+        },
+        {
+          "path": "position_repeatability_qualified",
+          "equals": true
+        },
+        {
+          "path": "one_zone_authority_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
+          "path": "powered_operation_authorized",
+          "equals": false
+        },
+        {
+          "path": "authority_fingerprint_sha256",
+          "type": "valid_authority_fingerprint"
+        }
+      ]
     }
   },
   "capabilities": {
@@ -804,7 +840,7 @@
     },
     "duplicate_four_fit_zones": {
       "requires": [
-        "fit_pilot_qualified"
+        "fit_platform_repeatability_qualified"
       ]
     },
     "generate_rev_b_rider_interface": {
@@ -935,6 +971,12 @@
         "commissioning_stage_3_qualified",
         "powered_test_venue_qualified",
         "lifecycle_health_ready"
+      ]
+    },
+    "qualify_fit_platform_repeatability": {
+      "issue": 63,
+      "requires": [
+        "fit_pilot_qualified"
       ]
     }
   }
