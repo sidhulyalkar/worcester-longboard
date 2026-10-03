@@ -1,0 +1,375 @@
+{
+  "schema_version": 1,
+  "scope": "x1_telemetry_session_manifest",
+  "session_id": "",
+  "board_id": "",
+  "configuration_id": "",
+  "commissioning_stage_id": "",
+  "started_at_utc": "",
+  "ended_at_utc": "",
+  "power_architecture_fingerprint_sha256": "",
+  "signal_registry": "hardware/x1_telemetry_signal_registry_2026-10-02.json",
+  "privacy_class": "PRIVATE_RAW",
+  "synthetic_fixture": false,
+  "sealed": false,
+  "streams": [
+    {
+      "stream_id": "control",
+      "family": "control",
+      "file": "streams/control.csv",
+      "format": "csv_wide_v1",
+      "file_sha256": "",
+      "source_device_id": "",
+      "clock_id": "",
+      "timestamp_column": "timestamp",
+      "timestamp_unit": "s",
+      "sequence_column": "seq",
+      "nominal_rate_hz": null,
+      "max_gap_s": null,
+      "sync_model": {
+        "method": "",
+        "scale": 1,
+        "offset_s": 0,
+        "uncertainty_ms": null,
+        "evidence_ref": ""
+      },
+      "signals": [
+        {
+          "signal_id": "remote_throttle_norm",
+          "column": "remote_throttle_norm",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "remote_deadman_active",
+          "column": "remote_deadman_active",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "remote_age_s",
+          "column": "remote_age_s",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "ride_mode",
+          "column": "ride_mode",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "drive_current_cmd_left_a",
+          "column": "drive_current_cmd_left_a",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "drive_current_cmd_right_a",
+          "column": "drive_current_cmd_right_a",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "regen_current_cmd_left_a",
+          "column": "regen_current_cmd_left_a",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "regen_current_cmd_right_a",
+          "column": "regen_current_cmd_right_a",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "tc_scale_left",
+          "column": "tc_scale_left",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "tc_scale_right",
+          "column": "tc_scale_right",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "controller_fault_bits",
+          "column": "controller_fault_bits",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        }
+      ],
+      "dropped_sequence_ranges": []
+    },
+    {
+      "stream_id": "electrical_drivetrain",
+      "family": "electrical_drivetrain",
+      "file": "streams/electrical_drivetrain.csv",
+      "format": "csv_wide_v1",
+      "file_sha256": "",
+      "source_device_id": "",
+      "clock_id": "",
+      "timestamp_column": "timestamp",
+      "timestamp_unit": "s",
+      "sequence_column": "seq",
+      "nominal_rate_hz": null,
+      "max_gap_s": null,
+      "sync_model": {
+        "method": "",
+        "scale": 1,
+        "offset_s": 0,
+        "uncertainty_ms": null,
+        "evidence_ref": ""
+      },
+      "signals": [
+        {
+          "signal_id": "pack_voltage_v",
+          "column": "pack_voltage_v",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "battery_current_a",
+          "column": "battery_current_a",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "pack_soc_fraction",
+          "column": "pack_soc_fraction",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "left_phase_current_a",
+          "column": "left_phase_current_a",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "right_phase_current_a",
+          "column": "right_phase_current_a",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "left_motor_erpm",
+          "column": "left_motor_erpm",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "right_motor_erpm",
+          "column": "right_motor_erpm",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        }
+      ],
+      "dropped_sequence_ranges": []
+    },
+    {
+      "stream_id": "motion",
+      "family": "motion",
+      "file": "streams/motion.csv",
+      "format": "csv_wide_v1",
+      "file_sha256": "",
+      "source_device_id": "",
+      "clock_id": "",
+      "timestamp_column": "timestamp",
+      "timestamp_unit": "s",
+      "sequence_column": "seq",
+      "nominal_rate_hz": null,
+      "max_gap_s": null,
+      "sync_model": {
+        "method": "",
+        "scale": 1,
+        "offset_s": 0,
+        "uncertainty_ms": null,
+        "evidence_ref": ""
+      },
+      "signals": [
+        {
+          "signal_id": "ground_speed_mps",
+          "column": "ground_speed_mps",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "front_left_wheel_speed_mps",
+          "column": "front_left_wheel_speed_mps",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "front_right_wheel_speed_mps",
+          "column": "front_right_wheel_speed_mps",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "longitudinal_accel_mps2",
+          "column": "longitudinal_accel_mps2",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "longitudinal_jerk_mps3",
+          "column": "longitudinal_jerk_mps3",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "imu_accel_x_mps2",
+          "column": "imu_accel_x_mps2",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "imu_accel_y_mps2",
+          "column": "imu_accel_y_mps2",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "imu_accel_z_mps2",
+          "column": "imu_accel_z_mps2",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "imu_gyro_x_dps",
+          "column": "imu_gyro_x_dps",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "imu_gyro_y_dps",
+          "column": "imu_gyro_y_dps",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "imu_gyro_z_dps",
+          "column": "imu_gyro_z_dps",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        }
+      ],
+      "dropped_sequence_ranges": []
+    },
+    {
+      "stream_id": "thermal",
+      "family": "thermal",
+      "file": "streams/thermal.csv",
+      "format": "csv_wide_v1",
+      "file_sha256": "",
+      "source_device_id": "",
+      "clock_id": "",
+      "timestamp_column": "timestamp",
+      "timestamp_unit": "s",
+      "sequence_column": "seq",
+      "nominal_rate_hz": null,
+      "max_gap_s": null,
+      "sync_model": {
+        "method": "",
+        "scale": 1,
+        "offset_s": 0,
+        "uncertainty_ms": null,
+        "evidence_ref": ""
+      },
+      "signals": [
+        {
+          "signal_id": "pack_temperature_c",
+          "column": "pack_temperature_c",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "left_motor_temperature_c",
+          "column": "left_motor_temperature_c",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "right_motor_temperature_c",
+          "column": "right_motor_temperature_c",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "left_controller_temperature_c",
+          "column": "left_controller_temperature_c",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        },
+        {
+          "signal_id": "right_controller_temperature_c",
+          "column": "right_controller_temperature_c",
+          "source_id": "",
+          "calibration_id": "",
+          "derivation_id": ""
+        }
+      ],
+      "dropped_sequence_ranges": []
+    }
+  ],
+  "event_log": {
+    "file": "events/events.jsonl",
+    "format": "jsonl_v1",
+    "file_sha256": "",
+    "source_device_id": "",
+    "clock_id": "",
+    "timestamp_field": "timestamp",
+    "timestamp_unit": "s",
+    "sequence_field": "seq",
+    "sync_model": {
+      "method": "",
+      "scale": 1,
+      "offset_s": 0,
+      "uncertainty_ms": null,
+      "evidence_ref": ""
+    },
+    "supported_event_types": [],
+    "sequence_gaps_allowed": false
+  },
+  "notes": "",
+  "powered_operation_authorized": false,
+  "public_operation_authorized": false,
+  "dog_accompanied_operation_authorized": false,
+  "sealed_at_utc": ""
+}

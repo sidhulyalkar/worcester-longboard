@@ -456,6 +456,14 @@
           "equals": false
         },
         {
+          "path": "telemetry_replay_fingerprint_sha256",
+          "equals": null
+        },
+        {
+          "path": "telemetry_session_fingerprint_sha256",
+          "equals": null
+        },
+        {
           "path": "authority_fingerprint_sha256",
           "type": "valid_authority_fingerprint"
         }
@@ -504,9 +512,21 @@
           "equals": false
         },
         {
+          "path": "telemetry_replay_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
+          "path": "telemetry_session_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
           "path": "authority_fingerprint_sha256",
           "type": "valid_authority_fingerprint"
         }
+      ],
+      "supporting_issues": [
+        47,
+        49
       ]
     },
     "commissioning_stage_2_qualified": {
@@ -552,9 +572,21 @@
           "equals": false
         },
         {
+          "path": "telemetry_replay_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
+          "path": "telemetry_session_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
           "path": "authority_fingerprint_sha256",
           "type": "valid_authority_fingerprint"
         }
+      ],
+      "supporting_issues": [
+        47,
+        49
       ]
     },
     "commissioning_stage_3_qualified": {
@@ -601,9 +633,21 @@
           "equals": false
         },
         {
+          "path": "telemetry_replay_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
+          "path": "telemetry_session_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
           "path": "authority_fingerprint_sha256",
           "type": "valid_authority_fingerprint"
         }
+      ],
+      "supporting_issues": [
+        47,
+        49
       ]
     },
     "commissioning_stage_4_qualified": {
@@ -650,9 +694,21 @@
           "equals": false
         },
         {
+          "path": "telemetry_replay_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
+          "path": "telemetry_session_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
           "path": "authority_fingerprint_sha256",
           "type": "valid_authority_fingerprint"
         }
+      ],
+      "supporting_issues": [
+        47,
+        49
       ]
     },
     "lifecycle_health_ready": {

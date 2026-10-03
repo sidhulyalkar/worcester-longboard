@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "scope": "x1_telemetry_event_record",
+  "required_fields": [
+    "seq",
+    "timestamp",
+    "event_type",
+    "source_id",
+    "details"
+  ],
+  "event_types": [
+    "SESSION_START",
+    "SESSION_STOP",
+    "STAGE_START",
+    "STAGE_STOP",
+    "DEADMAN_TRANSITION",
+    "REMOTE_STALE",
+    "FAULT_TRANSITION",
+    "MECHANICAL_BRAKE_MARKER",
+    "STOPPING_TEST_START",
+    "OPERATOR_STOP",
+    "ANOMALY"
+  ],
+  "examples": [
+    {
+      "seq": 0,
+      "timestamp": 0,
+      "event_type": "SESSION_START",
+      "source_id": "logger-main",
+      "details": {}
+    },
+    {
+      "seq": 1,
+      "timestamp": 1.25,
+      "event_type": "DEADMAN_TRANSITION",
+      "source_id": "controller",
+      "details": {
+        "active": false
+      }
+    }
+  ]
+}

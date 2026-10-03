@@ -906,6 +906,52 @@ jobs:
           assert report['dog_accompanied_operation_authorized'] is False
           assert len(report['authority_fingerprint_sha256']) == 64
           PY
+      - name: Smoke-test Issues 47 and 49 telemetry pipeline
+        run: |
+          python tools/init_x1_telemetry_session.py \
+            /tmp/x1-telemetry-ci \
+            --board-id X1-CI \
+            --configuration-id CFG-CI \
+            --stage-id RIDER_ONLY_VERY_LOW_SPEED \
+            --started-at-utc 2026-10-02T12:00:00Z \
+            --power-architecture /tmp/x1-ci-power.json
+          python tools/generate_synthetic_x1_telemetry.py /tmp/x1-telemetry-ci
+          python tools/seal_x1_telemetry_session.py \
+            /tmp/x1-telemetry-ci/telemetry_manifest.json \
+            --ended-at-utc 2026-10-02T12:00:10Z
+          python tools/validate_x1_telemetry_session.py \
+            /tmp/x1-telemetry-ci/telemetry_manifest.json \
+            --power-architecture /tmp/x1-ci-power.json \
+            --out /tmp/x1-telemetry-ci/telemetry_authority.json
+          python tools/summarize_x1_commissioning_telemetry.py \
+            /tmp/x1-telemetry-ci/telemetry_manifest.json \
+            --telemetry-authority /tmp/x1-telemetry-ci/telemetry_authority.json \
+            --out /tmp/x1-telemetry-ci/commissioning_replay.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          telemetry = json.loads(
+              Path('/tmp/x1-telemetry-ci/telemetry_authority.json').read_text()
+          )
+          assert telemetry['qualified'] is True
+          assert telemetry['synthetic_fixture'] is True
+          assert telemetry['physical_evidence_eligible'] is False
+          assert telemetry['commissioning_stage_qualified'] is False
+          assert telemetry['required_stream_overlap_fraction'] == 1.0
+          assert telemetry['powered_operation_authorized'] is False
+
+          replay = json.loads(
+              Path('/tmp/x1-telemetry-ci/commissioning_replay.json').read_text()
+          )
+          assert replay['qualified'] is True
+          assert replay['synthetic_fixture'] is True
+          assert replay['physical_evidence_eligible'] is False
+          assert 'remote_release_propulsion_decay_s' in replay['metric_ids']
+          assert 'stopping_distance_m' in replay['metric_ids']
+          assert replay['commissioning_stage_qualified'] is False
+          assert replay['powered_operation_authorized'] is False
+          PY
       - name: Smoke-test Rev-C energy and charge-dock tools
         run: |
           python simulation/rev_c_energy_planner.py \

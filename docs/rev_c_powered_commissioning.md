@@ -23,6 +23,8 @@ Issue #45 begins only after:
 
 Ground-contact stages additionally require fingerprinted Issue #35 powered-test venue evidence.
 
+Stage 1 through Stage 4 also require Issues #47/#49 fingerprinted telemetry replay evidence from sealed raw streams. Stage 0 is non-energized and requires a logging plan but no telemetry replay.
+
 Dog-accompanied work remains downstream of Issue #33 and does not participate in Stage 0-4 commissioning.
 
 ## Authority ladder
@@ -177,9 +179,24 @@ The qualifier checks that they exist. Physical test execution is responsible for
 
 ## Required measurements
 
-Stage-specific required metric IDs live in the dated snapshot. Measurement entries include metric ID, unit, source, and a finite summary value and/or evidence reference.
+Stage-specific required metric IDs live in the dated snapshot.
+
+For Stage 1-4, measurement entries are no longer free-form evidence. They must reference an `x1_commissioning_telemetry_replay` authority derived from a sealed, validated `x1_telemetry_session`.
+
+The stage qualifier checks, for every required metric:
+
+- metric ID exists in the replay;
+- unit matches the replay;
+- evidence URI matches the replay;
+- numeric value matches the replay when the replay emits one;
+- replay board/configuration/stage/power-architecture lineage matches;
+- replay fingerprint is valid;
+- replay is marked `physical_evidence_eligible=true`;
+- synthetic fixtures are rejected.
 
 Stage 4 explicitly includes physical acceleration and jerk because software current slew is not a physical jerk measurement.
+
+See `docs/x1_telemetry_flight_recorder.md`.
 
 ## Universal stop conditions
 
@@ -205,6 +222,8 @@ Stage 1 additionally supplies `--previous-stage`. Stage 3 and Stage 4 also suppl
 
 The initializer validates upstream fingerprints before creating the workspace.
 
+After the energized run, record/seal/validate/replay telemetry separately. Then write the replay fingerprint and replay-backed measurement references into the commissioning manifest before qualification.
+
 ## Qualify a stage
 
 For an energized stage:
@@ -216,10 +235,13 @@ python tools/qualify_rev_c_powered_commissioning_stage.py \
   --pre-health-state rider/private/health/x1-a/pre_stage_health.json \
   --previous-stage rider/private/commissioning/stage-0/authority.json \
   --post-health-state rider/private/health/x1-a/post_stage_health.json \
+  --telemetry-replay rider/private/telemetry/stage-1-run-01/commissioning_replay.json \
   --out rider/private/commissioning/stage-1/authority.json
 ```
 
 Stage 3 and Stage 4 additionally supply the venue authority.
+
+A Stage 1-4 commissioning authority records both the telemetry replay fingerprint and the underlying telemetry-session fingerprint.
 
 A passing output is fingerprinted `x1_powered_commissioning_stage` authority for exactly one stage.
 
@@ -235,6 +257,6 @@ Stage 4 does not authorize normal neighborhood riding, trail riding, public-road
 
 ## Exit condition for the Issue #45 software tranche
 
-The software tranche is complete when Stage 0-4 contracts exist, stage order cannot be skipped, ground stages require fingerprinted venue evidence, all stages bind to exact architecture and health lineage, energized stages require post-stage READY health, required checks/measurements are machine validated, stop conditions prevent qualification, Stage 4 cannot authorize normal riding, and CI covers both passing and rejected synthetic lineages.
+The software tranche is complete when Stage 0-4 contracts exist, stage order cannot be skipped, ground stages require fingerprinted venue evidence, all stages bind to exact architecture and health lineage, energized stages require post-stage READY health, Stage 1-4 measurements require fingerprinted telemetry replay evidence from sealed raw sessions, synthetic telemetry cannot qualify physical commissioning, stop conditions prevent qualification, Stage 4 cannot authorize normal riding, and CI covers both passing and rejected synthetic lineages.
 
 Physical commissioning remains future work until the prerequisite hardware authorities actually exist.
