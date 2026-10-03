@@ -136,9 +136,37 @@ A study configuration is rejected from further progression if any of these occur
 
 Rejection here means only "do not progress this bench configuration." Passing does not authorize riding.
 
+## Force-response summarization
+
+After the private force log is complete, summarize the four-zone data without creating a ranking:
+
+```bash
+python tools/summarize_snowdeck_force_log.py \
+  rider/private/snowdeck/S1/force.csv \
+  --session rider/private/snowdeck/S1/session.json \
+  --out rider/private/snowdeck/S1/signature.json
+```
+
+The CSV uses calibrated, settled samples with columns:
+
+`trial_id,pose,left_heel,left_forefoot,right_heel,right_forefoot`
+
+and requires NEUTRAL, DEEP_KNEE, HEEL_BIASED and TOE_BIASED groups for at least three independent trials.
+
+The signature keeps force response and mechanical rejection separate. A condition with useful force transfer but observed rocking or migration remains blocked from further progression.
+
 ## Comparison rule
 
 Compare one change against S0 at a time.
+
+```bash
+python tools/compare_snowdeck_signatures.py \
+  rider/private/snowdeck/S0/signature.json \
+  rider/private/snowdeck/S1/signature.json \
+  --out rider/private/snowdeck/S1/vs_s0.json
+```
+
+The comparison reports signed variant-minus-baseline deltas and explicitly sets `winner_selected=false`.
 
 The most useful outcome is not a single "best" setup. It is a response map:
 
