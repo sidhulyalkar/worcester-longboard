@@ -17,7 +17,7 @@ The viewer must never make speculative geometry look equally trustworthy to qual
 
 Every visual component has exactly one public evidence state:
 
-- `QUALIFIED`: backed by the named fingerprinted repository authority.
+- `QUALIFIED`: backed by a supplied fingerprint-valid repository authority whose full gate, dependency, and evidence-link checks pass.
 - `REFERENCE`: manufacturer or other documented reference, not received-unit measurement.
 - `ASSUMED`: parameterized engineering placeholder used only for analysis.
 - `BLOCKED`: intentionally unresolved or prohibited from promotion by the current build-authority graph.
@@ -74,7 +74,23 @@ Exact colors are viewer presentation details. State labels remain textual so mea
 5. The current web scaffold renders a procedural donor-grounded reference and the authority state even when detailed mesh assets have not yet been exported.
 6. Later mesh conversion may add GLB assets, but the GLB pipeline must not alter evidence classification.
 
-## Runtime manifest contract
+## Runtime authority contract
+
+The manifest builder reuses `tools/evaluate_build_authority.py`, rather than inventing a second notion of qualification.
+
+That provides:
+
+- the exact evidence predicates from `hardware/build_authority.json`;
+- SHA-256 authority fingerprint verification;
+- upstream dependency resolution;
+- evidence-link matching between dependent authorities;
+- fail-closed handling of missing evidence.
+
+The showcase then maps those evaluated gate states onto visual components.
+
+The pre-hardware viewer adds one stricter boundary: evidence asserting `powered_operation_authorized=true` is rejected rather than rendered as an active authority.
+
+## Public runtime manifest
 
 The runtime manifest contains only public design metadata:
 
@@ -82,20 +98,21 @@ The runtime manifest contains only public design metadata:
 - project/configuration identifiers
 - component evidence states
 - source paths
-- gate definitions
-- supplied-evidence gate states
+- evaluated gate status and blockers
+- source-file fingerprints
 - safety boundary flags
 - rendering hints
 
-It must not contain private anthropometry, private raw fit-rig logs, addresses, personal identifiers, battery secrets, or unsupported measured values.
+It must not contain private anthropometry, private raw fit-rig logs, addresses, personal identifiers, or unsupported measured values.
 
 ## Fail-closed rules
 
 - Missing evidence means a gate is closed.
 - Merely defining a gate in `hardware/build_authority.json` never makes it pass.
+- A document merely claiming `qualified=true` is insufficient.
 - Unknown evidence-state strings are invalid.
 - No showcase input may set `powered_operation_authorized=true`.
-- No visual component may be promoted to QUALIFIED without a named supplied authority source.
+- No visual component may be promoted to QUALIFIED unless the existing authority evaluator satisfies its mapped gate.
 - Blocked propulsion, live battery, charger, and powered-operation concepts remain blocked until their independent repository gates pass.
 
 ## Immediate visualization targets
