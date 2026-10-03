@@ -689,7 +689,7 @@ def qualify_manifest(path: Path) -> dict:
             for p in pre[:1] + up
         )
         metrics["noise_fs"] = max(
-            (p["std"] / abs(fit["counts_per_n"])) / full_scale_n
+            (p["std"] / abs(fit["counts_per_n"])) / conservative_full_scale_n
             for p in obs + val
         )
         if paired:
@@ -697,14 +697,14 @@ def qualify_manifest(path: Path) -> dict:
                 abs(
                     fmean(_force(p["mean"], fit) for p in up if p["mass_kg"] == mass)
                     - fmean(_force(p["mean"], fit) for p in down if p["mass_kg"] == mass)
-                ) / full_scale_n
+                ) / conservative_full_scale_n
                 for mass in paired
             )
         if post:
             metrics["zero_return_fs"] = abs(
                 _force(fmean(p["mean"] for p in post), fit)
                 - _force(fmean(p["mean"] for p in pre), fit)
-            ) / full_scale_n
+            ) / conservative_full_scale_n
         positive_val = [p for p in val if p["force_n"] > 0]
         if positive_val:
             metrics["validation_error_nominal"] = max(
