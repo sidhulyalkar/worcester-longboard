@@ -35,6 +35,10 @@ def _fit_pilot_evidence():
             "selection_authority_fingerprint_sha256": "1" * 64,
             "selection_record_sha256": "2" * 64,
         },
+        "mass_reference_provenance": {
+            "mass_reference_authority_fingerprint_sha256": "3" * 64,
+            "mass_reference_record_sha256": "4" * 64,
+        },
     })
 
 
@@ -206,6 +210,19 @@ def test_fit_pilot_gate_requires_issue_59_hardware_provenance():
     report = evaluate(_plan(), _procurement(), [_fit_pilot_evidence()])
     assert report["gates"]["fit_pilot_qualified"]["satisfied"] is True
     assert report["capabilities"]["duplicate_four_fit_zones"]["allowed"] is True
+
+
+def test_fit_pilot_gate_requires_issue_61_mass_reference_provenance():
+    pilot = _fit_pilot_evidence()
+    unsigned = dict(pilot)
+    unsigned.pop("authority_fingerprint_sha256")
+    unsigned.pop("mass_reference_provenance")
+    legacy = _stamp(unsigned)
+    report = evaluate(_plan(), _procurement(), [legacy])
+    assert report["gates"]["fit_pilot_qualified"]["satisfied"] is False
+
+    report = evaluate(_plan(), _procurement(), [_fit_pilot_evidence()])
+    assert report["gates"]["fit_pilot_qualified"]["satisfied"] is True
 
 
 def test_rev_c_blocks_measurement_chassis_procurement_until_release_conditions_close():
