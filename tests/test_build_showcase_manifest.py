@@ -205,3 +205,74 @@ def test_risk_summary_is_ranked_and_sanitized():
     assert summary[0]["priority_score"] == 60
     assert "verification" not in summary[0]
     assert "prevention" not in summary[0]
+
+
+
+def test_snowdeck_signature_overlay_is_sanitized():
+    data = {
+        "scope": "x1_snowdeck_bench_signature",
+        "condition_id": "S1",
+        "trial_count": 3,
+        "neutral": {"left_load_fraction": {"mean": 0.48, "sd": 0.01}},
+        "heel_to_toe_forefoot_transfer": {
+            "left": {"mean": 0.2, "sd": 0.01},
+            "right": {"mean": 0.22, "sd": 0.02},
+        },
+        "deep_knee_delta_from_neutral": {},
+        "mechanical_rejects": [],
+        "eligible_for_further_bench_comparison": True,
+        "source_force_log_sha256": "a" * 64,
+        "source_session_sha256": "b" * 64,
+        "session_id": "PRIVATE-SESSION-ID",
+        "private_notes": "must not enter runtime manifest",
+        "physical_authority": False,
+        "fabrication_authority": False,
+        "ride_authority": False,
+        "powered_operation_authorized": False,
+    }
+
+    clean = mod.sanitize_snowdeck_signature(data)
+
+    assert clean["condition_id"] == "S1"
+    assert clean["trial_count"] == 3
+    assert "session_id" not in clean
+    assert "private_notes" not in clean
+
+
+def test_snowdeck_signature_overlay_refuses_authority_promotion():
+    data = {
+        "scope": "x1_snowdeck_bench_signature",
+        "physical_authority": False,
+        "fabrication_authority": True,
+        "ride_authority": False,
+        "powered_operation_authorized": False,
+    }
+
+    try:
+        mod.sanitize_snowdeck_signature(data)
+    except ValueError as exc:
+        assert "fabrication_authority=false" in str(exc)
+    else:
+        raise AssertionError("fabrication authority must be rejected")
+
+
+def test_snowdeck_comparison_cannot_select_winner():
+    data = {
+        "scope": "x1_snowdeck_bench_signature_comparison",
+        "baseline": {"condition_id": "S0", "mechanical_rejects": []},
+        "variant": {"condition_id": "S1", "mechanical_rejects": []},
+        "signed_variant_minus_baseline": {},
+        "variant_eligible_for_further_bench_comparison": True,
+        "winner_selected": True,
+        "physical_authority": False,
+        "fabrication_authority": False,
+        "ride_authority": False,
+        "powered_operation_authorized": False,
+    }
+
+    try:
+        mod.sanitize_snowdeck_comparison(data)
+    except ValueError as exc:
+        assert "must not select a winner" in str(exc)
+    else:
+        raise AssertionError("showcase must reject ranked SnowDeck comparison")
