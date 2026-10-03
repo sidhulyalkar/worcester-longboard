@@ -274,18 +274,64 @@ jobs:
             --receiving /tmp/x1-physical-kickoff/cart_a_receiving.json \
             --receiving-authority /tmp/x1-physical-kickoff/cart_a_receiving_authority.json \
             --out /tmp/x1-physical-kickoff/pilot_hardware_selection_authority.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          record = json.loads(
+              Path('hardware/x1_fit_pilot_mass_reference_template.json').read_text()
+          )
+          record.update({
+              'reference_set_id': 'CI-MASS-REF',
+              'measured_at_utc': '2026-10-03T13:00:00-07:00',
+              'method': 'INDEPENDENT_SCALE_MANUFACTURER_SPEC',
+          })
+          record['instrument'].update({
+              'manufacturer': 'CI Synthetic',
+              'model': 'Scale-A',
+              'capacity_kg': 20.0,
+              'resolution_kg': 0.001,
+              'stated_accuracy_abs_kg': 0.005,
+              'accuracy_source_reference': 'CI manufacturer-spec fixture',
+              'zero_checks_kg': [0.0, 0.001, 0.0],
+          })
+          masses = [
+              ('M1P997', 'CALIBRATION', 1.997),
+              ('M5P013', 'CALIBRATION', 5.013),
+              ('M10P021', 'CALIBRATION', 10.021),
+              ('M7P486', 'VALIDATION', 7.486),
+          ]
+          record['masses'] = []
+          for mass_id, role, value in masses:
+              record['masses'].append({
+                  'mass_id': mass_id,
+                  'role': role,
+                  'object_description': f'CI synthetic {value:g} kg object',
+                  'nominal_label_kg': value,
+                  'repeat_measurements_kg': [
+                      value, value + 0.001, value - 0.001, value, value
+                  ],
+                  'accepted_mass_kg': value,
+                  'declared_expanded_uncertainty_kg': 0.005,
+                  'source_reference': 'CI repeat-weigh fixture',
+              })
+          Path('/tmp/x1-physical-kickoff/pilot_mass_reference.json').write_text(
+              json.dumps(record, indent=2) + '\n'
+          )
+          PY
+          python tools/validate_x1_fit_pilot_mass_reference.py \
+            /tmp/x1-physical-kickoff/pilot_mass_reference.json \
+            --out /tmp/x1-physical-kickoff/pilot_mass_reference_authority.json
           python tools/init_one_zone_pilot_session.py \
             /tmp/x1-one-zone-session \
             --hardware-selection /tmp/x1-physical-kickoff/pilot_hardware_selection.json \
             --hardware-selection-authority /tmp/x1-physical-kickoff/pilot_hardware_selection_authority.json \
+            --mass-reference /tmp/x1-physical-kickoff/pilot_mass_reference.json \
+            --mass-reference-authority /tmp/x1-physical-kickoff/pilot_mass_reference_authority.json \
             --pod-id POD-CI-A \
             --zone-pad-id PAD-CI-A \
             --channel left_heel \
-            --sps 10 \
-            --calibration-mass-kg 1.997 \
-            --calibration-mass-kg 5.013 \
-            --calibration-mass-kg 10.021 \
-            --validation-mass-kg 7.486
+            --sps 10
           python - <<'PY'
           import json
           from pathlib import Path
@@ -301,6 +347,17 @@ jobs:
           assert selection['four_zone_duplication_authorized'] is False
           assert selection['powered_operation_authorized'] is False
 
+          mass_ref = json.loads(
+              Path('/tmp/x1-physical-kickoff/pilot_mass_reference_authority.json').read_text()
+          )
+          assert mass_ref['valid'] is True
+          assert mass_ref['authority'] == 'x1_fit_pilot_mass_reference'
+          assert mass_ref['nist_traceability_claimed'] is False
+          assert mass_ref['commercial_legal_metrology_claimed'] is False
+          assert mass_ref['physical_sensor_qualification_authority'] is False
+          assert mass_ref['four_zone_duplication_authorized'] is False
+          assert mass_ref['powered_operation_authorized'] is False
+
           manifest = json.loads(
               Path('/tmp/x1-one-zone-session/pilot_manifest.json').read_text()
           )
@@ -310,8 +367,13 @@ jobs:
           assert manifest['spare_hardware_ids']['load_cell_id'] == 'LC-CI-SPARE'
           assert manifest['spare_hardware_ids']['hx711_id'] == 'ADC-CI-SPARE'
           assert manifest['hardware_selection']['selection_id'] == 'CI-PILOT-HW'
+          assert manifest['mass_reference']['reference_set_id'] == 'CI-MASS-REF'
+          assert [x['mass_kg'] for x in manifest['observations'] if x['kind'] == 'load_up'] == [1.997, 5.013, 10.021]
+          assert manifest['validation'][0]['mass_kg'] == 7.486
           assert Path('/tmp/x1-one-zone-session/provenance/hardware_selection.json').is_file()
           assert Path('/tmp/x1-one-zone-session/provenance/hardware_selection_authority.json').is_file()
+          assert Path('/tmp/x1-one-zone-session/provenance/mass_reference.json').is_file()
+          assert Path('/tmp/x1-one-zone-session/provenance/mass_reference_authority.json').is_file()
           assert manifest['acquisition']['rate_jumper_verified'] is False
           assert manifest['mechanical']['vendor_pattern_verified'] is False
           PY
