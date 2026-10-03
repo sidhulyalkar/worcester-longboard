@@ -9,6 +9,8 @@ import math
 import shutil
 from pathlib import Path
 
+from fit.mass_reference import validate as validate_mass_reference
+
 HARD_MAX_PILOT_MASS_KG = 20.0
 
 
@@ -71,6 +73,13 @@ def _valid_mass_reference(record: dict, authority: dict) -> None:
         raise ValueError("mass reference authority must be valid")
     if authority.get("record_sha256") != _digest(record):
         raise ValueError("mass reference authority does not match mass record")
+    recomputed = validate_mass_reference(record)
+    if recomputed.get("valid") is not True:
+        raise ValueError("mass reference record does not pass canonical validation")
+    if recomputed.get("authority_fingerprint_sha256") != actual:
+        raise ValueError(
+            "mass reference authority does not match canonical validation of record"
+        )
     if not isinstance(authority.get("reference_set_id"), str) or not authority[
         "reference_set_id"
     ].strip():
