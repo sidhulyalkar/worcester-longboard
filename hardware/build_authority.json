@@ -8,8 +8,24 @@
       "requires": [],
       "evidence": [
         {
+          "path": "authority",
+          "equals": "x1_one_zone_pilot"
+        },
+        {
+          "path": "scope",
+          "equals": "unpowered_fit_rig_only"
+        },
+        {
           "path": "qualified_for_four_zone_duplication",
           "equals": true
+        },
+        {
+          "path": "hardware_provenance.selection_authority_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
+          "path": "hardware_provenance.selection_record_sha256",
+          "type": "nonempty_string"
         },
         {
           "path": "authority_fingerprint_sha256",
