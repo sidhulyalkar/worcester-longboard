@@ -419,10 +419,20 @@ function deckStudyUI(manifest) {
   const host = document.getElementById("deck-candidates");
   host.innerHTML = "";
   const candidates = manifest.design_studies.deck_candidates || [];
+  const selection = manifest.deck_comparison_selection || null;
+  const selectedAuthorityId = selection?.selected_candidate_id || null;
+  let defaultButton = null;
+
   candidates.forEach((candidate, index) => {
     const btn = document.createElement("button");
-    btn.textContent = candidate.label;
-    if (index === 0) btn.classList.add("active");
+    const physicallySelected =
+      selectedAuthorityId &&
+      candidate.authority_candidate_id === selectedAuthorityId;
+
+    btn.textContent =
+      candidate.label + (physicallySelected ? " · PHYSICAL PICK" : "");
+    if (physicallySelected) btn.classList.add("physical-selected");
+
     btn.addEventListener("click", () => {
       if (!visual.deck || !visual.geometry) return;
       visual.deck.scale.x = candidate.length_mm / visual.geometry.deck_length_mm;
@@ -431,10 +441,20 @@ function deckStudyUI(manifest) {
       btn.classList.add("active");
       document.getElementById("deck-note").textContent =
         candidate.label + ": " + candidate.length_mm + " × " + candidate.width_mm +
-        " mm maximum reference envelope. Truck/wheel geometry is intentionally unchanged.";
+        " mm maximum reference envelope. " +
+        (physicallySelected
+          ? "Selected by a fingerprint-valid full-scale deck comparison; this is not chassis qualification. "
+          : "") +
+        "Truck/wheel geometry is intentionally unchanged.";
     });
+
     host.appendChild(btn);
+    if (physicallySelected || (!defaultButton && index === 0)) {
+      defaultButton = btn;
+    }
   });
+
+  if (defaultButton) defaultButton.click();
 }
 
 function topologyUI(manifest) {
