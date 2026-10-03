@@ -12,6 +12,11 @@ from evaluate_build_authority import evaluate as evaluate_build_authority
 
 ROOT = Path(__file__).resolve().parents[1]
 ALLOWED_STATES = {"QUALIFIED", "REFERENCE", "ASSUMED", "BLOCKED", "NOT_PRESENT"}
+DECK_SELECTION_IDS = {
+    "comp95_class",
+    "pro_warren_iii_class",
+    "agent_class",
+}
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -65,21 +70,35 @@ def extract_deck_comparison_selection(
 ) -> dict[str, Any] | None:
     matches = []
     for doc in evidence_docs:
-        if (
-            doc.get("authority") == "x1_rev_c_deck_comparison"
-            and doc.get("qualified") is True
+        if doc.get("authority") != "x1_rev_c_deck_comparison":
+            continue
+        claims_qualified = doc.get("qualified") is True
+        if not claims_qualified:
+            continue
+
+        contract_ok = (
+            doc.get("schema_version") == 1
+            and doc.get("scope") == "sanitized_pre_purchase_deck_comparison"
+            and doc.get("errors") == []
+            and doc.get("selection_reason_recorded") is True
             and doc.get("powered_operation_authorized") is False
             and valid_authority_fingerprint(doc)
-        ):
-            candidate_id = doc.get("selected_candidate_id")
-            if not isinstance(candidate_id, str) or not candidate_id.strip():
-                raise ValueError("qualified deck comparison missing selected_candidate_id")
-            matches.append(
-                {
-                    "selected_candidate_id": candidate_id,
-                    "authority_fingerprint_sha256": doc["authority_fingerprint_sha256"],
-                }
+        )
+        if not contract_ok:
+            raise ValueError("qualified deck-comparison authority failed sanitized contract")
+
+        candidate_id = doc.get("selected_candidate_id")
+        if candidate_id not in DECK_SELECTION_IDS:
+            raise ValueError(
+                "qualified deck comparison selected unknown candidate: "
+                + repr(candidate_id)
             )
+        matches.append(
+            {
+                "selected_candidate_id": candidate_id,
+                "authority_fingerprint_sha256": doc["authority_fingerprint_sha256"],
+            }
+        )
     if not matches:
         return None
     selections = {item["selected_candidate_id"] for item in matches}
