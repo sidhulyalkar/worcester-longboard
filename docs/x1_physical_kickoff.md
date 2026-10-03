@@ -85,7 +85,9 @@ After payment, record confirmation references, shipping/tax, and final total, sw
 
 When packages arrive, use `docs/x1_cart_a_checkout_receiving.md` to create the fingerprint-bound receiving record before Issue #4 assembly.
 
-This layer records what was actually bought and received. It does not qualify the sensor path.
+Then use `docs/x1_fit_pilot_hardware_provenance.md` to create Issue #59 hardware-selection evidence. Issue #56 records what arrived; Issue #59 chooses the exact active load cell/HX711 and preserves the exact untouched spares that Issue #4 is allowed to use.
+
+Neither layer qualifies sensor performance.
 
 ## Current Cart A
 
@@ -126,9 +128,10 @@ Before assembly:
 2. assign stable physical IDs;
 3. inspect shipping condition;
 4. preserve the untouched spare path;
-5. verify real load-cell geometry and fixed/loaded orientation;
-6. verify HX711 revision and RATE state;
-7. measure the real fastener stack before choosing M5 screw length.
+5. create and validate the Issue #59 hardware-selection authority;
+6. verify real load-cell geometry and fixed/loaded orientation on the selected active unit;
+7. verify the selected active HX711 revision and RATE state;
+8. measure the real fastener stack before choosing M5 screw length.
 
 Generate the fixture with:
 
@@ -151,7 +154,7 @@ Requirements:
 
 Do not type a nominal dumbbell or plate label into the manifest and call it measured truth.
 
-Only after the actual values are known should tools/init_one_zone_pilot_session.py be initialized with them.
+Only after the actual values are known **and Issue #59 has locked the active sensor hardware** should `tools/init_one_zone_pilot_session.py` be initialized. Pass the Issue #59 selection record and authority instead of typing load-cell/HX711 IDs manually.
 
 ## What not to buy
 
@@ -181,9 +184,10 @@ Day-0 is complete when:
 3. only actually-needed Cart A items are ordered or positively accounted for;
 4. any placed order has a valid Issue #56 checkout record;
 5. received shipments are reconciled through Issue #56 before assembly;
-6. all three stance envelopes exist;
-7. zero-cost chassis trials can begin;
-8. every expensive and powered stage remains blocked.
+6. Issue #59 selects the exact active load-cell/HX711 path and untouched spares before Issue #4 session initialization;
+7. all three stance envelopes exist;
+8. zero-cost chassis trials can begin;
+9. every expensive and powered stage remains blocked.
 
 The next evidence milestones remain:
 
