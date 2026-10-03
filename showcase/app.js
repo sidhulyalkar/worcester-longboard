@@ -431,6 +431,15 @@ function fmt(value, digits = 3) {
   return Number.isFinite(Number(value)) ? Number(value).toFixed(digits) : "—";
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function snowdeckResponseUI(manifest) {
   const host = document.getElementById("snowdeck-response");
   const signature = manifest.snowdeck_bench_signature;
@@ -444,7 +453,7 @@ function snowdeckResponseUI(manifest) {
 
   host.innerHTML =
     '<div class="response-head ' + stateClass + '">' +
-      '<strong>' + (signature.condition_id || "local condition") + '</strong>' +
+      '<strong>' + escapeHtml(signature.condition_id || "local condition") + '</strong>' +
       '<span>' + signature.trial_count + ' trials</span>' +
     '</div>' +
     '<div class="metric-grid">' +
@@ -454,7 +463,7 @@ function snowdeckResponseUI(manifest) {
       '<div><span>Total-load SD</span><strong>' + fmt(neutral.total_load?.sd, 2) + '</strong><small>force units</small></div>' +
     '</div>' +
     (rejects.length
-      ? '<div class="reject-box"><strong>Mechanically blocked</strong><span>' + rejects.join(" · ") + '</span></div>'
+      ? '<div class="reject-box"><strong>Mechanically blocked</strong><span>' + rejects.map(escapeHtml).join(" · ") + '</span></div>'
       : '<div class="accept-box"><strong>No linked immediate-reject observation</strong><span>Still bench-only and non-authoritative.</span></div>');
 
   if (comparison) {
