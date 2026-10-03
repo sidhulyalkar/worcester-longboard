@@ -90,6 +90,26 @@ is a placeholder. Use the actual authority path produced by the Issue #4 workflo
 
 ---
 
+## 1A. Optional digital-twin preflight
+
+Before printing/cutting the full-scale templates, the authority-aware viewer may be used to compare the same three maximum deck envelopes while holding the donor truck/wheel reference fixed:
+
+```bash
+python tools/build_showcase_manifest.py
+python -m http.server 8000
+```
+
+Open `http://localhost:8000/showcase/`.
+
+Use this only to form questions for the physical comparison:
+
+- does extra width appear likely to improve heel/toe leverage or simply create unused deck;
+- does added length create useful stance reserve;
+- do the current rider-interface keep-outs leave obvious packaging conflicts;
+- which candidate deserves especially careful emergency step-off testing.
+
+The viewer is **not Issue #25 evidence**. It cannot evaluate actual foot placement, comfort, emergency disengagement, deck flex, or repeated natural remount behavior. The physical full-scale experiment below remains mandatory.
+
 ## 2. Generate the three full-scale deck envelopes
 
 The initializer already generates all three SVGs. To regenerate them manually:
