@@ -141,7 +141,8 @@
         "length_mm": 950,
         "width_mm": 251,
         "evidence_state": "REFERENCE",
-        "source": "cad/generate_rev_c_deck_templates.py"
+        "source": "cad/generate_rev_c_deck_templates.py",
+        "authority_candidate_id": "comp95_class"
       },
       {
         "id": "pro_warren_iii",
@@ -149,7 +150,8 @@
         "length_mm": 980,
         "width_mm": 244,
         "evidence_state": "REFERENCE",
-        "source": "cad/generate_rev_c_deck_templates.py"
+        "source": "cad/generate_rev_c_deck_templates.py",
+        "authority_candidate_id": "pro_warren_iii_class"
       },
       {
         "id": "agent",
@@ -157,7 +159,8 @@
         "length_mm": 1020,
         "width_mm": 284,
         "evidence_state": "REFERENCE",
-        "source": "cad/generate_rev_c_deck_templates.py"
+        "source": "cad/generate_rev_c_deck_templates.py",
+        "authority_candidate_id": "agent_class"
       }
     ],
     "snowdeck_variables": [
