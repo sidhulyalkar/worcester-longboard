@@ -25,3 +25,33 @@ def test_showcase_plan_can_skip_generated_geometry_and_forward_evidence():
     assert command.count("--evidence") == 2
     assert "/tmp/a.json" in command
     assert "/tmp/b.json" in command
+
+
+
+def test_showcase_plan_can_load_synthetic_snowdeck_demo():
+    plan = command_plan(
+        skip_cad=True,
+        skip_assets=True,
+        synthetic_snowdeck_demo=True,
+    )
+
+    assert len(plan) == 1
+    command = plan[0]
+    assert "--snowdeck-signature" in command
+    assert "showcase/examples/snowdeck_s1.synthetic.json" in command
+    assert "--snowdeck-comparison" in command
+    assert "showcase/examples/snowdeck_s0_to_s1.synthetic.json" in command
+
+
+def test_synthetic_demo_rejects_explicit_overlay_mix():
+    try:
+        command_plan(
+            skip_cad=True,
+            skip_assets=True,
+            snowdeck_signature=Path("/tmp/private.json"),
+            synthetic_snowdeck_demo=True,
+        )
+    except ValueError as exc:
+        assert "cannot be combined" in str(exc)
+    else:
+        raise AssertionError("synthetic and explicit overlays must not be mixed")
