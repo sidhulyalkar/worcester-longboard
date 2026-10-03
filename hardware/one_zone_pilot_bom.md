@@ -1,6 +1,6 @@
 # X1 one-zone pilot: minimal order and bench BOM
 
-This BOM is intentionally smaller than the four-zone Fit Rig BOM. Buy enough to qualify one physical sensor path plus one untouched spare. Do **not** duplicate all four installed zones until Issue #4 passes.
+This BOM is intentionally smaller than the four-zone Fit Rig BOM. Buy enough to qualify one physical sensor path plus one untouched spare. Do **not** duplicate all four installed zones until Issue #4 passes **and Issue #63 verifies off-axis platform repeatability on the exact one-zone assembly**.
 
 ## Order now
 
