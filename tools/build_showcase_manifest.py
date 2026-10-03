@@ -77,6 +77,22 @@ def promote_components(
         else:
             component["gate_qualified"] = False
             component["gate_blockers"] = []
+
+        context_states = []
+        for context_gate in component.get("context_gates", []):
+            if context_gate not in gate_state:
+                raise ValueError(
+                    f"{component.get('id')}: unknown context gate {context_gate!r}"
+                )
+            context = gate_state[context_gate]
+            context_states.append(
+                {
+                    "gate": context_gate,
+                    "satisfied": bool(context["satisfied"]),
+                    "blockers": list(context.get("blockers", [])),
+                }
+            )
+        component["context_gate_states"] = context_states
         components.append(component)
     return components
 
