@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "scope": "x1_fit_platform_repeatability_trial",
+  "issue": 63,
+  "session_id": "",
+  "one_zone_authority_fingerprint_sha256": "",
+  "one_zone_authority_path": "provenance/one_zone_pilot_authority.json",
+  "zone_pad": {
+    "length_mm": 105,
+    "width_mm": 78
+  },
+  "load_interface": {
+    "interface_id": "",
+    "contact_length_mm": null,
+    "contact_width_mm": null,
+    "notes": ""
+  },
+  "acquisition": {
+    "no_rezero_between_position_runs": false,
+    "no_recalibration_between_position_runs": false,
+    "fixture_remained_secured": false
+  },
+  "zero_pre_log": "raw/zero_pre.csv",
+  "zero_post_log": "raw/zero_post.csv",
+  "placements": [
+    {
+      "position_id": "CENTER",
+      "centroid_x_mm": null,
+      "centroid_y_mm": null,
+      "contact_length_mm": null,
+      "contact_width_mm": null,
+      "stop_clearance_min_mm": null,
+      "fully_supported": false,
+      "rocking_observed": false,
+      "interference_observed": false,
+      "cable_force_observed": false,
+      "logs": [
+        "raw/center_01.csv",
+        "raw/center_02.csv",
+        "raw/center_03.csv"
+      ]
+    },
+    {
+      "position_id": "+X",
+      "centroid_x_mm": null,
+      "centroid_y_mm": null,
+      "contact_length_mm": null,
+      "contact_width_mm": null,
+      "stop_clearance_min_mm": null,
+      "fully_supported": false,
+      "rocking_observed": false,
+      "interference_observed": false,
+      "cable_force_observed": false,
+      "logs": [
+        "raw/plus_x_01.csv",
+        "raw/plus_x_02.csv",
+        "raw/plus_x_03.csv"
+      ]
+    },
+    {
+      "position_id": "-X",
+      "centroid_x_mm": null,
+      "centroid_y_mm": null,
+      "contact_length_mm": null,
+      "contact_width_mm": null,
+      "stop_clearance_min_mm": null,
+      "fully_supported": false,
+      "rocking_observed": false,
+      "interference_observed": false,
+      "cable_force_observed": false,
+      "logs": [
+        "raw/minus_x_01.csv",
+        "raw/minus_x_02.csv",
+        "raw/minus_x_03.csv"
+      ]
+    },
+    {
+      "position_id": "+Y",
+      "centroid_x_mm": null,
+      "centroid_y_mm": null,
+      "contact_length_mm": null,
+      "contact_width_mm": null,
+      "stop_clearance_min_mm": null,
+      "fully_supported": false,
+      "rocking_observed": false,
+      "interference_observed": false,
+      "cable_force_observed": false,
+      "logs": [
+        "raw/plus_y_01.csv",
+        "raw/plus_y_02.csv",
+        "raw/plus_y_03.csv"
+      ]
+    },
+    {
+      "position_id": "-Y",
+      "centroid_x_mm": null,
+      "centroid_y_mm": null,
+      "contact_length_mm": null,
+      "contact_width_mm": null,
+      "stop_clearance_min_mm": null,
+      "fully_supported": false,
+      "rocking_observed": false,
+      "interference_observed": false,
+      "cable_force_observed": false,
+      "logs": [
+        "raw/minus_y_01.csv",
+        "raw/minus_y_02.csv",
+        "raw/minus_y_03.csv"
+      ]
+    }
+  ],
+  "powered_operation_authorized": false,
+  "public_operation_authorized": false,
+  "dog_accompanied_operation_authorized": false
+}
