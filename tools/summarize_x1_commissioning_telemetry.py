@@ -376,6 +376,11 @@ def replay(
         "telemetry_session_fingerprint_sha256": telemetry_fp,
         "metrics": metrics,
         "metric_ids": sorted(item["metric_id"] for item in metrics),
+        "synthetic_fixture": telemetry_authority.get("synthetic_fixture") is True,
+        "physical_evidence_eligible": (
+            qualified
+            and telemetry_authority.get("physical_evidence_eligible") is True
+        ),
         "commissioning_stage_qualified": False,
         "powered_operation_authorized": False,
         "public_operation_authorized": False,
