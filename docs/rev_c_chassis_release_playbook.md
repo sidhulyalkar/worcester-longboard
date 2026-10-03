@@ -7,7 +7,9 @@ This playbook does **not** authorize powered operation, battery construction, pe
 The release sequence is:
 
 ```
-Issue #4 fit-pilot authority
+Issue #59 hardware selection
+        ↓
+Issue #4 provenance-locked fit-pilot authority
         +
 full-scale deck comparison authority
         +
@@ -62,8 +64,15 @@ Do not fake this authority to advance the purchase gate.
 
 Your qualified fit-pilot authority should already contain:
 
-- `qualified_for_four_zone_duplication = true`
-- a valid `authority_fingerprint_sha256`
+- `authority = x1_one_zone_pilot`;
+- `scope = unpowered_fit_rig_only`;
+- `qualified_for_four_zone_duplication = true`;
+- a nonempty `hardware_provenance.selection_authority_fingerprint_sha256`;
+- a nonempty `hardware_provenance.selection_record_sha256`;
+- `powered_operation_authorized = false`;
+- a valid `authority_fingerprint_sha256`.
+
+Those provenance fields must descend from the Issue #59 hardware-selection authority used to initialize the Issue #4 session. A legacy provenance-less pilot report cannot release chassis purchasing.
 
 Keep its path available for the final release command.
 
