@@ -9,8 +9,9 @@ def test_showcase_plan_orders_geometry_before_assets_and_manifest():
 
     assert "cad/generate_rolling_chassis.py" in flattened[0]
     assert any("cad/generate_snowdeck_study.py" in command for command in flattened)
-    assert "tools/export_showcase_assets.py" in flattened[-2]
-    assert "tools/build_showcase_manifest.py" in flattened[-1]
+    assert "tools/export_showcase_assets.py" in flattened[-3]
+    assert "tools/build_showcase_manifest.py" in flattened[-2]
+    assert "tools/render_x1_showcase_review.py" in flattened[-1]
 
 
 def test_showcase_plan_can_skip_generated_geometry_and_forward_evidence():
@@ -20,8 +21,10 @@ def test_showcase_plan_can_skip_generated_geometry_and_forward_evidence():
         evidence=[Path("/tmp/a.json"), Path("/tmp/b.json")],
     )
 
-    assert len(plan) == 1
+    assert len(plan) == 2
     command = plan[0]
+    assert "tools/build_showcase_manifest.py" in command
+    assert "tools/render_x1_showcase_review.py" in plan[1]
     assert command.count("--evidence") == 2
     assert "/tmp/a.json" in command
     assert "/tmp/b.json" in command
@@ -35,8 +38,10 @@ def test_showcase_plan_can_load_synthetic_snowdeck_demo():
         synthetic_snowdeck_demo=True,
     )
 
-    assert len(plan) == 1
+    assert len(plan) == 2
     command = plan[0]
+    assert "tools/build_showcase_manifest.py" in command
+    assert "tools/render_x1_showcase_review.py" in plan[1]
     assert "--snowdeck-signature" in command
     signature_index = command.index("--snowdeck-signature") + 1
     comparison_index = command.index("--snowdeck-comparison") + 1
