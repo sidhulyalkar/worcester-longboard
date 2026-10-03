@@ -131,6 +131,7 @@ def build(
         "fabrication_authority": False,
         "powered_operation_authorized": False,
         "components": components,
+        "design_studies": seed.get("design_studies", {}),
         "gates": gate_state,
         "viewer_notice": (
             "Visualization only. Gate state is recomputed with the repository build-authority "
