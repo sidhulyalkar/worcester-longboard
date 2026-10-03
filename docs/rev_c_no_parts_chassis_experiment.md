@@ -25,21 +25,29 @@ python tools/init_rev_c_chassis_release_session.py \
   rider/private/rev_c_release
 ```
 
-The generated deck templates are:
+The workspace now creates two sets of templates:
 
-- `rev_c_comp95_deck_envelope.svg`: 950 x 251 mm;
-- `rev_c_pro_warren_iii_deck_envelope.svg`: 980 x 244 mm;
-- `rev_c_agent_deck_envelope.svg`: 1020 x 284 mm.
+- named reference templates under `deck_templates/`;
+- blinded A/B/C templates under `deck_templates_blind/`.
+
+It also creates:
+
+- `DECK_FIELD_SHEET.md`;
+- `deck_blind_key.json`.
+
+Use the blinded templates for the first pass. Do **not** open `deck_blind_key.json` until you have written the selected blind candidate and concrete rejection reasons for the other two.
 
 These rectangles represent published **maximum deck envelopes**, not exact outlines.
 
-If printing at full scale is inconvenient, reproduce each rectangle on the floor with painter's tape and mark the centerline.
+If printing at full scale is inconvenient, reproduce each blinded rectangle on the floor with painter's tape and mark the centerline.
 
-## 2. Blind the candidate names if practical
+## 2. Run the first pass blinded
 
-To reduce expectation bias, label the floor templates A/B/C without looking at which product each corresponds to during the first pass.
+The A/B/C mapping is randomized for each fresh workspace.
 
-Keep the candidate mapping in a separate note.
+Keep candidate identity hidden during the first-pass stance test. The blind SVGs intentionally omit product names and stated dimensions while preserving the correct full-scale geometry and 50 mm reference grid.
+
+Use `DECK_FIELD_SHEET.md` to keep the sequence identical across A/B/C.
 
 Do not change dimensions.
 
@@ -115,7 +123,15 @@ MBS describes the wide Agent deck as providing extra leverage and suitability fo
 
 Its electric-native ecosystem is irrelevant to this static stance test.
 
-## 7. Enter the session result
+## 7. Unblind only after writing the preference
+
+Once the blind selection and rejection reasons are written, open:
+
+`deck_blind_key.json`
+
+Translate A/B/C to the real candidate IDs. Do not revise the first-pass preference merely because the product identity is now visible.
+
+Then enter the real candidate result.
 
 Edit:
 
