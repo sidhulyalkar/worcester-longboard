@@ -28,6 +28,10 @@
           "type": "nonempty_string"
         },
         {
+          "path": "powered_operation_authorized",
+          "equals": false
+        },
+        {
           "path": "authority_fingerprint_sha256",
           "type": "valid_authority_fingerprint"
         }
