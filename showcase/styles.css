@@ -110,6 +110,19 @@ button.active {
   background: rgba(255,255,255,.14);
 }
 button:disabled { opacity: .35; cursor: not-allowed; }
+.risk-row {
+  display: grid;
+  grid-template-columns: 42px 1fr auto;
+  gap: 8px;
+  align-items: start;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(255,255,255,.055);
+  font-size: 11px;
+}
+.risk-id { opacity: .5; font-variant-numeric: tabular-nums; }
+.risk-row strong { display: block; font-size: 11px; font-weight: 600; }
+.risk-row small { display: block; margin-top: 2px; opacity: .48; line-height: 1.35; }
+.risk-score { font-variant-numeric: tabular-nums; opacity: .72; }
 .study-note {
   margin: 8px 0 0;
   font-size: 11px;
