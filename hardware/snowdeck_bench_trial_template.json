@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "scope": "x1_snowdeck_reversible_bench_observation",
+  "session_id": "",
+  "condition_id": "S0",
+  "configuration": {
+    "plate_separation_mm": null,
+    "front_yaw_deg": null,
+    "rear_yaw_deg": null,
+    "front_cant_deg": null,
+    "rear_cant_deg": null,
+    "insert_present": false,
+    "insert_material_private_ref": "",
+    "insert_nominal_thickness_mm": null,
+    "rigid_geometry_private_ref": ""
+  },
+  "prerequisites": {
+    "issue4_authority_fingerprint_sha256": "",
+    "issue63_authority_fingerprint_sha256": "",
+    "four_zone_fixture_authority_fingerprint_sha256": ""
+  },
+  "trials": [
+    {
+      "id": "trial-01",
+      "independent_remount": false,
+      "neutral_pose_recorded": false,
+      "deep_knee_pose_recorded": false,
+      "heel_biased_pose_recorded": false,
+      "toe_biased_pose_recorded": false,
+      "emergency_step_off_clear": false,
+      "unexpected_rocking_observed": null,
+      "insert_or_fastener_migration_observed": null,
+      "fixture_interference_observed": null,
+      "persistent_deformation_observed": null,
+      "overload_stop_contact_observed": null,
+      "private_force_log_ref": ""
+    },
+    {
+      "id": "trial-02",
+      "independent_remount": false,
+      "neutral_pose_recorded": false,
+      "deep_knee_pose_recorded": false,
+      "heel_biased_pose_recorded": false,
+      "toe_biased_pose_recorded": false,
+      "emergency_step_off_clear": false,
+      "unexpected_rocking_observed": null,
+      "insert_or_fastener_migration_observed": null,
+      "fixture_interference_observed": null,
+      "persistent_deformation_observed": null,
+      "overload_stop_contact_observed": null,
+      "private_force_log_ref": ""
+    },
+    {
+      "id": "trial-03",
+      "independent_remount": false,
+      "neutral_pose_recorded": false,
+      "deep_knee_pose_recorded": false,
+      "heel_biased_pose_recorded": false,
+      "toe_biased_pose_recorded": false,
+      "emergency_step_off_clear": false,
+      "unexpected_rocking_observed": null,
+      "insert_or_fastener_migration_observed": null,
+      "fixture_interference_observed": null,
+      "persistent_deformation_observed": null,
+      "overload_stop_contact_observed": null,
+      "private_force_log_ref": ""
+    }
+  ],
+  "post_trial_inspection": {
+    "fastener_migration_observed": null,
+    "insert_shift_observed": null,
+    "fixture_damage_observed": null,
+    "residual_deformation_observed": null
+  },
+  "bench_observation_complete": false,
+  "fabrication_authority": false,
+  "ride_authority": false,
+  "powered_operation_authorized": false
+}
