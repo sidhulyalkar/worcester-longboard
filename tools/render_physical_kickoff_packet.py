@@ -104,6 +104,18 @@ def render(plan: dict, procurement: dict, inventory: dict | None = None) -> str:
         "|---|---:|---|---:|---|---|",
     ]
 
+    required_exact_max = sum(
+        _max_cost(item)
+        for item in buy_now
+        if item.get("optional_if_owned") is not True
+    )
+    optional_if_owned_max = sum(
+        _max_cost(item)
+        for item in buy_now
+        if item.get("optional_if_owned") is True
+    )
+    no_inventory_max = required_exact_max + optional_if_owned_max
+
     remaining_max = 0.0
     for item in buy_now:
         row = inventory_rows.get(item["id"], {})
@@ -141,7 +153,15 @@ def render(plan: dict, procurement: dict, inventory: dict | None = None) -> str:
 
     lines.extend([
         "",
+        "### Spend decomposition before inventory",
+        "",
+        f"- Required exact Issue #4 evidence hardware: **${required_exact_max:.2f}** before shipping/tax.",
+        f"- Optional-if-owned tools/materials ceiling: **${optional_if_owned_max:.2f}**.",
+        f"- No-inventory worst-case Cart A total: **${no_inventory_max:.2f}**.",
+        "",
         f"Current maximum remaining checkout after recorded owned items: **${remaining_max:.2f}** before shipping/tax.",
+        "",
+        "The required-exact subtotal is the irreducible new-purchase amount only when no qualifying exact required hardware is already owned. Optional-if-owned lines should be physically inventoried before purchase.",
         "",
         "Required evidence hardware cannot be skipped merely because a vaguely similar part is in a drawer.",
         "For a required exact item, only an exact, physically verified, unused/known-history match can move it to verification instead of purchase.",
