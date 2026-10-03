@@ -27,10 +27,6 @@ def _fit_pilot():
             "authority_fingerprint_sha256": "3" * 64,
             "record_sha256": "4" * 64,
         },
-        "mass_reference_provenance": {
-            "authority_fingerprint_sha256": "3" * 64,
-            "record_sha256": "4" * 64,
-        },
     })
 
 
