@@ -439,3 +439,48 @@ def test_telemetry_program_seals_raw_files_and_never_controls_propulsion():
         "Stage 1 through Stage 4 commissioning measurements must reference fingerprinted telemetry replay evidence"
         in policies
     )
+
+
+def test_issue_59_binds_issue4_to_fingerprinted_sensor_selection():
+    program = _requirements()["fit_pilot_hardware_provenance_program"]
+    assert program["issue"] == 59
+    assert program["phase"] == (
+        "POST_CART_A_CHECKOUT_RECEIVING_PRE_ISSUE4_SESSION"
+    )
+    assert program["allowed_required_sensor_sources"] == [
+        "RECEIVED_ORDER",
+        "OWNED_EXACT_UNUSED",
+    ]
+    assert program["required_roles"]["load_cell"] == [
+        "PILOT_ACTIVE_CANDIDATE",
+        "SPARE_UNTOUCHED",
+    ]
+    assert program["required_roles"]["hx711"] == [
+        "PILOT_ACTIVE_CANDIDATE",
+        "SPARE_UNTOUCHED",
+    ]
+    assert program["physical_qualification_authority"] is False
+    assert program["four_zone_duplication_authorized"] is False
+    assert program["powered_operation_authorized"] is False
+
+
+def test_issue_59_requires_new_session_when_active_evidence_hardware_changes():
+    boundaries = _requirements()["fit_pilot_hardware_provenance_program"][
+        "hard_boundaries"
+    ]
+    assert (
+        "one untouched spare load cell and HX711 must remain preserved"
+        in boundaries
+    )
+    assert (
+        "sensor substitutes or equivalents cannot satisfy Issue #4 evidence hardware"
+        in boundaries
+    )
+    assert (
+        "changing active sensor hardware requires a new selection authority and new Issue #4 session"
+        in boundaries
+    )
+    assert (
+        "Issue #4 qualification must preserve the exact Issue #59 selection fingerprint"
+        in boundaries
+    )
