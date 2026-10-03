@@ -46,6 +46,10 @@ def test_private_packet_can_open_only_preferred_measurement_items_with_release_e
             "selection_authority_fingerprint_sha256": "1" * 64,
             "selection_record_sha256": "2" * 64,
         },
+        "mass_reference_provenance": {
+            "mass_reference_authority_fingerprint_sha256": "3" * 64,
+            "mass_reference_record_sha256": "4" * 64,
+        },
     })
     release = _stamp(
         {
