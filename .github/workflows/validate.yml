@@ -1396,6 +1396,22 @@ jobs:
           assert len(data['measurement_gates']) == 3
           print('Fit-rig CAD generated: one-zone vendor-pattern pilot ready; four-pod duplication remains physically gated.')
           PY
+      - name: Generate SnowDeck bench-study CAD
+        run: |
+          python cad/generate_snowdeck_study.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(
+              Path('cad/generated_snowdeck_study/snowdeck_study_authority.json').read_text()
+          )
+          assert report['fabrication_authority'] is False
+          assert report['ride_authority'] is False
+          assert report['powered_operation_authorized'] is False
+          assert report['validation_errors'] == []
+          print('SnowDeck CAD remains a reversible bench study only.')
+          PY
       - name: Generate one-zone pilot CAD package
         run: |
           python cad/generate_one_zone_pilot.py
