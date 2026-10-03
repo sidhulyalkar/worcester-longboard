@@ -193,6 +193,163 @@ def _validate_hardware_provenance(
     }, failures
 
 
+def _validate_mass_reference_provenance(
+    manifest: dict,
+    base: Path,
+) -> tuple[dict, list[str]]:
+    failures: list[str] = []
+    provenance = manifest.get("mass_reference")
+    if not isinstance(provenance, dict):
+        return {}, ["mass_reference must be an object"]
+
+    for key in (
+        "reference_set_id",
+        "mass_reference_record_sha256",
+        "mass_reference_authority_fingerprint_sha256",
+        "mass_reference_record_path",
+        "mass_reference_authority_path",
+    ):
+        if not isinstance(provenance.get(key), str) or not provenance[key].strip():
+            failures.append(f"mass_reference.{key} must be a nonempty string")
+    if failures:
+        return {}, failures
+
+    record_path = _resolve_session_file(
+        base,
+        provenance["mass_reference_record_path"],
+        "mass reference record",
+    )
+    authority_path = _resolve_session_file(
+        base,
+        provenance["mass_reference_authority_path"],
+        "mass reference authority",
+    )
+    try:
+        record = json.loads(record_path.read_text(encoding="utf-8"))
+        authority = json.loads(authority_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return {}, [f"mass reference provenance unreadable: {exc}"]
+
+    if not _valid_authority(authority, "x1_fit_pilot_mass_reference"):
+        failures.append("mass reference authority fingerprint/type is invalid")
+    if authority.get("valid") is not True:
+        failures.append("mass reference authority must be valid")
+    if authority.get("mass_reference_record_sha256") != _digest(record):
+        failures.append("mass reference authority does not match copied record")
+    if provenance["mass_reference_record_sha256"] != _digest(record):
+        failures.append("manifest mass reference record fingerprint mismatch")
+    if provenance["mass_reference_authority_fingerprint_sha256"] != authority.get(
+        "authority_fingerprint_sha256"
+    ):
+        failures.append("manifest does not link exact mass reference authority")
+    if provenance["reference_set_id"] != authority.get("reference_set_id"):
+        failures.append("manifest mass reference_set_id mismatch")
+
+    for key in (
+        "nist_traceability_claimed",
+        "commercial_legal_metrology_claimed",
+        "physical_sensor_qualification_authority",
+        "four_zone_duplication_authorized",
+        "powered_operation_authorized",
+        "public_operation_authorized",
+        "dog_accompanied_operation_authorized",
+    ):
+        if authority.get(key) is not False:
+            failures.append(f"mass reference authority boundary violated: {key}")
+
+    rows = authority.get("mass_summaries")
+    if not isinstance(rows, list):
+        failures.append("mass reference authority mass_summaries must be a list")
+        rows = []
+    by_id = {
+        row.get("mass_id"): row
+        for row in rows
+        if isinstance(row, dict) and isinstance(row.get("mass_id"), str)
+    }
+
+    calibration_uncertainty_fs: list[float] = []
+    validation_uncertainty_fraction: list[float] = []
+    calibration_masses = [
+        float(row["accepted_mass_kg"])
+        for row in rows
+        if isinstance(row, dict)
+        and row.get("role") == "CALIBRATION"
+        and isinstance(row.get("accepted_mass_kg"), (int, float))
+    ]
+    calibration_full_scale_kg = max(calibration_masses, default=0.0)
+
+    for item in manifest.get("observations", []):
+        if item.get("kind") not in {"load_up", "load_down"}:
+            continue
+        mass_id = item.get("mass_id")
+        row = by_id.get(mass_id)
+        if row is None or row.get("role") != "CALIBRATION":
+            failures.append(f"observation mass_id {mass_id!r} is not a calibration reference")
+            continue
+        expected_mass = float(row["accepted_mass_kg"])
+        expected_u = float(row["declared_expanded_uncertainty_kg"])
+        if not math.isclose(float(item.get("mass_kg", -1)), expected_mass, rel_tol=0, abs_tol=1e-9):
+            failures.append(f"observation {mass_id} mass differs from mass-reference authority")
+        if not math.isclose(
+            float(item.get("reference_uncertainty_kg", -1)),
+            expected_u,
+            rel_tol=0,
+            abs_tol=1e-12,
+        ):
+            failures.append(
+                f"observation {mass_id} uncertainty differs from mass-reference authority"
+            )
+        if calibration_full_scale_kg > 0:
+            calibration_uncertainty_fs.append(expected_u / calibration_full_scale_kg)
+
+    for item in manifest.get("validation", []):
+        mass_id = item.get("mass_id")
+        row = by_id.get(mass_id)
+        if row is None or row.get("role") != "VALIDATION":
+            failures.append(f"validation mass_id {mass_id!r} is not the validation reference")
+            continue
+        expected_mass = float(row["accepted_mass_kg"])
+        expected_u = float(row["declared_expanded_uncertainty_kg"])
+        if not math.isclose(float(item.get("mass_kg", -1)), expected_mass, rel_tol=0, abs_tol=1e-9):
+            failures.append("validation mass differs from mass-reference authority")
+        if not math.isclose(
+            float(item.get("reference_uncertainty_kg", -1)),
+            expected_u,
+            rel_tol=0,
+            abs_tol=1e-12,
+        ):
+            failures.append(
+                "validation uncertainty differs from mass-reference authority"
+            )
+        if expected_mass > 0:
+            validation_uncertainty_fraction.append(expected_u / expected_mass)
+
+    return {
+        "reference_set_id": authority.get("reference_set_id"),
+        "mass_reference_record_sha256": _digest(record),
+        "mass_reference_authority_fingerprint_sha256": authority.get(
+            "authority_fingerprint_sha256"
+        ),
+        "mass_reference_record_path": provenance["mass_reference_record_path"],
+        "mass_reference_authority_path": provenance["mass_reference_authority_path"],
+        "max_relative_uncertainty_fraction": authority.get(
+            "max_relative_uncertainty_fraction"
+        ),
+        "max_calibration_uncertainty_fs": max(
+            calibration_uncertainty_fs,
+            default=0.0,
+        ),
+        "max_validation_uncertainty_fraction": max(
+            validation_uncertainty_fraction,
+            default=0.0,
+        ),
+        "source_fingerprints": {
+            provenance["mass_reference_record_path"]: _sha(record_path),
+            provenance["mass_reference_authority_path"]: _sha(authority_path),
+        },
+    }, failures
+
+
 def _resolve_log(base: Path, relative: str) -> Path:
     candidate = (base / relative).resolve()
     try:
@@ -306,6 +463,11 @@ def qualify_manifest(path: Path) -> dict:
         hardware_ids,
     )
     failures.extend(hardware_provenance_failures)
+    mass_provenance, mass_provenance_failures = _validate_mass_reference_provenance(
+        manifest,
+        base,
+    )
+    failures.extend(mass_provenance_failures)
     channel = manifest["channel"]
     rate = manifest.get("hx711_sps")
     acquisition = manifest.get("acquisition", {})
@@ -377,7 +539,8 @@ def qualify_manifest(path: Path) -> dict:
 
     metrics = {key: None for key in (
         "r2", "residual_fs", "hysteresis_fs", "zero_return_fs",
-        "validation_error", "noise_fs",
+        "validation_error", "validation_error_with_reference_uncertainty",
+        "residual_fs_with_reference_uncertainty", "noise_fs",
     )}
     fit = None
     full_scale_n = max((p["force_n"] for p in up), default=0.0)
@@ -411,12 +574,35 @@ def qualify_manifest(path: Path) -> dict:
                 abs(_force(p["mean"], fit) - p["force_n"]) / p["force_n"]
                 for p in positive_val
             )
+        if metrics["residual_fs"] is not None:
+            metrics["residual_fs_with_reference_uncertainty"] = (
+                metrics["residual_fs"]
+                + float(mass_provenance.get("max_calibration_uncertainty_fs", 0.0))
+            )
+        if metrics["validation_error"] is not None:
+            metrics["validation_error_with_reference_uncertainty"] = (
+                metrics["validation_error"]
+                + float(
+                    mass_provenance.get(
+                        "max_validation_uncertainty_fraction",
+                        0.0,
+                    )
+                )
+            )
         checks = [
             ("r2", ">=", "min_r2"),
-            ("residual_fs", "<=", "max_residual_fs"),
+            (
+                "residual_fs_with_reference_uncertainty",
+                "<=",
+                "max_residual_fs",
+            ),
             ("hysteresis_fs", "<=", "max_hysteresis_fs"),
             ("zero_return_fs", "<=", "max_zero_return_fs"),
-            ("validation_error", "<=", "max_validation_error"),
+            (
+                "validation_error_with_reference_uncertainty",
+                "<=",
+                "max_validation_error",
+            ),
             ("noise_fs", "<=", "max_noise_fs"),
         ]
         for name, op, limit_name in checks:
@@ -451,6 +637,7 @@ def qualify_manifest(path: Path) -> dict:
         "scope": "unpowered_fit_rig_only",
         "hardware_ids": hardware_ids,
         "hardware_provenance": hardware_provenance,
+        "mass_reference_provenance": mass_provenance,
         "channel": channel,
         "hx711_sps": rate,
         "hard_max_pilot_mass_kg": HARD_MAX_PILOT_MASS_KG,
@@ -462,6 +649,7 @@ def qualify_manifest(path: Path) -> dict:
         "source_fingerprints": {
             **sources,
             **hardware_provenance.get("source_fingerprints", {}),
+            **mass_provenance.get("source_fingerprints", {}),
         },
         "manifest_sha256": _sha(path),
         "qualification_tool_sha256": _tool_sha256(),
