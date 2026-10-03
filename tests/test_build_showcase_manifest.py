@@ -171,3 +171,37 @@ def test_powered_claim_is_rejected(tmp_path):
         assert "powered-operation" in str(exc)
     else:
         raise AssertionError("powered-operation claim should fail closed")
+
+
+def test_risk_summary_is_ranked_and_sanitized():
+    register = {
+        "risks": [
+            {
+                "id": "M-low",
+                "subsystem": "low",
+                "failure_mode": "low mode",
+                "effect": "low effect",
+                "priority_score": 10,
+                "status": "OPEN",
+                "must_close_before": "later",
+                "prevention": ["not needed in public summary"],
+            },
+            {
+                "id": "M-high",
+                "subsystem": "high",
+                "failure_mode": "high mode",
+                "effect": "high effect",
+                "priority_score": 60,
+                "status": "OPEN",
+                "must_close_before": "earlier",
+                "verification": ["not needed in public summary"],
+            },
+        ]
+    }
+
+    summary = mod.summarize_risks(register, limit=1)
+
+    assert [row["id"] for row in summary] == ["M-high"]
+    assert summary[0]["priority_score"] == 60
+    assert "verification" not in summary[0]
+    assert "prevention" not in summary[0]
