@@ -76,7 +76,7 @@ Recommended first-build spares:
 6. Regenerate the verified CAD.
 7. Assemble **one** complete force zone using one fastener per sensor end.
 8. Verify monotonic/linear response, zero return, absence of rubbing and overload-stop clearance with known masses.
-9. Only then duplicate that validated zone three more times.
+9. Run Issue #63 CENTER/+X/-X/+Y/-Y platform repeatability on that exact validated zone, then duplicate it three more times only after Issue #63 passes.
 10. Add both adjustable footplates and the electronics enclosure after all four zones pass individual calibration.
 11. Run a no-rider central-load test before collecting stance data.
 
