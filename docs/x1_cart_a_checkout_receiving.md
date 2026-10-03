@@ -255,7 +255,7 @@ dog_accompanied_operation_authorized = false
 
 ## 10. What happens next
 
-Only after receiving inspection should the hardware move into **Issue #59 selection**, then Issue #4. Receiving proves what arrived; it does not choose or qualify the sensor path.
+Only after receiving inspection should the hardware move into **Issue #59 selection**, then **Issue #61 mass-reference evidence**, then Issue #4. Receiving proves what arrived; it does not choose or qualify the sensor path or establish calibration masses.
 
 Follow `docs/x1_fit_pilot_hardware_provenance.md`.
 
@@ -269,11 +269,11 @@ Only after that selection authority passes should the active pilot path move int
 4. measure the real screw/washer stack;
 5. generate the one-zone pilot CAD;
 6. preserve the spare sensor and ADC untouched;
-7. establish real calibration/validation masses;
-8. initialize the private one-zone qualification session.
+7. create and validate Issue #61 calibration/validation mass-reference evidence;
+8. initialize the private one-zone qualification session from both Issue #59 and Issue #61 authorities.
 
 Receipt evidence proves identity and condition at delivery.
 
-Issue #4 proves whether the **Issue #59-selected** assembled sensor path actually performs. If the active load cell or HX711 changes, do not reuse the old calibration session; create a new selection authority and a new Issue #4 session.
+Issue #4 proves whether the **Issue #59-selected** assembled sensor path actually performs against the **Issue #61-qualified** reference masses. If the active load cell or HX711 changes, do not reuse the old calibration session; create a new selection authority and a new Issue #4 session.
 
 Those are intentionally different authorities.
