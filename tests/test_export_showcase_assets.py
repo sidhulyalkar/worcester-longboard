@@ -28,6 +28,8 @@ def test_convert_stl_records_hashes_and_no_authority(tmp_path):
 
     assert dst.exists()
     assert dst.stat().st_size > 0
+    assert record["asset_id"] == "cube"
+    assert record["source_group"] == "chassis"
     assert len(record["source_sha256"]) == 64
     assert len(record["asset_sha256"]) == 64
     assert record["physical_authority"] is False
