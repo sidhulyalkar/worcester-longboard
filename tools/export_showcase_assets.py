@@ -40,6 +40,8 @@ def convert_stl(src: Path, dst: Path) -> dict:
         raise TypeError(f"{src}: GLB export did not return bytes")
     dst.write_bytes(payload)
     return {
+        "asset_id": src.stem,
+        "source_group": src.parent.name.replace("generated_", ""),
         "source": str(src.relative_to(ROOT)),
         "source_sha256": sha256_file(src),
         "asset": str(dst.relative_to(ROOT)),
