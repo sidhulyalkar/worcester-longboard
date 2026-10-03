@@ -15,3 +15,4 @@ __pycache__/
 .pytest_cache/
 .venv/
 .DS_Store
+cad/generated_chassis/\ncad/generated_one_zone_pilot/\nshowcase/generated/\n
