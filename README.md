@@ -42,7 +42,7 @@ The ordering stack is deliberately split by function:
 
 - `hardware/procurement_manifest.json` says what is currently orderable or blocked;
 - `hardware/order_sources_2026-09-11.json` preserves the historical broad vendor/source snapshot;
-- `hardware/order_sources_2026-10-01.json` is the current scoped Cart A refresh; only entries whose `last_verified_as_of` is 2026-10-01 were live-rechecked in that pass;
+- `hardware/order_sources_2026-10-02.json` is the current scoped Cart A refresh; only entries whose `last_verified_as_of` is 2026-10-02 were live-rechecked in that pass;
 - `hardware/planned_system_bom.json` maps the complete future board without pretending TBD powered parts are frozen;
 - `tools/render_procurement_packet.py` renders the currently authorized checkout packet;
 - `tools/render_physical_kickoff_packet.py` combines that authority with a private owned-item inventory while refusing to open non-BUY_NOW hardware;
