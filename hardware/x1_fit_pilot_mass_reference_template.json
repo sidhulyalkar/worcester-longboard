@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "scope": "x1_fit_pilot_mass_reference_record",
+  "issue": 61,
+  "reference_set_id": "",
+  "measured_at_utc": "",
+  "purpose": "Issue #4 one-zone fit-pilot calibration and independent validation masses",
+  "screening_policy": {
+    "max_mass_kg": 20,
+    "min_calibration_mass_count": 3,
+    "validation_mass_count": 1,
+    "max_relative_reference_uncertainty": 0.005,
+    "uncertainty_policy_note": "X1 screening rule: each nonzero reference uncertainty must be <=0.5% of its declared mass, one quarter of the canonical 2% Issue #4 validation-error limit."
+  },
+  "masses": [
+    {
+      "mass_id": "",
+      "role": "CALIBRATION",
+      "evidence_type": "INDEPENDENT_SCALE",
+      "declared_mass_kg": null,
+      "declared_uncertainty_kg": null,
+      "reference_mass_evidence": {
+        "source_reference": "",
+        "documented_mass_kg": null,
+        "documented_uncertainty_kg": null
+      },
+      "independent_scale_evidence": {
+        "scale_manufacturer": "",
+        "scale_model": "",
+        "capacity_kg": null,
+        "resolution_kg": null,
+        "stated_accuracy_source": "",
+        "conservative_accuracy_limit_kg": null,
+        "zero_check_before": true,
+        "zero_check_after": true,
+        "repeated_readings_kg": [],
+        "measurement_notes": ""
+      },
+      "notes": ""
+    }
+  ],
+  "claims": {
+    "nist_traceable": false,
+    "legal_metrology": false,
+    "commercial_measurement_authority": false,
+    "load_cell_performance_authority": false,
+    "four_zone_duplication_authorized": false,
+    "fabrication_authority": false,
+    "powered_operation_authorized": false,
+    "public_operation_authorized": false,
+    "dog_accompanied_operation_authorized": false
+  }
+}

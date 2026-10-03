@@ -719,5 +719,46 @@
     "four_zone_duplication_authorized": false,
     "fabrication_authority": false,
     "powered_operation_authorized": false
+  },
+  "fit_pilot_mass_reference_program": {
+    "issue": 61,
+    "phase": "POST_ISSUE59_PRE_ISSUE4_SESSION",
+    "record_template": "hardware/x1_fit_pilot_mass_reference_template.json",
+    "initializer": "tools/init_x1_fit_pilot_mass_reference.py",
+    "validator": "tools/validate_x1_fit_pilot_mass_reference.py",
+    "canonical_library": "fit/mass_reference.py",
+    "issue4_initializer": "tools/init_one_zone_pilot_session.py",
+    "issue4_qualifier": "tools/qualify_one_zone_pilot.py",
+    "allowed_reference_paths": [
+      "documented reference mass with stated uncertainty",
+      "object measured repeatedly on an independent scale with recorded manufacturer accuracy/resolution"
+    ],
+    "screening_policy": {
+      "hard_max_mass_kg": 20,
+      "minimum_calibration_mass_count": 3,
+      "validation_mass_count": 1,
+      "max_relative_reference_uncertainty": 0.005,
+      "rationale": "Reference uncertainty is capped at one quarter of the canonical 2% Issue #4 validation-error allowance so it cannot dominate the sensor screening gate."
+    },
+    "uncertainty_propagation": [
+      "calibration residual uses a conservative bound that includes calibration-mass uncertainty",
+      "validation reports nominal sensor error and a conservative error including validation-reference uncertainty",
+      "mass authority and source record are both copied into the session and revalidated canonically during qualification"
+    ],
+    "hard_boundaries": [
+      "nominal gym plate or object label alone is not mass authority",
+      "declared uncertainty cannot be smaller than documented or computed conservative uncertainty floor",
+      "changing any mass value uncertainty or evidence requires a new Issue #61 authority and new Issue #4 session",
+      "Issue #4 qualification must preserve the exact Issue #61 authority and record fingerprints",
+      "no NIST traceability claim unless future evidence actually establishes it",
+      "no legal metrology or commercial measurement authority",
+      "mass-reference authority does not qualify load-cell performance or four-zone duplication by itself"
+    ],
+    "nist_traceable": false,
+    "legal_metrology": false,
+    "load_cell_performance_authority": false,
+    "four_zone_duplication_authorized": false,
+    "fabrication_authority": false,
+    "powered_operation_authorized": false
   }
 }

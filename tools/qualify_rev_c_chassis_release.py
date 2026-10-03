@@ -82,15 +82,19 @@ def _valid_authority(doc: dict, expected_authority: str) -> bool:
 
 
 def _valid_fit_pilot_authority(doc: dict) -> bool:
-    provenance = doc.get("hardware_provenance")
+    hardware = doc.get("hardware_provenance")
+    masses = doc.get("mass_reference_provenance")
     return (
         doc.get("authority") == "x1_one_zone_pilot"
         and doc.get("scope") == "unpowered_fit_rig_only"
         and doc.get("qualified_for_four_zone_duplication") is True
         and doc.get("powered_operation_authorized") is False
-        and isinstance(provenance, dict)
-        and _nonempty(provenance.get("selection_authority_fingerprint_sha256"))
-        and _nonempty(provenance.get("selection_record_sha256"))
+        and isinstance(hardware, dict)
+        and _nonempty(hardware.get("selection_authority_fingerprint_sha256"))
+        and _nonempty(hardware.get("selection_record_sha256"))
+        and isinstance(masses, dict)
+        and _nonempty(masses.get("authority_fingerprint_sha256"))
+        and _nonempty(masses.get("record_sha256"))
         and _valid_fingerprint(doc)
     )
 
@@ -161,7 +165,7 @@ def qualify(
     if fit_pilot_authority is not None:
         if not _valid_fit_pilot_authority(fit_pilot_authority):
             errors.append(
-                "linked fit-pilot authority is invalid, unqualified, or lacks Issue #59 hardware provenance"
+                "linked fit-pilot authority is invalid, unqualified, or lacks Issue #59 hardware / Issue #61 mass provenance"
             )
         elif refs.get("fit_pilot_authority_fingerprint_sha256") != fit_pilot_authority.get(
             "authority_fingerprint_sha256"

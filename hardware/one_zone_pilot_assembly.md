@@ -26,7 +26,7 @@ Phidgets 3135 single-point load cell
 105 x 78 x 6 mm zone pad
         |
         v
-known calibration mass
+Issue #61 reference mass
 ```
 
 The auxiliary M4 carrier holes are pilot-only. They do not redefine the four-zone sensor interface.
@@ -89,13 +89,19 @@ With the pad unloaded, record a short raw stream. Apply a small hand force **wel
 
 This is only a wiring sanity check. Do not use hand force as qualification evidence.
 
-## 9. Known-mass plateaus
+## 9. Issue #61 reference-mass plateaus
 
-Use the private-session initializer and replace nominal masses with the actual measured values before qualification. Apply masses centrally and repeatably to the zone pad.
+Create and validate the mass-reference set **before** this capture. Follow `docs/x1_fit_pilot_mass_reference.md`.
 
-Capture only settled plateau windows. A useful default sequence is zero -> 2 kg -> 5 kg -> 10 kg -> 5 kg -> 2 kg -> zero, followed by an independent 7.5 kg validation plateau. Keep every applied mass <=20 kg.
+The private Issue #4 session derives its exact sequence from the fingerprinted `x1_fit_pilot_mass_reference` authority. Do not replace those values with nominal 2/5/10/7.5 kg labels.
+
+Apply each authority-bound mass centrally and repeatably to the zone pad. Capture only settled plateau windows. The initializer orders the calibration loads upward, repeats the appropriate lower loads on the descending path, and then uses the separately identified independent-validation mass.
+
+Every applied mass remains `<=20 kg`.
 
 At the largest pilot mass, measure the **minimum remaining stop clearance** without forcing the pad into the stop.
+
+If a mass value, uncertainty, or evidence source changes, stop and create a new Issue #61 authority and a new Issue #4 session.
 
 ## 10. Run authority
 

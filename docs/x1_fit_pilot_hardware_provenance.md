@@ -196,33 +196,46 @@ If the active load cell or HX711 becomes suspect:
 
 Do not inherit calibration from the previous hardware.
 
-## Initialize Issue #4 from the selection authority
+## Add Issue #61 mass-reference evidence before Issue #4
 
-After the selection authority passes and the actual calibration/validation masses are known:
+A valid Issue #59 hardware selection is necessary but no longer sufficient to initialize calibration.
+
+Follow:
+
+`docs/x1_fit_pilot_mass_reference.md`
+
+Create and validate:
+
+```text
+pilot_mass_reference.json
+pilot_mass_reference_authority.json
+```
+
+The mass authority locks:
+
+- at least three calibration mass IDs/values;
+- exactly one independent validation mass;
+- uncertainty for every mass;
+- the source/evidence path used to establish each value.
+
+Then initialize Issue #4 from **both** authorities:
 
 ```bash
-python tools/init_one_zone_pilot_session.py \
+PYTHONPATH=. python tools/init_one_zone_pilot_session.py \
   rider/private/fit_rig/issue4-pilot \
   --hardware-selection rider/private/physical_kickoff/pilot_hardware_selection.json \
   --hardware-selection-authority rider/private/physical_kickoff/pilot_hardware_selection_authority.json \
+  --mass-reference rider/private/physical_kickoff/pilot_mass_reference.json \
+  --mass-reference-authority rider/private/physical_kickoff/pilot_mass_reference_authority.json \
   --pod-id <POD_ID> \
   --zone-pad-id <ZONE_PAD_ID> \
   --channel left_heel \
-  --sps 10 \
-  --calibration-mass-kg <MASS_1> \
-  --calibration-mass-kg <MASS_2> \
-  --calibration-mass-kg <MASS_3> \
-  --validation-mass-kg <INDEPENDENT_MASS>
+  --sps 10
 ```
 
-The initializer copies the exact selection record and authority into:
+The initializer copies the exact Issue #59 and Issue #61 records/authorities into the session `provenance/` directory and derives all calibration/validation mass values from the Issue #61 authority.
 
-```text
-provenance/hardware_selection.json
-provenance/hardware_selection_authority.json
-```
-
-and locks the selected IDs into `pilot_manifest.json`.
+Free-form mass CLI values are intentionally removed.
 
 ## Qualification re-verifies provenance
 
@@ -238,9 +251,12 @@ Before sensor metrics can pass, it verifies:
 - optional MCU ID;
 - untouched-spare IDs;
 - active/spare uniqueness;
-- Issue #59 authority boundaries.
+- Issue #59 authority boundaries;
+- copied Issue #61 source-record fingerprint;
+- canonical recomputation of the Issue #61 authority;
+- manifest mass IDs/values/uncertainties against that authority.
 
-Only then does it evaluate calibration metrics.
+Only then does it evaluate calibration metrics, including conservative propagation of reference-mass uncertainty.
 
 A manually edited manifest that swaps active and spare IDs must fail.
 

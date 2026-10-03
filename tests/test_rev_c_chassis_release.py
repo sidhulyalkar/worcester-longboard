@@ -23,6 +23,10 @@ def _fit_pilot():
             "selection_authority_fingerprint_sha256": "1" * 64,
             "selection_record_sha256": "2" * 64,
         },
+        "mass_reference_provenance": {
+            "authority_fingerprint_sha256": "3" * 64,
+            "record_sha256": "4" * 64,
+        },
     })
 
 
@@ -230,7 +234,28 @@ def test_provenance_less_legacy_fit_pilot_cannot_release_chassis():
     manifest = _manifest(pilot, deck, topology, inert)
     report = qualify(manifest, pilot, deck, topology, inert)
     assert report["qualified"] is False
-    assert any("lacks Issue #59 hardware provenance" in e for e in report["errors"])
+    assert any("Issue #59 hardware / Issue #61 mass provenance" in e for e in report["errors"])
+
+
+def test_fit_pilot_missing_issue61_mass_provenance_cannot_release_chassis():
+    pilot = _stamp({
+        "authority": "x1_one_zone_pilot",
+        "scope": "unpowered_fit_rig_only",
+        "qualified_for_four_zone_duplication": True,
+        "powered_operation_authorized": False,
+        "hardware_provenance": {
+            "selection_authority_fingerprint_sha256": "1" * 64,
+            "selection_record_sha256": "2" * 64,
+        },
+    })
+    deck, topology, inert = _deck(), _topology(), _inert()
+    manifest = _manifest(pilot, deck, topology, inert)
+    report = qualify(manifest, pilot, deck, topology, inert)
+    assert report["qualified"] is False
+    assert any(
+        "Issue #59 hardware / Issue #61 mass provenance" in e
+        for e in report["errors"]
+    )
 
 
 def test_release_cannot_authorize_power():
