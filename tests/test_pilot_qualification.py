@@ -2,6 +2,7 @@ import csv, hashlib, json
 from pathlib import Path
 import pytest
 from fit.pilot_qualification import qualify_manifest
+from tools.validate_x1_fit_pilot_mass_reference import validate as validate_mass
 
 HEADER=["t_us","left_heel_raw","left_forefoot_raw","right_heel_raw","right_forefoot_raw","load_valid_mask","roll_deg","imu_ok"]
 
@@ -15,6 +16,34 @@ def _digest(data):
             allow_nan=False,
         ).encode("utf-8")
     ).hexdigest()
+
+
+def _mass_item(mass_id, role, mass, uncertainty):
+    return {
+        "mass_id": mass_id,
+        "role": role,
+        "evidence_type": "REFERENCE_MASS",
+        "declared_mass_kg": mass,
+        "declared_uncertainty_kg": uncertainty,
+        "reference_mass_evidence": {
+            "source_reference": f"synthetic-{mass_id}",
+            "documented_mass_kg": mass,
+            "documented_uncertainty_kg": uncertainty,
+        },
+        "independent_scale_evidence": {
+            "scale_manufacturer": "",
+            "scale_model": "",
+            "capacity_kg": None,
+            "resolution_kg": None,
+            "stated_accuracy_source": "",
+            "conservative_accuracy_limit_kg": None,
+            "zero_check_before": True,
+            "zero_check_after": True,
+            "repeated_readings_kg": [],
+            "measurement_notes": "",
+        },
+        "notes": "",
+    }
 
 
 def _write_provenance(tmp: Path):
@@ -91,7 +120,46 @@ def _write_provenance(tmp: Path):
     authority_path = provenance / "hardware_selection_authority.json"
     selection_path.write_text(json.dumps(selection), encoding="utf-8")
     authority_path.write_text(json.dumps(authority), encoding="utf-8")
-    return selection, authority
+
+    mass_record = {
+        "schema_version": 1,
+        "scope": "x1_fit_pilot_mass_reference_record",
+        "issue": 61,
+        "reference_set_id": "MASS-REF-TEST",
+        "measured_at_utc": "2026-10-03T12:45:00-07:00",
+        "purpose": "synthetic Issue #4 reference",
+        "screening_policy": {
+            "max_mass_kg": 20.0,
+            "min_calibration_mass_count": 3,
+            "validation_mass_count": 1,
+            "max_relative_reference_uncertainty": 0.005,
+            "uncertainty_policy_note": "synthetic",
+        },
+        "masses": [
+            _mass_item("CAL-2", "CALIBRATION", 2.0, 0.002),
+            _mass_item("CAL-5", "CALIBRATION", 5.0, 0.005),
+            _mass_item("CAL-10", "CALIBRATION", 10.0, 0.010),
+            _mass_item("VAL-7P5", "VALIDATION", 7.5, 0.0075),
+        ],
+        "claims": {
+            "nist_traceable": False,
+            "legal_metrology": False,
+            "commercial_measurement_authority": False,
+            "load_cell_performance_authority": False,
+            "four_zone_duplication_authorized": False,
+            "fabrication_authority": False,
+            "powered_operation_authorized": False,
+            "public_operation_authorized": False,
+            "dog_accompanied_operation_authorized": False,
+        },
+    }
+    mass_authority = validate_mass(mass_record)
+    assert mass_authority["valid"] is True
+    mass_record_path = provenance / "mass_reference.json"
+    mass_authority_path = provenance / "mass_reference_authority.json"
+    mass_record_path.write_text(json.dumps(mass_record), encoding="utf-8")
+    mass_authority_path.write_text(json.dumps(mass_authority), encoding="utf-8")
+    return selection, authority, mass_record, mass_authority
 
 
 def _write_log(path:Path,mean_raw:float,seconds:float=6.0,sps:int=10,noise:int=2,header_sps:int|None=None):
@@ -108,7 +176,7 @@ def _manifest(tmp:Path,nonlinear_validation=False,loaded_gap=0.30):
     specs=[("zero_pre",0,"zero_pre.csv",raw(0)),("load_up",2,"up2.csv",raw(2)),("load_up",5,"up5.csv",raw(5)),("load_up",10,"up10.csv",raw(10)),("load_down",5,"down5.csv",raw(5)+25),("load_down",2,"down2.csv",raw(2)+15),("zero_post",0,"zero_post.csv",raw(0)+10)]
     for _,_,fn,r in specs:_write_log(tmp/fn,r)
     _write_log(tmp/"validation.csv",raw(7.5)+(4000 if nonlinear_validation else 0))
-    selection, authority = _write_provenance(tmp)
+    selection, authority, mass_record, mass_authority = _write_provenance(tmp)
     data={
         "schema_version":1,
         "hardware_selection":{
@@ -118,12 +186,37 @@ def _manifest(tmp:Path,nonlinear_validation=False,loaded_gap=0.30):
             "selection_record_path":"provenance/hardware_selection.json",
             "selection_authority_path":"provenance/hardware_selection_authority.json"
         },
+        "mass_reference":{
+            "reference_set_id":mass_authority["reference_set_id"],
+            "record_sha256":mass_authority["record_sha256"],
+            "authority_fingerprint_sha256":mass_authority["authority_fingerprint_sha256"],
+            "record_path":"provenance/mass_reference.json",
+            "authority_path":"provenance/mass_reference_authority.json"
+        },
         "hardware_ids":{"load_cell_id":"LC-PILOT-A","hx711_id":"ADC-PILOT-A","pod_id":"POD-PILOT-A","zone_pad_id":"PAD-PILOT-A","mcu_id":""},
         "spare_hardware_ids":{"load_cell_id":"LC-SPARE-A","hx711_id":"ADC-SPARE-A"},
         "channel":"left_heel","hx711_sps":10,
         "acquisition":{"rate_jumper_verified":True},
-        "observations":[{"kind":k,"mass_kg":m,"log":f} for k,m,f,_ in specs],
-        "validation":[{"mass_kg":7.5,"log":"validation.csv"}],
+        "observations":[
+            {
+                "kind":k,
+                "mass_kg":m,
+                "mass_reference_id":(
+                    None if m == 0 else {2:"CAL-2",5:"CAL-5",10:"CAL-10"}[m]
+                ),
+                "mass_uncertainty_kg":(
+                    0.0 if m == 0 else {2:0.002,5:0.005,10:0.010}[m]
+                ),
+                "log":f,
+            }
+            for k,m,f,_ in specs
+        ],
+        "validation":[{
+            "mass_kg":7.5,
+            "mass_reference_id":"VAL-7P5",
+            "mass_uncertainty_kg":0.0075,
+            "log":"validation.csv"
+        }],
         "mechanical":{"vendor_pattern_verified":True,"fixed_loaded_orientation_verified":True,"screw_stack_verified":True,"stop_gap_unloaded_mm":0.8,"stop_gap_min_loaded_mm":loaded_gap}
     }
     p=tmp/"pilot_manifest.json"; p.write_text(json.dumps(data)); return p
@@ -133,10 +226,15 @@ def test_good_pilot_qualifies_and_is_fingerprinted(tmp_path):
     assert r["qualified_for_four_zone_duplication"] is True
     assert r["failures"]==[] and r["metrics"]["r2"]>=0.999999
     assert r["hardware_ids"]["load_cell_id"]=="LC-PILOT-A"
-    assert len(r["source_fingerprints"])==10
+    assert len(r["source_fingerprints"])==12
     assert r["hardware_provenance"]["selection_id"]=="PILOT-HW-TEST"
     assert r["hardware_provenance"]["untouched_spares"]["load_cell_id"]=="LC-SPARE-A"
     assert r["hardware_provenance"]["untouched_spares"]["hx711_id"]=="ADC-SPARE-A"
+    assert r["mass_reference_provenance"]["reference_set_id"]=="MASS-REF-TEST"
+    assert r["metrics"]["validation_error_nominal"] is not None
+    assert r["metrics"]["validation_reference_uncertainty_relative"] == pytest.approx(0.001)
+    assert r["metrics"]["validation_error"] > r["metrics"]["validation_error_nominal"]
+    assert r["metrics"]["residual_fs"] >= r["metrics"]["residual_fs_nominal"]
     assert len(r["manifest_sha256"])==64
     assert len(r["qualification_tool_sha256"])==64
     assert len(r["authority_fingerprint_sha256"])==64
@@ -161,6 +259,8 @@ def test_missing_hysteresis_pair_is_rejected(tmp_path):
 def test_validation_mass_cannot_reuse_calibration_mass(tmp_path):
     p=_manifest(tmp_path); d=json.loads(p.read_text())
     d["validation"][0]["mass_kg"]=5
+    d["validation"][0]["mass_reference_id"]="CAL-5"
+    d["validation"][0]["mass_uncertainty_kg"]=0.005
     p.write_text(json.dumps(d)); r=qualify_manifest(p)
     assert r["qualified_for_four_zone_duplication"] is False
     assert "validation mass must be independent of calibration masses" in r["failures"]
@@ -242,6 +342,54 @@ def test_load_sequence_must_be_monotonic(tmp_path):
     p.write_text(json.dumps(d)); r=qualify_manifest(p)
     assert r["qualified_for_four_zone_duplication"] is False
     assert "load_up masses must be strictly ascending" in r["failures"]
+
+def test_tampered_mass_reference_record_blocks_good_sensor_metrics(tmp_path):
+    p=_manifest(tmp_path)
+    record_path=tmp_path/"provenance"/"mass_reference.json"
+    record=json.loads(record_path.read_text())
+    record["masses"][0]["declared_mass_kg"]=2.1
+    record_path.write_text(json.dumps(record))
+    r=qualify_manifest(p)
+    assert r["qualified_for_four_zone_duplication"] is False
+    assert any("mass reference authority does not match copied record" in x for x in r["failures"])
+
+
+def test_manifest_cannot_change_mass_uncertainty_or_reference_id(tmp_path):
+    p=_manifest(tmp_path); d=json.loads(p.read_text())
+    target=next(x for x in d["observations"] if x["kind"]=="load_up" and x["mass_kg"]==5)
+    target["mass_uncertainty_kg"]=0.0001
+    target["mass_reference_id"]="CAL-2"
+    p.write_text(json.dumps(d))
+    r=qualify_manifest(p)
+    assert r["qualified_for_four_zone_duplication"] is False
+    assert any("uncertainty differs from authority" in x for x in r["failures"])
+    assert any("mass differs from authority" in x for x in r["failures"])
+
+
+def test_reference_uncertainty_is_included_in_validation_gate(tmp_path):
+    p=_manifest(tmp_path)
+    authority_path=tmp_path/"provenance"/"mass_reference_authority.json"
+    authority=json.loads(authority_path.read_text())
+    # Keep the authority internally fingerprint-valid, but use a validation reference
+    # uncertainty near the allowed 0.5% ceiling. The conservative validation metric
+    # must be greater than the nominal sensor-only error.
+    val=authority["validation_masses"][0]
+    val["uncertainty_kg"]=0.037
+    val["relative_uncertainty"]=0.037/7.5
+    unsigned=dict(authority)
+    unsigned.pop("authority_fingerprint_sha256",None)
+    authority["authority_fingerprint_sha256"]=_digest(unsigned)
+    authority_path.write_text(json.dumps(authority))
+
+    d=json.loads(p.read_text())
+    d["mass_reference"]["authority_fingerprint_sha256"]=authority["authority_fingerprint_sha256"]
+    d["validation"][0]["mass_uncertainty_kg"]=0.037
+    p.write_text(json.dumps(d))
+
+    r=qualify_manifest(p)
+    assert r["metrics"]["validation_error"] > r["metrics"]["validation_error_nominal"]
+    assert r["metrics"]["validation_reference_uncertainty_relative"] == pytest.approx(0.037/7.5)
+
 
 def test_thresholds_may_tighten_but_not_relax(tmp_path):
     p=_manifest(tmp_path); d=json.loads(p.read_text())
