@@ -12,7 +12,10 @@ def _procurement():
 
 
 def _sources():
-    return json.loads((ROOT / "hardware/order_sources_2026-10-01.json").read_text())
+    procurement = _procurement()
+    return json.loads(
+        (ROOT / procurement["rules"]["source_snapshot_path"]).read_text()
+    )
 
 
 def _planned():
@@ -61,9 +64,9 @@ def test_powered_subsystems_stay_non_orderable():
     assert any("DRIVE" in error for error in report["errors"])
 
 
-def test_october_refresh_scope_is_exact_and_fresh():
+def test_current_refresh_scope_is_exact_and_fresh():
     sources = _sources()
-    assert sources["as_of"] == "2026-10-01"
+    assert sources["as_of"] == "2026-10-02"
     assert sources["refresh_scope"] == "ISSUE_4_CART_A_EXACT_EVIDENCE_HARDWARE"
     assert sources["refresh_scope_manifest_ids"] == [
         "LC-3135",
@@ -72,7 +75,7 @@ def test_october_refresh_scope_is_exact_and_fresh():
     ]
     rows = {item["manifest_id"]: item for item in sources["sources"]}
     for item_id in sources["refresh_scope_manifest_ids"]:
-        assert rows[item_id]["last_verified_as_of"] == "2026-10-01"
+        assert rows[item_id]["last_verified_as_of"] == "2026-10-02"
         assert rows[item_id]["availability_status"] == "IN_STOCK"
 
 
