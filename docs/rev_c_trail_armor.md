@@ -182,6 +182,30 @@ The early qualification requires that replacement:
 
 A skid that turns every scrape into a half-day teardown is not a good consumable.
 
+## 9A. Wear witnesses and service intelligence
+
+A replaceable wear shoe should make its own consumption inspectable.
+
+For a future physical candidate, consider **geometric wear witnesses** on the sacrificial part only, such as side-face steps, shallow reference grooves, or another directly measurable feature that reveals remaining material without removing the part.
+
+Rules:
+
+- the witness belongs to the replaceable wear shoe, not the structural carrier;
+- it must not create a forward-facing hook, debris trap, sharp edge, or crack starter in a critical load path;
+- it must not expose the retention fastener as the next terrain-contact feature;
+- no replacement threshold in millimetres is invented before the actual material, thickness, contact geometry and load path are selected;
+- a visual witness never replaces direct inspection after a hard contact.
+
+The useful outcome is a service record that can say:
+
+> this exact wear shoe has consumed more material since the last inspection
+
+without pretending that visual wear alone proves remaining impact strength.
+
+When the physical geometry exists, record the initial witness geometry and a repeatable remaining-thickness or witness-state measurement method. A later lifecycle bridge may attach these observations to the Issue #41 vehicle-health history.
+
+This is intentionally more useful than decorative armor. The sacrificial layer should be cheap to replace and easy to judge.
+
 ## 10. Inert qualification
 
 Create a private session:
