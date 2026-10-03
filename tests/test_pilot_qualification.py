@@ -91,7 +91,88 @@ def _write_provenance(tmp: Path):
     authority_path = provenance / "hardware_selection_authority.json"
     selection_path.write_text(json.dumps(selection), encoding="utf-8")
     authority_path.write_text(json.dumps(authority), encoding="utf-8")
-    return selection, authority
+
+    mass_record = {
+        "schema_version": 1,
+        "scope": "x1_fit_pilot_mass_reference_record",
+        "issue": 61,
+        "reference_set_id": "MASS-REF-TEST",
+        "measured_at_utc": "2026-10-03T13:00:00-07:00",
+        "method": "INDEPENDENT_SCALE_MANUFACTURER_SPEC",
+        "uncertainty_policy": {
+            "max_relative_uncertainty_fraction": 0.005,
+            "rationale": "synthetic",
+        },
+        "instrument": {},
+        "masses": [],
+        "nist_traceability_claimed": False,
+        "commercial_legal_metrology_claimed": False,
+        "physical_sensor_qualification_authority": False,
+        "four_zone_duplication_authorized": False,
+        "powered_operation_authorized": False,
+        "public_operation_authorized": False,
+        "dog_accompanied_operation_authorized": False,
+    }
+    summaries = [
+        {
+            "mass_id": "M2",
+            "role": "CALIBRATION",
+            "accepted_mass_kg": 2.0,
+            "declared_expanded_uncertainty_kg": 0.005,
+            "relative_uncertainty_fraction": 0.0025,
+        },
+        {
+            "mass_id": "M5",
+            "role": "CALIBRATION",
+            "accepted_mass_kg": 5.0,
+            "declared_expanded_uncertainty_kg": 0.005,
+            "relative_uncertainty_fraction": 0.001,
+        },
+        {
+            "mass_id": "M10",
+            "role": "CALIBRATION",
+            "accepted_mass_kg": 10.0,
+            "declared_expanded_uncertainty_kg": 0.005,
+            "relative_uncertainty_fraction": 0.0005,
+        },
+        {
+            "mass_id": "M7P5",
+            "role": "VALIDATION",
+            "accepted_mass_kg": 7.5,
+            "declared_expanded_uncertainty_kg": 0.005,
+            "relative_uncertainty_fraction": 0.005 / 7.5,
+        },
+    ]
+    mass_authority = {
+        "schema_version": 1,
+        "authority": "x1_fit_pilot_mass_reference",
+        "scope": "issue4_mass_reference_only",
+        "valid": True,
+        "errors": [],
+        "reference_set_id": mass_record["reference_set_id"],
+        "mass_reference_record_sha256": _digest(mass_record),
+        "method": mass_record["method"],
+        "calibration_masses_kg": [2.0, 5.0, 10.0],
+        "validation_mass_kg": 7.5,
+        "mass_summaries": summaries,
+        "max_relative_uncertainty_fraction": 0.0025,
+        "nist_traceability_claimed": False,
+        "commercial_legal_metrology_claimed": False,
+        "physical_sensor_qualification_authority": False,
+        "four_zone_duplication_authorized": False,
+        "powered_operation_authorized": False,
+        "public_operation_authorized": False,
+        "dog_accompanied_operation_authorized": False,
+        "interpretation_boundary": "synthetic mass authority",
+    }
+    mass_authority["authority_fingerprint_sha256"] = _digest(mass_authority)
+    (provenance / "mass_reference.json").write_text(
+        json.dumps(mass_record), encoding="utf-8"
+    )
+    (provenance / "mass_reference_authority.json").write_text(
+        json.dumps(mass_authority), encoding="utf-8"
+    )
+    return selection, authority, mass_record, mass_authority
 
 
 def _write_log(path:Path,mean_raw:float,seconds:float=6.0,sps:int=10,noise:int=2,header_sps:int|None=None):
@@ -108,7 +189,10 @@ def _manifest(tmp:Path,nonlinear_validation=False,loaded_gap=0.30):
     specs=[("zero_pre",0,"zero_pre.csv",raw(0)),("load_up",2,"up2.csv",raw(2)),("load_up",5,"up5.csv",raw(5)),("load_up",10,"up10.csv",raw(10)),("load_down",5,"down5.csv",raw(5)+25),("load_down",2,"down2.csv",raw(2)+15),("zero_post",0,"zero_post.csv",raw(0)+10)]
     for _,_,fn,r in specs:_write_log(tmp/fn,r)
     _write_log(tmp/"validation.csv",raw(7.5)+(4000 if nonlinear_validation else 0))
-    selection, authority = _write_provenance(tmp)
+    selection, authority, mass_record, mass_authority = _write_provenance(tmp)
+    mass_rows = {
+        row["mass_id"]: row for row in mass_authority["mass_summaries"]
+    }
     data={
         "schema_version":1,
         "hardware_selection":{
@@ -118,12 +202,43 @@ def _manifest(tmp:Path,nonlinear_validation=False,loaded_gap=0.30):
             "selection_record_path":"provenance/hardware_selection.json",
             "selection_authority_path":"provenance/hardware_selection_authority.json"
         },
+        "mass_reference":{
+            "reference_set_id":mass_authority["reference_set_id"],
+            "mass_reference_record_sha256":mass_authority["mass_reference_record_sha256"],
+            "mass_reference_authority_fingerprint_sha256":mass_authority["authority_fingerprint_sha256"],
+            "mass_reference_record_path":"provenance/mass_reference.json",
+            "mass_reference_authority_path":"provenance/mass_reference_authority.json",
+            "max_relative_uncertainty_fraction":mass_authority["max_relative_uncertainty_fraction"]
+        },
         "hardware_ids":{"load_cell_id":"LC-PILOT-A","hx711_id":"ADC-PILOT-A","pod_id":"POD-PILOT-A","zone_pad_id":"PAD-PILOT-A","mcu_id":""},
         "spare_hardware_ids":{"load_cell_id":"LC-SPARE-A","hx711_id":"ADC-SPARE-A"},
         "channel":"left_heel","hx711_sps":10,
         "acquisition":{"rate_jumper_verified":True},
-        "observations":[{"kind":k,"mass_kg":m,"log":f} for k,m,f,_ in specs],
-        "validation":[{"mass_kg":7.5,"log":"validation.csv"}],
+        "observations":[
+            {
+                "kind":k,
+                "mass_kg":m,
+                "mass_id":(
+                    None if m == 0 else
+                    ("M2" if m == 2 else "M5" if m == 5 else "M10")
+                ),
+                **(
+                    {} if m == 0 else {
+                        "reference_uncertainty_kg": mass_rows[
+                            "M2" if m == 2 else "M5" if m == 5 else "M10"
+                        ]["declared_expanded_uncertainty_kg"]
+                    }
+                ),
+                "log":f,
+            }
+            for k,m,f,_ in specs
+        ],
+        "validation":[{
+            "mass_kg":7.5,
+            "mass_id":"M7P5",
+            "reference_uncertainty_kg":mass_rows["M7P5"]["declared_expanded_uncertainty_kg"],
+            "log":"validation.csv"
+        }],
         "mechanical":{"vendor_pattern_verified":True,"fixed_loaded_orientation_verified":True,"screw_stack_verified":True,"stop_gap_unloaded_mm":0.8,"stop_gap_min_loaded_mm":loaded_gap}
     }
     p=tmp/"pilot_manifest.json"; p.write_text(json.dumps(data)); return p
@@ -133,10 +248,14 @@ def test_good_pilot_qualifies_and_is_fingerprinted(tmp_path):
     assert r["qualified_for_four_zone_duplication"] is True
     assert r["failures"]==[] and r["metrics"]["r2"]>=0.999999
     assert r["hardware_ids"]["load_cell_id"]=="LC-PILOT-A"
-    assert len(r["source_fingerprints"])==10
+    assert len(r["source_fingerprints"])==12
     assert r["hardware_provenance"]["selection_id"]=="PILOT-HW-TEST"
     assert r["hardware_provenance"]["untouched_spares"]["load_cell_id"]=="LC-SPARE-A"
     assert r["hardware_provenance"]["untouched_spares"]["hx711_id"]=="ADC-SPARE-A"
+    assert r["mass_reference_provenance"]["reference_set_id"]=="MASS-REF-TEST"
+    assert r["mass_reference_provenance"]["max_validation_uncertainty_fraction"] > 0
+    assert r["metrics"]["validation_error_with_reference_uncertainty"] >= r["metrics"]["validation_error"]
+    assert r["metrics"]["residual_fs_with_reference_uncertainty"] >= r["metrics"]["residual_fs"]
     assert len(r["manifest_sha256"])==64
     assert len(r["qualification_tool_sha256"])==64
     assert len(r["authority_fingerprint_sha256"])==64
@@ -233,6 +352,66 @@ def test_manifest_cannot_hide_untouched_spare_lineage(tmp_path):
     r=qualify_manifest(p)
     assert r["qualified_for_four_zone_duplication"] is False
     assert any("HX711 spare does not match selected untouched spare" in x for x in r["failures"])
+
+
+def test_tampered_mass_reference_record_blocks_good_sensor_metrics(tmp_path):
+    p=_manifest(tmp_path)
+    path=tmp_path/"provenance"/"mass_reference.json"
+    data=json.loads(path.read_text())
+    data["reference_set_id"]="TAMPERED"
+    path.write_text(json.dumps(data))
+    r=qualify_manifest(p)
+    assert r["qualified_for_four_zone_duplication"] is False
+    assert any("does not match copied record" in x for x in r["failures"])
+
+
+def test_manifest_cannot_change_reference_mass_or_uncertainty(tmp_path):
+    p=_manifest(tmp_path); d=json.loads(p.read_text())
+    up=next(x for x in d["observations"] if x.get("mass_id")=="M5" and x["kind"]=="load_up")
+    up["mass_kg"]=5.1
+    up["reference_uncertainty_kg"]=0.001
+    p.write_text(json.dumps(d))
+    r=qualify_manifest(p)
+    assert r["qualified_for_four_zone_duplication"] is False
+    assert any("mass differs from mass-reference authority" in x for x in r["failures"])
+    assert any("uncertainty differs from mass-reference authority" in x for x in r["failures"])
+
+
+def test_reference_uncertainty_consumes_validation_error_budget(tmp_path):
+    p=_manifest(tmp_path)
+    authority_path=tmp_path/"provenance"/"mass_reference_authority.json"
+    authority=json.loads(authority_path.read_text())
+    for row in authority["mass_summaries"]:
+        if row["role"]=="VALIDATION":
+            row["declared_expanded_uncertainty_kg"]=0.0375
+            row["relative_uncertainty_fraction"]=0.005
+    authority["max_relative_uncertainty_fraction"]=0.005
+    authority.pop("authority_fingerprint_sha256")
+    authority["authority_fingerprint_sha256"]=_digest(authority)
+    authority_path.write_text(json.dumps(authority))
+
+    record_path=tmp_path/"provenance"/"mass_reference.json"
+    record=json.loads(record_path.read_text())
+    authority["mass_reference_record_sha256"]=_digest(record)
+    authority.pop("authority_fingerprint_sha256")
+    authority["authority_fingerprint_sha256"]=_digest(authority)
+    authority_path.write_text(json.dumps(authority))
+
+    d=json.loads(p.read_text())
+    d["mass_reference"]["mass_reference_authority_fingerprint_sha256"]=authority["authority_fingerprint_sha256"]
+    d["mass_reference"]["max_relative_uncertainty_fraction"]=0.005
+    d["validation"][0]["reference_uncertainty_kg"]=0.0375
+    p.write_text(json.dumps(d))
+
+    # Add roughly 1.7% validation bias. Raw error stays below 2%, but +0.5%
+    # reference uncertainty must exceed the canonical 2% combined gate.
+    raw=lambda m:100000+m*9.80665*1000
+    _write_log(tmp_path/"validation.csv",raw(7.5)+1250)
+    r=qualify_manifest(p)
+    assert r["metrics"]["validation_error"] < 0.02
+    assert r["metrics"]["validation_error_with_reference_uncertainty"] > 0.02
+    assert r["qualified_for_four_zone_duplication"] is False
+    assert any("validation_error_with_reference_uncertainty above limit" in x for x in r["failures"])
 
 
 def test_load_sequence_must_be_monotonic(tmp_path):
