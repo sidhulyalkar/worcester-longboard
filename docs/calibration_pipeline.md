@@ -25,7 +25,7 @@ Use the 10 SPS firmware/hardware RATE configuration for quiet static zero/known-
 
 ## One-zone mechanical pilot before calibration
 
-Before building all four force zones:
+Before building all four force zones, first qualify the center calibration and then the assembled platform's off-axis repeatability:
 
 1. generate the vendor-pattern pilot from `cad/generate_fit_rig.py`,
 2. fit one physical Phidgets 3135 into the pod/pad stack,
