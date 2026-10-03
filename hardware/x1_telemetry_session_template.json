@@ -10,6 +10,7 @@
   "power_architecture_fingerprint_sha256": "",
   "signal_registry": "hardware/x1_telemetry_signal_registry_2026-10-02.json",
   "privacy_class": "PRIVATE_RAW",
+  "synthetic_fixture": false,
   "sealed": false,
   "streams": [
     {
