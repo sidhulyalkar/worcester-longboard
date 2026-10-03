@@ -150,7 +150,12 @@ def validate(data: dict) -> dict:
     if not isinstance(zero_checks, list) or len(zero_checks) < 3:
         errors.append("instrument.zero_checks_kg requires at least three checks")
         zero_span = None
-    elif not all(_nonnegative(abs(x)) for x in zero_checks):
+    elif not all(
+        isinstance(x, (int, float))
+        and not isinstance(x, bool)
+        and math.isfinite(float(x))
+        for x in zero_checks
+    ):
         errors.append("instrument.zero_checks_kg must contain finite numeric values")
         zero_span = None
     else:
