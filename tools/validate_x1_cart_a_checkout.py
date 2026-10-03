@@ -22,7 +22,6 @@ from tools.validate_procurement_manifest import validate_manifest
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / "hardware/build_authority.json"
 PROCUREMENT = ROOT / "hardware/procurement_manifest.json"
-SOURCES = ROOT / "hardware/order_sources_2026-10-01.json"
 PLANNED = ROOT / "hardware/planned_system_bom.json"
 
 ALLOWED_STATUS = {"DRAFT", "READY_TO_ORDER", "ORDERED"}
@@ -32,6 +31,19 @@ ALLOWED_RESOLUTION = {
     "USE_OWNED_EXACT",
     "USE_OWNED_EQUIVALENT",
 }
+
+
+def _load_sources_from_procurement(procurement: dict) -> dict:
+    relative = procurement.get("rules", {}).get("source_snapshot_path")
+    if not isinstance(relative, str) or not relative.strip():
+        raise ValueError("procurement source_snapshot_path must be a nonempty string")
+    path = (ROOT / relative).resolve()
+    hardware_root = (ROOT / "hardware").resolve()
+    if hardware_root != path.parent:
+        raise ValueError("procurement source snapshot must be a direct hardware/ file")
+    if not path.is_file():
+        raise FileNotFoundError(f"missing procurement source snapshot: {path}")
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def _digest(data: dict) -> str:
@@ -91,7 +103,7 @@ def validate(
 ) -> dict:
     plan = plan or json.loads(PLAN.read_text(encoding="utf-8"))
     procurement = procurement or json.loads(PROCUREMENT.read_text(encoding="utf-8"))
-    sources = sources or json.loads(SOURCES.read_text(encoding="utf-8"))
+    sources = sources or _load_sources_from_procurement(procurement)
     planned = planned or json.loads(PLANNED.read_text(encoding="utf-8"))
     errors: list[str] = []
 
