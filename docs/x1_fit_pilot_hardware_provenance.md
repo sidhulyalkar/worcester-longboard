@@ -278,6 +278,8 @@ A fit-pilot authority must now include:
 
 Legacy provenance-less pilot reports cannot release chassis/brake purchasing.
 
+This Issue #4 field remains sufficient for the **chassis-release prerequisite**, but after Issue #63 it is not the final four-zone duplication authority. Four-zone duplication and rider-fit qualification additionally require `x1_fit_platform_repeatability` evidence.
+
 ## Exit condition
 
 Issue #59 is complete for one pilot path when:
