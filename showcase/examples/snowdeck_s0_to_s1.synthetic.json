@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "scope": "x1_snowdeck_bench_signature_comparison",
+  "baseline": {
+    "condition_id": "S0-synthetic",
+    "mechanical_rejects": []
+  },
+  "variant": {
+    "condition_id": "S1-synthetic",
+    "mechanical_rejects": []
+  },
+  "signed_variant_minus_baseline": {
+    "neutral_left_load_mean": -0.01,
+    "neutral_left_load_sd": -0.002,
+    "neutral_left_forefoot_mean": 0.02,
+    "neutral_right_forefoot_mean": 0.01,
+    "neutral_total_load_sd": -1,
+    "left_heel_to_toe_transfer_mean": 0.05,
+    "right_heel_to_toe_transfer_mean": 0.04,
+    "deep_knee_left_load_delta_mean": -0.005,
+    "deep_knee_left_forefoot_delta_mean": 0.01,
+    "deep_knee_right_forefoot_delta_mean": 0.01
+  },
+  "variant_eligible_for_further_bench_comparison": true,
+  "synthetic_fixture": true,
+  "physical_evidence_eligible": false,
+  "winner_selected": false,
+  "interpretation": "Synthetic signed deltas only. No direction is preferred.",
+  "physical_authority": false,
+  "fabrication_authority": false,
+  "ride_authority": false,
+  "powered_operation_authorized": false
+}
