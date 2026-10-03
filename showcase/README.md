@@ -17,29 +17,20 @@ Open:
 
 The initial viewer uses procedural geometry so it can run before detailed mesh conversion. It is intentionally a design-review visualization rather than fabrication authority.
 
-## Optional evidence index
+## Add real authority evidence
 
 By default every physical gate is closed.
 
-A local evidence index may be passed explicitly:
+Fingerprint-valid local authority documents may be supplied explicitly:
 
 ```bash
 python tools/build_showcase_manifest.py \
-  --evidence-index /path/to/private/showcase_evidence_index.json
+  --evidence /path/to/private/x1_one_zone_pilot.json \
+  --evidence /path/to/private/x1_fit_platform_repeatability.json
 ```
 
-Example structure:
+The manifest builder calls the repository's existing `tools/evaluate_build_authority.py` logic, including evidence predicates, fingerprint verification, upstream dependencies and evidence links. A document that merely claims `qualified=true` cannot promote the visualization.
 
-```json
-{
-  "fit_pilot_qualified": {
-    "qualified": true,
-    "authority": "x1_one_zone_pilot",
-    "authority_fingerprint_sha256": "..."
-  }
-}
-```
-
-The builder checks the expected authority name where one is defined and refuses any supplied evidence that claims powered operation.
+The pre-hardware showcase also refuses any supplied document that asserts `powered_operation_authorized=true`.
 
 Do not commit private rider measurements or raw fit logs to `showcase/`.
