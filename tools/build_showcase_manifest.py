@@ -70,6 +70,8 @@ def sanitize_snowdeck_signature(data: dict[str, Any]) -> dict[str, Any]:
             raise ValueError(f"SnowDeck signature must keep {key}=false")
     return {
         "condition_id": data.get("condition_id"),
+        "synthetic_fixture": bool(data.get("synthetic_fixture")),
+        "physical_evidence_eligible": bool(data.get("physical_evidence_eligible")),
         "trial_count": data.get("trial_count"),
         "neutral": data.get("neutral", {}),
         "heel_to_toe_forefoot_transfer": data.get(
@@ -119,6 +121,8 @@ def sanitize_snowdeck_comparison(data: dict[str, Any]) -> dict[str, Any]:
         "variant_eligible_for_further_bench_comparison": bool(
             data.get("variant_eligible_for_further_bench_comparison")
         ),
+        "synthetic_fixture": bool(data.get("synthetic_fixture")),
+        "physical_evidence_eligible": bool(data.get("physical_evidence_eligible")),
         "winner_selected": False,
     }
 
