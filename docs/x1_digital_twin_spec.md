@@ -86,7 +86,7 @@ That provides:
 - evidence-link matching between dependent authorities;
 - fail-closed handling of missing evidence.
 
-The showcase then maps those evaluated gate states onto visual components.
+The showcase then maps those evaluated gate states onto visual components. A component has at most one physical promotion gate and may also list contextual gates that affect design maturity without promoting the component itself to QUALIFIED.
 
 The pre-hardware viewer adds one stricter boundary: evidence asserting `powered_operation_authorized=true` is rejected rather than rendered as an active authority.
 
@@ -112,7 +112,7 @@ It must not contain private anthropometry, private raw fit-rig logs, addresses, 
 - A document merely claiming `qualified=true` is insufficient.
 - Unknown evidence-state strings are invalid.
 - No showcase input may set `powered_operation_authorized=true`.
-- No visual component may be promoted to QUALIFIED unless the existing authority evaluator satisfies its mapped gate.
+- No visual component may be promoted to QUALIFIED unless the existing authority evaluator satisfies its exact physical promotion gate. Selection/plausibility gates may be shown as context but never silently promoted into physical qualification.
 - Blocked propulsion, live battery, charger, and powered-operation concepts remain blocked until their independent repository gates pass.
 
 ## Immediate visualization targets
