@@ -61,3 +61,45 @@ It supports:
 - optional hashed GLB neutral and steering-sweep overlays.
 
 The SnowDeck controls are visualization bounds, not recommended ride settings. The generated SnowDeck CAD package remains bench-study-only and explicitly carries no fabrication or ride authority.
+
+
+## Synthetic SnowDeck demo now
+
+No physical hardware is required to preview the response-vector UI:
+
+```bash
+python tools/prepare_x1_showcase.py --synthetic-snowdeck-demo
+python -m http.server 8000
+```
+
+Then open `http://localhost:8000/showcase/`.
+
+The response panel is visibly labeled **SYNTHETIC**. The committed example files have:
+
+- `synthetic_fixture=true`;
+- `physical_evidence_eligible=false`;
+- all fabrication, ride and powered authorities false.
+
+Synthetic response values exist only to exercise the visualization path.
+
+## Real SnowDeck bench overlay later
+
+After Issue #4, Issue #63 and the authorized four-zone Fit Rig are physically complete, keep raw force data private and summarize it locally:
+
+```bash
+python tools/summarize_snowdeck_force_log.py \
+  rider/private/snowdeck/S1/force.csv \
+  --session rider/private/snowdeck/S1/session.json \
+  --out rider/private/snowdeck/S1/signature.json
+
+python tools/compare_snowdeck_signatures.py \
+  rider/private/snowdeck/S0/signature.json \
+  rider/private/snowdeck/S1/signature.json \
+  --out rider/private/snowdeck/S1/vs_s0.json
+
+python tools/prepare_x1_showcase.py \
+  --snowdeck-signature rider/private/snowdeck/S1/signature.json \
+  --snowdeck-comparison rider/private/snowdeck/S1/vs_s0.json
+```
+
+The runtime manifest copies only a sanitized aggregate response vector. Session IDs, raw force traces and private notes are not projected into the public viewer contract.
