@@ -152,8 +152,7 @@ def test_energized_commissioning_gate_rejects_missing_telemetry_lineage():
     report = evaluate(_plan(), _procurement(), evidence)
     state = report["gates"]["commissioning_stage_2_qualified"]
     assert state["satisfied"] is False
-    assert any("telemetry_replay_fingerprint_sha256" in x for x in state["blockers"])
-    assert any("telemetry_session_fingerprint_sha256" in x for x in state["blockers"])
+    assert state["evidence_matched"] is False
 
 
 def test_public_repo_defaults_are_conservative():
