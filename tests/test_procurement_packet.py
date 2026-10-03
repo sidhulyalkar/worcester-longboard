@@ -41,6 +41,7 @@ def test_private_packet_can_open_only_preferred_measurement_items_with_release_e
         "authority": "x1_one_zone_pilot",
         "scope": "unpowered_fit_rig_only",
         "qualified_for_four_zone_duplication": True,
+        "powered_operation_authorized": False,
         "hardware_provenance": {
             "selection_authority_fingerprint_sha256": "1" * 64,
             "selection_record_sha256": "2" * 64,
