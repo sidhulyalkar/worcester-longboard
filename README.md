@@ -49,6 +49,7 @@ The ordering stack is deliberately split by function:
 - `tools/init_x1_physical_kickoff.py` creates the one-command Issue #51 Day-0 workspace;
 - `tools/init_x1_cart_a_checkout.py` and `tools/validate_x1_cart_a_checkout.py` turn resolved private inventory into a source-fingerprinted Issue #56 checkout record without creating new procurement authority;
 - `tools/init_x1_cart_a_receiving.py` and `tools/validate_x1_cart_a_receiving.py` reconcile delivered Cart A hardware against that exact checkout and preserve stable active/spare hardware IDs;
+- `tools/init_x1_fit_pilot_hardware_selection.py` and `tools/validate_x1_fit_pilot_hardware_selection.py` turn received or exact-unused owned sensor hardware into one fingerprinted Issue #59 active/spare selection before calibration;
 - `tools/validate_ordering_spec.py` detects source/price/compatibility drift against repository authority.
 
 The current complete Issue #4 convenience ceiling remains **$120.90 before shipping/tax**, and optional owned tools/materials should be skipped. Rev-C now holds the previously preferred Comp 95 + V5 chassis purchase until rider-scale deck comparison and wheel/brake/drive topology release conditions close. Standard Rockstar II hubs are not assumed to accept the optional T2 9-inch tire; the 9-inch path remains physically and compatibility gated.
@@ -72,14 +73,16 @@ Machine-readable companions keep the review from becoming stale prose:
 ### Rider-fit path
 
 ```text
-one 3135 load cell + one HX711
+Cart A receiving or exact-unused owned evidence
+        -> Issue #59 active load cell + untouched spare
+        -> Issue #59 active HX711 + untouched spare
         -> physical one-zone qualification
         -> four-zone unpowered fit rig
         -> repeatable stance evidence
         -> Rev-B left/right rider-interface CAD
 ```
 
-The fit layer intentionally supports independent left/right foot dimensions, yaw, position, and removable cant while keeping truck geometry symmetric by default. Exact rider measurements and raw recordings stay under gitignored `rider/private/`. Before any chassis order, `docs/rev_c_no_parts_chassis_experiment.md` provides a zero-cost three-way Comp/Warren/Agent stance test.
+The fit layer intentionally supports independent left/right foot dimensions, yaw, position, and removable cant while keeping truck geometry symmetric by default. Before Issue #4 capture, `docs/x1_fit_pilot_hardware_provenance.md` binds the exact active load cell/HX711 and untouched spares to Issue #56 checkout/receiving or exact-unused owned-stock evidence. Exact rider measurements and raw recordings stay under gitignored `rider/private/`. Before any chassis order, `docs/rev_c_no_parts_chassis_experiment.md` provides a zero-cost three-way Comp/Warren/Agent stance test.
 
 ### Chassis/brake path
 
@@ -392,7 +395,8 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 
 - **#51** create the Day-0 private physical-kickoff workspace; orchestration only, no new authority
 - **#56** validate Cart A checkout freshness, order evidence, receiving condition, and stable hardware IDs
-- **#4** qualify one load-cell/HX711/pod zone before four-zone duplication
+- **#59** bind exact active load-cell/HX711 IDs and untouched spares to the Issue #4 session
+- **#4** qualify that provenance-locked load-cell/HX711/pod zone before four-zone duplication
 - **#25** qualify Rev-C pre-purchase chassis release from deck/topology/inert-envelope evidence
 - **#2** build and qualify X1 Fit Rig v0.3
 - **#14** measure and qualify the V5 mechanical-brake interface

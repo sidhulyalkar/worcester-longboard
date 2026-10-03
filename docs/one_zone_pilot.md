@@ -10,7 +10,9 @@ The CAD authority permits a vendor-pattern pilot but deliberately blocks four-po
 
 Keep physical measurements and raw logs under one `rider/private/` session directory. Start from `hardware/one_zone_pilot_manifest.example.json`. The qualification tool refuses log paths that escape the manifest directory.
 
-Give the tested stack stable local IDs for its load cell, HX711, pod, and zone pad. The authority report binds those IDs to the source-log hashes, manifest hash, and SHA-256 of the qualification tool itself. Replacing a component therefore requires a new qualification authority rather than inheriting a previous sensor's result.
+The load-cell and HX711 IDs are not free-form. Before this session exists, Issue #59 must select the exact active load cell/HX711 and the untouched spares from fingerprinted Cart A receiving or exact-unused owned-stock evidence. The Issue #4 initializer copies that selection record and authority into the private session.
+
+The pod and zone pad receive stable local IDs. The authority report binds the active sensor IDs, untouched-spare lineage, Issue #59 fingerprints, raw-log hashes, manifest hash, and qualification-tool hash. Replacing the active load cell or HX711 therefore requires a new Issue #59 selection and a new Issue #4 qualification rather than inheriting the previous sensor result.
 
 Every raw plateau must retain the logger startup line `# hx711_sps=<10|80>`. That header must match the manifest, and `acquisition.rate_jumper_verified` must be true only after checking the physical HX711 RATE configuration. The firmware declaration alone cannot prove the jumper state.
 
@@ -36,7 +38,7 @@ PYTHONPATH=. python tools/qualify_one_zone_pilot.py \
   --out rider/private/fit_rig/pilot_authority.json
 ```
 
-A nonzero exit means four-zone duplication remains blocked. The report stores metrics, thresholds, hardware IDs, acquisition/mechanical evidence, SHA-256 of every raw plateau, the manifest hash, qualification-tool hash, and an authority fingerprint.
+A nonzero exit means four-zone duplication remains blocked. Before evaluating sensor metrics, the qualifier re-verifies the copied Issue #59 selection record and authority, exact active IDs, untouched-spare IDs, and provenance fingerprints. The report stores those provenance links alongside metrics, thresholds, acquisition/mechanical evidence, raw-plateau hashes, manifest hash, qualification-tool hash, and its own authority fingerprint.
 
 The only field that opens the next manufacturing gate is:
 
@@ -44,4 +46,4 @@ The only field that opens the next manufacturing gate is:
 "qualified_for_four_zone_duplication": true
 ```
 
-That field must come from real physical evidence. CI proves only that the qualification machinery behaves correctly on synthetic data.
+That field must come from real physical evidence **on the Issue #59-selected sensor path**. A provenance-less legacy report cannot open the gate. CI proves only that the qualification machinery behaves correctly on synthetic data.

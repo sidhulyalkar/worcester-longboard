@@ -3,11 +3,77 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
+import shutil
 from pathlib import Path
 
 HARD_MAX_PILOT_MASS_KG = 20.0
+
+
+def _digest(data: dict) -> str:
+    return hashlib.sha256(
+        json.dumps(
+            data,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("utf-8")
+    ).hexdigest()
+
+
+def _valid_selection(selection: dict, authority: dict) -> None:
+    if authority.get("authority") != "x1_fit_pilot_hardware_selection":
+        raise ValueError(
+            "hardware selection authority must be x1_fit_pilot_hardware_selection"
+        )
+    actual = authority.get("authority_fingerprint_sha256")
+    if not isinstance(actual, str) or not actual:
+        raise ValueError("hardware selection authority fingerprint is missing")
+    unsigned = dict(authority)
+    unsigned.pop("authority_fingerprint_sha256", None)
+    if actual != _digest(unsigned):
+        raise ValueError("hardware selection authority fingerprint is invalid")
+    if authority.get("valid") is not True:
+        raise ValueError("hardware selection authority must be valid")
+    if authority.get("selection_record_sha256") != _digest(selection):
+        raise ValueError("hardware selection authority does not match selection record")
+    if authority.get("exact_evidence_hardware_verified") is not True:
+        raise ValueError("selection authority must verify exact evidence hardware")
+    if authority.get("untouched_spares_preserved") is not True:
+        raise ValueError("selection authority must preserve untouched spares")
+    for key in (
+        "physical_qualification_authority",
+        "four_zone_duplication_authorized",
+        "fabrication_authority",
+        "powered_operation_authorized",
+        "public_operation_authorized",
+        "dog_accompanied_operation_authorized",
+    ):
+        if authority.get(key) is not False:
+            raise ValueError(f"hardware selection authority boundary violated: {key}")
+
+
+def _selected_ids(authority: dict) -> tuple[str, str, str, str, str]:
+    hardware = authority.get("hardware", {})
+    load = hardware.get("load_cell", {})
+    adc = hardware.get("hx711", {})
+    mcu = hardware.get("mcu", {})
+    values = (
+        load.get("active_hardware_id"),
+        load.get("spare_hardware_id"),
+        adc.get("active_hardware_id"),
+        adc.get("spare_hardware_id"),
+        mcu.get("active_hardware_id") or "",
+    )
+    if any(not isinstance(value, str) for value in values):
+        raise ValueError("hardware selection authority contains invalid hardware IDs")
+    if not all(value.strip() for value in values[:4]):
+        raise ValueError("hardware selection authority requires active/spare load-cell and HX711 IDs")
+    if len(set(values[:4])) != 4:
+        raise ValueError("active/spare load-cell and HX711 IDs must be distinct")
+    return values
 
 
 def _mass_slug(value: float) -> str:
@@ -31,7 +97,15 @@ def _validated_masses(args) -> tuple[list[float], float]:
     return masses, validation
 
 
-def build_manifest(args) -> dict:
+def build_manifest(args, selection: dict, selection_authority: dict) -> dict:
+    _valid_selection(selection, selection_authority)
+    (
+        load_cell_id,
+        load_cell_spare_id,
+        hx711_id,
+        hx711_spare_id,
+        mcu_id,
+    ) = _selected_ids(selection_authority)
     masses, validation = _validated_masses(args)
     observations = [{"kind": "zero_pre", "mass_kg": 0.0, "log": "raw/zero_pre.csv"}]
     observations.extend(
@@ -54,11 +128,25 @@ def build_manifest(args) -> dict:
 
     return {
         "schema_version": 1,
+        "hardware_selection": {
+            "selection_id": selection_authority["selection_id"],
+            "selection_record_sha256": selection_authority["selection_record_sha256"],
+            "selection_authority_fingerprint_sha256": selection_authority[
+                "authority_fingerprint_sha256"
+            ],
+            "selection_record_path": "provenance/hardware_selection.json",
+            "selection_authority_path": "provenance/hardware_selection_authority.json",
+        },
         "hardware_ids": {
-            "load_cell_id": args.load_cell_id,
-            "hx711_id": args.hx711_id,
+            "load_cell_id": load_cell_id,
+            "hx711_id": hx711_id,
             "pod_id": args.pod_id,
             "zone_pad_id": args.zone_pad_id,
+            "mcu_id": mcu_id,
+        },
+        "spare_hardware_ids": {
+            "load_cell_id": load_cell_spare_id,
+            "hx711_id": hx711_spare_id,
         },
         "channel": args.channel,
         "hx711_sps": args.sps,
@@ -83,8 +171,8 @@ def build_manifest(args) -> dict:
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("session_dir", type=Path)
-    p.add_argument("--load-cell-id", required=True)
-    p.add_argument("--hx711-id", required=True)
+    p.add_argument("--hardware-selection", type=Path, required=True)
+    p.add_argument("--hardware-selection-authority", type=Path, required=True)
     p.add_argument("--pod-id", required=True)
     p.add_argument("--zone-pad-id", required=True)
     p.add_argument("--channel", choices=("left_heel", "left_forefoot", "right_heel", "right_forefoot"), default="left_heel")
@@ -105,7 +193,13 @@ def main() -> None:
     args = p.parse_args()
 
     try:
-        manifest = build_manifest(args)
+        selection = json.loads(
+            args.hardware_selection.read_text(encoding="utf-8")
+        )
+        selection_authority = json.loads(
+            args.hardware_selection_authority.read_text(encoding="utf-8")
+        )
+        manifest = build_manifest(args, selection, selection_authority)
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
 
@@ -113,6 +207,16 @@ def main() -> None:
     if root.exists() and any(root.iterdir()):
         raise SystemExit(f"Refusing to overwrite nonempty session directory: {root}")
     (root / "raw").mkdir(parents=True, exist_ok=True)
+    provenance = root / "provenance"
+    provenance.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(
+        args.hardware_selection,
+        provenance / "hardware_selection.json",
+    )
+    shutil.copyfile(
+        args.hardware_selection_authority,
+        provenance / "hardware_selection_authority.json",
+    )
     (root / "pilot_manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
     )
@@ -124,6 +228,8 @@ def main() -> None:
         "The manifest was generated from the actual masses supplied on the command line.\n"
         "Do not replace them with nominal plate labels after capture.\n"
         "Keep transient load/unload periods out of plateau CSVs.\n"
+        "The active load-cell/HX711 IDs are locked by Issue #59 selection evidence.\n"
+        "Do not swap to the untouched spare inside this session; create a new selection authority and session instead.\n"
         "Set rate_jumper_verified=true only after physically checking the HX711 RATE state.\n\n"
         "## Capture order\n\n- " + "\n- ".join(sequence) + "\n",
         encoding="utf-8",

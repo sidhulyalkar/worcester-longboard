@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "scope": "x1_fit_pilot_hardware_selection_record",
+  "issue": 59,
+  "selection_id": "",
+  "selected_at_utc": "",
+  "checkout_id": "",
+  "checkout_authority_fingerprint_sha256": "",
+  "inventory_record_sha256": "",
+  "receiving_id": "",
+  "receiving_authority_fingerprint_sha256": "",
+  "hardware": {
+    "load_cell": {
+      "item_id": "LC-3135",
+      "source_kind": "",
+      "active_hardware_id": "",
+      "spare_hardware_id": ""
+    },
+    "hx711": {
+      "item_id": "ADC-HX711",
+      "source_kind": "",
+      "active_hardware_id": "",
+      "spare_hardware_id": ""
+    },
+    "mcu": {
+      "item_id": "MCU-ESP32S3",
+      "source_kind": "NOT_USED",
+      "active_hardware_id": ""
+    }
+  },
+  "notes": "",
+  "physical_qualification_authority": false,
+  "four_zone_duplication_authorized": false,
+  "fabrication_authority": false,
+  "powered_operation_authorized": false,
+  "public_operation_authorized": false,
+  "dog_accompanied_operation_authorized": false
+}

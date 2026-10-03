@@ -684,5 +684,40 @@
     "powered_operation_authorized": false,
     "public_operation_authorized": false,
     "dog_accompanied_operation_authorized": false
+  },
+  "fit_pilot_hardware_provenance_program": {
+    "issue": 59,
+    "phase": "POST_CART_A_CHECKOUT_RECEIVING_PRE_ISSUE4_SESSION",
+    "selection_template": "hardware/x1_fit_pilot_hardware_selection_template.json",
+    "initializer": "tools/init_x1_fit_pilot_hardware_selection.py",
+    "validator": "tools/validate_x1_fit_pilot_hardware_selection.py",
+    "issue4_initializer": "tools/init_one_zone_pilot_session.py",
+    "issue4_qualifier": "tools/qualify_one_zone_pilot.py",
+    "allowed_required_sensor_sources": [
+      "RECEIVED_ORDER",
+      "OWNED_EXACT_UNUSED"
+    ],
+    "required_roles": {
+      "load_cell": [
+        "PILOT_ACTIVE_CANDIDATE",
+        "SPARE_UNTOUCHED"
+      ],
+      "hx711": [
+        "PILOT_ACTIVE_CANDIDATE",
+        "SPARE_UNTOUCHED"
+      ]
+    },
+    "hard_boundaries": [
+      "active load cell and HX711 must descend from fingerprinted Cart A evidence",
+      "one untouched spare load cell and HX711 must remain preserved",
+      "active and spare stable hardware IDs must be distinct",
+      "sensor substitutes or equivalents cannot satisfy Issue #4 evidence hardware",
+      "changing active sensor hardware requires a new selection authority and new Issue #4 session",
+      "Issue #4 qualification must preserve the exact Issue #59 selection fingerprint"
+    ],
+    "physical_qualification_authority": false,
+    "four_zone_duplication_authorized": false,
+    "fabrication_authority": false,
+    "powered_operation_authorized": false
   }
 }

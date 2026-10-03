@@ -37,7 +37,16 @@ def _stamp(doc):
 def test_private_packet_can_open_only_preferred_measurement_items_with_release_evidence():
     plan = json.loads((ROOT / "hardware/build_authority.json").read_text())
     procurement = json.loads((ROOT / "hardware/procurement_manifest.json").read_text())
-    fit = _stamp({"qualified_for_four_zone_duplication": True})
+    fit = _stamp({
+        "authority": "x1_one_zone_pilot",
+        "scope": "unpowered_fit_rig_only",
+        "qualified_for_four_zone_duplication": True,
+        "powered_operation_authorized": False,
+        "hardware_provenance": {
+            "selection_authority_fingerprint_sha256": "1" * 64,
+            "selection_record_sha256": "2" * 64,
+        },
+    })
     release = _stamp(
         {
             "authority": "x1_rev_c_chassis_release",

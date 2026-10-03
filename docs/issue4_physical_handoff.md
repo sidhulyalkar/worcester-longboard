@@ -17,16 +17,28 @@ The generated packet has three deliberately different sections:
 
 Do not turn a blocked row into a purchase by copying it into a separate shopping list. Change and review the repository authority instead.
 
-## 2. Assign physical IDs on receipt
+## 2. Create the Issue #59 hardware selection
 
-Before wiring or assembly, give the actual pilot parts durable local IDs, for example:
+Issue #56 receiving or exact-unused owned-stock evidence must exist before the calibration session.
 
-- one load cell: `LC-PILOT-A`
-- its HX711: `ADC-PILOT-A`
-- printed/machined pod: `POD-PILOT-A`
-- zone pad: `PAD-PILOT-A`
+Follow `docs/x1_fit_pilot_hardware_provenance.md` to create and validate:
 
-Keep the second load cell/HX711 untouched as spares until the first zone qualifies. Record wrong revision, visible damage, or incompatible geometry in the private session notes rather than silently substituting hardware.
+```text
+pilot_hardware_selection.json
+pilot_hardware_selection_authority.json
+```
+
+The selection authority locks:
+
+- the exact active load-cell hardware ID;
+- the exact untouched load-cell spare ID;
+- the exact active HX711 hardware ID;
+- the exact untouched HX711 spare ID;
+- optional MCU provenance.
+
+The pod and zone pad still receive durable local IDs such as `POD-PILOT-A` and `PAD-PILOT-A`.
+
+Do not silently substitute or swap a spare into the same calibration session. A changed active sensor path requires a new Issue #59 selection authority and a new Issue #4 session.
 
 ## 3. Measure the calibration masses you will actually use
 
@@ -41,8 +53,8 @@ Replace every `<...>` mass below with the real numeric value in kg:
 ```bash
 PYTHONPATH=. python tools/init_one_zone_pilot_session.py \
   rider/private/fit_rig/issue4-pilot \
-  --load-cell-id LC-PILOT-A \
-  --hx711-id ADC-PILOT-A \
+  --hardware-selection rider/private/physical_kickoff/pilot_hardware_selection.json \
+  --hardware-selection-authority rider/private/physical_kickoff/pilot_hardware_selection_authority.json \
   --pod-id POD-PILOT-A \
   --zone-pad-id PAD-PILOT-A \
   --channel left_heel \
@@ -53,7 +65,7 @@ PYTHONPATH=. python tools/init_one_zone_pilot_session.py \
   --validation-mass-kg <measured-independent-kg>
 ```
 
-The initializer sorts the calibration masses, creates an ascending sequence, creates paired descending plateaus below the maximum, creates the independent validation filename, and refuses duplicate/nonpositive/>20 kg values.
+The initializer first verifies the Issue #59 selection authority, copies the exact selection record/authority into the session's `provenance/` directory, and locks the active/spare IDs into the manifest. It then sorts the calibration masses, creates the ascending/descending sequence, creates the independent validation filename, and refuses duplicate/nonpositive/>20 kg values.
 
 ## 5. Assemble and capture exactly one zone
 
@@ -83,4 +95,4 @@ PYTHONPATH=. python tools/evaluate_build_authority.py \
   --out rider/private/fit_rig/issue4-pilot/build_authority.json
 ```
 
-Only a valid fingerprinted report with `qualified_for_four_zone_duplication=true` may open the four-zone duplication capability. Rider-fit Rev-B, unpowered chassis fabrication, power ordering, and powered operation remain separately gated.
+Only a valid fingerprinted `x1_one_zone_pilot` report with `qualified_for_four_zone_duplication=true` **and preserved Issue #59 hardware provenance** may open the four-zone duplication capability. Rider-fit Rev-B, unpowered chassis fabrication, power ordering, and powered operation remain separately gated.
