@@ -14,7 +14,15 @@ def _stamp(doc):
 
 
 def _fit_pilot():
-    return _stamp({"qualified_for_four_zone_duplication": True})
+    return _stamp({
+        "authority": "x1_one_zone_pilot",
+        "scope": "unpowered_fit_rig_only",
+        "qualified_for_four_zone_duplication": True,
+        "hardware_provenance": {
+            "selection_authority_fingerprint_sha256": "1" * 64,
+            "selection_record_sha256": "2" * 64,
+        },
+    })
 
 
 def _deck():
@@ -193,12 +201,33 @@ def test_unqualified_inert_range_envelope_cannot_release_chassis():
 
 
 def test_unqualified_fit_pilot_cannot_release_chassis():
-    pilot = _stamp({"qualified_for_four_zone_duplication": False})
+    pilot = _stamp({
+        "authority": "x1_one_zone_pilot",
+        "scope": "unpowered_fit_rig_only",
+        "qualified_for_four_zone_duplication": False,
+        "hardware_provenance": {
+            "selection_authority_fingerprint_sha256": "1" * 64,
+            "selection_record_sha256": "2" * 64,
+        },
+    })
     deck, topology, inert = _deck(), _topology(), _inert()
     manifest = _manifest(pilot, deck, topology, inert)
     report = qualify(manifest, pilot, deck, topology, inert)
     assert report["qualified"] is False
-    assert any("not qualified" in e for e in report["errors"])
+    assert any("invalid, unqualified" in e for e in report["errors"])
+
+
+def test_provenance_less_legacy_fit_pilot_cannot_release_chassis():
+    pilot = _stamp({
+        "authority": "x1_one_zone_pilot",
+        "scope": "unpowered_fit_rig_only",
+        "qualified_for_four_zone_duplication": True,
+    })
+    deck, topology, inert = _deck(), _topology(), _inert()
+    manifest = _manifest(pilot, deck, topology, inert)
+    report = qualify(manifest, pilot, deck, topology, inert)
+    assert report["qualified"] is False
+    assert any("lacks Issue #59 hardware provenance" in e for e in report["errors"])
 
 
 def test_release_cannot_authorize_power():
