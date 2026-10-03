@@ -138,3 +138,49 @@ Issue #65 may close when the repository has:
 - no change to the Issue #25 -> #4/#63 -> chassis/brake physical sequence.
 
 This work improves review quality. It does not move a physical gate by itself.
+
+
+## Coordinate and motion contract
+
+The viewer uses the same convention as the rolling-chassis CadQuery references:
+
+- +X: board longitudinal axis;
+- +Y: board lateral axis;
+- +Z: upward from the ground plane;
+- ground: Z = 0.
+
+The browser camera is explicitly configured Z-up. This is required before clearance or steering overlays may be interpreted geometrically.
+
+The procedural motion view currently exposes the documented reference ±22 degree steering envelope. Front and rear axle groups are shown with opposite plan-view yaw for the packaging sweep used by the existing CAD generator. This is an interference visualization, not a validated dynamic steering model.
+
+The clearance view shows the current provisional 65 mm static deck clearance and 45 mm compressed keep-out. Both remain ASSUMED/REFERENCE packaging values until the received donor is measured.
+
+## Generated CAD overlay
+
+`tools/export_showcase_assets.py` converts generated STL files to GLB without changing geometry authority.
+
+Each asset record carries:
+
+- stable `asset_id`;
+- source group;
+- source path + SHA-256;
+- GLB path + SHA-256;
+- `physical_authority=false`;
+- `powered_operation_authorized=false`.
+
+The browser may overlay the neutral chassis and unioned steering-sweep meshes on the procedural evidence-colored model. The overlay is a geometry audit aid, not a second authority system.
+
+## SnowDeck laboratory view
+
+The viewer exposes independent front/rear:
+
+- plate yaw;
+- cant;
+- plate separation;
+- compliant-layer thickness proxy.
+
+These are broad visualization bounds, not recommended ride settings.
+
+`cad/generate_snowdeck_study.py` produces the universal Fit Rig plate reference, 2 and 4 degree cant-study wedges, and the maximum compliant-insert envelope. Its generated authority explicitly keeps fabrication and ride authority false.
+
+Final rider-specific geometry remains downstream of qualified four-zone evidence and the existing Rev-B/template gates.
