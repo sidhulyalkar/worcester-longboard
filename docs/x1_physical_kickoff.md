@@ -87,7 +87,9 @@ When packages arrive, use `docs/x1_cart_a_checkout_receiving.md` to create the f
 
 Then use `docs/x1_fit_pilot_hardware_provenance.md` to create Issue #59 hardware-selection evidence. Issue #56 records what arrived; Issue #59 chooses the exact active load cell/HX711 and preserves the exact untouched spares that Issue #4 is allowed to use.
 
-Neither layer qualifies sensor performance.
+Next use `docs/x1_fit_pilot_mass_reference.md` to create Issue #61 mass-reference evidence. Issue #61 locks the actual calibration/validation mass values, evidence source, and conservative uncertainty before Issue #4 exists.
+
+None of these provenance layers qualify sensor performance.
 
 ## Current Cart A
 
@@ -141,20 +143,26 @@ Then follow hardware/one_zone_pilot_assembly.md.
 
 Do not build all four sensing zones yet.
 
-## Calibration masses are evidence
+## Calibration masses are fingerprinted evidence
 
-Before creating the Issue #4 session, establish the numeric masses you will actually use.
+Before creating the Issue #4 session, create and validate Issue #61:
 
-Requirements:
+```bash
+PYTHONPATH=. python tools/init_x1_fit_pilot_mass_reference.py \
+  rider/private/physical_kickoff/pilot_mass_reference.json \
+  --reference-set-id MASS-REF-001 \
+  --measured-at-utc <ACTUAL_TIME_WITH_TIMEZONE>
 
-- at least three unique positive calibration masses;
-- one independent validation mass;
-- every mass <= 20 kg;
-- validation mass not equal to a calibration mass.
+PYTHONPATH=. python tools/validate_x1_fit_pilot_mass_reference.py \
+  rider/private/physical_kickoff/pilot_mass_reference.json \
+  --out rider/private/physical_kickoff/pilot_mass_reference_authority.json
+```
 
-Do not type a nominal dumbbell or plate label into the manifest and call it measured truth.
+Requirements remain at least three unique positive calibration masses, one independent validation mass, and every mass `<=20 kg`, but each mass now also needs explicit conservative uncertainty and supporting evidence.
 
-Only after the actual values are known **and Issue #59 has locked the active sensor hardware** should `tools/init_one_zone_pilot_session.py` be initialized. Pass the Issue #59 selection record and authority instead of typing load-cell/HX711 IDs manually.
+A nominal dumbbell or plate label alone is not authority.
+
+Only after Issue #59 and Issue #61 both pass should `tools/init_one_zone_pilot_session.py` be initialized.
 
 ## What not to buy
 
@@ -184,10 +192,11 @@ Day-0 is complete when:
 3. only actually-needed Cart A items are ordered or positively accounted for;
 4. any placed order has a valid Issue #56 checkout record;
 5. received shipments are reconciled through Issue #56 before assembly;
-6. Issue #59 selects the exact active load-cell/HX711 path and untouched spares before Issue #4 session initialization;
-7. all three stance envelopes exist;
-8. zero-cost chassis trials can begin;
-9. every expensive and powered stage remains blocked.
+6. Issue #59 selects the exact active load-cell/HX711 path and untouched spares;
+7. Issue #61 establishes the exact calibration/validation masses and uncertainty before Issue #4 session initialization;
+8. all three stance envelopes exist;
+9. zero-cost chassis trials can begin;
+10. every expensive and powered stage remains blocked.
 
 The next evidence milestones remain:
 
