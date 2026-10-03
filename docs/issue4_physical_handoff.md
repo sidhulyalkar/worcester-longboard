@@ -40,32 +40,58 @@ The pod and zone pad still receive durable local IDs such as `POD-PILOT-A` and `
 
 Do not silently substitute or swap a spare into the same calibration session. A changed active sensor path requires a new Issue #59 selection authority and a new Issue #4 session.
 
-## 3. Measure the calibration masses you will actually use
+## 3. Create the Issue #61 mass-reference authority
 
-The initializer no longer invents 2/5/10/7.5 kg values. Supply the **actual measured values** for at least three unique ascending calibration masses and one independent validation mass. Each must be >0 and <=20 kg.
+Issue #4 no longer accepts free-form "known mass" numbers.
 
-Do not type nominal plate labels unless those are the values you have chosen to treat as the known-mass authority. Better mass reference uncertainty produces better calibration evidence.
+Follow `docs/x1_fit_pilot_mass_reference.md`.
 
-## 4. Create the private session
+Create the private record:
 
-Replace every `<...>` mass below with the real numeric value in kg:
+```bash
+PYTHONPATH=. python tools/init_x1_fit_pilot_mass_reference.py \
+  rider/private/physical_kickoff/pilot_mass_reference.json \
+  --reference-set-id MASS-REF-001 \
+  --measured-at-utc <ACTUAL_TIME_WITH_TIMEZONE>
+```
+
+Populate at least three unique positive calibration masses plus one independent validation mass. Every mass must be `<=20 kg` and carry explicit uncertainty evidence.
+
+Allowed evidence paths are:
+
+- documented reference mass with stated uncertainty;
+- repeated measurement on an independent scale with recorded manufacturer/model, resolution, accuracy source, zero checks and readings.
+
+A nominal plate/object label by itself is not authority.
+
+Validate:
+
+```bash
+PYTHONPATH=. python tools/validate_x1_fit_pilot_mass_reference.py \
+  rider/private/physical_kickoff/pilot_mass_reference.json \
+  --out rider/private/physical_kickoff/pilot_mass_reference_authority.json
+```
+
+The authority must report `valid=true` and still keep NIST traceability, legal metrology, load-cell performance, four-zone duplication, fabrication and operation authority false.
+
+## 4. Create the private Issue #4 session
 
 ```bash
 PYTHONPATH=. python tools/init_one_zone_pilot_session.py \
   rider/private/fit_rig/issue4-pilot \
   --hardware-selection rider/private/physical_kickoff/pilot_hardware_selection.json \
   --hardware-selection-authority rider/private/physical_kickoff/pilot_hardware_selection_authority.json \
+  --mass-reference rider/private/physical_kickoff/pilot_mass_reference.json \
+  --mass-reference-authority rider/private/physical_kickoff/pilot_mass_reference_authority.json \
   --pod-id POD-PILOT-A \
   --zone-pad-id PAD-PILOT-A \
   --channel left_heel \
-  --sps 10 \
-  --calibration-mass-kg <measured-low-kg> \
-  --calibration-mass-kg <measured-mid-kg> \
-  --calibration-mass-kg <measured-high-kg> \
-  --validation-mass-kg <measured-independent-kg>
+  --sps 10
 ```
 
-The initializer first verifies the Issue #59 selection authority, copies the exact selection record/authority into the session's `provenance/` directory, and locks the active/spare IDs into the manifest. It then sorts the calibration masses, creates the ascending/descending sequence, creates the independent validation filename, and refuses duplicate/nonpositive/>20 kg values.
+The initializer revalidates both authorities, copies both records and both authorities into the session `provenance/` directory, derives the load sequence from Issue #61, and writes each mass ID plus uncertainty into the manifest.
+
+There are no free-form calibration/validation mass arguments. Changing a mass value, uncertainty, evidence source, active load cell, or active HX711 requires a new authority/session.
 
 ## 5. Assemble and capture exactly one zone
 
@@ -95,4 +121,4 @@ PYTHONPATH=. python tools/evaluate_build_authority.py \
   --out rider/private/fit_rig/issue4-pilot/build_authority.json
 ```
 
-Only a valid fingerprinted `x1_one_zone_pilot` report with `qualified_for_four_zone_duplication=true` **and preserved Issue #59 hardware provenance** may open the four-zone duplication capability. Rider-fit Rev-B, unpowered chassis fabrication, power ordering, and powered operation remain separately gated.
+Only a valid fingerprinted `x1_one_zone_pilot` report with `qualified_for_four_zone_duplication=true`, preserved Issue #59 hardware provenance, **and preserved Issue #61 mass-reference provenance** may open the four-zone duplication capability. Rider-fit Rev-B, unpowered chassis fabrication, power ordering, and powered operation remain separately gated.
