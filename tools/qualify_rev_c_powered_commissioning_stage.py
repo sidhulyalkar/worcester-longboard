@@ -211,6 +211,10 @@ def _validate_telemetry_replay(
         errors.append("telemetry replay cannot authorize public operation")
     if data.get("dog_accompanied_operation_authorized") is not False:
         errors.append("telemetry replay cannot authorize dog-accompanied operation")
+    if data.get("synthetic_fixture") is True:
+        errors.append("synthetic telemetry replay cannot qualify physical commissioning")
+    if data.get("physical_evidence_eligible") is not True:
+        errors.append("telemetry replay is not eligible as physical evidence")
     if not _valid_fp(data):
         errors.append("telemetry replay fingerprint is invalid")
 
