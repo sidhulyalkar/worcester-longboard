@@ -12,7 +12,10 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from cad.generate_rev_c_deck_templates import generate as generate_deck_templates
+from cad.generate_rev_c_deck_templates import (
+    generate as generate_deck_templates,
+    generate_blinded as generate_blinded_deck_templates,
+)
 
 TEMPLATES = {
     "deck_comparison.json": ROOT / "hardware/rev_c_deck_comparison_private_template.json",
@@ -39,6 +42,10 @@ def initialize(session_dir: Path) -> dict:
     deck_dir = session_dir / "deck_templates"
     deck_paths = generate_deck_templates(deck_dir)
 
+    blind_dir = session_dir / "deck_templates_blind"
+    blind_key_path = session_dir / "deck_blind_key.json"
+    blind_paths, _ = generate_blinded_deck_templates(blind_dir, blind_key_path)
+
     manifest = {
         "schema_version": 1,
         "scope": "rev_c_chassis_release_workspace",
@@ -47,6 +54,10 @@ def initialize(session_dir: Path) -> dict:
         "session_dir": str(session_dir),
         "templates": copied,
         "deck_templates": [str(path.relative_to(session_dir)) for path in deck_paths],
+        "blinded_deck_templates": [
+            str(path.relative_to(session_dir)) for path in blind_paths
+        ],
+        "deck_blind_key": str(blind_key_path.relative_to(session_dir)),
         "next_step": "complete Issue #4 authority, then follow docs/rev_c_chassis_release_playbook.md",
     }
     manifest_path = session_dir / "workspace_manifest.json"
