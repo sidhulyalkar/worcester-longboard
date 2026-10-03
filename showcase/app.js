@@ -328,7 +328,11 @@ function updateSnowdeck() {
     visual.geometry.deck_reference_thickness_mm;
 
   const setFoot = (foot, x, yaw, cant) => {
-    foot.group.position.x = x;
+    foot.group.userData.basePosition.x = x;
+    foot.group.userData.targetPosition
+      .copy(foot.group.userData.basePosition)
+      .add(visual.exploded ? foot.group.userData.explodeOffset : new THREE.Vector3());
+    if (!visual.exploded) foot.group.position.x = x;
     foot.group.rotation.z = THREE.MathUtils.degToRad(yaw);
     foot.group.rotation.x = THREE.MathUtils.degToRad(cant);
     foot.insert.visible = insert > 0;
