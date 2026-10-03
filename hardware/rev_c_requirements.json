@@ -760,5 +760,45 @@
     "four_zone_duplication_authorized": false,
     "fabrication_authority": false,
     "powered_operation_authorized": false
+  },
+  "fit_platform_repeatability_program": {
+    "issue": 63,
+    "phase": "POST_ISSUE4_PRE_FOUR_ZONE_DUPLICATION",
+    "snapshot": "hardware/x1_fit_platform_repeatability_snapshot_2026-10-02.json",
+    "trial_template": "hardware/x1_fit_platform_repeatability_template.json",
+    "initializer": "tools/init_x1_fit_platform_repeatability.py",
+    "qualifier": "tools/qualify_x1_fit_platform_repeatability.py",
+    "upstream_authority": "x1_one_zone_pilot",
+    "output_authority": "x1_fit_platform_repeatability",
+    "required_positions": [
+      "CENTER",
+      "+X",
+      "-X",
+      "+Y",
+      "-Y"
+    ],
+    "minimum_repeats_per_position": 3,
+    "uses_existing_issue4_linear_fit": true,
+    "uses_issue61_validation_mass": true,
+    "per_position_gate": "canonical conservative Issue #4 max_validation_error",
+    "cross_position_spread_policy": "diagnostic only; no invented vendor corner-load tolerance",
+    "downstream_policy": {
+      "four_zone_duplication_requires_issue63": true,
+      "rider_fit_qualification_requires_issue63": true,
+      "rev_c_chassis_release_requires_issue63": false
+    },
+    "hard_boundaries": [
+      "no rezero between position runs",
+      "no recalibration between position runs",
+      "entire declared load contact footprint remains supported by the one-zone pad",
+      "minimum overload-stop clearance remains at or above the qualified Issue #4 limit at every position",
+      "rocking interference and repositioning-induced cable force are prohibited",
+      "Issue #63 does not create a new vendor accuracy specification",
+      "Issue #63 is bench-only and unpowered",
+      "Issue #63 does not authorize fabrication or powered public or dog-accompanied operation"
+    ],
+    "four_zone_duplication_authorized": false,
+    "fabrication_authority": false,
+    "powered_operation_authorized": false
   }
 }
