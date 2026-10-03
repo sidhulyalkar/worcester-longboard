@@ -11,7 +11,7 @@ python tools/prepare_x1_showcase.py
 python -m http.server 8000
 ```
 
-The preparation command runs the rolling-chassis, Fit Rig, one-zone and SnowDeck CAD generators, converts generated STL references to GLB, then builds the authority-aware runtime manifest. Use `--skip-cad` or `--skip-assets` when iterating only on evidence/UI state.
+The preparation command runs the rolling-chassis, Fit Rig, one-zone and SnowDeck CAD generators, converts generated STL references to GLB, builds the authority-aware runtime manifest, then renders a deterministic engineering review at `showcase/generated/design_review.md`. Use `--skip-cad` or `--skip-assets` when iterating only on evidence/UI state.
 
 Open:
 
@@ -103,3 +103,22 @@ python tools/prepare_x1_showcase.py \
 ```
 
 The runtime manifest copies only a sanitized aggregate response vector. Session IDs, raw force traces and private notes are not projected into the public viewer contract.
+
+
+## Design-review snapshot
+
+Every successful `prepare_x1_showcase.py` run now emits:
+
+`showcase/generated/design_review.md`
+
+The snapshot contains:
+
+- component evidence state and exact physical promotion gate;
+- the three deck-envelope candidates;
+- brake/drive topology branches without collapsing UNKNOWN compatibility;
+- the sacrificial trail-armor study boundary;
+- optional sanitized SnowDeck response vectors and signed deltas;
+- highest-priority mechanical risks;
+- the major physical progression gates and their current blockers.
+
+It is generated from the same runtime manifest as the viewer and is explicitly non-authoritative. It is useful for design reviews, archiving decisions, and spotting when a beautiful visualization has outrun physical evidence.
