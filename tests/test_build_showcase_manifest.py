@@ -302,7 +302,24 @@ def test_deck_selection_projection_requires_valid_fingerprint():
     invalid = dict(valid)
     invalid["selected_candidate_id"] = "comp95_class"
 
-    assert mod.extract_deck_comparison_selection([invalid]) is None
+    try:
+        mod.extract_deck_comparison_selection([invalid])
+    except ValueError as exc:
+        assert "failed sanitized contract" in str(exc)
+    else:
+        raise AssertionError("tampered deck authority must fail closed")
+
+    unknown = dict(valid)
+    unknown.pop("authority_fingerprint_sha256")
+    unknown["selected_candidate_id"] = "mystery_deck"
+    unknown["authority_fingerprint_sha256"] = fingerprint(unknown)
+
+    try:
+        mod.extract_deck_comparison_selection([unknown])
+    except ValueError as exc:
+        assert "selected unknown candidate" in str(exc)
+    else:
+        raise AssertionError("unknown deck candidate must fail closed")
 
 
 def test_deck_selection_projection_refuses_conflicting_valid_authorities():
