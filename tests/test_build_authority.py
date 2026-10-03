@@ -120,11 +120,40 @@ def _commissioning_evidence():
             "stage_index": index,
             "stage_id": stage_id,
             "commissioning_stage_completed": True,
+            "telemetry_replay_fingerprint_sha256": (
+                None if index == 0 else hashlib.sha256(
+                    f"replay-{index}".encode()
+                ).hexdigest()
+            ),
+            "telemetry_session_fingerprint_sha256": (
+                None if index == 0 else hashlib.sha256(
+                    f"session-{index}".encode()
+                ).hexdigest()
+            ),
             "general_powered_operation_authorized": False,
             "public_operation_authorized": False,
             "dog_accompanied_operation_authorized": False,
         }))
     return [venue, *stages]
+
+
+def test_energized_commissioning_gate_rejects_missing_telemetry_lineage():
+    evidence = [*_all_physical_evidence(), *_commissioning_evidence()]
+    for item in evidence:
+        if (
+            item.get("authority") == "x1_powered_commissioning_stage"
+            and item.get("stage_index") == 2
+        ):
+            item.pop("telemetry_replay_fingerprint_sha256", None)
+            item.pop("telemetry_session_fingerprint_sha256", None)
+            item.pop("authority_fingerprint_sha256", None)
+            item.update(_stamp(item))
+
+    report = evaluate(_plan(), _procurement(), evidence)
+    state = report["gates"]["commissioning_stage_2_qualified"]
+    assert state["satisfied"] is False
+    assert any("telemetry_replay_fingerprint_sha256" in x for x in state["blockers"])
+    assert any("telemetry_session_fingerprint_sha256" in x for x in state["blockers"])
 
 
 def test_public_repo_defaults_are_conservative():
