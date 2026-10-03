@@ -45,7 +45,8 @@ The vendor drawing is sufficient to make one pilot pod/pad pair. Before producin
 2. verify screw lengths do not bottom or interfere with flexure,
 3. apply known loads and confirm monotonic response/zero return,
 4. verify overload-stop clearance under the intended calibration range,
-5. only then duplicate the mechanical stack.
+5. run Issue #63 CENTER/+X/-X/+Y/-Y repeatability using the existing fit and Issue #61 validation mass,
+6. only after Issue #63 passes duplicate the mechanical stack.
 
 ## Calibration equipment
 
