@@ -219,34 +219,53 @@ For this low-load bench fixture, printed prototype parts may be used only if the
 
 Do not fabricate the other three sensor pods until Issue #4 qualifies.
 
-## 3. Calibration-mass plan before assembly day
+## 3. Calibration-mass evidence before assembly day
 
-You need:
+Issue #4 requires:
 
 - at least three unique positive calibration masses;
 - one independent validation mass not equal to a calibration mass;
-- every mass `<=20 kg`.
+- every mass `<=20 kg`;
+- explicit conservative uncertainty for every mass;
+- a fingerprinted Issue #61 source record and authority.
 
-Good practical sequencing is low / medium / high calibration masses with the lower two repeated on the descending path, followed by the independent validation mass.
+Do **not** type a nominal dumbbell/plate/object label directly into the pilot manifest.
 
-The important word is **known**. Record the values you are actually treating as mass authority and how you obtained them. Do not type a nominal plate label and then describe it as laboratory calibration.
+Follow `docs/x1_fit_pilot_mass_reference.md`.
 
-Create the private session only after those numeric values are known:
+Initialize:
+
+```bash
+PYTHONPATH=. python tools/init_x1_fit_pilot_mass_reference.py \
+  rider/private/physical_kickoff/pilot_mass_reference.json \
+  --reference-set-id MASS-REF-001 \
+  --measured-at-utc <ACTUAL_TIME_WITH_TIMEZONE>
+```
+
+Populate the record using documented reference-mass evidence or repeated independent-scale measurements, then validate:
+
+```bash
+PYTHONPATH=. python tools/validate_x1_fit_pilot_mass_reference.py \
+  rider/private/physical_kickoff/pilot_mass_reference.json \
+  --out rider/private/physical_kickoff/pilot_mass_reference_authority.json
+```
+
+Only then create the private Issue #4 session:
 
 ```bash
 PYTHONPATH=. python tools/init_one_zone_pilot_session.py \
   rider/private/fit_rig/issue4-pilot \
   --hardware-selection rider/private/physical_kickoff/pilot_hardware_selection.json \
   --hardware-selection-authority rider/private/physical_kickoff/pilot_hardware_selection_authority.json \
+  --mass-reference rider/private/physical_kickoff/pilot_mass_reference.json \
+  --mass-reference-authority rider/private/physical_kickoff/pilot_mass_reference_authority.json \
   --pod-id POD-PILOT-A \
   --zone-pad-id PAD-PILOT-A \
   --channel left_heel \
-  --sps 10 \
-  --calibration-mass-kg <LOW> \
-  --calibration-mass-kg <MID> \
-  --calibration-mass-kg <HIGH> \
-  --validation-mass-kg <VALIDATION>
+  --sps 10
 ```
+
+The canonical 2% independent-validation gate uses a conservative error that includes validation-reference uncertainty.
 
 ## 4. Cart B: REV-C HOLD — source/watch only
 
