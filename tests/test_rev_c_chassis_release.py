@@ -18,6 +18,7 @@ def _fit_pilot():
         "authority": "x1_one_zone_pilot",
         "scope": "unpowered_fit_rig_only",
         "qualified_for_four_zone_duplication": True,
+        "powered_operation_authorized": False,
         "hardware_provenance": {
             "selection_authority_fingerprint_sha256": "1" * 64,
             "selection_record_sha256": "2" * 64,
@@ -205,6 +206,7 @@ def test_unqualified_fit_pilot_cannot_release_chassis():
         "authority": "x1_one_zone_pilot",
         "scope": "unpowered_fit_rig_only",
         "qualified_for_four_zone_duplication": False,
+        "powered_operation_authorized": False,
         "hardware_provenance": {
             "selection_authority_fingerprint_sha256": "1" * 64,
             "selection_record_sha256": "2" * 64,
@@ -222,6 +224,7 @@ def test_provenance_less_legacy_fit_pilot_cannot_release_chassis():
         "authority": "x1_one_zone_pilot",
         "scope": "unpowered_fit_rig_only",
         "qualified_for_four_zone_duplication": True,
+        "powered_operation_authorized": False,
     })
     deck, topology, inert = _deck(), _topology(), _inert()
     manifest = _manifest(pilot, deck, topology, inert)
