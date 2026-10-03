@@ -531,6 +531,8 @@ def validate(
         errors.append("wrong telemetry manifest scope")
     if manifest.get("sealed") is not True:
         errors.append("telemetry manifest must be sealed")
+    if manifest.get("synthetic_fixture") not in (True, False):
+        errors.append("synthetic_fixture must be boolean")
     if not _nonempty(manifest.get("sealed_at_utc")):
         errors.append("sealed_at_utc must be nonempty")
 
@@ -724,6 +726,10 @@ def validate(
         ),
         "raw_file_sha256": file_hashes,
         "physical_sensor_calibration_proven": False,
+        "synthetic_fixture": manifest.get("synthetic_fixture") is True,
+        "physical_evidence_eligible": (
+            qualified and manifest.get("synthetic_fixture") is False
+        ),
         "commissioning_stage_qualified": False,
         "powered_operation_authorized": False,
         "public_operation_authorized": False,
