@@ -19,11 +19,12 @@ X1 has moved beyond the original TRAMPA/14S Alpha sketch. Current build and purc
 7. the lifecycle-health program in `docs/rev_c_lifecycle_health.md` and `hardware/rev_c_lifecycle_health_snapshot_2026-10-01.json`;
 8. the propulsion envelope in `docs/rev_c_powertrain_envelope.md` and `hardware/rev_c_powertrain_reference_snapshot_2026-10-01.json`;
 9. the staged powered-commissioning contract in `docs/rev_c_powered_commissioning.md` and `hardware/rev_c_powered_commissioning_snapshot_2026-10-01.json`;
-10. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;
-11. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
-12. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
-13. dated benchmark/risk registries;
-14. older Alpha notes retained only as historical design exploration.
+10. the telemetry evidence contract in `docs/x1_telemetry_flight_recorder.md` and `hardware/rev_c_telemetry_reference_snapshot_2026-10-02.json`;
+11. the pre-purchase Rev-C handoff in `docs/rev_c_chassis_release_playbook.md`;
+12. the current physical execution plan in `docs/physical_commissioning_playbook.md`;
+13. current geometry/measurement authorities under `cad/`, `hardware/`, and `docs/`;
+14. dated benchmark/risk registries;
+15. older Alpha notes retained only as historical design exploration.
 
 If an older document conflicts with a current manifest, build gate, or qualified authority, the older document does **not** authorize a purchase, fabrication step, or ride test.
 
@@ -282,6 +283,29 @@ The current planning policy is:
 
 Issue **#30** defines the future charge dock as a **passive mechanical alignment cradle**. The dock may self-center the board, manage cable strain and make approved-charger connection easier, but it does not replace the selected battery/system-approved charger, add exposed traction-voltage contacts, or authorize live charging. See `docs/rev_c_energy_and_charging.md`.
 
+### Telemetry flight-recorder and replay path
+
+Issues **#47** and **#49** provide the canonical evidence layer for future energized commissioning.
+
+```text
+private raw control / drivetrain / motion / thermal streams
+        + event log
+        -> SHA-256 seal
+        -> x1_telemetry_session validation
+        -> x1_commissioning_telemetry_replay
+        -> Issue #45 stage measurements
+```
+
+Every stream declares source device, clock, sampling/gap contract, synchronization model, uncertainty, signal provenance, and any dropped periodic sequence ranges. Event-log sequence gaps are rejected.
+
+Stage 1 through Stage 4 commissioning now require telemetry replay fingerprints and exact replay evidence references for all required measurements. Stage 0 remains non-energized and requires only a logging plan.
+
+Logging is **never** a control dependency. A logger failure may invalidate evidence, but must never preserve unsafe propulsion or delay fail-conservative controller behavior.
+
+Synthetic telemetry can validate the software pipeline but is explicitly `physical_evidence_eligible=false` and cannot qualify a physical commissioning stage.
+
+See `docs/x1_telemetry_flight_recorder.md`.
+
 ### Staged powered-commissioning path
 
 Issue **#45** replaces the old "future powered commissioning" placeholder with a five-stage authority ladder:
@@ -385,6 +409,8 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 - **#41** maintain chassis-fingerprint-bound lifecycle health, preflight, service, impact, and configuration history
 - **#43** qualify a sourced force/traction/current/power/ERPM propulsion envelope before final power freeze
 - **#45** qualify Stage 0-4 powered commissioning without granting normal powered operation
+- **#47** add synchronized telemetry flight recording and commissioning replay
+- **#49** define the canonical black-box telemetry/evidence contract
 
 These tracks can advance in parallel only where their evidence dependencies allow.
 
