@@ -14,6 +14,8 @@ def command_plan(
     skip_cad: bool = False,
     skip_assets: bool = False,
     evidence: list[Path] | None = None,
+    snowdeck_signature: Path | None = None,
+    snowdeck_comparison: Path | None = None,
 ) -> list[list[str]]:
     py = sys.executable
     commands: list[list[str]] = []
@@ -34,6 +36,10 @@ def command_plan(
     manifest = [py, "tools/build_showcase_manifest.py"]
     for path in evidence or []:
         manifest.extend(["--evidence", str(path)])
+    if snowdeck_signature is not None:
+        manifest.extend(["--snowdeck-signature", str(snowdeck_signature)])
+    if snowdeck_comparison is not None:
+        manifest.extend(["--snowdeck-comparison", str(snowdeck_comparison)])
     commands.append(manifest)
     return commands
 
@@ -43,12 +49,20 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--skip-cad", action="store_true")
     p.add_argument("--skip-assets", action="store_true")
     p.add_argument("--evidence", action="append", default=[], type=Path)
+    p.add_argument("--snowdeck-signature", type=Path)
+    p.add_argument("--snowdeck-comparison", type=Path)
     return p.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    for command in command_plan(args.skip_cad, args.skip_assets, args.evidence):
+    for command in command_plan(
+        args.skip_cad,
+        args.skip_assets,
+        args.evidence,
+        args.snowdeck_signature,
+        args.snowdeck_comparison,
+    ):
         print("+", " ".join(command))
         subprocess.run(command, cwd=ROOT, check=True)
 
