@@ -96,6 +96,8 @@ def mechanical_rejects(session: dict[str, Any] | None) -> list[str]:
 def summarize(
     force_log: Path,
     session_path: Path | None = None,
+    *,
+    synthetic_fixture: bool = False,
 ) -> dict[str, Any]:
     rows = load_rows(force_log)
     grouped: dict[tuple[str, str], list[dict[str, str]]] = {}
@@ -175,6 +177,8 @@ def summarize(
         "source_session_sha256": sha256_file(session_path) if session_path else None,
         "session_id": session.get("session_id") if session else None,
         "condition_id": session.get("condition_id") if session else None,
+        "synthetic_fixture": bool(synthetic_fixture),
+        "physical_evidence_eligible": not bool(synthetic_fixture),
         "trial_count": len(trials),
         "required_poses": list(REQUIRED_POSES),
         "neutral": neutral_metrics,
@@ -204,10 +208,15 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("force_log", type=Path)
     p.add_argument("--session", type=Path)
+    p.add_argument("--synthetic-fixture", action="store_true")
     p.add_argument("--out", type=Path)
     args = p.parse_args()
 
-    report = summarize(args.force_log, args.session)
+    report = summarize(
+        args.force_log,
+        args.session,
+        synthetic_fixture=args.synthetic_fixture,
+    )
     text = json.dumps(report, indent=2) + "\n"
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
