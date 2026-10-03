@@ -125,6 +125,8 @@ def _telemetry_replay(stage_id, power, *, board="X1-A", config="CFG-A"):
             ).hexdigest(),
             "metrics": metrics,
             "metric_ids": sorted(item["metric_id"] for item in metrics),
+            "synthetic_fixture": False,
+            "physical_evidence_eligible": True,
             "commissioning_stage_qualified": False,
             "powered_operation_authorized": False,
             "public_operation_authorized": False,
@@ -703,3 +705,29 @@ def test_stage_manifest_telemetry_fingerprint_must_match_replay():
     )
     assert report["qualified"] is False
     assert "manifest telemetry replay fingerprint mismatch" in report["errors"]
+
+
+def test_synthetic_telemetry_replay_cannot_qualify_commissioning():
+    power = _power_architecture()
+    pre = _health("2026-10-01T11:59:00Z")
+    stage0 = _qualify_stage("BENCH_READINESS", power, pre)
+    post = _health("2026-10-01T12:04:00Z")
+    replay = _telemetry_replay("SECURED_UNLOADED_SPIN", power)
+    replay["synthetic_fixture"] = True
+    replay["physical_evidence_eligible"] = False
+    replay.pop("authority_fingerprint_sha256")
+    replay = _stamp(replay)
+
+    report = _qualify_stage(
+        "SECURED_UNLOADED_SPIN",
+        power,
+        pre,
+        previous=stage0,
+        post_health=post,
+        telemetry_replay=replay,
+        started="2026-10-01T12:02:00Z",
+        completed="2026-10-01T12:03:00Z",
+    )
+    assert report["qualified"] is False
+    assert "synthetic telemetry replay cannot qualify physical commissioning" in report["errors"]
+    assert "telemetry replay is not eligible as physical evidence" in report["errors"]
