@@ -1,5 +1,7 @@
 import copy
 
+import pytest
+
 from tools.validate_x1_fit_pilot_mass_reference import validate
 
 
@@ -110,8 +112,8 @@ def test_independent_scale_path_uses_conservative_uncertainty_floor():
     mass = next(x for x in report["calibration_masses"] if x["mass_id"] == "CAL-5")
     assert mass["evidence_type"] == "INDEPENDENT_SCALE"
     assert mass["evidence_summary"]["reading_count"] == 3
-    assert mass["evidence_summary"]["repeatability_half_range_kg"] == 0.0005
-    assert mass["evidence_summary"]["uncertainty_floor_kg"] == 0.006
+    assert mass["evidence_summary"]["repeatability_half_range_kg"] == pytest.approx(0.0005)
+    assert mass["evidence_summary"]["uncertainty_floor_kg"] == pytest.approx(0.006)
 
 
 def test_nominal_label_without_reference_evidence_is_not_authority():
