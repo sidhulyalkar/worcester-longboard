@@ -10,6 +10,12 @@ rider/private/
 # Generated CAD / local artifacts
 cad/generated/
 cad/generated_fit/
+cad/generated_chassis/
+cad/generated_one_zone_pilot/
+cad/generated_snowdeck_study/
+showcase/generated/
+showcase/x1_runtime_manifest.json
+showcase/local/
 *.log
 __pycache__/
 .pytest_cache/

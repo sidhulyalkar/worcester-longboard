@@ -1,0 +1,241 @@
+{
+  "schema_version": 1,
+  "project": "Worcester X1",
+  "configuration": "rev_c_visualization_reference",
+  "physical_authority": false,
+  "powered_operation_authorized": false,
+  "evidence_states": [
+    "QUALIFIED",
+    "REFERENCE",
+    "ASSUMED",
+    "BLOCKED",
+    "NOT_PRESENT"
+  ],
+  "components": [
+    {
+      "id": "deck_reference",
+      "label": "Deck / chassis envelope",
+      "evidence_state": "REFERENCE",
+      "authority_gate": "rolling_chassis_physical_qualified",
+      "source": "cad/rolling_chassis_geometry.py",
+      "render": {
+        "kind": "deck"
+      },
+      "context_gates": [
+        "rev_c_chassis_release_qualified"
+      ]
+    },
+    {
+      "id": "matrix_trucks",
+      "label": "Matrix III donor truck references",
+      "evidence_state": "REFERENCE",
+      "authority_gate": "rolling_chassis_physical_qualified",
+      "source": "cad/rolling_chassis_geometry.py",
+      "render": {
+        "kind": "trucks"
+      },
+      "context_gates": [
+        "rev_c_chassis_release_qualified"
+      ]
+    },
+    {
+      "id": "t1_wheels",
+      "label": "8-inch donor wheel references",
+      "evidence_state": "REFERENCE",
+      "authority_gate": "rolling_chassis_physical_qualified",
+      "source": "cad/rolling_chassis_geometry.py",
+      "render": {
+        "kind": "wheels"
+      },
+      "context_gates": [
+        "rev_c_chassis_release_qualified"
+      ]
+    },
+    {
+      "id": "v5_brake",
+      "label": "V5 mechanical brake reference",
+      "evidence_state": "BLOCKED",
+      "authority_gate": "brake_interface_qualified",
+      "source": "docs/mechanical_architecture_review.md",
+      "render": {
+        "kind": "brake"
+      },
+      "context_gates": [
+        "rev_c_chassis_release_qualified"
+      ]
+    },
+    {
+      "id": "future_drive",
+      "label": "Future drive envelope",
+      "evidence_state": "BLOCKED",
+      "authority_gate": null,
+      "source": "docs/mechanical_architecture_review.md",
+      "render": {
+        "kind": "drive"
+      },
+      "context_gates": [
+        "brake_drive_topology_qualified",
+        "power_architecture_frozen"
+      ]
+    },
+    {
+      "id": "inert_pack_envelope",
+      "label": "Inert range-pack envelope study",
+      "evidence_state": "ASSUMED",
+      "authority_gate": "dummy_pack_mount_qualified",
+      "source": "docs/rev_c_chassis_release_playbook.md",
+      "render": {
+        "kind": "pack"
+      },
+      "context_gates": [
+        "rev_c_chassis_release_qualified",
+        "power_packaging_candidate_defined"
+      ]
+    },
+    {
+      "id": "snowdeck_interface",
+      "label": "SnowDeck v0.1 reversible rider interface",
+      "evidence_state": "ASSUMED",
+      "authority_gate": null,
+      "source": "docs/x1_snowdeck_v01.md",
+      "render": {
+        "kind": "rider_interface"
+      },
+      "context_gates": [
+        "fit_platform_repeatability_qualified",
+        "rider_fit_qualified"
+      ]
+    },
+    {
+      "id": "charge_cradle",
+      "label": "Passive charge-cradle alignment study",
+      "evidence_state": "ASSUMED",
+      "authority_gate": null,
+      "source": "hardware/rev_c_charge_dock_mechanical_template.json",
+      "render": {
+        "kind": "dock"
+      },
+      "context_gates": []
+    },
+    {
+      "id": "trail_armor_study",
+      "label": "Sacrificial trail-armor study",
+      "evidence_state": "ASSUMED",
+      "authority_gate": null,
+      "source": "docs/rev_c_trail_armor.md",
+      "render": {
+        "kind": "armor"
+      },
+      "context_gates": [
+        "rolling_chassis_physical_qualified",
+        "brake_drive_topology_qualified",
+        "dummy_pack_mount_qualified"
+      ]
+    }
+  ],
+  "design_studies": {
+    "deck_candidates": [
+      {
+        "id": "comp95",
+        "label": "Comp 95 envelope",
+        "length_mm": 950,
+        "width_mm": 251,
+        "evidence_state": "REFERENCE",
+        "source": "cad/generate_rev_c_deck_templates.py",
+        "authority_candidate_id": "comp95_class"
+      },
+      {
+        "id": "pro_warren_iii",
+        "label": "Pro Warren III envelope",
+        "length_mm": 980,
+        "width_mm": 244,
+        "evidence_state": "REFERENCE",
+        "source": "cad/generate_rev_c_deck_templates.py",
+        "authority_candidate_id": "pro_warren_iii_class"
+      },
+      {
+        "id": "agent",
+        "label": "Agent envelope",
+        "length_mm": 1020,
+        "width_mm": 284,
+        "evidence_state": "REFERENCE",
+        "source": "cad/generate_rev_c_deck_templates.py",
+        "authority_candidate_id": "agent_class"
+      }
+    ],
+    "snowdeck_variables": [
+      "fore_aft_position",
+      "yaw",
+      "cant",
+      "heel_ramp",
+      "toe_ramp",
+      "interface_compliance"
+    ],
+    "chassis_reference": {
+      "source": "cad/rolling_chassis_geometry.py",
+      "evidence_state": "REFERENCE_WITH_PROVISIONAL_Z_VALUES",
+      "deck_length_mm": 950,
+      "deck_width_mm": 251,
+      "deck_reference_thickness_mm": 16,
+      "wheelbase_mm": 940,
+      "wheel_diameter_mm": 194,
+      "wheel_width_mm": 51,
+      "wheel_center_lateral_mm": 175,
+      "estimated_outer_wheel_envelope_width_mm": 401,
+      "truck_total_width_mm": 400,
+      "max_steer_deg": 22,
+      "static_ground_clearance_mm": 65,
+      "minimum_compressed_clearance_mm": 45,
+      "note": "Published donor dimensions plus provisional packaging Z values. Received-unit measurements supersede this reference."
+    },
+    "topology_branches": [
+      {
+        "id": "brake_first_400mm",
+        "short_label": "Brake-first 400",
+        "label": "400 mm / 50 mm axle brake-first reference",
+        "truck_total_width_mm": 400,
+        "wheel_center_lateral_mm": 175,
+        "brake_reference_compatible": true,
+        "drive_reference_compatible": false,
+        "evidence_state": "REFERENCE"
+      },
+      {
+        "id": "drive_clearance_420mm",
+        "short_label": "Drive 420",
+        "label": "420 mm / 70 mm axle drive-clearance reference",
+        "truck_total_width_mm": 420,
+        "wheel_center_lateral_mm": 175,
+        "brake_reference_compatible": false,
+        "drive_reference_compatible": true,
+        "evidence_state": "REFERENCE"
+      },
+      {
+        "id": "brake_hanger_70mm_topology_study",
+        "short_label": "440 study",
+        "label": "300 mm hanger + 70 mm axle topology study",
+        "truck_total_width_mm": 440,
+        "wheel_center_lateral_mm": 185,
+        "brake_reference_compatible": "UNKNOWN_AFTER_AXLE_SWAP",
+        "drive_reference_compatible": true,
+        "evidence_state": "ASSUMED"
+      }
+    ],
+    "trail_armor": {
+      "evidence_state": "ASSUMED",
+      "source": "docs/rev_c_trail_armor.md",
+      "goals": [
+        "replaceable first-contact wear surface",
+        "preserve wheel/brake/steering/service sweeps",
+        "quantify clearance consumed by protection",
+        "future geometric wear witnesses on non-structural wear shoe"
+      ],
+      "provisional_visual_only": {
+        "runner_length_mm": 360,
+        "runner_width_mm": 18,
+        "runner_thickness_mm": 8,
+        "runner_lateral_offset_mm": 75
+      },
+      "note": "Viewer dimensions are generic visualization placeholders only and are not fabrication dimensions."
+    }
+  }
+}

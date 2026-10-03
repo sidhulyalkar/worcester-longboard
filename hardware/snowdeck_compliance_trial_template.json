@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "scope": "x1_snowdeck_compliance_bench_trial",
+  "condition_id": "",
+  "material_private_ref": "",
+  "nominal_thickness_mm": null,
+  "supported_footprint_private_ref": "",
+  "synthetic_fixture": false,
+  "normal_cycles": [
+    {
+      "id": "normal-01",
+      "loading": [],
+      "unloading": [],
+      "zero_return_mm": null,
+      "settling_time_s": null
+    },
+    {
+      "id": "normal-02",
+      "loading": [],
+      "unloading": [],
+      "zero_return_mm": null,
+      "settling_time_s": null
+    },
+    {
+      "id": "normal-03",
+      "loading": [],
+      "unloading": [],
+      "zero_return_mm": null,
+      "settling_time_s": null
+    }
+  ],
+  "torsion_cycles": [
+    {
+      "id": "torsion-01",
+      "loading": [],
+      "unloading": [],
+      "zero_return_deg": null,
+      "settling_time_s": null
+    },
+    {
+      "id": "torsion-02",
+      "loading": [],
+      "unloading": [],
+      "zero_return_deg": null,
+      "settling_time_s": null
+    },
+    {
+      "id": "torsion-03",
+      "loading": [],
+      "unloading": [],
+      "zero_return_deg": null,
+      "settling_time_s": null
+    }
+  ],
+  "observations": {
+    "unexpected_rocking_observed": null,
+    "insert_migration_observed": null,
+    "fastener_migration_observed": null,
+    "visible_damage_observed": null,
+    "persistent_deformation_observed": null
+  },
+  "physical_authority": false,
+  "fabrication_authority": false,
+  "ride_authority": false,
+  "powered_operation_authorized": false
+}

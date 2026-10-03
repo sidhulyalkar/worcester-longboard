@@ -45,7 +45,7 @@ def initialize(workspace_dir: Path) -> dict:
         "",
         "1. Open owned_inventory.json and physically inventory the listed BUY_NOW items.",
         "2. Re-render DAY0_KICKOFF.md after editing the inventory.",
-        "3. Use rev_c_release/deck_templates for the zero-cost three-way stance experiment.",
+        "3. Use rev_c_release/deck_templates_blind plus DECK_FIELD_SHEET.md for the zero-cost three-way stance experiment; do not open deck_blind_key.json until the first-pass selection is written.",
         "4. Initialize and validate an Issue #56 Cart A checkout record before payment.",
         "5. Order only Cart A items still marked for purchase by the validated checkout.",
         "",
