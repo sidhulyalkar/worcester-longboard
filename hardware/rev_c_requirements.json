@@ -719,5 +719,35 @@
     "four_zone_duplication_authorized": false,
     "fabrication_authority": false,
     "powered_operation_authorized": false
+  },
+  "fit_pilot_mass_reference_program": {
+    "issue": 61,
+    "phase": "POST_ISSUE59_PRE_ISSUE4_SESSION",
+    "template": "hardware/x1_fit_pilot_mass_reference_template.json",
+    "validator": "tools/validate_x1_fit_pilot_mass_reference.py",
+    "issue4_initializer": "tools/init_one_zone_pilot_session.py",
+    "issue4_qualifier": "tools/qualify_one_zone_pilot.py",
+    "allowed_methods": [
+      "INDEPENDENT_SCALE_MANUFACTURER_SPEC",
+      "CALIBRATED_REFERENCE_MASSES"
+    ],
+    "max_relative_uncertainty_fraction": 0.005,
+    "required_reference_roles": {
+      "calibration_min_count": 3,
+      "validation_exact_count": 1
+    },
+    "uncertainty_budget_rule": "Issue #4 residual and validation error are evaluated conservatively after adding the linked reference-mass uncertainty contribution.",
+    "hard_boundaries": [
+      "nominal plate labels alone are not mass authority",
+      "reference values and uncertainty must descend from a fingerprinted Issue #61 authority",
+      "changing a reference mass value or source requires a new Issue #4 session",
+      "NIST traceability is not claimed unless independently established by a real traceability chain",
+      "commercial or legal metrology certification is not claimed"
+    ],
+    "nist_traceability_claimed": false,
+    "commercial_legal_metrology_claimed": false,
+    "physical_sensor_qualification_authority": false,
+    "four_zone_duplication_authorized": false,
+    "powered_operation_authorized": false
   }
 }
