@@ -69,8 +69,9 @@ The FMEA-style planning register is `hardware/mechanical_risk_register.json`. `h
 
 The rider-fit program is independent of the drivetrain:
 
-1. qualify one Phidgets 3135 + HX711 zone with real known-mass evidence;
-2. duplicate the verified mechanical/electrical stack to four zones;
+1. qualify one Phidgets 3135 + HX711 zone with Issue #59 hardware and Issue #61 mass-reference evidence;
+2. verify the complete one-zone platform across CENTER/+X/-X/+Y/-Y through Issue #63;
+3. duplicate the verified mechanical/electrical stack to four zones;
 3. collect repeated remount sessions with four-zone force and fixture-IMU coverage;
 4. record directly measured left/right foot dimensions and stance geometry privately;
 5. generate independent left/right Rev-B adapters with adjustment reserve;
