@@ -122,6 +122,13 @@ button:disabled { opacity: .35; cursor: not-allowed; }
   font-size: 11px;
 }
 .response-head span { opacity: .55; }
+.response-head em {
+  margin-left: 6px;
+  font-size: 8px;
+  font-style: normal;
+  letter-spacing: .1em;
+  opacity: .58;
+}
 .response-clear { border: 1px solid rgba(89,212,153,.3); }
 .response-blocked { border: 1px solid rgba(244,109,117,.45); }
 .metric-grid {
