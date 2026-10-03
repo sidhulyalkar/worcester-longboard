@@ -122,6 +122,36 @@ Measure:
 
 A compliant layer that corrupts the force measurement is not a valid personalization signal until that error is understood.
 
+## Compliance-cartridge characterization
+
+For C1/C2-style insert studies, keep underfoot force-transfer comparisons separate from the material/cartridge mechanics.
+
+Start from:
+
+`hardware/snowdeck_compliance_trial_template.json`
+
+Record repeated controlled normal load-displacement and torsional moment-angle cycles, plus zero return and settling time. The public summarizer is:
+
+```bash
+python tools/summarize_snowdeck_compliance_trial.py \
+  rider/private/snowdeck/C1/compliance_trial.json \
+  --out rider/private/snowdeck/C1/compliance_signature.json
+```
+
+The output reports repeated-cycle descriptors only:
+
+- loading/unloading normal stiffness in N/mm;
+- normal hysteresis-loop work proxy in mJ;
+- vertical zero return and settling time;
+- loading/unloading torsional stiffness in N·m/rad;
+- torsional hysteresis-loop work in J;
+- angular zero return and settling time;
+- separate rocking/migration/damage reject observations.
+
+No generic stiffness target, damping target, wear limit, material family, or "snowboard feel" optimum is encoded. Those values become useful only by comparing controlled candidates against the rigid S0/S1 response map and by preserving emergency step-off and measurement integrity.
+
+A cartridge with interesting stiffness data but rocking, migration, fastener movement, damage, or persistent deformation remains blocked from further bench progression.
+
 ## Immediate reject observations
 
 A study configuration is rejected from further progression if any of these occur:
