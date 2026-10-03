@@ -8,6 +8,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from evaluate_build_authority import evaluate as evaluate_build_authority
+
 ROOT = Path(__file__).resolve().parents[1]
 ALLOWED_STATES = {"QUALIFIED", "REFERENCE", "ASSUMED", "BLOCKED", "NOT_PRESENT"}
 
@@ -24,90 +26,76 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def expected_authority(gate: dict[str, Any]) -> str | None:
-    for rule in gate.get("evidence", []):
-        if rule.get("path") == "authority" and isinstance(rule.get("equals"), str):
-            return rule["equals"]
-    return None
+def validate_seed(seed: dict[str, Any]) -> None:
+    if seed.get("powered_operation_authorized") is not False:
+        raise ValueError("Seed manifest must explicitly keep powered operation unauthorized")
+    if seed.get("physical_authority") is not False:
+        raise ValueError("Seed manifest must explicitly keep physical authority false")
+
+    ids: set[str] = set()
+    for component in seed.get("components", []):
+        cid = component.get("id")
+        if not isinstance(cid, str) or not cid.strip():
+            raise ValueError("Every component requires a nonempty id")
+        if cid in ids:
+            raise ValueError(f"Duplicate component id: {cid}")
+        ids.add(cid)
+        state = component.get("evidence_state")
+        if state not in ALLOWED_STATES:
+            raise ValueError(f"{cid}: unknown evidence_state {state!r}")
 
 
-def validate_evidence_index(
-    gates: dict[str, Any], evidence_index: dict[str, Any]
-) -> dict[str, dict[str, Any]]:
-    statuses: dict[str, dict[str, Any]] = {}
-    unknown = sorted(set(evidence_index) - set(gates))
-    if unknown:
-        raise ValueError("Unknown gate(s) in evidence index: " + ", ".join(unknown))
-
-    for gate_name, gate in gates.items():
-        supplied = evidence_index.get(gate_name)
-        status = {
-            "gate": gate_name,
-            "issue": gate.get("issue"),
-            "requires": gate.get("requires", []),
-            "evidence_supplied": supplied is not None,
-            "qualified": False,
-            "expected_authority": expected_authority(gate),
-        }
-        if supplied is not None:
-            if not isinstance(supplied, dict):
-                raise ValueError(f"{gate_name}: supplied evidence must be an object")
-            if supplied.get("powered_operation_authorized") is True:
-                raise ValueError(f"{gate_name}: showcase refuses powered-operation authority")
-            exp = status["expected_authority"]
-            got = supplied.get("authority")
-            if exp is not None and got != exp:
-                raise ValueError(f"{gate_name}: expected authority {exp!r}, got {got!r}")
-            status["qualified"] = supplied.get("qualified") is True or any(
-                rule.get("path") == "qualified_for_four_zone_duplication"
-                and supplied.get("qualified_for_four_zone_duplication") is True
-                for rule in gate.get("evidence", [])
+def sanitize_evidence_documents(paths: list[Path]) -> list[dict[str, Any]]:
+    docs = []
+    for path in paths:
+        doc = load_json(path)
+        if doc.get("powered_operation_authorized") is True:
+            raise ValueError(
+                f"{path}: pre-hardware showcase refuses powered-operation authority"
             )
-            if not status["qualified"]:
-                # Some authorities use a nested readiness field rather than qualified=true.
-                status["qualified"] = bool(supplied.get("showcase_gate_satisfied", False))
-            fp = supplied.get("authority_fingerprint_sha256")
-            if fp is not None:
-                status["authority_fingerprint_sha256"] = fp
-        statuses[gate_name] = status
-    return statuses
+        docs.append(doc)
+    return docs
 
 
 def promote_components(
-    seed: dict[str, Any], gate_status: dict[str, dict[str, Any]]
+    seed: dict[str, Any], gate_state: dict[str, dict[str, Any]]
 ) -> list[dict[str, Any]]:
     components = []
     for raw in seed.get("components", []):
         component = dict(raw)
-        state = component.get("evidence_state")
-        if state not in ALLOWED_STATES:
-            raise ValueError(f"{component.get('id')}: unknown evidence_state {state!r}")
-
         gate_name = component.get("authority_gate")
         if gate_name:
-            if gate_name not in gate_status:
-                raise ValueError(f"{component.get('id')}: unknown authority gate {gate_name!r}")
-            gate = gate_status[gate_name]
-            component["gate_qualified"] = bool(gate["qualified"])
-            if gate["qualified"]:
+            if gate_name not in gate_state:
+                raise ValueError(
+                    f"{component.get('id')}: unknown authority gate {gate_name!r}"
+                )
+            gate = gate_state[gate_name]
+            component["gate_qualified"] = bool(gate["satisfied"])
+            component["gate_blockers"] = list(gate.get("blockers", []))
+            if gate["satisfied"]:
                 component["evidence_state"] = "QUALIFIED"
         else:
             component["gate_qualified"] = False
-
+            component["gate_blockers"] = []
         components.append(component)
     return components
 
 
-def build(seed_path: Path, authority_path: Path, evidence_path: Path | None) -> dict[str, Any]:
+def build(
+    seed_path: Path,
+    authority_path: Path,
+    procurement_path: Path,
+    evidence_paths: list[Path],
+) -> dict[str, Any]:
     seed = load_json(seed_path)
     authority = load_json(authority_path)
-    if seed.get("powered_operation_authorized") is not False:
-        raise ValueError("Seed manifest must explicitly keep powered operation unauthorized")
+    procurement = load_json(procurement_path)
+    validate_seed(seed)
 
-    evidence_index = load_json(evidence_path) if evidence_path else {}
-    gates = authority.get("gates", {})
-    gate_status = validate_evidence_index(gates, evidence_index)
-    components = promote_components(seed, gate_status)
+    evidence_docs = sanitize_evidence_documents(evidence_paths)
+    authority_report = evaluate_build_authority(authority, procurement, evidence_docs)
+    gate_state = authority_report["gates"]
+    components = promote_components(seed, gate_state)
 
     return {
         "schema_version": 1,
@@ -118,17 +106,19 @@ def build(seed_path: Path, authority_path: Path, evidence_path: Path | None) -> 
             "seed_sha256": sha256_file(seed_path),
             "build_authority": str(authority_path.relative_to(ROOT)),
             "build_authority_sha256": sha256_file(authority_path),
-            "evidence_index_supplied": evidence_path is not None,
+            "procurement_manifest": str(procurement_path.relative_to(ROOT)),
+            "procurement_manifest_sha256": sha256_file(procurement_path),
+            "evidence_documents_supplied": len(evidence_docs),
         },
         "physical_authority": False,
         "procurement_authority": False,
         "fabrication_authority": False,
         "powered_operation_authorized": False,
         "components": components,
-        "gates": gate_status,
+        "gates": gate_state,
         "viewer_notice": (
-            "Visualization only. Missing evidence is fail-closed; manufacturer references "
-            "and assumed envelopes are not received-unit measurements."
+            "Visualization only. Gate state is recomputed with the repository build-authority "
+            "evaluator. Missing or invalid evidence fails closed."
         ),
     }
 
@@ -141,7 +131,18 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=ROOT / "hardware" / "build_authority.json",
     )
-    p.add_argument("--evidence-index", type=Path)
+    p.add_argument(
+        "--procurement",
+        type=Path,
+        default=ROOT / "hardware" / "procurement_manifest.json",
+    )
+    p.add_argument(
+        "--evidence",
+        action="append",
+        default=[],
+        type=Path,
+        help="Fingerprint-valid authority JSON. May be supplied multiple times.",
+    )
     p.add_argument(
         "--out",
         type=Path,
@@ -152,7 +153,12 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    runtime = build(args.seed, args.build_authority, args.evidence_index)
+    runtime = build(
+        args.seed,
+        args.build_authority,
+        args.procurement,
+        args.evidence,
+    )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(runtime, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote {args.out}")
