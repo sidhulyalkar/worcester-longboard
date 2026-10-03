@@ -26,6 +26,22 @@ The default manifest uses nominal 2 kg, 5 kg, and 10 kg ascending plateaus, pair
 
 The qualification code imposes a hard 20 kg pilot ceiling. There is no reason to approach the 50 kg cell rating during this experiment.
 
+### Why the pilot still uses the 50 kg 3135_0
+
+Phidgets also sells the mechanically similar 20 kg `3134_0` at the same unit price. On paper it has tighter consumer-grade repeatability/non-linearity/hysteresis specifications than the 50 kg `3135_0`.
+
+Do **not** substitute it for this pilot.
+
+Reasons:
+
+- the 20 kg part's rated capacity is exactly the current pilot ceiling and its listed maximum overload is only 24 kg;
+- the 50 kg 3135_0 is rated to 50 kg with a listed 60 kg maximum overload, leaving materially more margin during fixture mistakes and overload-stop development;
+- Issue #4 exists to qualify the actual sensor/mechanical/electrical path intended for later X1 fit-rig zones, not to obtain the best-looking bench accuracy from a different flexure;
+- a final force zone can see much more than one-quarter of rider weight during deliberate weight transfer, so a 20 kg nameplate should not be inferred adequate merely from average static load sharing;
+- changing sensor capacity after the pilot would invalidate much of the mechanical overload-stop, calibration, drift and repeatability evidence we are trying to obtain cheaply once.
+
+If the 3135_0 cannot meet Issue #4 accuracy/drift requirements, fail the pilot and reopen the sensor architecture. Do not quietly solve a failed test by changing to a lower-capacity part.
+
 ## Do not order yet
 
 - the other three installed load cells / HX711 channels
