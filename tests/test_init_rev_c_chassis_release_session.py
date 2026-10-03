@@ -31,6 +31,8 @@ def test_initializer_creates_complete_private_workspace(tmp_path: Path):
     assert (session / "deck_blind_key.json").exists()
     assert len(manifest["blinded_deck_templates"]) == 3
     assert manifest["deck_blind_key"] == "deck_blind_key.json"
+    assert (session / "DECK_FIELD_SHEET.md").exists()
+    assert manifest["deck_field_sheet"] == "DECK_FIELD_SHEET.md"
 
 
 def test_initializer_refuses_to_overwrite_existing_session(tmp_path: Path):
