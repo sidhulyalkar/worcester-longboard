@@ -71,6 +71,12 @@ def compare(baseline: dict[str, Any], variant: dict[str, Any]) -> dict[str, Any]
         "variant_eligible_for_further_bench_comparison": bool(
             variant.get("eligible_for_further_bench_comparison")
         ),
+        "synthetic_fixture": bool(
+            baseline.get("synthetic_fixture") or variant.get("synthetic_fixture")
+        ),
+        "physical_evidence_eligible": not bool(
+            baseline.get("synthetic_fixture") or variant.get("synthetic_fixture")
+        ),
         "winner_selected": False,
         "interpretation": (
             "Signed deltas only. No direction is automatically preferred; inspect the "
