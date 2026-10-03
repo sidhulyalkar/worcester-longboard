@@ -419,3 +419,23 @@ def test_issue_45_requires_health_and_venue_lineage():
         "ground stages require fingerprinted qualified powered-test venue evidence"
         in boundaries
     )
+
+
+def test_issues_47_49_telemetry_program_is_evidence_only():
+    program = _requirements()["telemetry_evidence_program"]
+    assert program["issues"] == [47, 49]
+    assert program["phase"] == "REQUIRED_FOR_COMMISSIONING_STAGE_1_THROUGH_4"
+    assert program["raw_storage"] == "rider/private/"
+    assert program["powered_operation_authorized"] is False
+    assert program["public_operation_authorized"] is False
+    assert program["dog_accompanied_operation_authorized"] is False
+
+
+def test_telemetry_program_seals_raw_files_and_never_controls_propulsion():
+    policies = _requirements()["telemetry_evidence_program"]["policies"]
+    assert "logging is never a real-time control dependency" in policies
+    assert "raw files are sealed by SHA-256 before validation" in policies
+    assert (
+        "Stage 1 through Stage 4 commissioning measurements must reference fingerprinted telemetry replay evidence"
+        in policies
+    )
