@@ -368,14 +368,38 @@ def test_manifest_cannot_change_mass_uncertainty_or_reference_id(tmp_path):
 
 def test_reference_uncertainty_is_included_in_validation_gate(tmp_path):
     p=_manifest(tmp_path)
+    record_path=tmp_path/"provenance"/"mass_reference.json"
+    authority_path=tmp_path/"provenance"/"mass_reference_authority.json"
+    record=json.loads(record_path.read_text())
+
+    # Use a legitimate new reference record near the allowed 0.5% uncertainty
+    # ceiling, then regenerate the canonical authority from that record.
+    val_record=next(x for x in record["masses"] if x["role"]=="VALIDATION")
+    val_record["declared_uncertainty_kg"]=0.037
+    val_record["reference_mass_evidence"]["documented_uncertainty_kg"]=0.037
+    authority=validate_mass(record)
+    assert authority["valid"] is True
+    record_path.write_text(json.dumps(record))
+    authority_path.write_text(json.dumps(authority))
+
+    d=json.loads(p.read_text())
+    d["mass_reference"]["record_sha256"]=authority["record_sha256"]
+    d["mass_reference"]["authority_fingerprint_sha256"]=authority["authority_fingerprint_sha256"]
+    d["validation"][0]["mass_uncertainty_kg"]=0.037
+    p.write_text(json.dumps(d))
+
+    r=qualify_manifest(p)
+    assert r["qualified_for_four_zone_duplication"] is True
+    assert r["metrics"]["validation_error"] > r["metrics"]["validation_error_nominal"]
+    assert r["metrics"]["validation_reference_uncertainty_relative"] == pytest.approx(0.037/7.5)
+
+
+def test_refingerprinted_mass_authority_cannot_diverge_from_source_record(tmp_path):
+    p=_manifest(tmp_path)
     authority_path=tmp_path/"provenance"/"mass_reference_authority.json"
     authority=json.loads(authority_path.read_text())
-    # Keep the authority internally fingerprint-valid, but use a validation reference
-    # uncertainty near the allowed 0.5% ceiling. The conservative validation metric
-    # must be greater than the nominal sensor-only error.
-    val=authority["validation_masses"][0]
-    val["uncertainty_kg"]=0.037
-    val["relative_uncertainty"]=0.037/7.5
+    authority["calibration_masses"][0]["uncertainty_kg"]=0.009
+    authority["calibration_masses"][0]["relative_uncertainty"]=0.009/2.0
     unsigned=dict(authority)
     unsigned.pop("authority_fingerprint_sha256",None)
     authority["authority_fingerprint_sha256"]=_digest(unsigned)
@@ -383,12 +407,14 @@ def test_reference_uncertainty_is_included_in_validation_gate(tmp_path):
 
     d=json.loads(p.read_text())
     d["mass_reference"]["authority_fingerprint_sha256"]=authority["authority_fingerprint_sha256"]
-    d["validation"][0]["mass_uncertainty_kg"]=0.037
     p.write_text(json.dumps(d))
 
     r=qualify_manifest(p)
-    assert r["metrics"]["validation_error"] > r["metrics"]["validation_error_nominal"]
-    assert r["metrics"]["validation_reference_uncertainty_relative"] == pytest.approx(0.037/7.5)
+    assert r["qualified_for_four_zone_duplication"] is False
+    assert any(
+        "does not match canonical validation of copied record" in x
+        for x in r["failures"]
+    )
 
 
 def test_thresholds_may_tighten_but_not_relax(tmp_path):
