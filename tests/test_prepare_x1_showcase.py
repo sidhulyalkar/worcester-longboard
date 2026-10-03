@@ -38,9 +38,14 @@ def test_showcase_plan_can_load_synthetic_snowdeck_demo():
     assert len(plan) == 1
     command = plan[0]
     assert "--snowdeck-signature" in command
-    assert "showcase/examples/snowdeck_s1.synthetic.json" in command
-    assert "--snowdeck-comparison" in command
-    assert "showcase/examples/snowdeck_s0_to_s1.synthetic.json" in command
+    signature_index = command.index("--snowdeck-signature") + 1
+    comparison_index = command.index("--snowdeck-comparison") + 1
+    assert command[signature_index].endswith(
+        "showcase/examples/snowdeck_s1.synthetic.json"
+    )
+    assert command[comparison_index].endswith(
+        "showcase/examples/snowdeck_s0_to_s1.synthetic.json"
+    )
 
 
 def test_synthetic_demo_rejects_explicit_overlay_mix():
