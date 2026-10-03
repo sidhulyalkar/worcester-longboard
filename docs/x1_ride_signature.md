@@ -119,6 +119,26 @@ After the existing rolling-chassis, topology, power, commissioning, and telemetr
 
 Those quantities remain configuration-specific telemetry products. A future analyzer should consume fingerprint-valid telemetry sessions rather than creating a second recorder format.
 
+## Synthetic visualization fixture
+
+Before physical sensing exists, the committed showcase examples may exercise the exact viewer path.
+
+Synthetic outputs must declare:
+
+- `synthetic_fixture=true`;
+- `physical_evidence_eligible=false`;
+- all authority flags false.
+
+A comparison containing either synthetic input remains synthetic.
+
+The one-command preview is:
+
+```bash
+python tools/prepare_x1_showcase.py --synthetic-snowdeck-demo
+```
+
+Synthetic data must never be copied into a physical qualification report.
+
 ## Viewer integration
 
 The digital twin may load a local SnowDeck Bench Signature for visualization, but real rider force data stays private.
