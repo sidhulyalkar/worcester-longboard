@@ -470,7 +470,7 @@
       ]
     },
     "commissioning_stage_1_qualified": {
-      "issue": "45 + 47 + 49",
+      "issue": 45,
       "requires": [
         "commissioning_stage_0_qualified"
       ],
@@ -523,10 +523,14 @@
           "path": "authority_fingerprint_sha256",
           "type": "valid_authority_fingerprint"
         }
+      ],
+      "supporting_issues": [
+        47,
+        49
       ]
     },
     "commissioning_stage_2_qualified": {
-      "issue": "45 + 47 + 49",
+      "issue": 45,
       "requires": [
         "commissioning_stage_1_qualified"
       ],
@@ -579,10 +583,14 @@
           "path": "authority_fingerprint_sha256",
           "type": "valid_authority_fingerprint"
         }
+      ],
+      "supporting_issues": [
+        47,
+        49
       ]
     },
     "commissioning_stage_3_qualified": {
-      "issue": "45 + 47 + 49",
+      "issue": 45,
       "requires": [
         "commissioning_stage_2_qualified",
         "powered_test_venue_qualified"
@@ -636,10 +644,14 @@
           "path": "authority_fingerprint_sha256",
           "type": "valid_authority_fingerprint"
         }
+      ],
+      "supporting_issues": [
+        47,
+        49
       ]
     },
     "commissioning_stage_4_qualified": {
-      "issue": "45 + 47 + 49",
+      "issue": 45,
       "requires": [
         "commissioning_stage_3_qualified",
         "powered_test_venue_qualified"
@@ -693,6 +705,10 @@
           "path": "authority_fingerprint_sha256",
           "type": "valid_authority_fingerprint"
         }
+      ],
+      "supporting_issues": [
+        47,
+        49
       ]
     },
     "lifecycle_health_ready": {
