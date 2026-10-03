@@ -47,7 +47,10 @@ This creates:
 - `topology_trade.json`;
 - `inert_pack_envelope.json`;
 - `chassis_release.json`;
-- all three full-scale deck-envelope SVGs;
+- named full-scale deck-envelope SVGs;
+- randomized blinded A/B/C full-scale deck-envelope SVGs;
+- `DECK_FIELD_SHEET.md`;
+- a private `deck_blind_key.json`;
 - a non-authoritative workspace manifest.
 
 The initializer refuses to overwrite a non-empty session directory.
@@ -112,7 +115,9 @@ The viewer is **not Issue #25 evidence**. It cannot evaluate actual foot placeme
 
 ## 2. Generate the three full-scale deck envelopes
 
-The initializer already generates all three SVGs. To regenerate them manually:
+The initializer already generates both named and blinded SVG sets. The blinded A/B/C set should be the default for the first-pass stance comparison. Do not open `deck_blind_key.json` until the blind preference and rejection reasons are written.
+
+To regenerate the named references manually:
 
 ```bash
 python cad/generate_rev_c_deck_templates.py \
@@ -151,7 +156,9 @@ Keep all three templates on the same floor/surface and use the same shoes for th
 
 The initializer already copied `deck_comparison.json` from the public template.
 
-For **each** candidate perform at least three independent remount trials.
+For **each blinded A/B/C candidate** perform at least three independent remount trials using `DECK_FIELD_SHEET.md`.
+
+Only after choosing A/B/C and writing why the other two lost should you open `deck_blind_key.json`, translate the result to the real candidate IDs, and complete `deck_comparison.json`.
 
 A remount means:
 
