@@ -71,12 +71,17 @@ def _configure_manifest(workspace: Path):
             "uncertainty_ms": 1.0,
             "evidence_ref": f"synthetic://sync/{stream['stream_id']}",
         }
+        definitions = {
+            item["signal_id"]: item
+            for item in SIGNALS["signals"]
+        }
         for signal in stream["signals"]:
             signal["source_id"] = f"source-{signal['signal_id']}"
-            if signal["signal_id"] == "longitudinal_accel_mps2":
-                signal["calibration_id"] = "synthetic-longitudinal-frame"
-            if signal["signal_id"] == "longitudinal_jerk_mps3":
-                signal["derivation_id"] = "synthetic-jerk-v1"
+            kind = definitions[signal["signal_id"]]["kind"]
+            if kind.startswith("derived"):
+                signal["derivation_id"] = f"synthetic-{signal['signal_id']}-v1"
+            if kind == "calibrated_or_derived_motion":
+                signal["calibration_id"] = f"synthetic-{signal['signal_id']}-frame"
 
     data["event_log"].update(
         {
