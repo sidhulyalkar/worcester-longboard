@@ -7,6 +7,10 @@ Local authority-aware visualization scaffold for Worcester X1.
 From the repository root:
 
 ```bash
+python cad/generate_rolling_chassis.py
+python cad/generate_fit_rig.py
+python cad/generate_one_zone_pilot.py
+python tools/export_showcase_assets.py
 python tools/build_showcase_manifest.py
 python -m http.server 8000
 ```
@@ -34,3 +38,10 @@ The manifest builder calls the repository's existing `tools/evaluate_build_autho
 The pre-hardware showcase also refuses any supplied document that asserts `powered_operation_authorized=true`.
 
 Do not commit private rider measurements or raw fit logs to `showcase/`.
+
+
+## CAD asset conversion
+
+`tools/export_showcase_assets.py` converts generated STL references to GLB and writes a hash manifest under `showcase/generated/`. This is format conversion only. Source and output SHA-256 values are recorded, and every generated asset explicitly carries `physical_authority=false`.
+
+The browser scaffold currently uses procedural evidence-colored geometry as its default because that keeps component states visually distinct. The GLB package is the next input for detailed mesh/clearance views.
