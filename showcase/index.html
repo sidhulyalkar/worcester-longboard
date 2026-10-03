@@ -19,22 +19,86 @@
 
     <section class="workspace">
       <div id="scene" aria-label="3D X1 design viewer"></div>
+
       <aside>
-        <h2>Design layers</h2>
-        <div id="components"></div>
-        <h2>Deck envelope study</h2>
-        <div class="view-buttons" id="deck-candidates"></div>
-        <p class="study-note" id="deck-note">Envelope comparison only. Truck/wheel geometry remains the donor reference.</p>
-        <h2>Views</h2>
-        <div class="view-buttons">
-          <button data-view="hero">Hero</button>
-          <button data-view="fit">Fit</button>
-          <button data-view="clearance">Clearance</button>
-          <button data-view="topology">Topology</button>
-        </div>
+        <section class="panel-section">
+          <h2>Design layers</h2>
+          <div id="components"></div>
+        </section>
+
+        <section class="panel-section">
+          <h2>Physical model</h2>
+          <label class="toggle"><input id="show-cad" type="checkbox" disabled> CAD geometry overlay</label>
+          <label class="toggle"><input id="show-sweep" type="checkbox" disabled> steering sweep envelope</label>
+          <p class="study-note" id="asset-status">Checking for generated CAD assets…</p>
+        </section>
+
+        <section class="panel-section">
+          <h2>Deck envelope study</h2>
+          <div class="button-grid" id="deck-candidates"></div>
+          <p class="study-note" id="deck-note">Envelope comparison only. Truck/wheel geometry remains the donor reference.</p>
+        </section>
+
+        <section class="panel-section">
+          <h2>Brake / drive topology</h2>
+          <div class="button-grid" id="topology-branches"></div>
+          <p class="study-note" id="topology-note">Reference branches only. No combined brake/drive compatibility is implied.</p>
+        </section>
+
+        <section class="panel-section">
+          <h2>Steering study</h2>
+          <div class="control">
+            <div><label for="steer">Steer</label><output id="steer-value">0.0°</output></div>
+            <input id="steer" type="range" min="-22" max="22" value="0" step="0.5">
+          </div>
+          <label class="toggle"><input id="auto-sweep" type="checkbox"> animate ± reference sweep</label>
+          <p class="study-note" id="clearance-note"></p>
+        </section>
+
+        <section class="panel-section">
+          <h2>SnowDeck lab</h2>
+          <div class="control">
+            <div><label for="stance">Plate separation</label><output id="stance-value">360 mm</output></div>
+            <input id="stance" type="range" min="260" max="520" value="360" step="5">
+          </div>
+          <div class="control">
+            <div><label for="front-yaw">Front yaw</label><output id="front-yaw-value">0°</output></div>
+            <input id="front-yaw" type="range" min="-30" max="30" value="0" step="1">
+          </div>
+          <div class="control">
+            <div><label for="rear-yaw">Rear yaw</label><output id="rear-yaw-value">0°</output></div>
+            <input id="rear-yaw" type="range" min="-30" max="30" value="0" step="1">
+          </div>
+          <div class="control">
+            <div><label for="front-cant">Front cant</label><output id="front-cant-value">0.0°</output></div>
+            <input id="front-cant" type="range" min="0" max="5" value="0" step="0.5">
+          </div>
+          <div class="control">
+            <div><label for="rear-cant">Rear cant</label><output id="rear-cant-value">0.0°</output></div>
+            <input id="rear-cant" type="range" min="0" max="5" value="0" step="0.5">
+          </div>
+          <div class="control">
+            <div><label for="insert-proxy">Insert thickness proxy</label><output id="insert-proxy-value">0.0 mm</output></div>
+            <input id="insert-proxy" type="range" min="0" max="8" value="0" step="0.5">
+          </div>
+          <button id="reset-snowdeck">Reset SnowDeck study</button>
+          <p class="study-note">Visual study bounds only, not recommended ride settings. Independent left/right final geometry remains downstream of physical fit evidence.</p>
+        </section>
+
+        <section class="panel-section">
+          <h2>Views</h2>
+          <div class="button-grid">
+            <button class="active" data-view="hero">Hero</button>
+            <button data-view="fit">Fit</button>
+            <button data-view="clearance">Clearance</button>
+            <button data-view="topology">Topology</button>
+            <button data-view="exploded">Exploded</button>
+          </div>
+        </section>
+
         <div class="boundary">
           <strong>Boundary</strong>
-          <span>Visualization only. No fabrication or powered-operation authority.</span>
+          <span>Visualization only. No fabrication, chassis/brake purchase, drivetrain, battery, charging, or powered-operation authority.</span>
         </div>
       </aside>
     </section>
