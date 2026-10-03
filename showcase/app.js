@@ -450,10 +450,12 @@ function snowdeckResponseUI(manifest) {
   const transfer = signature.heel_to_toe_forefoot_transfer || {};
   const rejects = signature.mechanical_rejects || [];
   const stateClass = rejects.length ? "response-blocked" : "response-clear";
+  const synthetic = signature.synthetic_fixture === true;
 
   host.innerHTML =
     '<div class="response-head ' + stateClass + '">' +
-      '<strong>' + escapeHtml(signature.condition_id || "local condition") + '</strong>' +
+      '<strong>' + escapeHtml(signature.condition_id || "local condition") +
+      (synthetic ? ' <em>SYNTHETIC</em>' : '') + '</strong>' +
       '<span>' + signature.trial_count + ' trials</span>' +
     '</div>' +
     '<div class="metric-grid">' +
