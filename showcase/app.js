@@ -36,6 +36,7 @@ ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
 
+const visual = {};
 const root = new THREE.Group();
 root.rotation.x = -0.04;
 scene.add(root);
@@ -78,7 +79,7 @@ function proceduralBoard(manifest) {
   manifest.components.forEach(c => { byKind[c.render.kind] = c; });
   const s = kind => (byKind[kind] || {}).evidence_state || "ASSUMED";
 
-  box("deck", [950, 251, 18], [0, 0, 155], s("deck"));
+  visual.deck = box("deck", [950, 251, 18], [0, 0, 155], s("deck"));
   box("front-truck", [32, 400, 22], [470, 0, 115], s("trucks"));
   box("rear-truck", [32, 400, 22], [-470, 0, 115], s("trucks"));
   [-470, 470].forEach(x => [-175, 175].forEach(y => wheel("wheel", x, y, s("wheels"))));
@@ -89,6 +90,27 @@ function proceduralBoard(manifest) {
 
   box("rear-drive-ghost", [95, 330, 80], [-450, 0, 90], s("drive"), .28);
   box("brake-ghost", [30, 330, 150], [-470, 0, 102], s("brake"), .24);
+}
+
+function deckStudyUI(manifest) {
+  const host = document.getElementById("deck-candidates");
+  const candidates = (manifest.design_studies || {}).deck_candidates || [];
+  candidates.forEach((candidate, index) => {
+    const btn = document.createElement("button");
+    btn.textContent = candidate.label;
+    if (index === 0) btn.classList.add("active");
+    btn.addEventListener("click", () => {
+      if (!visual.deck) return;
+      visual.deck.scale.x = candidate.length_mm / 950;
+      visual.deck.scale.y = candidate.width_mm / 251;
+      document.querySelectorAll("#deck-candidates button").forEach(x => x.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("deck-note").textContent =
+        candidate.label + ": " + candidate.length_mm + " × " + candidate.width_mm +
+        " mm maximum reference envelope. Chassis geometry is unchanged.";
+    });
+    host.appendChild(btn);
+  });
 }
 
 function fillUI(manifest) {
@@ -149,6 +171,7 @@ fetch("./x1_runtime_manifest.json")
   .then(manifest => {
     fillUI(manifest);
     proceduralBoard(manifest);
+    deckStudyUI(manifest);
     resize();
   })
   .catch(err => {
@@ -157,6 +180,7 @@ fetch("./x1_runtime_manifest.json")
       seed.viewer_notice = "Seed preview only. Build the runtime manifest for authority status.";
       fillUI(seed);
       proceduralBoard(seed);
+      deckStudyUI(seed);
       resize();
     });
   });
