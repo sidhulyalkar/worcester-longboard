@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 from statistics import fmean, pstdev
 
+from fit.mass_reference import validate as validate_mass_reference
 from fit.raw_log import CHANNELS, parse_text
 
 G = 9.80665
@@ -236,6 +237,15 @@ def _validate_mass_provenance(
         failures.append("mass reference authority must be valid")
     if authority.get("record_sha256") != _digest(record):
         failures.append("mass reference authority does not match copied record")
+    recomputed = validate_mass_reference(record)
+    if recomputed.get("valid") is not True:
+        failures.append("copied mass reference record does not pass canonical validation")
+    if recomputed.get("authority_fingerprint_sha256") != authority.get(
+        "authority_fingerprint_sha256"
+    ):
+        failures.append(
+            "mass reference authority does not match canonical validation of copied record"
+        )
     if provenance["record_sha256"] != _digest(record):
         failures.append("manifest mass reference record fingerprint mismatch")
     if provenance["authority_fingerprint_sha256"] != authority.get(
