@@ -45,6 +45,49 @@ def validate_seed(seed: dict[str, Any]) -> None:
             raise ValueError(f"{cid}: unknown evidence_state {state!r}")
 
 
+def valid_authority_fingerprint(data: dict[str, Any]) -> bool:
+    fingerprint = data.get("authority_fingerprint_sha256")
+    if not isinstance(fingerprint, str) or not fingerprint:
+        return False
+    unsigned = dict(data)
+    unsigned.pop("authority_fingerprint_sha256", None)
+    try:
+        payload = json.dumps(
+            unsigned, sort_keys=True, separators=(",", ":"), allow_nan=False
+        ).encode("utf-8")
+    except (TypeError, ValueError):
+        return False
+    return hashlib.sha256(payload).hexdigest() == fingerprint
+
+
+def extract_deck_comparison_selection(
+    evidence_docs: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    matches = []
+    for doc in evidence_docs:
+        if (
+            doc.get("authority") == "x1_rev_c_deck_comparison"
+            and doc.get("qualified") is True
+            and doc.get("powered_operation_authorized") is False
+            and valid_authority_fingerprint(doc)
+        ):
+            candidate_id = doc.get("selected_candidate_id")
+            if not isinstance(candidate_id, str) or not candidate_id.strip():
+                raise ValueError("qualified deck comparison missing selected_candidate_id")
+            matches.append(
+                {
+                    "selected_candidate_id": candidate_id,
+                    "authority_fingerprint_sha256": doc["authority_fingerprint_sha256"],
+                }
+            )
+    if not matches:
+        return None
+    selections = {item["selected_candidate_id"] for item in matches}
+    if len(selections) != 1:
+        raise ValueError("conflicting qualified deck-comparison selections supplied")
+    return matches[-1]
+
+
 def sanitize_evidence_documents(paths: list[Path]) -> list[dict[str, Any]]:
     docs = []
     for path in paths:
@@ -208,6 +251,7 @@ def build(
     components = promote_components(seed, gate_state)
     risk_register = load_json(risk_path) if risk_path is not None else {}
     risk_summary = summarize_risks(risk_register)
+    deck_selection = extract_deck_comparison_selection(evidence_docs)
     snowdeck_signature = (
         sanitize_snowdeck_signature(load_json(snowdeck_signature_path))
         if snowdeck_signature_path is not None
@@ -252,6 +296,7 @@ def build(
         "powered_operation_authorized": False,
         "components": components,
         "design_studies": seed.get("design_studies", {}),
+        "deck_comparison_selection": deck_selection,
         "risk_summary": risk_summary,
         "snowdeck_bench_signature": snowdeck_signature,
         "snowdeck_bench_comparison": snowdeck_comparison,
