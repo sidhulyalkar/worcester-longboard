@@ -52,22 +52,40 @@ def render(manifest: dict[str, Any]) -> str:
         )
 
     studies = manifest.get("design_studies", {})
+    deck_selection = manifest.get("deck_comparison_selection")
     lines += [
         "",
         "## Deck-envelope study",
         "",
-        "| Candidate | Length (mm) | Max width (mm) | State |",
-        "| --- | ---: | ---: | --- |",
+        "| Candidate | Length (mm) | Max width (mm) | State | Physical pick? |",
+        "| --- | ---: | ---: | --- | --- |",
     ]
+    selected_authority_id = (
+        deck_selection.get("selected_candidate_id")
+        if isinstance(deck_selection, dict)
+        else None
+    )
     for deck in studies.get("deck_candidates", []):
+        physically_selected = (
+            selected_authority_id is not None
+            and deck.get("authority_candidate_id") == selected_authority_id
+        )
         lines.append(
-            "| {} | {} | {} | {} |".format(
+            "| {} | {} | {} | {} | {} |".format(
                 _cell(deck.get("label")),
                 _cell(deck.get("length_mm")),
                 _cell(deck.get("width_mm")),
                 _cell(deck.get("evidence_state")),
+                "yes" if physically_selected else "no",
             )
         )
+    if isinstance(deck_selection, dict):
+        lines += [
+            "",
+            "A fingerprint-valid full-scale deck comparison selected "
+            + _cell(deck_selection.get("selected_candidate_id"))
+            + ". This observation does not qualify the chassis or unlock procurement.",
+        ]
 
     lines += [
         "",
