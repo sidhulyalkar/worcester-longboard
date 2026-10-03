@@ -59,6 +59,7 @@ def _write_csv(path: Path, fieldnames, rows):
 def _configure_manifest(workspace: Path):
     path = workspace / "telemetry_manifest.json"
     data = json.loads(path.read_text())
+    data["synthetic_fixture"] = True
     for stream in data["streams"]:
         stream["source_device_id"] = f"device-{stream['stream_id']}"
         stream["clock_id"] = f"clock-{stream['stream_id']}"
@@ -225,6 +226,8 @@ def test_stage4_session_validates_and_replays_all_required_metrics(tmp_path: Pat
     assert authority["qualified"] is True
     assert authority["commissioning_stage_qualified"] is False
     assert authority["physical_sensor_calibration_proven"] is False
+    assert authority["synthetic_fixture"] is True
+    assert authority["physical_evidence_eligible"] is False
     assert authority["required_stream_overlap_fraction"] == pytest.approx(1.0)
     assert authority["powered_operation_authorized"] is False
 
