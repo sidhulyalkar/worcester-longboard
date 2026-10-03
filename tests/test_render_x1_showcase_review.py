@@ -94,3 +94,48 @@ def test_render_showcase_review_labels_synthetic_snowdeck_data():
     assert "Physical-evidence eligible: **no**" in text
     assert "No direction is automatically preferred" in text
     assert "left_heel_to_toe_transfer_mean: 0.05" in text
+
+
+
+def test_render_showcase_review_marks_verified_deck_pick():
+    manifest = {
+        "configuration": "test",
+        "physical_authority": False,
+        "procurement_authority": False,
+        "fabrication_authority": False,
+        "powered_operation_authorized": False,
+        "components": [],
+        "design_studies": {
+            "deck_candidates": [
+                {
+                    "label": "Comp 95 envelope",
+                    "length_mm": 950,
+                    "width_mm": 251,
+                    "evidence_state": "REFERENCE",
+                    "authority_candidate_id": "comp95_class",
+                },
+                {
+                    "label": "Agent envelope",
+                    "length_mm": 1020,
+                    "width_mm": 284,
+                    "evidence_state": "REFERENCE",
+                    "authority_candidate_id": "agent_class",
+                },
+            ],
+            "topology_branches": [],
+        },
+        "deck_comparison_selection": {
+            "selected_candidate_id": "agent_class",
+            "authority_fingerprint_sha256": "a" * 64,
+        },
+        "risk_summary": [],
+        "gates": {},
+        "snowdeck_bench_signature": None,
+        "snowdeck_bench_comparison": None,
+    }
+
+    text = render(manifest)
+
+    assert "| Agent envelope | 1020 | 284 | REFERENCE | yes |" in text
+    assert "| Comp 95 envelope | 950 | 251 | REFERENCE | no |" in text
+    assert "does not qualify the chassis or unlock procurement" in text
