@@ -116,6 +116,21 @@
         "kind": "dock"
       },
       "context_gates": []
+    },
+    {
+      "id": "trail_armor_study",
+      "label": "Sacrificial trail-armor study",
+      "evidence_state": "ASSUMED",
+      "authority_gate": null,
+      "source": "docs/rev_c_trail_armor.md",
+      "render": {
+        "kind": "armor"
+      },
+      "context_gates": [
+        "rolling_chassis_physical_qualified",
+        "brake_drive_topology_qualified",
+        "dummy_pack_mount_qualified"
+      ]
     }
   ],
   "design_studies": {
@@ -201,6 +216,23 @@
         "drive_reference_compatible": true,
         "evidence_state": "ASSUMED"
       }
-    ]
+    ],
+    "trail_armor": {
+      "evidence_state": "ASSUMED",
+      "source": "docs/rev_c_trail_armor.md",
+      "goals": [
+        "replaceable first-contact wear surface",
+        "preserve wheel/brake/steering/service sweeps",
+        "quantify clearance consumed by protection",
+        "future geometric wear witnesses on non-structural wear shoe"
+      ],
+      "provisional_visual_only": {
+        "runner_length_mm": 360,
+        "runner_width_mm": 18,
+        "runner_thickness_mm": 8,
+        "runner_lateral_offset_mm": 75
+      },
+      "note": "Viewer dimensions are generic visualization placeholders only and are not fabrication dimensions."
+    }
   }
 }
