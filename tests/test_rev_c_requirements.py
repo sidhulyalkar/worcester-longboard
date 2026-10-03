@@ -484,3 +484,38 @@ def test_issue_59_requires_new_session_when_active_evidence_hardware_changes():
         "Issue #4 qualification must preserve the exact Issue #59 selection fingerprint"
         in boundaries
     )
+
+
+def test_issue_61_mass_reference_program_is_uncertainty_bounded():
+    program = _requirements()["fit_pilot_mass_reference_program"]
+    assert program["issue"] == 61
+    assert program["phase"] == "POST_ISSUE59_PRE_ISSUE4_SESSION"
+    assert program["allowed_methods"] == [
+        "INDEPENDENT_SCALE_MANUFACTURER_SPEC",
+        "CALIBRATED_REFERENCE_MASSES",
+    ]
+    assert program["max_relative_uncertainty_fraction"] == 0.005
+    assert program["required_reference_roles"] == {
+        "calibration_min_count": 3,
+        "validation_exact_count": 1,
+    }
+    assert program["nist_traceability_claimed"] is False
+    assert program["commercial_legal_metrology_claimed"] is False
+    assert program["physical_sensor_qualification_authority"] is False
+    assert program["four_zone_duplication_authorized"] is False
+    assert program["powered_operation_authorized"] is False
+
+
+def test_issue_61_forbids_nominal_label_only_mass_authority():
+    boundaries = _requirements()["fit_pilot_mass_reference_program"][
+        "hard_boundaries"
+    ]
+    assert "nominal plate labels alone are not mass authority" in boundaries
+    assert (
+        "changing a reference mass value or source requires a new Issue #4 session"
+        in boundaries
+    )
+    assert (
+        "commercial or legal metrology certification is not claimed"
+        in boundaries
+    )
