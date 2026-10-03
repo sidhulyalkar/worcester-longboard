@@ -162,7 +162,7 @@ Requirements remain at least three unique positive calibration masses, one indep
 
 A nominal dumbbell or plate label alone is not authority.
 
-Only after Issue #59 and Issue #61 both pass should `tools/init_one_zone_pilot_session.py` be initialized.
+Only after Issue #59 and Issue #61 both pass should `tools/init_one_zone_pilot_session.py` be initialized. After that Issue #4 session qualifies, run `docs/x1_fit_platform_repeatability.md` / Issue #63 before duplicating the sensor pod into four zones.
 
 ## What not to buy
 
