@@ -383,6 +383,173 @@ jobs:
           assert manifest['acquisition']['rate_jumper_verified'] is False
           assert manifest['mechanical']['vendor_pattern_verified'] is False
           PY
+      - name: Smoke-test Issue 63 fit-platform repeatability
+        run: |
+          python - <<'PY'
+          import csv
+          import hashlib
+          import json
+          from pathlib import Path
+
+          def digest(data):
+              return hashlib.sha256(
+                  json.dumps(
+                      data,
+                      sort_keys=True,
+                      separators=(',', ':'),
+                      allow_nan=False,
+                  ).encode('utf-8')
+              ).hexdigest()
+
+          authority = {
+              'schema_version': 1,
+              'authority': 'x1_one_zone_pilot',
+              'scope': 'unpowered_fit_rig_only',
+              'qualified_for_four_zone_duplication': True,
+              'channel': 'left_heel',
+              'hx711_sps': 10,
+              'thresholds': {
+                  'min_duration_s': 5.0,
+                  'min_coverage': 0.98,
+                  'max_zero_return_fs': 0.005,
+                  'max_validation_error': 0.02,
+                  'min_loaded_gap_mm': 0.15,
+              },
+              'linear_fit': {
+                  'intercept': 100000.0,
+                  'counts_per_n': 1000.0,
+                  'r2': 1.0,
+              },
+              'mass_reference_provenance': {
+                  'reference_set_id': 'CI-MASS-REF',
+                  'mass_entries': [
+                      {
+                          'mass_id': 'CAL-2',
+                          'role': 'CALIBRATION',
+                          'mass_kg': 2.0,
+                          'uncertainty_kg': 0.002,
+                      },
+                      {
+                          'mass_id': 'CAL-5',
+                          'role': 'CALIBRATION',
+                          'mass_kg': 5.0,
+                          'uncertainty_kg': 0.005,
+                      },
+                      {
+                          'mass_id': 'CAL-10',
+                          'role': 'CALIBRATION',
+                          'mass_kg': 10.0,
+                          'uncertainty_kg': 0.010,
+                      },
+                      {
+                          'mass_id': 'VAL-7P5',
+                          'role': 'VALIDATION',
+                          'mass_kg': 7.5,
+                          'uncertainty_kg': 0.0075,
+                      },
+                  ],
+              },
+              'powered_operation_authorized': False,
+              'public_operation_authorized': False,
+              'dog_accompanied_operation_authorized': False,
+          }
+          authority['authority_fingerprint_sha256'] = digest(authority)
+          Path('/tmp/x1-ci-one-zone-authority.json').write_text(
+              json.dumps(authority, indent=2) + '\n'
+          )
+          PY
+          python tools/init_x1_fit_platform_repeatability.py             /tmp/x1-platform-repeatability             --one-zone-authority /tmp/x1-ci-one-zone-authority.json             --session-id CI-PLATFORM
+          python - <<'PY'
+          import csv
+          import json
+          from pathlib import Path
+
+          HEADER = [
+              't_us',
+              'left_heel_raw',
+              'left_forefoot_raw',
+              'right_heel_raw',
+              'right_forefoot_raw',
+              'load_valid_mask',
+              'roll_deg',
+              'imu_ok',
+          ]
+
+          def write_log(path, mean_raw):
+              with path.open('w', newline='', encoding='utf-8') as handle:
+                  handle.write('# hx711_sps=10\n')
+                  writer = csv.writer(handle)
+                  writer.writerow(HEADER)
+                  for i in range(61):
+                      jitter = (i % 5) - 2
+                      writer.writerow([
+                          i * 100000,
+                          int(round(mean_raw + jitter)),
+                          '', '', '', 1, '', 0,
+                      ])
+
+          root = Path('/tmp/x1-platform-repeatability')
+          raw = root / 'raw'
+          ref_raw = 100000 + 7.5 * 9.80665 * 1000
+          write_log(raw / 'zero_pre.csv', 100000)
+          write_log(raw / 'zero_post.csv', 100010)
+
+          path = root / 'platform_repeatability_manifest.json'
+          data = json.loads(path.read_text())
+          data['load_interface'] = {
+              'interface_id': 'CI-WEIGHT-FOOT',
+              'contact_length_mm': 20.0,
+              'contact_width_mm': 20.0,
+              'notes': 'CI synthetic fixture',
+          }
+          data['acquisition'] = {
+              'no_rezero_between_position_runs': True,
+              'no_recalibration_between_position_runs': True,
+              'fixture_remained_secured': True,
+          }
+          geometry = {
+              'CENTER': (0.0, 0.0, 0),
+              '+X': (30.0, 0.0, 20),
+              '-X': (-30.0, 0.0, -20),
+              '+Y': (0.0, 20.0, 15),
+              '-Y': (0.0, -20.0, -15),
+          }
+          for placement in data['placements']:
+              pid = placement['position_id']
+              x, y, bias = geometry[pid]
+              placement.update({
+                  'centroid_x_mm': x,
+                  'centroid_y_mm': y,
+                  'contact_length_mm': 20.0,
+                  'contact_width_mm': 20.0,
+                  'stop_clearance_min_mm': 0.30,
+                  'fully_supported': True,
+                  'rocking_observed': False,
+                  'interference_observed': False,
+                  'cable_force_observed': False,
+              })
+              for index, relative in enumerate(placement['logs']):
+                  write_log(root / relative, ref_raw + bias + (index - 1) * 2)
+          path.write_text(json.dumps(data, indent=2) + '\n')
+          PY
+          python tools/qualify_x1_fit_platform_repeatability.py             /tmp/x1-platform-repeatability/platform_repeatability_manifest.json             --one-zone-authority /tmp/x1-platform-repeatability/provenance/one_zone_pilot_authority.json             --out /tmp/x1-platform-repeatability/platform_repeatability_authority.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(
+              Path(
+                  '/tmp/x1-platform-repeatability/platform_repeatability_authority.json'
+              ).read_text()
+          )
+          assert report['qualified'] is True
+          assert report['position_repeatability_qualified'] is True
+          assert len(report['run_results']) == 15
+          assert report['cross_position_spread_relative'] > 0
+          assert report['four_zone_duplication_authorized'] is False
+          assert report['fabrication_authority'] is False
+          assert report['powered_operation_authorized'] is False
+          assert len(report['authority_fingerprint_sha256']) == 64
+          PY
       - name: Smoke-test Rev-C pre-purchase tools
         run: |
           python simulation/rev_c_mass_budget.py --configuration trail --chassis comp95
