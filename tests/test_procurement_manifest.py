@@ -82,11 +82,11 @@ def test_missing_preferred_or_alternative_targets_are_rejected():
     assert any("alternative target does not exist" in err for err in report["errors"])
 
 
-def test_procurement_manifest_points_to_october_source_refresh():
+def test_procurement_manifest_points_to_current_source_refresh():
     data = _manifest()
-    assert data["rules"]["source_snapshot_as_of"] == "2026-10-01"
+    assert data["rules"]["source_snapshot_as_of"] == "2026-10-02"
     assert data["rules"]["source_snapshot_path"] == (
-        "hardware/order_sources_2026-10-01.json"
+        "hardware/order_sources_2026-10-02.json"
     )
 
 
