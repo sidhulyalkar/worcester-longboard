@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Worcester X1 Digital Twin</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="eyebrow">WORCESTER X1</p>
+        <h1>Authority-aware digital twin</h1>
+        <p id="notice">Loading repository evidence…</p>
+      </div>
+      <div class="legend" id="legend"></div>
+    </header>
+
+    <section class="workspace">
+      <div id="scene" aria-label="3D X1 design viewer"></div>
+      <aside>
+        <h2>Design layers</h2>
+        <div id="components"></div>
+        <h2>Views</h2>
+        <div class="view-buttons">
+          <button data-view="hero">Hero</button>
+          <button data-view="fit">Fit</button>
+          <button data-view="clearance">Clearance</button>
+          <button data-view="topology">Topology</button>
+        </div>
+        <div class="boundary">
+          <strong>Boundary</strong>
+          <span>Visualization only. No fabrication or powered-operation authority.</span>
+        </div>
+      </aside>
+    </section>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

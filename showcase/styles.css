@@ -1,0 +1,36 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #090b0f;
+  color: #f4f7fb;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 30% 10%, #19202d, #090b0f 55%); }
+main { max-width: 1500px; margin: 0 auto; padding: 32px; }
+header { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 20px; }
+.eyebrow { margin: 0 0 8px; letter-spacing: .18em; font-size: 12px; opacity: .62; }
+h1 { margin: 0; font-size: clamp(32px, 5vw, 64px); line-height: .95; font-weight: 650; letter-spacing: -.04em; }
+#notice { max-width: 760px; opacity: .66; }
+.workspace { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; }
+#scene { min-height: 720px; border: 1px solid rgba(255,255,255,.1); border-radius: 24px; overflow: hidden; background: rgba(255,255,255,.025); }
+aside { border: 1px solid rgba(255,255,255,.1); border-radius: 24px; padding: 20px; background: rgba(11,14,20,.72); backdrop-filter: blur(18px); }
+aside h2 { margin: 8px 0 14px; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; opacity: .72; }
+.component { display: grid; grid-template-columns: 12px 1fr auto; gap: 10px; align-items: center; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,.07); }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--state); }
+.component strong { font-size: 13px; font-weight: 600; }
+.component small { display: block; opacity: .5; margin-top: 2px; }
+.state { font-size: 10px; letter-spacing: .08em; opacity: .7; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; justify-content: end; }
+.legend span { border: 1px solid rgba(255,255,255,.12); border-radius: 999px; padding: 7px 10px; font-size: 11px; opacity: .75; }
+.view-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
+button { background: rgba(255,255,255,.06); color: inherit; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; padding: 10px; cursor: pointer; }
+button:hover { background: rgba(255,255,255,.1); }
+.boundary { display: grid; gap: 5px; margin-top: 18px; padding: 14px; border-radius: 14px; background: rgba(255,255,255,.04); font-size: 12px; line-height: 1.45; }
+.boundary span { opacity: .62; }
+@media (max-width: 900px) {
+  main { padding: 16px; }
+  header { align-items: start; flex-direction: column; }
+  .legend { justify-content: start; }
+  .workspace { grid-template-columns: 1fr; }
+  #scene { min-height: 540px; }
+}

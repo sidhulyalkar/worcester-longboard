@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "project": "Worcester X1",
+  "configuration": "rev_c_visualization_reference",
+  "physical_authority": false,
+  "powered_operation_authorized": false,
+  "evidence_states": [
+    "QUALIFIED",
+    "REFERENCE",
+    "ASSUMED",
+    "BLOCKED",
+    "NOT_PRESENT"
+  ],
+  "components": [
+    {
+      "id": "deck_reference",
+      "label": "Deck / chassis envelope",
+      "evidence_state": "REFERENCE",
+      "authority_gate": "rev_c_chassis_release_qualified",
+      "source": "cad/rolling_chassis_geometry.py",
+      "render": {"kind": "deck"}
+    },
+    {
+      "id": "matrix_trucks",
+      "label": "Matrix III donor truck references",
+      "evidence_state": "REFERENCE",
+      "authority_gate": "rolling_chassis_physical_qualified",
+      "source": "cad/rolling_chassis_geometry.py",
+      "render": {"kind": "trucks"}
+    },
+    {
+      "id": "t1_wheels",
+      "label": "8-inch donor wheel references",
+      "evidence_state": "REFERENCE",
+      "authority_gate": "rolling_chassis_physical_qualified",
+      "source": "cad/rolling_chassis_geometry.py",
+      "render": {"kind": "wheels"}
+    },
+    {
+      "id": "v5_brake",
+      "label": "V5 mechanical brake reference",
+      "evidence_state": "BLOCKED",
+      "authority_gate": "brake_interface_qualified",
+      "source": "docs/mechanical_architecture_review.md",
+      "render": {"kind": "brake"}
+    },
+    {
+      "id": "future_drive",
+      "label": "Future drive envelope",
+      "evidence_state": "BLOCKED",
+      "authority_gate": "brake_drive_topology_qualified",
+      "source": "docs/mechanical_architecture_review.md",
+      "render": {"kind": "drive"}
+    },
+    {
+      "id": "inert_pack_envelope",
+      "label": "Inert range-pack envelope study",
+      "evidence_state": "ASSUMED",
+      "authority_gate": "rev_c_chassis_release_qualified",
+      "source": "docs/rev_c_chassis_release_playbook.md",
+      "render": {"kind": "pack"}
+    },
+    {
+      "id": "snowdeck_interface",
+      "label": "SnowDeck v0.1 reversible rider interface",
+      "evidence_state": "ASSUMED",
+      "authority_gate": "rider_fit_qualified",
+      "source": "docs/x1_snowdeck_v01.md",
+      "render": {"kind": "rider_interface"}
+    },
+    {
+      "id": "charge_cradle",
+      "label": "Passive charge-cradle alignment study",
+      "evidence_state": "ASSUMED",
+      "authority_gate": null,
+      "source": "hardware/rev_c_charge_dock_mechanical_template.json",
+      "render": {"kind": "dock"}
+    }
+  ]
+}
