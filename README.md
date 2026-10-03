@@ -76,13 +76,14 @@ Machine-readable companions keep the review from becoming stale prose:
 Cart A receiving or exact-unused owned evidence
         -> Issue #59 active load cell + untouched spare
         -> Issue #59 active HX711 + untouched spare
+        -> Issue #61 fingerprinted calibration/validation mass reference
         -> physical one-zone qualification
         -> four-zone unpowered fit rig
         -> repeatable stance evidence
         -> Rev-B left/right rider-interface CAD
 ```
 
-The fit layer intentionally supports independent left/right foot dimensions, yaw, position, and removable cant while keeping truck geometry symmetric by default. Before Issue #4 capture, `docs/x1_fit_pilot_hardware_provenance.md` binds the exact active load cell/HX711 and untouched spares to Issue #56 checkout/receiving or exact-unused owned-stock evidence. Exact rider measurements and raw recordings stay under gitignored `rider/private/`. Before any chassis order, `docs/rev_c_no_parts_chassis_experiment.md` provides a zero-cost three-way Comp/Warren/Agent stance test.
+The fit layer intentionally supports independent left/right foot dimensions, yaw, position, and removable cant while keeping truck geometry symmetric by default. Before Issue #4 capture, `docs/x1_fit_pilot_hardware_provenance.md` binds the exact active load cell/HX711 and untouched spares to Issue #56 checkout/receiving or exact-unused owned-stock evidence. `docs/x1_fit_pilot_mass_reference.md` separately binds the calibration/validation mass values and their conservative uncertainty. Exact rider measurements and raw recordings stay under gitignored `rider/private/`. Before any chassis order, `docs/rev_c_no_parts_chassis_experiment.md` provides a zero-cost three-way Comp/Warren/Agent stance test.
 
 ### Chassis/brake path
 
@@ -396,7 +397,8 @@ Local/private authority reports can be supplied with repeated `--evidence` argum
 - **#51** create the Day-0 private physical-kickoff workspace; orchestration only, no new authority
 - **#56** validate Cart A checkout freshness, order evidence, receiving condition, and stable hardware IDs
 - **#59** bind exact active load-cell/HX711 IDs and untouched spares to the Issue #4 session
-- **#4** qualify that provenance-locked load-cell/HX711/pod zone before four-zone duplication
+- **#61** qualify the calibration/validation mass references and uncertainty used by Issue #4
+- **#4** qualify that hardware- and mass-provenance-locked load-cell/HX711/pod zone before four-zone duplication
 - **#25** qualify Rev-C pre-purchase chassis release from deck/topology/inert-envelope evidence
 - **#2** build and qualify X1 Fit Rig v0.3
 - **#14** measure and qualify the V5 mechanical-brake interface
