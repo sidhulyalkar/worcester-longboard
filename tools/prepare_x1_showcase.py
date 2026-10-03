@@ -52,6 +52,7 @@ def command_plan(
     if snowdeck_comparison is not None:
         manifest.extend(["--snowdeck-comparison", str(snowdeck_comparison)])
     commands.append(manifest)
+    commands.append([py, "tools/render_x1_showcase_review.py"])
     return commands
 
 
@@ -87,6 +88,7 @@ def main() -> None:
     print("Showcase prepared.")
     print("Serve from the repository root with: python -m http.server 8000")
     print("Then open: http://localhost:8000/showcase/")
+    print("Review snapshot: showcase/generated/design_review.md")
     print("No fabrication or powered-operation authority is created by this command.")
 
 
