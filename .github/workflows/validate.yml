@@ -254,7 +254,7 @@ jobs:
               'MCU-ESP32S3',
           }
           PY
-      - name: Smoke-test Issue 59 pilot hardware provenance
+      - name: Smoke-test Issues 59 and 61 fit-pilot provenance
         run: |
           python tools/init_x1_fit_pilot_hardware_selection.py \
             /tmp/x1-physical-kickoff/pilot_hardware_selection.json \
@@ -274,24 +274,74 @@ jobs:
             --receiving /tmp/x1-physical-kickoff/cart_a_receiving.json \
             --receiving-authority /tmp/x1-physical-kickoff/cart_a_receiving_authority.json \
             --out /tmp/x1-physical-kickoff/pilot_hardware_selection_authority.json
+          python tools/init_x1_fit_pilot_mass_reference.py \
+            /tmp/x1-physical-kickoff/pilot_mass_reference.json \
+            --reference-set-id CI-MASS-REF \
+            --measured-at-utc 2026-10-03T12:45:00-07:00
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('/tmp/x1-physical-kickoff/pilot_mass_reference.json')
+          data = json.loads(path.read_text())
+
+          def ref_mass(mass_id, role, mass, uncertainty):
+              return {
+                  'mass_id': mass_id,
+                  'role': role,
+                  'evidence_type': 'REFERENCE_MASS',
+                  'declared_mass_kg': mass,
+                  'declared_uncertainty_kg': uncertainty,
+                  'reference_mass_evidence': {
+                      'source_reference': 'CI synthetic reference evidence',
+                      'documented_mass_kg': mass,
+                      'documented_uncertainty_kg': uncertainty,
+                  },
+                  'independent_scale_evidence': {
+                      'scale_manufacturer': '',
+                      'scale_model': '',
+                      'capacity_kg': None,
+                      'resolution_kg': None,
+                      'stated_accuracy_source': '',
+                      'conservative_accuracy_limit_kg': None,
+                      'zero_check_before': True,
+                      'zero_check_after': True,
+                      'repeated_readings_kg': [],
+                      'measurement_notes': '',
+                  },
+                  'notes': '',
+              }
+
+          data['masses'] = [
+              ref_mass('CAL-1P997', 'CALIBRATION', 1.997, 0.002),
+              ref_mass('CAL-5P013', 'CALIBRATION', 5.013, 0.005),
+              ref_mass('CAL-10P021', 'CALIBRATION', 10.021, 0.010),
+              ref_mass('VAL-7P486', 'VALIDATION', 7.486, 0.007),
+          ]
+          path.write_text(json.dumps(data, indent=2) + '\n')
+          PY
+          python tools/validate_x1_fit_pilot_mass_reference.py \
+            /tmp/x1-physical-kickoff/pilot_mass_reference.json \
+            --out /tmp/x1-physical-kickoff/pilot_mass_reference_authority.json
           python tools/init_one_zone_pilot_session.py \
             /tmp/x1-one-zone-session \
             --hardware-selection /tmp/x1-physical-kickoff/pilot_hardware_selection.json \
             --hardware-selection-authority /tmp/x1-physical-kickoff/pilot_hardware_selection_authority.json \
+            --mass-reference /tmp/x1-physical-kickoff/pilot_mass_reference.json \
+            --mass-reference-authority /tmp/x1-physical-kickoff/pilot_mass_reference_authority.json \
             --pod-id POD-CI-A \
             --zone-pad-id PAD-CI-A \
             --channel left_heel \
-            --sps 10 \
-            --calibration-mass-kg 1.997 \
-            --calibration-mass-kg 5.013 \
-            --calibration-mass-kg 10.021 \
-            --validation-mass-kg 7.486
+            --sps 10
           python - <<'PY'
           import json
           from pathlib import Path
 
           selection = json.loads(
               Path('/tmp/x1-physical-kickoff/pilot_hardware_selection_authority.json').read_text()
+          )
+          mass_ref = json.loads(
+              Path('/tmp/x1-physical-kickoff/pilot_mass_reference_authority.json').read_text()
           )
           assert selection['valid'] is True
           assert selection['authority'] == 'x1_fit_pilot_hardware_selection'
@@ -300,6 +350,16 @@ jobs:
           assert selection['physical_qualification_authority'] is False
           assert selection['four_zone_duplication_authorized'] is False
           assert selection['powered_operation_authorized'] is False
+
+          assert mass_ref['valid'] is True
+          assert mass_ref['authority'] == 'x1_fit_pilot_mass_reference'
+          assert len(mass_ref['calibration_masses']) == 3
+          assert len(mass_ref['validation_masses']) == 1
+          assert mass_ref['nist_traceable'] is False
+          assert mass_ref['legal_metrology'] is False
+          assert mass_ref['load_cell_performance_authority'] is False
+          assert mass_ref['four_zone_duplication_authorized'] is False
+          assert mass_ref['powered_operation_authorized'] is False
 
           manifest = json.loads(
               Path('/tmp/x1-one-zone-session/pilot_manifest.json').read_text()
@@ -310,8 +370,16 @@ jobs:
           assert manifest['spare_hardware_ids']['load_cell_id'] == 'LC-CI-SPARE'
           assert manifest['spare_hardware_ids']['hx711_id'] == 'ADC-CI-SPARE'
           assert manifest['hardware_selection']['selection_id'] == 'CI-PILOT-HW'
+          assert manifest['mass_reference']['reference_set_id'] == 'CI-MASS-REF'
           assert Path('/tmp/x1-one-zone-session/provenance/hardware_selection.json').is_file()
           assert Path('/tmp/x1-one-zone-session/provenance/hardware_selection_authority.json').is_file()
+          assert Path('/tmp/x1-one-zone-session/provenance/mass_reference.json').is_file()
+          assert Path('/tmp/x1-one-zone-session/provenance/mass_reference_authority.json').is_file()
+          ups = [x for x in manifest['observations'] if x['kind'] == 'load_up']
+          assert [x['mass_reference_id'] for x in ups] == [
+              'CAL-1P997', 'CAL-5P013', 'CAL-10P021'
+          ]
+          assert manifest['validation'][0]['mass_reference_id'] == 'VAL-7P486'
           assert manifest['acquisition']['rate_jumper_verified'] is False
           assert manifest['mechanical']['vendor_pattern_verified'] is False
           PY
