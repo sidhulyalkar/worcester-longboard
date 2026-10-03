@@ -254,6 +254,67 @@ jobs:
               'MCU-ESP32S3',
           }
           PY
+      - name: Smoke-test Issue 59 pilot hardware provenance
+        run: |
+          python tools/init_x1_fit_pilot_hardware_selection.py \
+            /tmp/x1-physical-kickoff/pilot_hardware_selection.json \
+            --inventory /tmp/x1-physical-kickoff/owned_inventory.json \
+            --checkout /tmp/x1-physical-kickoff/cart_a_checkout.json \
+            --checkout-authority /tmp/x1-physical-kickoff/cart_a_checkout_authority.json \
+            --receiving /tmp/x1-physical-kickoff/cart_a_receiving.json \
+            --receiving-authority /tmp/x1-physical-kickoff/cart_a_receiving_authority.json \
+            --selection-id CI-PILOT-HW \
+            --selected-at-utc 2026-10-03T12:30:00-07:00 \
+            --mcu-id MCU-CI-A
+          python tools/validate_x1_fit_pilot_hardware_selection.py \
+            /tmp/x1-physical-kickoff/pilot_hardware_selection.json \
+            --inventory /tmp/x1-physical-kickoff/owned_inventory.json \
+            --checkout /tmp/x1-physical-kickoff/cart_a_checkout.json \
+            --checkout-authority /tmp/x1-physical-kickoff/cart_a_checkout_authority.json \
+            --receiving /tmp/x1-physical-kickoff/cart_a_receiving.json \
+            --receiving-authority /tmp/x1-physical-kickoff/cart_a_receiving_authority.json \
+            --out /tmp/x1-physical-kickoff/pilot_hardware_selection_authority.json
+          python tools/init_one_zone_pilot_session.py \
+            /tmp/x1-one-zone-session \
+            --hardware-selection /tmp/x1-physical-kickoff/pilot_hardware_selection.json \
+            --hardware-selection-authority /tmp/x1-physical-kickoff/pilot_hardware_selection_authority.json \
+            --pod-id POD-CI-A \
+            --zone-pad-id PAD-CI-A \
+            --channel left_heel \
+            --sps 10 \
+            --calibration-mass-kg 1.997 \
+            --calibration-mass-kg 5.013 \
+            --calibration-mass-kg 10.021 \
+            --validation-mass-kg 7.486
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          selection = json.loads(
+              Path('/tmp/x1-physical-kickoff/pilot_hardware_selection_authority.json').read_text()
+          )
+          assert selection['valid'] is True
+          assert selection['authority'] == 'x1_fit_pilot_hardware_selection'
+          assert selection['exact_evidence_hardware_verified'] is True
+          assert selection['untouched_spares_preserved'] is True
+          assert selection['physical_qualification_authority'] is False
+          assert selection['four_zone_duplication_authorized'] is False
+          assert selection['powered_operation_authorized'] is False
+
+          manifest = json.loads(
+              Path('/tmp/x1-one-zone-session/pilot_manifest.json').read_text()
+          )
+          assert manifest['hardware_ids']['load_cell_id'] == 'LC-CI-A'
+          assert manifest['hardware_ids']['hx711_id'] == 'ADC-CI-A'
+          assert manifest['hardware_ids']['mcu_id'] == 'MCU-CI-A'
+          assert manifest['spare_hardware_ids']['load_cell_id'] == 'LC-CI-SPARE'
+          assert manifest['spare_hardware_ids']['hx711_id'] == 'ADC-CI-SPARE'
+          assert manifest['hardware_selection']['selection_id'] == 'CI-PILOT-HW'
+          assert Path('/tmp/x1-one-zone-session/provenance/hardware_selection.json').is_file()
+          assert Path('/tmp/x1-one-zone-session/provenance/hardware_selection_authority.json').is_file()
+          assert manifest['acquisition']['rate_jumper_verified'] is False
+          assert manifest['mechanical']['vendor_pattern_verified'] is False
+          PY
       - name: Smoke-test Rev-C pre-purchase tools
         run: |
           python simulation/rev_c_mass_budget.py --configuration trail --chassis comp95
