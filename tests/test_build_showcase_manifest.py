@@ -276,3 +276,56 @@ def test_snowdeck_comparison_cannot_select_winner():
         assert "must not select a winner" in str(exc)
     else:
         raise AssertionError("showcase must reject ranked SnowDeck comparison")
+
+
+
+def test_deck_selection_projection_requires_valid_fingerprint():
+    valid = {
+        "schema_version": 1,
+        "authority": "x1_rev_c_deck_comparison",
+        "scope": "sanitized_pre_purchase_deck_comparison",
+        "qualified": True,
+        "errors": [],
+        "selected_candidate_id": "agent_class",
+        "candidate_summaries": [],
+        "selection_reason_recorded": True,
+        "private_source_sha256": "a" * 64,
+        "powered_operation_authorized": False,
+    }
+    valid["authority_fingerprint_sha256"] = fingerprint(valid)
+
+    projected = mod.extract_deck_comparison_selection([valid])
+
+    assert projected["selected_candidate_id"] == "agent_class"
+    assert projected["authority_fingerprint_sha256"] == valid["authority_fingerprint_sha256"]
+
+    invalid = dict(valid)
+    invalid["selected_candidate_id"] = "comp95_class"
+
+    assert mod.extract_deck_comparison_selection([invalid]) is None
+
+
+def test_deck_selection_projection_refuses_conflicting_valid_authorities():
+    docs = []
+    for candidate_id in ("comp95_class", "agent_class"):
+        doc = {
+            "schema_version": 1,
+            "authority": "x1_rev_c_deck_comparison",
+            "scope": "sanitized_pre_purchase_deck_comparison",
+            "qualified": True,
+            "errors": [],
+            "selected_candidate_id": candidate_id,
+            "candidate_summaries": [],
+            "selection_reason_recorded": True,
+            "private_source_sha256": candidate_id,
+            "powered_operation_authorized": False,
+        }
+        doc["authority_fingerprint_sha256"] = fingerprint(doc)
+        docs.append(doc)
+
+    try:
+        mod.extract_deck_comparison_selection(docs)
+    except ValueError as exc:
+        assert "conflicting qualified deck-comparison selections" in str(exc)
+    else:
+        raise AssertionError("conflicting physical deck selections must fail closed")
