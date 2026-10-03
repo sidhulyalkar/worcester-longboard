@@ -42,9 +42,10 @@ scene.add(ground);
 
 const root = new THREE.Group();
 const clearanceRoot = new THREE.Group();
+const armorRoot = new THREE.Group();
 const cadNeutralRoot = new THREE.Group();
 const cadSweepRoot = new THREE.Group();
-scene.add(root, clearanceRoot, cadNeutralRoot, cadSweepRoot);
+scene.add(root, clearanceRoot, armorRoot, cadNeutralRoot, cadSweepRoot);
 
 const visual = {
   movable: [],
@@ -63,6 +64,7 @@ const visual = {
 };
 
 clearanceRoot.visible = false;
+armorRoot.visible = false;
 cadNeutralRoot.visible = false;
 cadSweepRoot.visible = false;
 
@@ -170,6 +172,28 @@ function makeClearanceOverlay(g) {
   );
 }
 
+function makeArmorStudy(manifest, deckBottom) {
+  armorRoot.clear();
+  const study = (manifest.design_studies || {}).trail_armor;
+  if (!study || !study.provisional_visual_only) return;
+
+  const g = study.provisional_visual_only;
+  const state = componentState("armor");
+  const z = Math.max(1, deckBottom - g.runner_thickness_mm / 2 - 2);
+
+  for (const side of [-1, 1]) {
+    const y = side * g.runner_lateral_offset_mm;
+    box(
+      armorRoot,
+      "trail-runner-" + side,
+      [g.runner_length_mm, g.runner_width_mm, g.runner_thickness_mm],
+      [0, y, z],
+      state,
+      0.34
+    );
+  }
+}
+
 function proceduralBoard(manifest) {
   root.clear();
   visual.movable = [];
@@ -263,6 +287,7 @@ function proceduralBoard(manifest) {
   visual.driveGhost = registerMovable(driveGhost, [-70, 180, 100]);
 
   makeClearanceOverlay(g);
+  makeArmorStudy(manifest, deckBottom);
   applyTopology(visual.topologyId);
   updateSteering(0);
   updateSnowdeck();
@@ -372,7 +397,8 @@ function setExploded(on) {
 
 function setView(view) {
   setExploded(view === "exploded");
-  clearanceRoot.visible = view === "clearance" || view === "risk";
+  clearanceRoot.visible = view === "clearance" || view === "risk" || view === "armor";
+  armorRoot.visible = view === "armor";
 
   const views = {
     hero: [[1050, -900, 600], [0, 0, 100]],
@@ -381,6 +407,7 @@ function setView(view) {
     topology: [[1100, -750, 250], [0, 0, 90]],
     exploded: [[1100, -900, 720], [0, 0, 180]],
     risk: [[1180, -980, 520], [0, 0, 95]],
+    armor: [[900, -780, 220], [0, 0, 45]],
   };
   const v = views[view] || views.hero;
   camera.position.set(...v[0]);
