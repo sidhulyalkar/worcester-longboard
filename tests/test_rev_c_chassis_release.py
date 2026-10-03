@@ -23,6 +23,10 @@ def _fit_pilot():
             "selection_authority_fingerprint_sha256": "1" * 64,
             "selection_record_sha256": "2" * 64,
         },
+        "mass_reference_provenance": {
+            "mass_reference_authority_fingerprint_sha256": "3" * 64,
+            "mass_reference_record_sha256": "4" * 64,
+        },
     })
 
 
@@ -211,6 +215,10 @@ def test_unqualified_fit_pilot_cannot_release_chassis():
             "selection_authority_fingerprint_sha256": "1" * 64,
             "selection_record_sha256": "2" * 64,
         },
+        "mass_reference_provenance": {
+            "mass_reference_authority_fingerprint_sha256": "3" * 64,
+            "mass_reference_record_sha256": "4" * 64,
+        },
     })
     deck, topology, inert = _deck(), _topology(), _inert()
     manifest = _manifest(pilot, deck, topology, inert)
@@ -230,7 +238,20 @@ def test_provenance_less_legacy_fit_pilot_cannot_release_chassis():
     manifest = _manifest(pilot, deck, topology, inert)
     report = qualify(manifest, pilot, deck, topology, inert)
     assert report["qualified"] is False
-    assert any("lacks Issue #59 hardware provenance" in e for e in report["errors"])
+    assert any("lacks Issue #59/#61 provenance" in e for e in report["errors"])
+
+
+def test_fit_pilot_without_mass_reference_provenance_cannot_release_chassis():
+    pilot = _fit_pilot()
+    unsigned = dict(pilot)
+    unsigned.pop("authority_fingerprint_sha256")
+    unsigned.pop("mass_reference_provenance")
+    pilot = _stamp(unsigned)
+    deck, topology, inert = _deck(), _topology(), _inert()
+    manifest = _manifest(pilot, deck, topology, inert)
+    report = qualify(manifest, pilot, deck, topology, inert)
+    assert report["qualified"] is False
+    assert any("lacks Issue #59/#61 provenance" in e for e in report["errors"])
 
 
 def test_release_cannot_authorize_power():
