@@ -10,13 +10,13 @@ The CAD authority permits a vendor-pattern pilot but deliberately blocks four-po
 
 Keep physical measurements and raw logs under one `rider/private/` session directory. Start from `hardware/one_zone_pilot_manifest.example.json`. The qualification tool refuses log paths that escape the manifest directory.
 
-The load-cell and HX711 IDs are not free-form. Before this session exists, Issue #59 must select the exact active load cell/HX711 and the untouched spares from fingerprinted Cart A receiving or exact-unused owned-stock evidence. The Issue #4 initializer copies that selection record and authority into the private session.
+The load-cell/HX711 IDs and reference masses are not free-form. Before this session exists, Issue #59 must select the exact active load cell/HX711 and untouched spares from fingerprinted evidence, and Issue #61 must establish the calibration/validation mass values plus uncertainty. The Issue #4 initializer copies both records and both authorities into the private session.
 
-The pod and zone pad receive stable local IDs. The authority report binds the active sensor IDs, untouched-spare lineage, Issue #59 fingerprints, raw-log hashes, manifest hash, and qualification-tool hash. Replacing the active load cell or HX711 therefore requires a new Issue #59 selection and a new Issue #4 qualification rather than inheriting the previous sensor result.
+The pod and zone pad receive stable local IDs. The authority report binds the active sensor IDs, untouched-spare lineage, Issue #59 fingerprints, Issue #61 record/authority fingerprints, mass IDs/uncertainties, raw-log hashes, manifest hash, and qualification-tool hash. Replacing the active load cell or HX711 therefore requires a new Issue #59 selection and a new Issue #4 qualification rather than inheriting the previous sensor result.
 
 Every raw plateau must retain the logger startup line `# hx711_sps=<10|80>`. That header must match the manifest, and `acquisition.rate_jumper_verified` must be true only after checking the physical HX711 RATE configuration. The firmware declaration alone cannot prove the jumper state.
 
-Each load plateau is a separate raw logger CSV using the same selected logger channel. The observation sequence must start with `zero_pre`, use strictly increasing `load_up` masses, then strictly decreasing `load_down` masses, and finish with `zero_post`. Use at least three unique ascending masses and at least two paired descending masses. The positive validation mass must be different from every ascending calibration mass.
+Each load plateau is a separate raw logger CSV using the same selected logger channel. The observation sequence must start with `zero_pre`, use strictly increasing `load_up` masses, then strictly decreasing `load_down` masses, and finish with `zero_post`. Use at least three unique ascending masses and at least two paired descending masses. The positive validation mass must be different from every ascending calibration mass. Every positive plateau must reference an Issue #61 mass ID and the exact uncertainty from that authority.
 
 Record at least five seconds of settled data per plateau. Do not include the transient while adding or removing a mass. The pilot software enforces a hard **20 kg maximum applied calibration/validation mass**. This is a conservative X1 screening ceiling, not the sensor manufacturer's capacity rating.
 
@@ -26,7 +26,7 @@ Explicitly verify the vendor body/hole pattern, fixed versus loaded orientation,
 
 ## Default gates
 
-`fit/pilot_qualification.py` owns the canonical limits: selected-channel coverage >=98%; monotonic timestamps; plateau duration >=5 s; R² >=0.999; calibration residual <=1.0% pilot full scale; hysteresis <=1.5% FS; zero-return <=0.5% FS; independent validation error <=2.0%; noise <=0.5% FS; unloaded stop gap 0.30–2.00 mm; loaded stop clearance >=0.15 mm; and no applied pilot mass above 20 kg.
+`fit/pilot_qualification.py` owns the canonical limits: selected-channel coverage >=98%; monotonic timestamps; plateau duration >=5 s; R² >=0.999; calibration residual <=1.0% pilot full scale; hysteresis <=1.5% FS; zero-return <=0.5% FS; uncertainty-aware independent validation error <=2.0%; noise <=0.5% FS; unloaded stop gap 0.30–2.00 mm; loaded stop clearance >=0.15 mm; and no applied pilot mass above 20 kg.
 
 A private manifest may make a threshold stricter, but the software rejects any attempt to relax a canonical gate. These are X1 engineering screening limits, not manufacturer certification claims.
 
@@ -38,7 +38,7 @@ PYTHONPATH=. python tools/qualify_one_zone_pilot.py \
   --out rider/private/fit_rig/pilot_authority.json
 ```
 
-A nonzero exit means four-zone duplication remains blocked. Before evaluating sensor metrics, the qualifier re-verifies the copied Issue #59 selection record and authority, exact active IDs, untouched-spare IDs, and provenance fingerprints. The report stores those provenance links alongside metrics, thresholds, acquisition/mechanical evidence, raw-plateau hashes, manifest hash, qualification-tool hash, and its own authority fingerprint.
+A nonzero exit means four-zone duplication remains blocked. Before evaluating sensor metrics, the qualifier re-verifies the copied Issue #59 selection record/authority and the copied Issue #61 mass record/authority, including canonical recomputation of the mass authority from its source record. The report stores those provenance links alongside nominal and conservative uncertainty-aware metrics, thresholds, acquisition/mechanical evidence, raw-plateau hashes, manifest hash, qualification-tool hash, and its own authority fingerprint.
 
 The only field that opens the next manufacturing gate is:
 
@@ -46,4 +46,4 @@ The only field that opens the next manufacturing gate is:
 "qualified_for_four_zone_duplication": true
 ```
 
-That field must come from real physical evidence **on the Issue #59-selected sensor path**. A provenance-less legacy report cannot open the gate. CI proves only that the qualification machinery behaves correctly on synthetic data.
+That field must come from real physical evidence **on the Issue #59-selected sensor path against the Issue #61-qualified mass references**. A provenance-less legacy report cannot open the gate. CI proves only that the qualification machinery behaves correctly on synthetic data.
