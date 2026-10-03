@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "scope": "x1_fit_pilot_mass_reference_record",
+  "issue": 61,
+  "reference_set_id": "",
+  "measured_at_utc": "",
+  "method": "",
+  "uncertainty_policy": {
+    "max_relative_uncertainty_fraction": 0.005,
+    "rationale": "X1 screening limit chosen so reference-mass uncertainty remains no more than one quarter of the 2% independent validation-error gate."
+  },
+  "instrument": {
+    "manufacturer": "",
+    "model": "",
+    "private_identifier": "",
+    "capacity_kg": null,
+    "resolution_kg": null,
+    "stated_accuracy_abs_kg": null,
+    "accuracy_source_reference": "",
+    "calibration_certificate_reference": "",
+    "certificate_expanded_uncertainty_kg": null,
+    "zero_checks_kg": []
+  },
+  "masses": [
+    {
+      "mass_id": "",
+      "role": "",
+      "object_description": "",
+      "nominal_label_kg": null,
+      "repeat_measurements_kg": [],
+      "accepted_mass_kg": null,
+      "declared_expanded_uncertainty_kg": null,
+      "source_reference": ""
+    }
+  ],
+  "nist_traceability_claimed": false,
+  "commercial_legal_metrology_claimed": false,
+  "physical_sensor_qualification_authority": false,
+  "four_zone_duplication_authorized": false,
+  "powered_operation_authorized": false,
+  "public_operation_authorized": false,
+  "dog_accompanied_operation_authorized": false
+}
