@@ -49,6 +49,150 @@ def _tool_sha256() -> str:
     return _sha(Path(__file__).resolve())
 
 
+def _valid_authority(report: dict, expected: str) -> bool:
+    if report.get("authority") != expected:
+        return False
+    actual = report.get("authority_fingerprint_sha256")
+    if not isinstance(actual, str) or not actual:
+        return False
+    unsigned = dict(report)
+    unsigned.pop("authority_fingerprint_sha256", None)
+    return actual == _digest(unsigned)
+
+
+def _resolve_session_file(base: Path, relative: str, label: str) -> Path:
+    candidate = (base / relative).resolve()
+    try:
+        candidate.relative_to(base)
+    except ValueError as exc:
+        raise ValueError(
+            f"{label} escapes manifest directory: {relative}"
+        ) from exc
+    return candidate
+
+
+def _validate_hardware_provenance(
+    manifest: dict,
+    base: Path,
+    hardware_ids: dict,
+) -> tuple[dict, list[str]]:
+    failures: list[str] = []
+    provenance = manifest.get("hardware_selection")
+    if not isinstance(provenance, dict):
+        return {}, ["hardware_selection must be an object"]
+
+    for key in (
+        "selection_id",
+        "selection_record_sha256",
+        "selection_authority_fingerprint_sha256",
+        "selection_record_path",
+        "selection_authority_path",
+    ):
+        if not isinstance(provenance.get(key), str) or not provenance[key].strip():
+            failures.append(f"hardware_selection.{key} must be a nonempty string")
+
+    if failures:
+        return {}, failures
+
+    record_path = _resolve_session_file(
+        base,
+        provenance["selection_record_path"],
+        "hardware selection record",
+    )
+    authority_path = _resolve_session_file(
+        base,
+        provenance["selection_authority_path"],
+        "hardware selection authority",
+    )
+
+    try:
+        selection = json.loads(record_path.read_text(encoding="utf-8"))
+        authority = json.loads(authority_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return {}, [f"hardware selection provenance unreadable: {exc}"]
+
+    if not _valid_authority(authority, "x1_fit_pilot_hardware_selection"):
+        failures.append("hardware selection authority fingerprint/type is invalid")
+    if authority.get("valid") is not True:
+        failures.append("hardware selection authority must be valid")
+    if authority.get("selection_record_sha256") != _digest(selection):
+        failures.append("hardware selection authority does not match copied selection record")
+    if provenance["selection_record_sha256"] != _digest(selection):
+        failures.append("manifest hardware selection record fingerprint mismatch")
+    if provenance["selection_authority_fingerprint_sha256"] != authority.get(
+        "authority_fingerprint_sha256"
+    ):
+        failures.append("manifest does not link exact hardware selection authority")
+    if provenance["selection_id"] != authority.get("selection_id"):
+        failures.append("manifest hardware selection_id mismatch")
+    if authority.get("exact_evidence_hardware_verified") is not True:
+        failures.append("hardware selection did not verify exact evidence hardware")
+    if authority.get("untouched_spares_preserved") is not True:
+        failures.append("hardware selection did not preserve untouched spares")
+
+    for key in (
+        "physical_qualification_authority",
+        "four_zone_duplication_authorized",
+        "fabrication_authority",
+        "powered_operation_authorized",
+        "public_operation_authorized",
+        "dog_accompanied_operation_authorized",
+    ):
+        if authority.get(key) is not False:
+            failures.append(f"hardware selection authority boundary violated: {key}")
+
+    selected = authority.get("hardware", {})
+    load = selected.get("load_cell", {}) if isinstance(selected, dict) else {}
+    adc = selected.get("hx711", {}) if isinstance(selected, dict) else {}
+    mcu = selected.get("mcu", {}) if isinstance(selected, dict) else {}
+
+    if hardware_ids.get("load_cell_id") != load.get("active_hardware_id"):
+        failures.append("manifest load_cell_id does not match selected active load cell")
+    if hardware_ids.get("hx711_id") != adc.get("active_hardware_id"):
+        failures.append("manifest hx711_id does not match selected active HX711")
+    selected_mcu = mcu.get("active_hardware_id") or ""
+    if (hardware_ids.get("mcu_id") or "") != selected_mcu:
+        failures.append("manifest mcu_id does not match selected MCU")
+
+    spares = manifest.get("spare_hardware_ids")
+    if not isinstance(spares, dict):
+        failures.append("spare_hardware_ids must be an object")
+        spares = {}
+    if spares.get("load_cell_id") != load.get("spare_hardware_id"):
+        failures.append("manifest load-cell spare does not match selected untouched spare")
+    if spares.get("hx711_id") != adc.get("spare_hardware_id"):
+        failures.append("manifest HX711 spare does not match selected untouched spare")
+
+    active_and_spares = [
+        hardware_ids.get("load_cell_id"),
+        hardware_ids.get("hx711_id"),
+        spares.get("load_cell_id"),
+        spares.get("hx711_id"),
+    ]
+    if any(not isinstance(value, str) or not value.strip() for value in active_and_spares):
+        failures.append("active/spare load-cell and HX711 IDs must all be nonempty")
+    elif len(active_and_spares) != len(set(active_and_spares)):
+        failures.append("active/spare load-cell and HX711 IDs must be distinct")
+
+    return {
+        "selection_id": authority.get("selection_id"),
+        "selection_record_sha256": _digest(selection),
+        "selection_authority_fingerprint_sha256": authority.get(
+            "authority_fingerprint_sha256"
+        ),
+        "selection_record_path": provenance["selection_record_path"],
+        "selection_authority_path": provenance["selection_authority_path"],
+        "source_fingerprints": {
+            provenance["selection_record_path"]: _sha(record_path),
+            provenance["selection_authority_path"]: _sha(authority_path),
+        },
+        "untouched_spares": {
+            "load_cell_id": load.get("spare_hardware_id"),
+            "hx711_id": adc.get("spare_hardware_id"),
+        },
+    }, failures
+
+
 def _resolve_log(base: Path, relative: str) -> Path:
     candidate = (base / relative).resolve()
     try:
@@ -156,6 +300,12 @@ def qualify_manifest(path: Path) -> dict:
     limits, failures = _limits_from_manifest(manifest)
     hardware_ids, hardware_id_failures = _validate_hardware_ids(manifest)
     failures.extend(hardware_id_failures)
+    hardware_provenance, hardware_provenance_failures = _validate_hardware_provenance(
+        manifest,
+        base,
+        hardware_ids,
+    )
+    failures.extend(hardware_provenance_failures)
     channel = manifest["channel"]
     rate = manifest.get("hx711_sps")
     acquisition = manifest.get("acquisition", {})
@@ -300,6 +450,7 @@ def qualify_manifest(path: Path) -> dict:
         "authority": "x1_one_zone_pilot",
         "scope": "unpowered_fit_rig_only",
         "hardware_ids": hardware_ids,
+        "hardware_provenance": hardware_provenance,
         "channel": channel,
         "hx711_sps": rate,
         "hard_max_pilot_mass_kg": HARD_MAX_PILOT_MASS_KG,
@@ -308,7 +459,10 @@ def qualify_manifest(path: Path) -> dict:
         "metrics": metrics,
         "linear_fit": fit,
         "mechanical": mechanical,
-        "source_fingerprints": sources,
+        "source_fingerprints": {
+            **sources,
+            **hardware_provenance.get("source_fingerprints", {}),
+        },
         "manifest_sha256": _sha(path),
         "qualification_tool_sha256": _tool_sha256(),
         "failures": sorted(set(failures)),
