@@ -7,14 +7,11 @@ Local authority-aware visualization scaffold for Worcester X1.
 From the repository root:
 
 ```bash
-python cad/generate_rolling_chassis.py
-python cad/generate_fit_rig.py
-python cad/generate_one_zone_pilot.py
-python cad/generate_snowdeck_study.py
-python tools/export_showcase_assets.py
-python tools/build_showcase_manifest.py
+python tools/prepare_x1_showcase.py
 python -m http.server 8000
 ```
+
+The preparation command runs the rolling-chassis, Fit Rig, one-zone and SnowDeck CAD generators, converts generated STL references to GLB, then builds the authority-aware runtime manifest. Use `--skip-cad` or `--skip-assets` when iterating only on evidence/UI state.
 
 Open:
 
