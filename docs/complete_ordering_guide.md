@@ -78,17 +78,19 @@ Full procedure: `docs/x1_cart_a_checkout_receiving.md`.
 
 ## 1. Cart A: order now for Issue #4
 
-### October 1 source refresh
+### October 2 source refresh
 
-`hardware/order_sources_2026-10-01.json` live-refreshes only the three exact Cart A evidence-hardware anchors:
+`hardware/order_sources_2026-10-02.json` live-refreshes only the three exact Cart A evidence-hardware anchors:
 
 - Phidgets `3135_0`: $7.00, direct page reported 339 available;
-- SparkFun `SEN-13879`: $4.95, direct page reported In stock;
-- Espressif `ESP32-S3-DevKitC-1-N8R8` via Mouser: $15.00 current example, with roughly 1,050 immediately shippable; the Mouser page notes an 8% tariff may apply for U.S. shipment.
+- SparkFun `SEN-13879`: $4.95, current SparkFun category listing reported In stock;
+- Espressif `ESP32-S3-DevKitC-1-N8R8` via Mouser: $15.00, with 785 immediately shippable in the current listing.
 
-The load-cell and HX711 manifest prices therefore remain unchanged, and the MCU remains a `$20` ceiling/skip-if-owned item rather than being hard-coded to one storefront total.
+The exact-part prices are unchanged from October 1. The MCU remains a `$20` ceiling/skip-if-owned item rather than being hard-coded into the required minimum order.
 
-Other tool, fastener, chassis, brake, wheel and drive entries in the October snapshot remain historical sourcing references unless their individual `last_verified_as_of` says otherwise. Every item still requires a final price/stock check at payment time.
+Checkout code now resolves the dated source file from `hardware/procurement_manifest.json`. Future source refreshes should update that authority pointer rather than hard-code a new dated filename into checkout code.
+
+Other tool, fastener, chassis, brake, wheel and drive entries remain historical sourcing references unless their individual `last_verified_as_of` says otherwise. Every item still requires a final price/stock check at payment time.
 
 ### Required new evidence hardware
 
