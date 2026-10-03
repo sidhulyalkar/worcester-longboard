@@ -122,3 +122,17 @@ The snapshot contains:
 - the major physical progression gates and their current blockers.
 
 It is generated from the same runtime manifest as the viewer and is explicitly non-authoritative. It is useful for design reviews, archiving decisions, and spotting when a beautiful visualization has outrun physical evidence.
+
+
+## Physical deck-selection overlay
+
+After the blinded full-scale deck experiment produces a qualified sanitized authority, pass that authority through the normal evidence channel:
+
+```bash
+python tools/prepare_x1_showcase.py \
+  --evidence rider/private/rev_c_release/deck_comparison_authority.json
+```
+
+A fingerprint-valid `x1_rev_c_deck_comparison` authority causes the viewer and generated design review to mark the selected maximum envelope as **PHYSICAL PICK**.
+
+This is an observation only. It does not satisfy `rev_c_chassis_release_qualified`, does not promote the deck/chassis component to QUALIFIED, and does not unlock MEASURE_FIRST procurement.
