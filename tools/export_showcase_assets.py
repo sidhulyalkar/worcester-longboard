@@ -17,6 +17,7 @@ DEFAULT_SOURCES = [
     ROOT / "cad" / "generated_chassis",
     ROOT / "cad" / "generated_fit",
     ROOT / "cad" / "generated_one_zone_pilot",
+    ROOT / "cad" / "generated_snowdeck_study",
 ]
 
 
