@@ -28,6 +28,14 @@
           "type": "nonempty_string"
         },
         {
+          "path": "mass_reference_provenance.authority_fingerprint_sha256",
+          "type": "nonempty_string"
+        },
+        {
+          "path": "mass_reference_provenance.record_sha256",
+          "type": "nonempty_string"
+        },
+        {
           "path": "powered_operation_authorized",
           "equals": false
         },
