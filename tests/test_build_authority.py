@@ -25,6 +25,18 @@ def _stamp(doc):
     return stamped
 
 
+def _fit_pilot_evidence():
+    return _stamp({
+        "authority": "x1_one_zone_pilot",
+        "scope": "unpowered_fit_rig_only",
+        "qualified_for_four_zone_duplication": True,
+        "hardware_provenance": {
+            "selection_authority_fingerprint_sha256": "1" * 64,
+            "selection_record_sha256": "2" * 64,
+        },
+    })
+
+
 def _all_physical_evidence():
     chassis = _stamp({
         "authority": "x1_rolling_chassis_physical",
@@ -32,7 +44,7 @@ def _all_physical_evidence():
         "powered_operation_authorized": False,
     })
     return [
-        _stamp({"qualified_for_four_zone_duplication": True}),
+        _fit_pilot_evidence(),
         _stamp({
             "authority": "x1_rev_c_chassis_release",
             "schema_version": 1,
@@ -181,6 +193,20 @@ def test_public_repo_defaults_are_conservative():
     assert report["gates"]["lifecycle_health_ready"]["satisfied"] is False
 
 
+def test_fit_pilot_gate_requires_issue_59_hardware_provenance():
+    legacy = _stamp({
+        "authority": "x1_one_zone_pilot",
+        "scope": "unpowered_fit_rig_only",
+        "qualified_for_four_zone_duplication": True,
+    })
+    report = evaluate(_plan(), _procurement(), [legacy])
+    assert report["gates"]["fit_pilot_qualified"]["satisfied"] is False
+
+    report = evaluate(_plan(), _procurement(), [_fit_pilot_evidence()])
+    assert report["gates"]["fit_pilot_qualified"]["satisfied"] is True
+    assert report["capabilities"]["duplicate_four_fit_zones"]["allowed"] is True
+
+
 def test_rev_c_blocks_measurement_chassis_procurement_until_release_conditions_close():
     report = evaluate(_plan(), _procurement(), [])
     items = report["procurement_items"]
@@ -197,7 +223,7 @@ def test_rev_c_blocks_measurement_chassis_procurement_until_release_conditions_c
 
 
 def test_rev_c_release_requires_fit_pilot_and_then_opens_preferred_measurement_items():
-    fit = _stamp({"qualified_for_four_zone_duplication": True})
+    fit = _fit_pilot_evidence()
     release = _stamp({
         "authority": "x1_rev_c_chassis_release",
         "schema_version": 1,
@@ -229,7 +255,7 @@ def test_rev_c_release_requires_fit_pilot_and_then_opens_preferred_measurement_i
 
 
 def test_release_for_warren_does_not_unlock_comp95_or_v5_items():
-    fit = _stamp({"qualified_for_four_zone_duplication": True})
+    fit = _fit_pilot_evidence()
     release = _stamp({
         "authority": "x1_rev_c_chassis_release",
         "schema_version": 1,
@@ -256,7 +282,7 @@ def test_release_for_warren_does_not_unlock_comp95_or_v5_items():
 
 
 def test_front_hydraulic_release_does_not_unlock_v5_brake():
-    fit = _stamp({"qualified_for_four_zone_duplication": True})
+    fit = _fit_pilot_evidence()
     release = _stamp({
         "authority": "x1_rev_c_chassis_release",
         "schema_version": 1,
