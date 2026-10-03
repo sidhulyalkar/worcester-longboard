@@ -394,6 +394,36 @@ def test_reference_uncertainty_is_included_in_validation_gate(tmp_path):
     assert r["metrics"]["validation_reference_uncertainty_relative"] == pytest.approx(0.037/7.5)
 
 
+def test_reference_uncertainty_can_push_nominal_pass_over_two_percent_gate(tmp_path):
+    p=_manifest(tmp_path)
+    raw=lambda m:100000+m*9.80665*1000
+    # Roughly 1.6% nominal validation error.
+    _write_log(tmp_path/"validation.csv",raw(7.5)+1180)
+
+    record_path=tmp_path/"provenance"/"mass_reference.json"
+    authority_path=tmp_path/"provenance"/"mass_reference_authority.json"
+    record=json.loads(record_path.read_text())
+    val_record=next(x for x in record["masses"] if x["role"]=="VALIDATION")
+    val_record["declared_uncertainty_kg"]=0.037
+    val_record["reference_mass_evidence"]["documented_uncertainty_kg"]=0.037
+    authority=validate_mass(record)
+    assert authority["valid"] is True
+    record_path.write_text(json.dumps(record))
+    authority_path.write_text(json.dumps(authority))
+
+    d=json.loads(p.read_text())
+    d["mass_reference"]["record_sha256"]=authority["record_sha256"]
+    d["mass_reference"]["authority_fingerprint_sha256"]=authority["authority_fingerprint_sha256"]
+    d["validation"][0]["mass_uncertainty_kg"]=0.037
+    p.write_text(json.dumps(d))
+
+    r=qualify_manifest(p)
+    assert r["metrics"]["validation_error_nominal"] < 0.02
+    assert r["metrics"]["validation_error"] > 0.02
+    assert r["qualified_for_four_zone_duplication"] is False
+    assert "validation_error above limit" in r["failures"]
+
+
 def test_refingerprinted_mass_authority_cannot_diverge_from_source_record(tmp_path):
     p=_manifest(tmp_path)
     authority_path=tmp_path/"provenance"/"mass_reference_authority.json"
