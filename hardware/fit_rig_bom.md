@@ -37,7 +37,7 @@ Why independent full-bridge cells: X1 needs four separate force zones. Do not us
 
 The current v0.3 design does **not** use a separate force-transfer button. Each 3135 is used in its intended single-point arrangement: fixed/wire end attached to the pod, loaded/free end attached directly to its zone pad.
 
-## Pilot-before-duplicate rule
+## Pilot-and-platform-repeatability-before-duplicate rule
 
 The vendor drawing is sufficient to make one pilot pod/pad pair. Before producing four final force zones:
 
