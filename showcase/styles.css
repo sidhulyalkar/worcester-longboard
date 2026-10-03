@@ -110,6 +110,62 @@ button.active {
   background: rgba(255,255,255,.14);
 }
 button:disabled { opacity: .35; cursor: not-allowed; }
+.response-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.045);
+  font-size: 11px;
+}
+.response-head span { opacity: .55; }
+.response-clear { border: 1px solid rgba(89,212,153,.3); }
+.response-blocked { border: 1px solid rgba(244,109,117,.45); }
+.metric-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.metric-grid > div {
+  display: grid;
+  gap: 2px;
+  padding: 9px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.035);
+}
+.metric-grid span { font-size: 9px; opacity: .52; }
+.metric-grid strong { font-size: 15px; font-variant-numeric: tabular-nums; }
+.metric-grid small { font-size: 9px; opacity: .44; }
+.reject-box, .accept-box {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 10px;
+}
+.reject-box { background: rgba(244,109,117,.09); }
+.accept-box { background: rgba(89,212,153,.07); }
+.reject-box span, .accept-box span { opacity: .58; line-height: 1.4; }
+.comparison {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,.07);
+  font-size: 10px;
+}
+.comparison > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.comparison span, .comparison small { opacity: .55; }
+.comparison b { font-variant-numeric: tabular-nums; font-weight: 600; }
+
 .risk-row {
   display: grid;
   grid-template-columns: 42px 1fr auto;
