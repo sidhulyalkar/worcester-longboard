@@ -372,7 +372,7 @@ function setExploded(on) {
 
 function setView(view) {
   setExploded(view === "exploded");
-  clearanceRoot.visible = view === "clearance";
+  clearanceRoot.visible = view === "clearance" || view === "risk";
 
   const views = {
     hero: [[1050, -900, 600], [0, 0, 100]],
@@ -380,6 +380,7 @@ function setView(view) {
     clearance: [[920, -900, 300], [0, 0, 70]],
     topology: [[1100, -750, 250], [0, 0, 90]],
     exploded: [[1100, -900, 720], [0, 0, 180]],
+    risk: [[1180, -980, 520], [0, 0, 95]],
   };
   const v = views[view] || views.hero;
   camera.position.set(...v[0]);
@@ -453,6 +454,20 @@ function fillUI(manifest) {
       (gates || "concept-only") + '</small></div>' +
       '<span class="state">' + component.evidence_state + '</span>';
     list.appendChild(row);
+  });
+
+  const risks = document.getElementById("risks");
+  risks.innerHTML = "";
+  (manifest.risk_summary || []).forEach(risk => {
+    const row = document.createElement("div");
+    row.className = "risk-row";
+    row.innerHTML =
+      '<span class="risk-id">' + risk.id + '</span>' +
+      '<div><strong>' + risk.subsystem.replaceAll("_", " ") + '</strong><small>' +
+      risk.failure_mode + '</small></div>' +
+      '<span class="risk-score">' + risk.priority_score + '</span>';
+    row.title = "Must close before: " + risk.must_close_before;
+    risks.appendChild(row);
   });
 
   const g = manifest.design_studies.chassis_reference;
