@@ -87,6 +87,7 @@ def _valid_fit_pilot_authority(doc: dict) -> bool:
         doc.get("authority") == "x1_one_zone_pilot"
         and doc.get("scope") == "unpowered_fit_rig_only"
         and doc.get("qualified_for_four_zone_duplication") is True
+        and doc.get("powered_operation_authorized") is False
         and isinstance(provenance, dict)
         and _nonempty(provenance.get("selection_authority_fingerprint_sha256"))
         and _nonempty(provenance.get("selection_record_sha256"))
