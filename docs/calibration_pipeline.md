@@ -34,7 +34,9 @@ Before building all four force zones, first qualify the center calibration and t
 5. check screw length and flexure clearance,
 6. verify the hard stop remains clear throughout normal known-mass loading,
 7. record the physical verification privately and run `tools/validate_fit_rig_measurements.py`,
-8. only then duplicate the force zone four times.
+8. qualify Issue #4 with the centered calibration/validation sequence,
+9. run Issue #63 CENTER/+X/-X/+Y/-Y platform repeatability without re-zeroing or recalibrating,
+10. only after Issue #63 passes duplicate the force zone four times.
 
 ## Calibration sequence
 
