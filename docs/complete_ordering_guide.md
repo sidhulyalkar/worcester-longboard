@@ -357,7 +357,7 @@ The correct default is therefore simple: **use the donor's complete 8-inch wheel
 
 Do not place this order now.
 
-Once a real fingerprinted one-zone authority report contains `qualified_for_four_zone_duplication=true`, complete the four active sensor channels by adding:
+Once a real fingerprinted one-zone authority report contains `qualified_for_four_zone_duplication=true` **and a fingerprinted Issue #63 `x1_fit_platform_repeatability` authority passes**, complete the four active sensor channels by adding:
 
 - 2 more Phidgets 3135_0 load cells;
 - 2 more SparkFun HX711 boards;
