@@ -57,6 +57,72 @@ def sanitize_evidence_documents(paths: list[Path]) -> list[dict[str, Any]]:
     return docs
 
 
+def sanitize_snowdeck_signature(data: dict[str, Any]) -> dict[str, Any]:
+    if data.get("scope") != "x1_snowdeck_bench_signature":
+        raise ValueError("SnowDeck signature has wrong scope")
+    for key in (
+        "physical_authority",
+        "fabrication_authority",
+        "ride_authority",
+        "powered_operation_authorized",
+    ):
+        if data.get(key) is not False:
+            raise ValueError(f"SnowDeck signature must keep {key}=false")
+    return {
+        "condition_id": data.get("condition_id"),
+        "trial_count": data.get("trial_count"),
+        "neutral": data.get("neutral", {}),
+        "heel_to_toe_forefoot_transfer": data.get(
+            "heel_to_toe_forefoot_transfer", {}
+        ),
+        "deep_knee_delta_from_neutral": data.get(
+            "deep_knee_delta_from_neutral", {}
+        ),
+        "mechanical_rejects": list(data.get("mechanical_rejects", [])),
+        "eligible_for_further_bench_comparison": bool(
+            data.get("eligible_for_further_bench_comparison")
+        ),
+        "source_force_log_sha256": data.get("source_force_log_sha256"),
+        "source_session_sha256": data.get("source_session_sha256"),
+    }
+
+
+def sanitize_snowdeck_comparison(data: dict[str, Any]) -> dict[str, Any]:
+    if data.get("scope") != "x1_snowdeck_bench_signature_comparison":
+        raise ValueError("SnowDeck comparison has wrong scope")
+    for key in (
+        "physical_authority",
+        "fabrication_authority",
+        "ride_authority",
+        "powered_operation_authorized",
+    ):
+        if data.get(key) is not False:
+            raise ValueError(f"SnowDeck comparison must keep {key}=false")
+    if data.get("winner_selected") is not False:
+        raise ValueError("SnowDeck comparison must not select a winner")
+    return {
+        "baseline": {
+            "condition_id": (data.get("baseline") or {}).get("condition_id"),
+            "mechanical_rejects": list(
+                (data.get("baseline") or {}).get("mechanical_rejects", [])
+            ),
+        },
+        "variant": {
+            "condition_id": (data.get("variant") or {}).get("condition_id"),
+            "mechanical_rejects": list(
+                (data.get("variant") or {}).get("mechanical_rejects", [])
+            ),
+        },
+        "signed_variant_minus_baseline": dict(
+            data.get("signed_variant_minus_baseline", {})
+        ),
+        "variant_eligible_for_further_bench_comparison": bool(
+            data.get("variant_eligible_for_further_bench_comparison")
+        ),
+        "winner_selected": False,
+    }
+
+
 def summarize_risks(risk_register: dict[str, Any], limit: int = 8) -> list[dict[str, Any]]:
     risks = risk_register.get("risks", [])
     ranked = sorted(
@@ -124,6 +190,8 @@ def build(
     procurement_path: Path,
     evidence_paths: list[Path],
     risk_path: Path | None = None,
+    snowdeck_signature_path: Path | None = None,
+    snowdeck_comparison_path: Path | None = None,
 ) -> dict[str, Any]:
     seed = load_json(seed_path)
     authority = load_json(authority_path)
@@ -136,6 +204,16 @@ def build(
     components = promote_components(seed, gate_state)
     risk_register = load_json(risk_path) if risk_path is not None else {}
     risk_summary = summarize_risks(risk_register)
+    snowdeck_signature = (
+        sanitize_snowdeck_signature(load_json(snowdeck_signature_path))
+        if snowdeck_signature_path is not None
+        else None
+    )
+    snowdeck_comparison = (
+        sanitize_snowdeck_comparison(load_json(snowdeck_comparison_path))
+        if snowdeck_comparison_path is not None
+        else None
+    )
 
     return {
         "schema_version": 1,
@@ -155,6 +233,14 @@ def build(
             "mechanical_risk_register_sha256": (
                 sha256_file(risk_path) if risk_path is not None else None
             ),
+            "snowdeck_signature_sha256": (
+                sha256_file(snowdeck_signature_path)
+                if snowdeck_signature_path is not None else None
+            ),
+            "snowdeck_comparison_sha256": (
+                sha256_file(snowdeck_comparison_path)
+                if snowdeck_comparison_path is not None else None
+            ),
         },
         "physical_authority": False,
         "procurement_authority": False,
@@ -163,6 +249,8 @@ def build(
         "components": components,
         "design_studies": seed.get("design_studies", {}),
         "risk_summary": risk_summary,
+        "snowdeck_bench_signature": snowdeck_signature,
+        "snowdeck_bench_comparison": snowdeck_comparison,
         "gates": gate_state,
         "viewer_notice": (
             "Visualization only. Gate state is recomputed with the repository build-authority "
@@ -197,6 +285,16 @@ def parse_args() -> argparse.Namespace:
         help="Fingerprint-valid authority JSON. May be supplied multiple times.",
     )
     p.add_argument(
+        "--snowdeck-signature",
+        type=Path,
+        help="Optional local x1_snowdeck_bench_signature aggregate JSON.",
+    )
+    p.add_argument(
+        "--snowdeck-comparison",
+        type=Path,
+        help="Optional local non-ranking SnowDeck comparison JSON.",
+    )
+    p.add_argument(
         "--out",
         type=Path,
         default=ROOT / "showcase" / "x1_runtime_manifest.json",
@@ -212,6 +310,8 @@ def main() -> None:
         args.procurement,
         args.evidence,
         args.risk_register,
+        args.snowdeck_signature,
+        args.snowdeck_comparison,
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(runtime, indent=2) + "\n", encoding="utf-8")
