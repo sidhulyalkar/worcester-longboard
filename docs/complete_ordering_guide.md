@@ -72,9 +72,11 @@ Current public checkout policy requires:
 
 After payment, record confirmation references, shipping/tax, final total, set `ORDERED`, and validate again.
 
-When shipments arrive, use `tools/init_x1_cart_a_receiving.py` and `tools/validate_x1_cart_a_receiving.py`. The receiving record is fingerprint-bound to the completed checkout, rejects unresolved substitutions/damage, and preserves one active plus one untouched spare for the load-cell and HX711 paths.
+When shipments arrive, use `tools/init_x1_cart_a_receiving.py` and `tools/validate_x1_cart_a_receiving.py`. The receiving record is fingerprint-bound to the completed checkout, rejects unresolved substitutions/damage, and records one active candidate plus one untouched spare for the load-cell and HX711 paths.
 
-Full procedure: `docs/x1_cart_a_checkout_receiving.md`.
+Then create Issue #59 `x1_fit_pilot_hardware_selection` evidence with `tools/init_x1_fit_pilot_hardware_selection.py` and `tools/validate_x1_fit_pilot_hardware_selection.py`. Receiving proves what arrived; Issue #59 locks which exact physical units Issue #4 may calibrate.
+
+Full procedures: `docs/x1_cart_a_checkout_receiving.md` and `docs/x1_fit_pilot_hardware_provenance.md`.
 
 ## 1. Cart A: order now for Issue #4
 
@@ -234,8 +236,8 @@ Create the private session only after those numeric values are known:
 ```bash
 PYTHONPATH=. python tools/init_one_zone_pilot_session.py \
   rider/private/fit_rig/issue4-pilot \
-  --load-cell-id LC-PILOT-A \
-  --hx711-id ADC-PILOT-A \
+  --hardware-selection rider/private/physical_kickoff/pilot_hardware_selection.json \
+  --hardware-selection-authority rider/private/physical_kickoff/pilot_hardware_selection_authority.json \
   --pod-id POD-PILOT-A \
   --zone-pad-id PAD-PILOT-A \
   --channel left_heel \
@@ -431,8 +433,9 @@ A storefront description is evidence about what was sold. The received physical 
 2. order 2 x 3135 + 2 x HX711;
 3. buy the official ESP32-S3 board only if needed;
 4. fill only the missing cheap hardware/tool gaps;
-5. fabricate one pilot stack;
-6. collect real Issue #4 evidence.
+5. create the Issue #59 active/spare hardware selection;
+6. fabricate one pilot stack using only the selected active sensor path;
+7. collect real Issue #4 evidence.
 
 **While fit-pilot parts are shipping:**
 
