@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "scope": "x1_snowdeck_bench_signature",
+  "condition_id": "S1-synthetic",
+  "synthetic_fixture": true,
+  "physical_evidence_eligible": false,
+  "trial_count": 3,
+  "required_poses": [
+    "NEUTRAL",
+    "DEEP_KNEE",
+    "HEEL_BIASED",
+    "TOE_BIASED"
+  ],
+  "neutral": {
+    "left_load_fraction": {
+      "mean": 0.49,
+      "sd": 0.008
+    },
+    "left_forefoot_fraction": {
+      "mean": 0.42,
+      "sd": 0.01
+    },
+    "right_forefoot_fraction": {
+      "mean": 0.44,
+      "sd": 0.01
+    },
+    "total_load": {
+      "mean": 502,
+      "sd": 7
+    }
+  },
+  "heel_to_toe_forefoot_transfer": {
+    "left": {
+      "mean": 0.43,
+      "sd": 0.018
+    },
+    "right": {
+      "mean": 0.46,
+      "sd": 0.017
+    }
+  },
+  "deep_knee_delta_from_neutral": {
+    "left_load_fraction": {
+      "mean": 0.015,
+      "sd": 0.007
+    },
+    "left_forefoot_fraction": {
+      "mean": 0.09,
+      "sd": 0.01
+    },
+    "right_forefoot_fraction": {
+      "mean": 0.08,
+      "sd": 0.01
+    }
+  },
+  "mechanical_rejects": [],
+  "eligible_for_further_bench_comparison": true,
+  "source_force_log_sha256": "a7d2ef553f3d676a31f5dabd736a9e3951e48b7e02a65444d6cbe47b670606a2",
+  "source_session_sha256": "37cf089cb3e7f03e0651e9107c46965918f2305955344c7d9999533910840f1a",
+  "interpretation": "Synthetic visualization fixture only.",
+  "physical_authority": false,
+  "fabrication_authority": false,
+  "ride_authority": false,
+  "powered_operation_authorized": false
+}
