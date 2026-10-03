@@ -596,7 +596,7 @@ def test_energized_stage_requires_fingerprinted_telemetry_replay():
     )
     assert report["qualified"] is False
     assert (
-        "fingerprinted telemetry replay is required for energized stage"
+        "fingerprinted telemetry replay is required for this stage"
         in report["errors"]
     )
 
