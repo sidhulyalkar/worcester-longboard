@@ -427,6 +427,53 @@ function topologyUI(manifest) {
   });
 }
 
+function fmt(value, digits = 3) {
+  return Number.isFinite(Number(value)) ? Number(value).toFixed(digits) : "—";
+}
+
+function snowdeckResponseUI(manifest) {
+  const host = document.getElementById("snowdeck-response");
+  const signature = manifest.snowdeck_bench_signature;
+  const comparison = manifest.snowdeck_bench_comparison;
+  if (!signature) return;
+
+  const neutral = signature.neutral || {};
+  const transfer = signature.heel_to_toe_forefoot_transfer || {};
+  const rejects = signature.mechanical_rejects || [];
+  const stateClass = rejects.length ? "response-blocked" : "response-clear";
+
+  host.innerHTML =
+    '<div class="response-head ' + stateClass + '">' +
+      '<strong>' + (signature.condition_id || "local condition") + '</strong>' +
+      '<span>' + signature.trial_count + ' trials</span>' +
+    '</div>' +
+    '<div class="metric-grid">' +
+      '<div><span>Neutral L load</span><strong>' + fmt(neutral.left_load_fraction?.mean) + '</strong><small>SD ' + fmt(neutral.left_load_fraction?.sd) + '</small></div>' +
+      '<div><span>L heel→toe</span><strong>' + fmt(transfer.left?.mean) + '</strong><small>SD ' + fmt(transfer.left?.sd) + '</small></div>' +
+      '<div><span>R heel→toe</span><strong>' + fmt(transfer.right?.mean) + '</strong><small>SD ' + fmt(transfer.right?.sd) + '</small></div>' +
+      '<div><span>Total-load SD</span><strong>' + fmt(neutral.total_load?.sd, 2) + '</strong><small>force units</small></div>' +
+    '</div>' +
+    (rejects.length
+      ? '<div class="reject-box"><strong>Mechanically blocked</strong><span>' + rejects.join(" · ") + '</span></div>'
+      : '<div class="accept-box"><strong>No linked immediate-reject observation</strong><span>Still bench-only and non-authoritative.</span></div>');
+
+  if (comparison) {
+    const deltas = comparison.signed_variant_minus_baseline || {};
+    const rows = [
+      ["Δ neutral L load", deltas.neutral_left_load_mean],
+      ["Δ L heel→toe", deltas.left_heel_to_toe_transfer_mean],
+      ["Δ R heel→toe", deltas.right_heel_to_toe_transfer_mean],
+      ["Δ neutral load SD", deltas.neutral_total_load_sd],
+    ];
+    host.innerHTML +=
+      '<div class="comparison"><strong>Variant − baseline</strong>' +
+      rows.map(([label, value]) =>
+        '<div><span>' + label + '</span><b>' + (Number(value) >= 0 ? "+" : "") + fmt(value) + '</b></div>'
+      ).join("") +
+      '<small>No direction is automatically preferred. No winner is selected.</small></div>';
+  }
+}
+
 function fillUI(manifest) {
   document.getElementById("notice").textContent = manifest.viewer_notice;
   const legend = document.getElementById("legend");
@@ -455,6 +502,8 @@ function fillUI(manifest) {
       '<span class="state">' + component.evidence_state + '</span>';
     list.appendChild(row);
   });
+
+  snowdeckResponseUI(manifest);
 
   const risks = document.getElementById("risks");
   risks.innerHTML = "";
