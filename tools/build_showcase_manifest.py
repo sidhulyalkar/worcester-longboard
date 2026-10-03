@@ -57,6 +57,27 @@ def sanitize_evidence_documents(paths: list[Path]) -> list[dict[str, Any]]:
     return docs
 
 
+def summarize_risks(risk_register: dict[str, Any], limit: int = 8) -> list[dict[str, Any]]:
+    risks = risk_register.get("risks", [])
+    ranked = sorted(
+        (r for r in risks if isinstance(r, dict)),
+        key=lambda r: (-int(r.get("priority_score", 0)), str(r.get("id", ""))),
+    )
+    fields = (
+        "id",
+        "subsystem",
+        "failure_mode",
+        "effect",
+        "priority_score",
+        "status",
+        "must_close_before",
+    )
+    return [
+        {field: risk.get(field) for field in fields}
+        for risk in ranked[:limit]
+    ]
+
+
 def promote_components(
     seed: dict[str, Any], gate_state: dict[str, dict[str, Any]]
 ) -> list[dict[str, Any]]:
@@ -102,6 +123,7 @@ def build(
     authority_path: Path,
     procurement_path: Path,
     evidence_paths: list[Path],
+    risk_path: Path | None = None,
 ) -> dict[str, Any]:
     seed = load_json(seed_path)
     authority = load_json(authority_path)
@@ -112,6 +134,8 @@ def build(
     authority_report = evaluate_build_authority(authority, procurement, evidence_docs)
     gate_state = authority_report["gates"]
     components = promote_components(seed, gate_state)
+    risk_register = load_json(risk_path) if risk_path is not None else {}
+    risk_summary = summarize_risks(risk_register)
 
     return {
         "schema_version": 1,
@@ -125,6 +149,12 @@ def build(
             "procurement_manifest": str(procurement_path.relative_to(ROOT)),
             "procurement_manifest_sha256": sha256_file(procurement_path),
             "evidence_documents_supplied": len(evidence_docs),
+            "mechanical_risk_register": (
+                str(risk_path.relative_to(ROOT)) if risk_path is not None else None
+            ),
+            "mechanical_risk_register_sha256": (
+                sha256_file(risk_path) if risk_path is not None else None
+            ),
         },
         "physical_authority": False,
         "procurement_authority": False,
@@ -132,6 +162,7 @@ def build(
         "powered_operation_authorized": False,
         "components": components,
         "design_studies": seed.get("design_studies", {}),
+        "risk_summary": risk_summary,
         "gates": gate_state,
         "viewer_notice": (
             "Visualization only. Gate state is recomputed with the repository build-authority "
@@ -152,6 +183,11 @@ def parse_args() -> argparse.Namespace:
         "--procurement",
         type=Path,
         default=ROOT / "hardware" / "procurement_manifest.json",
+    )
+    p.add_argument(
+        "--risk-register",
+        type=Path,
+        default=ROOT / "hardware" / "mechanical_risk_register.json",
     )
     p.add_argument(
         "--evidence",
@@ -175,6 +211,7 @@ def main() -> None:
         args.build_authority,
         args.procurement,
         args.evidence,
+        args.risk_register,
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(runtime, indent=2) + "\n", encoding="utf-8")
