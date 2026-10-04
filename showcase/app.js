@@ -463,6 +463,11 @@ function applyTopology(id) {
     axle.rightWheel.position.y = branch.wheel_center_lateral_mm;
   }
 
+  const lateralScale =
+    branch.wheel_center_lateral_mm / visual.geometry.wheel_center_lateral_mm;
+  if (visual.layerGroups.brake) visual.layerGroups.brake.scale.y = lateralScale;
+  if (visual.layerGroups.drive) visual.layerGroups.drive.scale.y = lateralScale;
+
   if (visual.brakeGhost) {
     visual.brakeGhost.material.opacity =
       branch.brake_reference_compatible === true ? 0.28 :
