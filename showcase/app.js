@@ -92,16 +92,35 @@ function componentState(kind) {
   return component ? component.evidence_state : "ASSUMED";
 }
 
-function materialFor(state, opacity = 1, wireframe = false) {
+function materialFor(state, opacity = 1, wireframe = false, physicalKind = null) {
+  const authorityColor = STATE[state] || STATE.ASSUMED;
+  const color = physicalKind && state !== "BLOCKED"
+    ? (PHYSICAL[physicalKind] || authorityColor)
+    : authorityColor;
   return new THREE.MeshStandardMaterial({
-    color: STATE[state] || STATE.ASSUMED,
-    roughness: 0.58,
-    metalness: 0.1,
+    color,
+    roughness: physicalKind === "wheels" ? 0.92 : 0.58,
+    metalness: ["trucks", "hubs", "brake", "drive"].includes(physicalKind) ? 0.48 : 0.08,
     transparent: opacity < 1,
     opacity,
     wireframe: wireframe || state === "BLOCKED",
-    depthWrite: opacity >= 0.6,
+    depthWrite: opacity >= 0.58,
   });
+}
+
+function addEvidenceEdges(mesh, state, opacity = 0.72) {
+  if (!mesh.geometry) return mesh;
+  const edges = new THREE.LineSegments(
+    new THREE.EdgesGeometry(mesh.geometry, 28),
+    new THREE.LineBasicMaterial({
+      color: STATE[state] || STATE.ASSUMED,
+      transparent: true,
+      opacity,
+    })
+  );
+  edges.renderOrder = 4;
+  mesh.add(edges);
+  return mesh;
 }
 
 function registerMovable(object, offset) {
@@ -112,25 +131,113 @@ function registerMovable(object, offset) {
   return object;
 }
 
-function box(parent, name, size, pos, state, opacity = 1) {
-  const mesh = new THREE.Mesh(new THREE.BoxGeometry(...size), materialFor(state, opacity));
+function box(parent, name, size, pos, state, opacity = 1, physicalKind = null) {
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(...size),
+    materialFor(state, opacity, false, physicalKind)
+  );
   mesh.name = name;
   mesh.position.set(...pos);
+  mesh.castShadow = opacity >= 0.5;
+  if (physicalKind) addEvidenceEdges(mesh, state, state === "BLOCKED" ? 0.9 : 0.48);
+  parent.add(mesh);
+  return mesh;
+}
+
+function roundedDeck(parent, g, state) {
+  const length = g.deck_length_mm;
+  const width = g.deck_width_mm;
+  const r = Math.min(34, width * 0.14);
+  const x = length / 2;
+  const y = width / 2;
+  const shape = new THREE.Shape();
+  shape.moveTo(-x + r, -y);
+  shape.lineTo(x - r, -y);
+  shape.quadraticCurveTo(x, -y, x, -y + r);
+  shape.lineTo(x, y - r);
+  shape.quadraticCurveTo(x, y, x - r, y);
+  shape.lineTo(-x + r, y);
+  shape.quadraticCurveTo(-x, y, -x, y - r);
+  shape.lineTo(-x, -y + r);
+  shape.quadraticCurveTo(-x, -y, -x + r, -y);
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    depth: g.deck_reference_thickness_mm,
+    bevelEnabled: true,
+    bevelSegments: 2,
+    steps: 1,
+    bevelSize: 2.5,
+    bevelThickness: 1.5,
+  });
+  const mesh = new THREE.Mesh(geometry, materialFor(state, 1, false, "deck"));
+  mesh.name = "deck";
+  mesh.position.z = g.static_ground_clearance_mm;
   mesh.castShadow = true;
+  addEvidenceEdges(mesh, state, 0.48);
   parent.add(mesh);
   return mesh;
 }
 
 function wheel(parent, name, y, radius, width, state) {
-  const mesh = new THREE.Mesh(
-    new THREE.CylinderGeometry(radius, radius, width, 48),
-    materialFor(state, 1)
+  const group = new THREE.Group();
+  group.name = name;
+  group.position.set(0, y, radius);
+
+  const tire = new THREE.Mesh(
+    new THREE.CylinderGeometry(radius, radius, width, 72, 1, false),
+    materialFor(state, 1, false, "wheels")
   );
-  mesh.name = name;
-  mesh.position.set(0, y, radius);
-  mesh.castShadow = true;
-  parent.add(mesh);
-  return mesh;
+  tire.castShadow = true;
+  group.add(tire);
+
+  const hub = new THREE.Mesh(
+    new THREE.CylinderGeometry(radius * 0.43, radius * 0.43, width + 4, 48),
+    materialFor(state, 1, false, "hubs")
+  );
+  hub.castShadow = true;
+  group.add(hub);
+
+  for (const side of [-1, 1]) {
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(radius * 0.78, radius * 0.9, 64),
+      new THREE.MeshBasicMaterial({
+        color: STATE[state] || STATE.ASSUMED,
+        transparent: true,
+        opacity: 0.7,
+        side: THREE.DoubleSide,
+      })
+    );
+    ring.rotation.x = Math.PI / 2;
+    ring.position.y = side * (width / 2 + 0.8);
+    group.add(ring);
+  }
+
+  parent.add(group);
+  return group;
+}
+
+function makeTruck(parent, name, width, deckBottom, state) {
+  const group = new THREE.Group();
+  group.name = name;
+  const z = deckBottom - 16;
+
+  const axle = new THREE.Mesh(
+    new THREE.CylinderGeometry(4.2, 4.2, width, 24),
+    materialFor(state, 1, false, "trucks")
+  );
+  axle.position.z = z;
+  group.add(axle);
+
+  const hanger = new THREE.Mesh(
+    new THREE.CylinderGeometry(8, 8, Math.max(80, width - 92), 28),
+    materialFor(state, 1, false, "trucks")
+  );
+  hanger.position.z = z + 4;
+  group.add(hanger);
+
+  box(group, name + "-baseplate", [94, 70, 7], [0, 0, deckBottom - 5], state, 1, "trucks");
+  box(group, name + "-pivot", [40, 34, 26], [0, 0, deckBottom - 17], state, 1, "trucks");
+  parent.add(group);
+  return group;
 }
 
 function lineRectangle(width, height, z, color) {
@@ -149,21 +256,20 @@ function lineRectangle(width, height, z, color) {
   );
 }
 
-function makeFootAssembly(id, initialX, state, deckTop) {
+function makeFootAssembly(parent, id, initialX, state, deckTop) {
   const group = new THREE.Group();
   group.name = id;
   group.position.set(initialX, 0, 0);
   group.rotation.order = "ZXY";
 
-  const insert = box(group, id + "-insert", [260, 132, 2], [0, 0, deckTop + 1], "ASSUMED", 0.25);
-  const plate = box(group, id + "-plate", [260, 132, 6], [0, 0, deckTop + 5], state, 0.82);
-
-  const fore = box(group, id + "-fore-zone", [105, 78, 1.5], [60, 0, deckTop + 8.75], state, 0.26);
-  const heel = box(group, id + "-heel-zone", [105, 78, 1.5], [-60, 0, deckTop + 8.75], state, 0.26);
+  const insert = box(group, id + "-insert", [260, 132, 2], [0, 0, deckTop + 1], "ASSUMED", 0.22);
+  const plate = box(group, id + "-plate", [260, 132, 6], [0, 0, deckTop + 5], state, 0.92, "rider_interface");
+  const fore = box(group, id + "-fore-zone", [105, 78, 1.5], [60, 0, deckTop + 8.75], state, 0.24);
+  const heel = box(group, id + "-heel-zone", [105, 78, 1.5], [-60, 0, deckTop + 8.75], state, 0.24);
 
   registerMovable(group, [0, 0, 230]);
   visual.snow[id] = { group, plate, insert, fore, heel };
-  root.add(group);
+  parent.add(group);
   return group;
 }
 
@@ -171,46 +277,109 @@ function makeClearanceOverlay(g) {
   clearanceRoot.clear();
   const outerWidth = (g.estimated_outer_wheel_envelope_width_mm || 401) + 100;
   const keepoutHeight = g.minimum_compressed_clearance_mm || 45;
-
   const volume = new THREE.Mesh(
     new THREE.BoxGeometry(1320, outerWidth, keepoutHeight),
     new THREE.MeshBasicMaterial({
       color: STATE.ASSUMED,
       transparent: true,
-      opacity: 0.07,
+      opacity: 0.055,
       wireframe: false,
       depthWrite: false,
     })
   );
   volume.position.z = keepoutHeight / 2;
   clearanceRoot.add(volume);
-
   clearanceRoot.add(lineRectangle(1320, outerWidth, keepoutHeight, STATE.ASSUMED));
-  clearanceRoot.add(
-    lineRectangle(1320, outerWidth, g.static_ground_clearance_mm || 65, STATE.REFERENCE)
-  );
+  clearanceRoot.add(lineRectangle(1320, outerWidth, g.static_ground_clearance_mm || 65, STATE.REFERENCE));
 }
 
 function makeArmorStudy(manifest, deckBottom) {
   armorRoot.clear();
   const study = (manifest.design_studies || {}).trail_armor;
   if (!study || !study.provisional_visual_only) return;
-
   const g = study.provisional_visual_only;
   const state = componentState("armor");
   const z = Math.max(1, deckBottom - g.runner_thickness_mm / 2 - 2);
-
   for (const side of [-1, 1]) {
     const y = side * g.runner_lateral_offset_mm;
-    box(
-      armorRoot,
-      "trail-runner-" + side,
+    box(armorRoot, "trail-runner-" + side,
       [g.runner_length_mm, g.runner_width_mm, g.runner_thickness_mm],
-      [0, y, z],
-      state,
-      0.34
-    );
+      [0, y, z], state, 0.62, "armor");
   }
+}
+
+function makeBrakeReference(parent, axleX, g, state) {
+  const group = new THREE.Group();
+  group.name = "mechanical-brake-reference";
+  group.position.x = -axleX;
+  const rotorOuter = g.wheel_diameter_mm * 0.31;
+  const rotorInner = rotorOuter * 0.72;
+  for (const side of [-1, 1]) {
+    const y = side * (g.wheel_center_lateral_mm - g.wheel_width_mm / 2 - 3);
+    const rotor = new THREE.Mesh(
+      new THREE.RingGeometry(rotorInner, rotorOuter, 48),
+      materialFor(state, 0.78, false, "brake")
+    );
+    rotor.rotation.x = Math.PI / 2;
+    rotor.position.set(0, y, g.wheel_diameter_mm / 2);
+    group.add(rotor);
+    box(group, "brake-caliper-" + side, [30, 18, 34],
+      [18, y, g.wheel_diameter_mm * 0.63], state, 0.72, "brake");
+  }
+  const envelope = box(group, "brake-packaging-envelope",
+    [40, g.truck_total_width_mm - 34, g.wheel_diameter_mm * 0.78],
+    [0, 0, g.wheel_diameter_mm / 2], state, 0.055);
+  visual.brakeGhost = envelope;
+  registerMovable(group, [-70, -180, 100]);
+  parent.add(group);
+  return group;
+}
+
+function makeDriveReference(parent, axleX, g, state) {
+  const group = new THREE.Group();
+  group.name = "drive-packaging-reference";
+  group.position.x = -axleX + 28;
+  for (const side of [-1, 1]) {
+    const y = side * (g.wheel_center_lateral_mm - 58);
+    const motor = new THREE.Mesh(
+      new THREE.CylinderGeometry(28, 28, 48, 36),
+      materialFor(state, 0.58, state === "BLOCKED", "drive")
+    );
+    motor.position.set(36, y, 78);
+    motor.castShadow = true;
+    group.add(motor);
+    const gear = new THREE.Mesh(
+      new THREE.CylinderGeometry(34, 34, 7, 40),
+      materialFor(state, 0.5, true, "drive")
+    );
+    gear.position.set(0, side * (g.wheel_center_lateral_mm - g.wheel_width_mm / 2 - 7), g.wheel_diameter_mm / 2);
+    group.add(gear);
+  }
+  const envelope = box(group, "drive-packaging-envelope",
+    [122, g.truck_total_width_mm - 48, 92], [24, 0, 74], state, 0.055);
+  visual.driveGhost = envelope;
+  registerMovable(group, [-70, 180, 100]);
+  parent.add(group);
+  return group;
+}
+
+function makeDockStudy(g) {
+  dockRoot.clear();
+  const state = componentState("dock");
+  const railY = Math.min(120, g.deck_width_mm * 0.42);
+  for (const side of [-1, 1]) {
+    box(dockRoot, "dock-rail-" + side, [440, 22, 16], [0, side * railY, 8], state, 0.48, "dock");
+    box(dockRoot, "dock-guide-" + side, [66, 36, 52], [-80, side * (railY + 4), 26], state, 0.38, "dock");
+  }
+  box(dockRoot, "dock-center-stop", [36, 120, 24], [150, 0, 12], state, 0.38, "dock");
+}
+
+function createLayerGroup(id) {
+  const group = new THREE.Group();
+  group.name = "layer-" + id;
+  root.add(group);
+  visual.layerGroups[id] = group;
+  return group;
 }
 
 function proceduralBoard(manifest) {
@@ -218,6 +387,7 @@ function proceduralBoard(manifest) {
   visual.movable = [];
   visual.axles = {};
   visual.snow = {};
+  visual.layerGroups = {};
 
   const g = manifest.design_studies.chassis_reference;
   visual.geometry = g;
@@ -226,13 +396,7 @@ function proceduralBoard(manifest) {
   const axleX = g.wheelbase_mm / 2;
   const wheelRadius = g.wheel_diameter_mm / 2;
 
-  const deck = box(
-    root,
-    "deck",
-    [g.deck_length_mm, g.deck_width_mm, g.deck_reference_thickness_mm],
-    [0, 0, deckBottom + g.deck_reference_thickness_mm / 2],
-    componentState("deck")
-  );
+  const deck = roundedDeck(root, g, componentState("deck"));
   visual.deck = registerMovable(deck, [0, 0, 70]);
 
   for (const axle of [
@@ -242,76 +406,38 @@ function proceduralBoard(manifest) {
     const group = new THREE.Group();
     group.position.set(axle.x, 0, 0);
     group.userData.steerSign = axle.steerSign;
-
-    const truck = box(
-      group,
-      axle.id + "-truck",
-      [28, g.truck_total_width_mm, 18],
-      [0, 0, deckBottom - 9],
-      componentState("trucks")
-    );
-    const leftWheel = wheel(
-      group,
-      axle.id + "-wheel-left",
-      -g.wheel_center_lateral_mm,
-      wheelRadius,
-      g.wheel_width_mm,
-      componentState("wheels")
-    );
-    const rightWheel = wheel(
-      group,
-      axle.id + "-wheel-right",
-      g.wheel_center_lateral_mm,
-      wheelRadius,
-      g.wheel_width_mm,
-      componentState("wheels")
-    );
-
+    const truck = makeTruck(group, axle.id + "-truck", g.truck_total_width_mm, deckBottom, componentState("trucks"));
+    const leftWheel = wheel(group, axle.id + "-wheel-left", -g.wheel_center_lateral_mm, wheelRadius, g.wheel_width_mm, componentState("wheels"));
+    const rightWheel = wheel(group, axle.id + "-wheel-right", g.wheel_center_lateral_mm, wheelRadius, g.wheel_width_mm, componentState("wheels"));
     visual.axles[axle.id] = { group, truck, leftWheel, rightWheel };
     registerMovable(group, axle.explode);
     root.add(group);
   }
 
-  const pack = box(
-    root,
-    "pack-envelope",
-    [330, 188, 58],
-    [20, 0, deckTop + 35],
-    componentState("pack"),
-    0.30
-  );
-  visual.pack = registerMovable(pack, [0, 0, 250]);
+  const packLayer = createLayerGroup("pack");
+  const packHeight = 58;
+  const packCenterZ = Math.max(packHeight / 2 + 3, deckBottom - packHeight / 2 - 4);
+  const pack = box(packLayer, "pack-envelope", [330, 188, packHeight], [20, 0, packCenterZ],
+    componentState("pack"), 0.42, "pack");
+  visual.pack = registerMovable(packLayer, [0, 0, 250]);
 
-  makeFootAssembly("rearFoot", -180, componentState("rider_interface"), deckTop);
-  makeFootAssembly("frontFoot", 180, componentState("rider_interface"), deckTop);
+  const snowLayer = createLayerGroup("snowdeck");
+  makeFootAssembly(snowLayer, "rearFoot", -180, componentState("rider_interface"), deckTop);
+  makeFootAssembly(snowLayer, "frontFoot", 180, componentState("rider_interface"), deckTop);
 
-  const brakeGhost = box(
-    root,
-    "brake-ghost",
-    [32, 330, 150],
-    [-axleX, 0, 92],
-    componentState("brake"),
-    0.20
-  );
-  visual.brakeGhost = registerMovable(brakeGhost, [-70, -180, 100]);
+  const brakeLayer = createLayerGroup("brake");
+  makeBrakeReference(brakeLayer, axleX, g, componentState("brake"));
 
-  const driveGhost = box(
-    root,
-    "drive-ghost",
-    [110, 340, 90],
-    [-axleX + 18, 0, 82],
-    componentState("drive"),
-    0.18
-  );
-  visual.driveGhost = registerMovable(driveGhost, [-70, 180, 100]);
+  const driveLayer = createLayerGroup("drive");
+  makeDriveReference(driveLayer, axleX, g, componentState("drive"));
 
   makeClearanceOverlay(g);
   makeArmorStudy(manifest, deckBottom);
+  makeDockStudy(g);
   applyTopology(visual.topologyId);
   updateSteering(0);
   updateSnowdeck();
 }
-
 function updateSteering(angle) {
   const max = visual.geometry ? visual.geometry.max_steer_deg : 22;
   visual.steerDeg = Math.max(-max, Math.min(max, Number(angle)));
