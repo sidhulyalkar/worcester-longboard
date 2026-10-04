@@ -36,3 +36,8 @@ def test_top_view_has_dedicated_up_vector_for_screen_rotation():
 def test_configuration_changes_schedule_camera_reframe():
     assert APP.count("scheduleReframe();") >= 3
     assert 'window.addEventListener("resize", resize);' in APP
+
+
+def test_camera_bounds_ignore_hidden_layers():
+    assert "traverseVisible" in APP
+    assert "includeVisibleMeshes(root);" in APP
