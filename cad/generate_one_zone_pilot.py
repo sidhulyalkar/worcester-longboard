@@ -14,14 +14,26 @@ from pathlib import Path
 
 import cadquery as cq
 
-from cad.fit_rig_geometry import DEFAULT, FitRigGeometry
-from cad.generate_fit_rig import (
-    alignment_jig,
-    export,
-    load_cell_pod,
-    load_cell_reference,
-    zone_pad,
-)
+if __package__:
+    from cad.fit_rig_geometry import DEFAULT, FitRigGeometry
+    from cad.generate_fit_rig import (
+        alignment_jig,
+        export,
+        load_cell_pod,
+        load_cell_reference,
+        zone_pad,
+    )
+else:
+    # Direct file execution puts cad/ rather than the repository root on
+    # sys.path. Keep that developer workflow functional without PYTHONPATH.
+    from fit_rig_geometry import DEFAULT, FitRigGeometry
+    from generate_fit_rig import (
+        alignment_jig,
+        export,
+        load_cell_pod,
+        load_cell_reference,
+        zone_pad,
+    )
 
 
 @dataclass(frozen=True)

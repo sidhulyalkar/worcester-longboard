@@ -7,8 +7,8 @@ def test_showcase_plan_orders_geometry_before_assets_and_manifest():
     plan = command_plan()
     flattened = [" ".join(command) for command in plan]
 
-    assert "cad/generate_rolling_chassis.py" in flattened[0]
-    assert any("cad/generate_snowdeck_study.py" in command for command in flattened)
+    assert flattened[0].endswith("-m cad.generate_rolling_chassis")
+    assert any(command.endswith("-m cad.generate_snowdeck_study") for command in flattened)
     assert "tools/export_showcase_assets.py" in flattened[-3]
     assert "tools/build_showcase_manifest.py" in flattened[-2]
     assert "tools/render_x1_showcase_review.py" in flattened[-1]
@@ -65,3 +65,16 @@ def test_synthetic_demo_rejects_explicit_overlay_mix():
         assert "cannot be combined" in str(exc)
     else:
         raise AssertionError("synthetic and explicit overlays must not be mixed")
+
+
+def test_showcase_plan_uses_module_execution_for_all_cad_generators():
+    plan = command_plan()
+    cad_commands = plan[:4]
+
+    assert [command[1:] for command in cad_commands] == [
+        ["-m", "cad.generate_rolling_chassis"],
+        ["-m", "cad.generate_fit_rig"],
+        ["-m", "cad.generate_one_zone_pilot"],
+        ["-m", "cad.generate_snowdeck_study"],
+    ]
+    assert all("/generate_" not in " ".join(command) for command in cad_commands)

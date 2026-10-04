@@ -26,10 +26,10 @@ def command_plan(
     if not skip_cad:
         commands.extend(
             [
-                [py, "cad/generate_rolling_chassis.py"],
-                [py, "cad/generate_fit_rig.py"],
-                [py, "cad/generate_one_zone_pilot.py"],
-                [py, "cad/generate_snowdeck_study.py"],
+                [py, "-m", "cad.generate_rolling_chassis"],
+                [py, "-m", "cad.generate_fit_rig"],
+                [py, "-m", "cad.generate_one_zone_pilot"],
+                [py, "-m", "cad.generate_snowdeck_study"],
             ]
         )
 

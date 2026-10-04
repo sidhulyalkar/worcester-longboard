@@ -36,7 +36,7 @@ The auxiliary M4 carrier holes are pilot-only. They do not redefine the four-zon
 Generate the one-zone package:
 
 ```bash
-PYTHONPATH=. python cad/generate_one_zone_pilot.py
+python -m cad.generate_one_zone_pilot
 ```
 
 Use the STEP files for machining/CAD inspection and STL files for prototype printing. Inspect every through-hole and verify the pilot authority JSON reports `pilot_cad_ready=true` and `four_zone_duplication_ready=false`.

@@ -32,6 +32,8 @@ jobs:
           cp showcase/app.js /tmp/x1-showcase-app.mjs
           node --check /tmp/x1-showcase-app.mjs
       - run: python -m pytest -q tests
+      - name: Smoke-test local showcase without PYTHONPATH
+        run: env -u PYTHONPATH python tools/prepare_x1_showcase.py --synthetic-snowdeck-demo
       - name: Validate staged procurement authority
         run: python tools/validate_procurement_manifest.py hardware/procurement_manifest.json
       - name: Validate complete ordering spec
@@ -1391,7 +1393,7 @@ jobs:
         run: platformio run -d firmware/fit_rig_logger -e fit_rig_esp32s3_80sps
       - name: Generate fit-rig CAD reference artifacts
         run: |
-          python cad/generate_fit_rig.py
+          python -m cad.generate_fit_rig
           python - <<'PY'
           import json
           from pathlib import Path
@@ -1405,7 +1407,7 @@ jobs:
           PY
       - name: Generate SnowDeck bench-study CAD
         run: |
-          python cad/generate_snowdeck_study.py
+          python -m cad.generate_snowdeck_study
           python - <<'PY'
           import json
           from pathlib import Path
@@ -1421,7 +1423,7 @@ jobs:
           PY
       - name: Generate one-zone pilot CAD package
         run: |
-          python cad/generate_one_zone_pilot.py
+          python -m cad.generate_one_zone_pilot
           python - <<'PY'
           import json
           from pathlib import Path
@@ -1450,7 +1452,7 @@ jobs:
           PY
       - name: Generate donor-grounded rolling-chassis references
         run: |
-          python cad/generate_rolling_chassis.py
+          python -m cad.generate_rolling_chassis
           python - <<'PY'
           import json
           from pathlib import Path

@@ -163,7 +163,7 @@ def render(plan: dict, procurement: dict, inventory: dict | None = None) -> str:
         "4. Verify received load-cell mounting pattern and fixed/loaded orientation.",
         "5. Verify HX711 board revision and RATE state.",
         "6. Measure the real screw/washer stack before choosing M5 screw length.",
-        "7. Generate the one-zone CAD package with python cad/generate_one_zone_pilot.py.",
+        "7. Generate the one-zone CAD package with python -m cad.generate_one_zone_pilot.",
         "8. Assemble only one active sensor path plus one untouched spare.",
         "9. Create and validate Issue #61 calibration-mass reference evidence before creating the Issue #4 session.",
         "10. Initialize the private pilot session from both the Issue #59 hardware authority and Issue #61 mass authority.",

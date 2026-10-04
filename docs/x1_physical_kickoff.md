@@ -137,7 +137,7 @@ Before assembly:
 
 Generate the fixture with:
 
-    python cad/generate_one_zone_pilot.py
+    python -m cad.generate_one_zone_pilot
 
 Then follow hardware/one_zone_pilot_assembly.md.
 

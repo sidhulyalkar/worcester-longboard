@@ -44,7 +44,7 @@ Regenerative braking is supplemental. It is not the sole stopping authority.
 Run:
 
 ```bash
-PYTHONPATH=. python cad/generate_rolling_chassis.py
+python -m cad.generate_rolling_chassis
 ```
 
 The generator emits neutral and maximum-steering sweep STEP/STL files for both the 400 mm brake-first and 420 mm drive-clearance references, plus machine-readable authority JSON.

@@ -64,7 +64,7 @@ def initialize(workspace_dir: Path) -> dict:
         "2. Record packaging, SKU, revision, condition, and stable hardware IDs privately.",
         "3. Preserve one load cell and one HX711 as untouched spares.",
         "4. Create and validate the Issue #59 pilot hardware selection authority.",
-        "5. Generate one-zone pilot CAD with: python cad/generate_one_zone_pilot.py",
+        "5. Generate one-zone pilot CAD with: python -m cad.generate_one_zone_pilot",
         "6. Follow hardware/one_zone_pilot_assembly.md.",
         "7. Create and validate Issue #61 calibration-mass reference evidence.",
         "8. Initialize tools/init_one_zone_pilot_session.py from both the Issue #59 hardware authority and Issue #61 mass authority.",
