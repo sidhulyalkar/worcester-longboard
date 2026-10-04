@@ -7,13 +7,24 @@ from pathlib import Path
 
 import cadquery as cq
 
-from cad.generate_fit_rig import export
-from cad.rolling_chassis_geometry import (
-    BRAKE_FIRST,
-    DRIVE_CLEARANCE,
-    BRAKE_HANGER_70MM_TOPOLOGY_STUDY,
-    ChassisEnvelope,
-)
+if __package__:
+    from cad.generate_fit_rig import export
+    from cad.rolling_chassis_geometry import (
+        BRAKE_FIRST,
+        DRIVE_CLEARANCE,
+        BRAKE_HANGER_70MM_TOPOLOGY_STUDY,
+        ChassisEnvelope,
+    )
+else:
+    # Direct file execution puts cad/ rather than the repository root on
+    # sys.path. Keep that developer workflow functional without PYTHONPATH.
+    from generate_fit_rig import export
+    from rolling_chassis_geometry import (
+        BRAKE_FIRST,
+        DRIVE_CLEARANCE,
+        BRAKE_HANGER_70MM_TOPOLOGY_STUDY,
+        ChassisEnvelope,
+    )
 
 
 def deck_reference(g: ChassisEnvelope):
