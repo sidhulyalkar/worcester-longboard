@@ -105,6 +105,48 @@ def render(manifest: dict[str, Any]) -> str:
             )
         )
 
+    lab = studies.get("configuration_lab")
+    if isinstance(lab, dict):
+        lines += [
+            "",
+            "## Configuration-lab presets",
+            "",
+            "> Non-authoritative visualization states only. No preset selects a winner or changes build authority.",
+            "",
+            "| Preset | Deck | Topology | Brake | Drive | Pack | SnowDeck | Armor | Dock |",
+            "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+        ]
+        decks_by_id = {
+            row.get("id"): row.get("label")
+            for row in studies.get("deck_candidates", [])
+            if isinstance(row, dict)
+        }
+        topology_by_id = {
+            row.get("id"): row.get("short_label") or row.get("label")
+            for row in studies.get("topology_branches", [])
+            if isinstance(row, dict)
+        }
+        for preset in lab.get("presets", []):
+            layers = preset.get("layers", {})
+            lines.append(
+                "| {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
+                    _cell(preset.get("label")),
+                    _cell(decks_by_id.get(preset.get("deck_candidate_id"), preset.get("deck_candidate_id"))),
+                    _cell(topology_by_id.get(preset.get("topology_id"), preset.get("topology_id"))),
+                    _yes_no(layers.get("brake")),
+                    _yes_no(layers.get("drive")),
+                    _yes_no(layers.get("pack")),
+                    _yes_no(layers.get("snowdeck")),
+                    _yes_no(layers.get("armor")),
+                    _yes_no(layers.get("dock")),
+                )
+            )
+        lines += [
+            "",
+            "A/B comparison is descriptive only. It may expose geometry or compatibility differences, "
+            "but it does not infer ride quality, strength, stopping performance, range, or safety.",
+        ]
+
     armor = studies.get("trail_armor")
     if isinstance(armor, dict):
         lines += [
