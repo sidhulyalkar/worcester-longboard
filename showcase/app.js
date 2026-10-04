@@ -37,6 +37,7 @@ camera.position.set(1050, -900, 600);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+controls.enablePan = false;
 controls.target.set(0, 0, 100);
 
 scene.add(new THREE.HemisphereLight(0xdce8ff, 0x171922, 2.0));
@@ -80,6 +81,10 @@ const visual = {
   layerVisibility: {},
   snapshots: { A: null, B: null },
   packEnvelope: null,
+  cameraView: "hero",
+  cameraQuarterTurns: 0,
+  cameraCenter: new THREE.Vector3(0, 0, 90),
+  reframePending: false,
 };
 
 clearanceRoot.visible = false;
