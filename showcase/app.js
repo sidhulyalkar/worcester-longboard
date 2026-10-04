@@ -576,10 +576,12 @@ function deckStudyUI(manifest) {
 
     btn.textContent =
       candidate.label + (physicallySelected ? " · PHYSICAL PICK" : "");
+    btn.dataset.candidateId = candidate.id;
     if (physicallySelected) btn.classList.add("physical-selected");
 
     btn.addEventListener("click", () => {
       if (!visual.deck || !visual.geometry) return;
+      visual.deckCandidateId = candidate.id;
       visual.deck.scale.x = candidate.length_mm / visual.geometry.deck_length_mm;
       visual.deck.scale.y = candidate.width_mm / visual.geometry.deck_width_mm;
       document.querySelectorAll("#deck-candidates button").forEach(x => x.classList.remove("active"));
@@ -591,6 +593,7 @@ function deckStudyUI(manifest) {
           ? "Selected by a fingerprint-valid full-scale deck comparison; this is not chassis qualification. "
           : "") +
         "Truck/wheel geometry is intentionally unchanged.";
+      refreshConfigurationUI();
     });
 
     host.appendChild(btn);
@@ -609,11 +612,13 @@ function topologyUI(manifest) {
   branches.forEach((branch, index) => {
     const btn = document.createElement("button");
     btn.textContent = branch.short_label;
+    btn.dataset.topologyId = branch.id;
     if (index === 0) btn.classList.add("active");
     btn.addEventListener("click", () => {
       document.querySelectorAll("#topology-branches button").forEach(x => x.classList.remove("active"));
       btn.classList.add("active");
       applyTopology(branch.id);
+      refreshConfigurationUI();
     });
     host.appendChild(btn);
   });
