@@ -31,6 +31,114 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
+def validate_configuration_lab(seed: dict[str, Any]) -> None:
+    studies = seed.get("design_studies") or {}
+    lab = studies.get("configuration_lab")
+    if lab is None:
+        return
+    if not isinstance(lab, dict):
+        raise ValueError("configuration_lab must be an object")
+    if lab.get("scope") != "non_authoritative_visual_trade_study":
+        raise ValueError("configuration_lab must use non-authoritative trade-study scope")
+    if lab.get("winner_selected") is not False:
+        raise ValueError("configuration_lab must keep winner_selected=false")
+
+    deck_ids = {
+        row.get("id")
+        for row in studies.get("deck_candidates", [])
+        if isinstance(row, dict)
+    }
+    topology_ids = {
+        row.get("id")
+        for row in studies.get("topology_branches", [])
+        if isinstance(row, dict)
+    }
+    component_kinds = {
+        (component.get("render") or {}).get("kind")
+        for component in seed.get("components", [])
+        if isinstance(component, dict)
+    }
+
+    layers = lab.get("layers") or []
+    layer_ids: set[str] = set()
+    for layer in layers:
+        if not isinstance(layer, dict):
+            raise ValueError("configuration_lab layers must be objects")
+        layer_id = layer.get("id")
+        if not isinstance(layer_id, str) or not layer_id:
+            raise ValueError("configuration_lab layer requires nonempty id")
+        if layer_id in layer_ids:
+            raise ValueError(f"duplicate configuration_lab layer {layer_id!r}")
+        layer_ids.add(layer_id)
+        if layer.get("component_kind") not in component_kinds:
+            raise ValueError(
+                f"configuration_lab layer {layer_id!r} maps to unknown component kind"
+            )
+        if not isinstance(layer.get("default_visible"), bool):
+            raise ValueError(
+                f"configuration_lab layer {layer_id!r} default_visible must be boolean"
+            )
+
+    preset_ids: set[str] = set()
+    bounds = {
+        "stance_mm": (260, 520),
+        "front_yaw_deg": (-30, 30),
+        "rear_yaw_deg": (-30, 30),
+        "front_cant_deg": (0, 5),
+        "rear_cant_deg": (0, 5),
+        "insert_proxy_mm": (0, 8),
+    }
+    forbidden_keys = {"winner", "winner_selected", "authority", "qualified"}
+
+    for preset in lab.get("presets") or []:
+        if not isinstance(preset, dict):
+            raise ValueError("configuration_lab presets must be objects")
+        preset_id = preset.get("id")
+        if not isinstance(preset_id, str) or not preset_id:
+            raise ValueError("configuration_lab preset requires nonempty id")
+        if preset_id in preset_ids:
+            raise ValueError(f"duplicate configuration_lab preset {preset_id!r}")
+        preset_ids.add(preset_id)
+        if forbidden_keys.intersection(preset):
+            raise ValueError(
+                f"configuration_lab preset {preset_id!r} contains authority/ranking keys"
+            )
+        if preset.get("deck_candidate_id") not in deck_ids:
+            raise ValueError(
+                f"configuration_lab preset {preset_id!r} references unknown deck"
+            )
+        if preset.get("topology_id") not in topology_ids:
+            raise ValueError(
+                f"configuration_lab preset {preset_id!r} references unknown topology"
+            )
+
+        preset_layers = preset.get("layers")
+        if not isinstance(preset_layers, dict) or set(preset_layers) != layer_ids:
+            raise ValueError(
+                f"configuration_lab preset {preset_id!r} must define every known layer"
+            )
+        if any(not isinstance(value, bool) for value in preset_layers.values()):
+            raise ValueError(
+                f"configuration_lab preset {preset_id!r} layer states must be boolean"
+            )
+
+        snowdeck = preset.get("snowdeck")
+        if not isinstance(snowdeck, dict):
+            raise ValueError(
+                f"configuration_lab preset {preset_id!r} requires SnowDeck settings"
+            )
+        for key, (low, high) in bounds.items():
+            value = snowdeck.get(key)
+            if not isinstance(value, (int, float)) or isinstance(value, bool):
+                raise ValueError(
+                    f"configuration_lab preset {preset_id!r} {key} must be numeric"
+                )
+            if not low <= value <= high:
+                raise ValueError(
+                    f"configuration_lab preset {preset_id!r} {key} outside visual study bounds"
+                )
+
+
 def validate_seed(seed: dict[str, Any]) -> None:
     if seed.get("powered_operation_authorized") is not False:
         raise ValueError("Seed manifest must explicitly keep powered operation unauthorized")
@@ -48,6 +156,8 @@ def validate_seed(seed: dict[str, Any]) -> None:
         state = component.get("evidence_state")
         if state not in ALLOWED_STATES:
             raise ValueError(f"{cid}: unknown evidence_state {state!r}")
+
+    validate_configuration_lab(seed)
 
 
 def valid_authority_fingerprint(data: dict[str, Any]) -> bool:

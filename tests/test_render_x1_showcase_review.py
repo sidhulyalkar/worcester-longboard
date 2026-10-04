@@ -139,3 +139,51 @@ def test_render_showcase_review_marks_verified_deck_pick():
     assert "| Agent envelope | 1020 | 284 | REFERENCE | yes |" in text
     assert "| Comp 95 envelope | 950 | 251 | REFERENCE | no |" in text
     assert "does not qualify the chassis or unlock procurement" in text
+
+
+def test_render_showcase_review_lists_configuration_lab_without_ranking():
+    manifest = {
+        "configuration": "test",
+        "physical_authority": False,
+        "procurement_authority": False,
+        "fabrication_authority": False,
+        "powered_operation_authorized": False,
+        "components": [],
+        "design_studies": {
+            "deck_candidates": [
+                {"id": "comp95", "label": "Comp 95 envelope", "length_mm": 950, "width_mm": 251, "evidence_state": "REFERENCE"}
+            ],
+            "topology_branches": [
+                {"id": "brake_first_400mm", "short_label": "Brake-first 400"}
+            ],
+            "configuration_lab": {
+                "winner_selected": False,
+                "presets": [
+                    {
+                        "label": "Brake-first trail core",
+                        "deck_candidate_id": "comp95",
+                        "topology_id": "brake_first_400mm",
+                        "layers": {
+                            "brake": True,
+                            "drive": False,
+                            "pack": True,
+                            "snowdeck": True,
+                            "armor": False,
+                            "dock": False,
+                        },
+                    }
+                ],
+            },
+        },
+        "risk_summary": [],
+        "gates": {},
+        "snowdeck_bench_signature": None,
+        "snowdeck_bench_comparison": None,
+    }
+
+    text = render(manifest)
+
+    assert "Configuration-lab presets" in text
+    assert "Brake-first trail core" in text
+    assert "A/B comparison is descriptive only" in text
+    assert "selects a winner" in text

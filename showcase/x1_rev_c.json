@@ -236,6 +236,176 @@
         "runner_lateral_offset_mm": 75
       },
       "note": "Viewer dimensions are generic visualization placeholders only and are not fabrication dimensions."
+    },
+    "configuration_lab": {
+      "scope": "non_authoritative_visual_trade_study",
+      "winner_selected": false,
+      "layers": [
+        {
+          "id": "brake",
+          "label": "Mechanical brake reference",
+          "component_kind": "brake",
+          "default_visible": true
+        },
+        {
+          "id": "drive",
+          "label": "Drive packaging envelope",
+          "component_kind": "drive",
+          "default_visible": false
+        },
+        {
+          "id": "pack",
+          "label": "Inert range-pack envelope",
+          "component_kind": "pack",
+          "default_visible": true
+        },
+        {
+          "id": "snowdeck",
+          "label": "SnowDeck rider interface",
+          "component_kind": "rider_interface",
+          "default_visible": true
+        },
+        {
+          "id": "armor",
+          "label": "Trail armor study",
+          "component_kind": "armor",
+          "default_visible": false
+        },
+        {
+          "id": "dock",
+          "label": "Passive dock study",
+          "component_kind": "dock",
+          "default_visible": false
+        }
+      ],
+      "presets": [
+        {
+          "id": "brake_first_trail",
+          "label": "Brake-first trail core",
+          "description": "Comp 95 envelope with the 400 mm brake-first truck reference and the inert pack/SnowDeck studies visible.",
+          "deck_candidate_id": "comp95",
+          "topology_id": "brake_first_400mm",
+          "layers": {
+            "brake": true,
+            "drive": false,
+            "pack": true,
+            "snowdeck": true,
+            "armor": false,
+            "dock": false
+          },
+          "snowdeck": {
+            "stance_mm": 360,
+            "front_yaw_deg": 0,
+            "rear_yaw_deg": 0,
+            "front_cant_deg": 0,
+            "rear_cant_deg": 0,
+            "insert_proxy_mm": 0
+          }
+        },
+        {
+          "id": "snowdeck_fit",
+          "label": "SnowDeck fit bench",
+          "description": "Comp 95 envelope stripped to the rider-interface study so stance, yaw, cant and compliance can be inspected without drivetrain clutter.",
+          "deck_candidate_id": "comp95",
+          "topology_id": "brake_first_400mm",
+          "layers": {
+            "brake": false,
+            "drive": false,
+            "pack": false,
+            "snowdeck": true,
+            "armor": false,
+            "dock": false
+          },
+          "snowdeck": {
+            "stance_mm": 360,
+            "front_yaw_deg": 12,
+            "rear_yaw_deg": -9,
+            "front_cant_deg": 1,
+            "rear_cant_deg": 1,
+            "insert_proxy_mm": 2
+          }
+        },
+        {
+          "id": "drive_packaging",
+          "label": "Drive packaging study",
+          "description": "Agent deck envelope with the drive-clearance truck branch and drive/pack packaging visible. Brake reference is intentionally hidden because this branch is not brake-compatible.",
+          "deck_candidate_id": "agent",
+          "topology_id": "drive_clearance_420mm",
+          "layers": {
+            "brake": false,
+            "drive": true,
+            "pack": true,
+            "snowdeck": true,
+            "armor": false,
+            "dock": false
+          },
+          "snowdeck": {
+            "stance_mm": 390,
+            "front_yaw_deg": 10,
+            "rear_yaw_deg": -8,
+            "front_cant_deg": 0,
+            "rear_cant_deg": 0,
+            "insert_proxy_mm": 0
+          }
+        },
+        {
+          "id": "coexistence_question",
+          "label": "Brake + drive coexistence question",
+          "description": "440 mm topology study with both brake and drive references exposed specifically to visualize the unresolved coexistence problem. This is not a compatibility claim.",
+          "deck_candidate_id": "pro_warren_iii",
+          "topology_id": "brake_hanger_70mm_topology_study",
+          "layers": {
+            "brake": true,
+            "drive": true,
+            "pack": true,
+            "snowdeck": true,
+            "armor": false,
+            "dock": false
+          },
+          "snowdeck": {
+            "stance_mm": 380,
+            "front_yaw_deg": 10,
+            "rear_yaw_deg": -8,
+            "front_cant_deg": 1,
+            "rear_cant_deg": 1,
+            "insert_proxy_mm": 2
+          }
+        },
+        {
+          "id": "service_envelope",
+          "label": "Armor + dock service study",
+          "description": "Comp 95 brake-first reference with armor and passive dock geometry exposed to inspect first-contact, service and charging-alignment space.",
+          "deck_candidate_id": "comp95",
+          "topology_id": "brake_first_400mm",
+          "layers": {
+            "brake": true,
+            "drive": false,
+            "pack": true,
+            "snowdeck": true,
+            "armor": true,
+            "dock": true
+          },
+          "snowdeck": {
+            "stance_mm": 360,
+            "front_yaw_deg": 8,
+            "rear_yaw_deg": -8,
+            "front_cant_deg": 0,
+            "rear_cant_deg": 0,
+            "insert_proxy_mm": 0
+          }
+        }
+      ],
+      "comparison_metrics": [
+        "deck_envelope",
+        "truck_total_width",
+        "estimated_outer_wheel_width",
+        "static_clearance_reference",
+        "compressed_clearance_reference",
+        "brake_reference_compatibility",
+        "drive_reference_compatibility",
+        "enabled_visual_layers"
+      ],
+      "note": "Presets are visualization states only. They do not rank designs, select hardware, unlock procurement, authorize fabrication, or authorize riding."
     }
   }
 }

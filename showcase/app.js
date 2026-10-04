@@ -10,6 +10,19 @@ const STATE = {
   NOT_PRESENT: 0x606773,
 };
 
+const PHYSICAL = {
+  deck: 0x2f3948,
+  trucks: 0x9ca8b8,
+  wheels: 0x161a20,
+  hubs: 0x66758a,
+  pack: 0x313a48,
+  rider_interface: 0xd5dbe4,
+  brake: 0x9e3f49,
+  drive: 0x697687,
+  armor: 0x566170,
+  dock: 0x3e4856,
+};
+
 const sceneEl = document.getElementById("scene");
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -43,9 +56,10 @@ scene.add(ground);
 const root = new THREE.Group();
 const clearanceRoot = new THREE.Group();
 const armorRoot = new THREE.Group();
+const dockRoot = new THREE.Group();
 const cadNeutralRoot = new THREE.Group();
 const cadSweepRoot = new THREE.Group();
-scene.add(root, clearanceRoot, armorRoot, cadNeutralRoot, cadSweepRoot);
+scene.add(root, clearanceRoot, armorRoot, dockRoot, cadNeutralRoot, cadSweepRoot);
 
 const visual = {
   movable: [],
@@ -61,10 +75,16 @@ const visual = {
   cadCache: new Map(),
   showCad: false,
   showSweep: false,
+  deckCandidateId: "comp95",
+  layerGroups: {},
+  layerVisibility: {},
+  snapshots: { A: null, B: null },
+  packEnvelope: null,
 };
 
 clearanceRoot.visible = false;
 armorRoot.visible = false;
+dockRoot.visible = false;
 cadNeutralRoot.visible = false;
 cadSweepRoot.visible = false;
 
@@ -73,16 +93,35 @@ function componentState(kind) {
   return component ? component.evidence_state : "ASSUMED";
 }
 
-function materialFor(state, opacity = 1, wireframe = false) {
+function materialFor(state, opacity = 1, wireframe = false, physicalKind = null) {
+  const authorityColor = STATE[state] || STATE.ASSUMED;
+  const color = physicalKind && state !== "BLOCKED"
+    ? (PHYSICAL[physicalKind] || authorityColor)
+    : authorityColor;
   return new THREE.MeshStandardMaterial({
-    color: STATE[state] || STATE.ASSUMED,
-    roughness: 0.58,
-    metalness: 0.1,
+    color,
+    roughness: physicalKind === "wheels" ? 0.92 : 0.58,
+    metalness: ["trucks", "hubs", "brake", "drive"].includes(physicalKind) ? 0.48 : 0.08,
     transparent: opacity < 1,
     opacity,
     wireframe: wireframe || state === "BLOCKED",
-    depthWrite: opacity >= 0.6,
+    depthWrite: opacity >= 0.58,
   });
+}
+
+function addEvidenceEdges(mesh, state, opacity = 0.72) {
+  if (!mesh.geometry) return mesh;
+  const edges = new THREE.LineSegments(
+    new THREE.EdgesGeometry(mesh.geometry, 28),
+    new THREE.LineBasicMaterial({
+      color: STATE[state] || STATE.ASSUMED,
+      transparent: true,
+      opacity,
+    })
+  );
+  edges.renderOrder = 4;
+  mesh.add(edges);
+  return mesh;
 }
 
 function registerMovable(object, offset) {
@@ -93,25 +132,113 @@ function registerMovable(object, offset) {
   return object;
 }
 
-function box(parent, name, size, pos, state, opacity = 1) {
-  const mesh = new THREE.Mesh(new THREE.BoxGeometry(...size), materialFor(state, opacity));
+function box(parent, name, size, pos, state, opacity = 1, physicalKind = null) {
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(...size),
+    materialFor(state, opacity, false, physicalKind)
+  );
   mesh.name = name;
   mesh.position.set(...pos);
+  mesh.castShadow = opacity >= 0.5;
+  if (physicalKind) addEvidenceEdges(mesh, state, state === "BLOCKED" ? 0.9 : 0.48);
+  parent.add(mesh);
+  return mesh;
+}
+
+function roundedDeck(parent, g, state) {
+  const length = g.deck_length_mm;
+  const width = g.deck_width_mm;
+  const r = Math.min(34, width * 0.14);
+  const x = length / 2;
+  const y = width / 2;
+  const shape = new THREE.Shape();
+  shape.moveTo(-x + r, -y);
+  shape.lineTo(x - r, -y);
+  shape.quadraticCurveTo(x, -y, x, -y + r);
+  shape.lineTo(x, y - r);
+  shape.quadraticCurveTo(x, y, x - r, y);
+  shape.lineTo(-x + r, y);
+  shape.quadraticCurveTo(-x, y, -x, y - r);
+  shape.lineTo(-x, -y + r);
+  shape.quadraticCurveTo(-x, -y, -x + r, -y);
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    depth: g.deck_reference_thickness_mm,
+    bevelEnabled: true,
+    bevelSegments: 2,
+    steps: 1,
+    bevelSize: 2.5,
+    bevelThickness: 1.5,
+  });
+  const mesh = new THREE.Mesh(geometry, materialFor(state, 1, false, "deck"));
+  mesh.name = "deck";
+  mesh.position.z = g.static_ground_clearance_mm;
   mesh.castShadow = true;
+  addEvidenceEdges(mesh, state, 0.48);
   parent.add(mesh);
   return mesh;
 }
 
 function wheel(parent, name, y, radius, width, state) {
-  const mesh = new THREE.Mesh(
-    new THREE.CylinderGeometry(radius, radius, width, 48),
-    materialFor(state, 1)
+  const group = new THREE.Group();
+  group.name = name;
+  group.position.set(0, y, radius);
+
+  const tire = new THREE.Mesh(
+    new THREE.CylinderGeometry(radius, radius, width, 72, 1, false),
+    materialFor(state, 1, false, "wheels")
   );
-  mesh.name = name;
-  mesh.position.set(0, y, radius);
-  mesh.castShadow = true;
-  parent.add(mesh);
-  return mesh;
+  tire.castShadow = true;
+  group.add(tire);
+
+  const hub = new THREE.Mesh(
+    new THREE.CylinderGeometry(radius * 0.43, radius * 0.43, width + 4, 48),
+    materialFor(state, 1, false, "hubs")
+  );
+  hub.castShadow = true;
+  group.add(hub);
+
+  for (const side of [-1, 1]) {
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(radius * 0.78, radius * 0.9, 64),
+      new THREE.MeshBasicMaterial({
+        color: STATE[state] || STATE.ASSUMED,
+        transparent: true,
+        opacity: 0.7,
+        side: THREE.DoubleSide,
+      })
+    );
+    ring.rotation.x = Math.PI / 2;
+    ring.position.y = side * (width / 2 + 0.8);
+    group.add(ring);
+  }
+
+  parent.add(group);
+  return group;
+}
+
+function makeTruck(parent, name, width, deckBottom, state) {
+  const group = new THREE.Group();
+  group.name = name;
+  const z = deckBottom - 16;
+
+  const axle = new THREE.Mesh(
+    new THREE.CylinderGeometry(4.2, 4.2, width, 24),
+    materialFor(state, 1, false, "trucks")
+  );
+  axle.position.z = z;
+  group.add(axle);
+
+  const hanger = new THREE.Mesh(
+    new THREE.CylinderGeometry(8, 8, Math.max(80, width - 92), 28),
+    materialFor(state, 1, false, "trucks")
+  );
+  hanger.position.z = z + 4;
+  group.add(hanger);
+
+  box(group, name + "-baseplate", [94, 70, 7], [0, 0, deckBottom - 5], state, 1, "trucks");
+  box(group, name + "-pivot", [40, 34, 26], [0, 0, deckBottom - 17], state, 1, "trucks");
+  parent.add(group);
+  return group;
 }
 
 function lineRectangle(width, height, z, color) {
@@ -130,21 +257,20 @@ function lineRectangle(width, height, z, color) {
   );
 }
 
-function makeFootAssembly(id, initialX, state, deckTop) {
+function makeFootAssembly(parent, id, initialX, state, deckTop) {
   const group = new THREE.Group();
   group.name = id;
   group.position.set(initialX, 0, 0);
   group.rotation.order = "ZXY";
 
-  const insert = box(group, id + "-insert", [260, 132, 2], [0, 0, deckTop + 1], "ASSUMED", 0.25);
-  const plate = box(group, id + "-plate", [260, 132, 6], [0, 0, deckTop + 5], state, 0.82);
-
-  const fore = box(group, id + "-fore-zone", [105, 78, 1.5], [60, 0, deckTop + 8.75], state, 0.26);
-  const heel = box(group, id + "-heel-zone", [105, 78, 1.5], [-60, 0, deckTop + 8.75], state, 0.26);
+  const insert = box(group, id + "-insert", [260, 132, 2], [0, 0, deckTop + 1], "ASSUMED", 0.22);
+  const plate = box(group, id + "-plate", [260, 132, 6], [0, 0, deckTop + 5], state, 0.92, "rider_interface");
+  const fore = box(group, id + "-fore-zone", [105, 78, 1.5], [60, 0, deckTop + 8.75], state, 0.24);
+  const heel = box(group, id + "-heel-zone", [105, 78, 1.5], [-60, 0, deckTop + 8.75], state, 0.24);
 
   registerMovable(group, [0, 0, 230]);
   visual.snow[id] = { group, plate, insert, fore, heel };
-  root.add(group);
+  parent.add(group);
   return group;
 }
 
@@ -152,46 +278,109 @@ function makeClearanceOverlay(g) {
   clearanceRoot.clear();
   const outerWidth = (g.estimated_outer_wheel_envelope_width_mm || 401) + 100;
   const keepoutHeight = g.minimum_compressed_clearance_mm || 45;
-
   const volume = new THREE.Mesh(
     new THREE.BoxGeometry(1320, outerWidth, keepoutHeight),
     new THREE.MeshBasicMaterial({
       color: STATE.ASSUMED,
       transparent: true,
-      opacity: 0.07,
+      opacity: 0.055,
       wireframe: false,
       depthWrite: false,
     })
   );
   volume.position.z = keepoutHeight / 2;
   clearanceRoot.add(volume);
-
   clearanceRoot.add(lineRectangle(1320, outerWidth, keepoutHeight, STATE.ASSUMED));
-  clearanceRoot.add(
-    lineRectangle(1320, outerWidth, g.static_ground_clearance_mm || 65, STATE.REFERENCE)
-  );
+  clearanceRoot.add(lineRectangle(1320, outerWidth, g.static_ground_clearance_mm || 65, STATE.REFERENCE));
 }
 
 function makeArmorStudy(manifest, deckBottom) {
   armorRoot.clear();
   const study = (manifest.design_studies || {}).trail_armor;
   if (!study || !study.provisional_visual_only) return;
-
   const g = study.provisional_visual_only;
   const state = componentState("armor");
   const z = Math.max(1, deckBottom - g.runner_thickness_mm / 2 - 2);
-
   for (const side of [-1, 1]) {
     const y = side * g.runner_lateral_offset_mm;
-    box(
-      armorRoot,
-      "trail-runner-" + side,
+    box(armorRoot, "trail-runner-" + side,
       [g.runner_length_mm, g.runner_width_mm, g.runner_thickness_mm],
-      [0, y, z],
-      state,
-      0.34
-    );
+      [0, y, z], state, 0.62, "armor");
   }
+}
+
+function makeBrakeReference(parent, axleX, g, state) {
+  const group = new THREE.Group();
+  group.name = "mechanical-brake-reference";
+  group.position.x = -axleX;
+  const rotorOuter = g.wheel_diameter_mm * 0.31;
+  const rotorInner = rotorOuter * 0.72;
+  for (const side of [-1, 1]) {
+    const y = side * (g.wheel_center_lateral_mm - g.wheel_width_mm / 2 - 3);
+    const rotor = new THREE.Mesh(
+      new THREE.RingGeometry(rotorInner, rotorOuter, 48),
+      materialFor(state, 0.78, false, "brake")
+    );
+    rotor.rotation.x = Math.PI / 2;
+    rotor.position.set(0, y, g.wheel_diameter_mm / 2);
+    group.add(rotor);
+    box(group, "brake-caliper-" + side, [30, 18, 34],
+      [18, y, g.wheel_diameter_mm * 0.63], state, 0.72, "brake");
+  }
+  const envelope = box(group, "brake-packaging-envelope",
+    [40, g.truck_total_width_mm - 34, g.wheel_diameter_mm * 0.78],
+    [0, 0, g.wheel_diameter_mm / 2], state, 0.055);
+  visual.brakeGhost = envelope;
+  registerMovable(group, [-70, -180, 100]);
+  parent.add(group);
+  return group;
+}
+
+function makeDriveReference(parent, axleX, g, state) {
+  const group = new THREE.Group();
+  group.name = "drive-packaging-reference";
+  group.position.x = -axleX + 28;
+  for (const side of [-1, 1]) {
+    const y = side * (g.wheel_center_lateral_mm - 58);
+    const motor = new THREE.Mesh(
+      new THREE.CylinderGeometry(28, 28, 48, 36),
+      materialFor(state, 0.58, state === "BLOCKED", "drive")
+    );
+    motor.position.set(36, y, 78);
+    motor.castShadow = true;
+    group.add(motor);
+    const gear = new THREE.Mesh(
+      new THREE.CylinderGeometry(34, 34, 7, 40),
+      materialFor(state, 0.5, true, "drive")
+    );
+    gear.position.set(0, side * (g.wheel_center_lateral_mm - g.wheel_width_mm / 2 - 7), g.wheel_diameter_mm / 2);
+    group.add(gear);
+  }
+  const envelope = box(group, "drive-packaging-envelope",
+    [122, g.truck_total_width_mm - 48, 92], [24, 0, 74], state, 0.055);
+  visual.driveGhost = envelope;
+  registerMovable(group, [-70, 180, 100]);
+  parent.add(group);
+  return group;
+}
+
+function makeDockStudy(g) {
+  dockRoot.clear();
+  const state = componentState("dock");
+  const railY = Math.min(120, g.deck_width_mm * 0.42);
+  for (const side of [-1, 1]) {
+    box(dockRoot, "dock-rail-" + side, [440, 22, 16], [0, side * railY, 8], state, 0.48, "dock");
+    box(dockRoot, "dock-guide-" + side, [66, 36, 52], [-80, side * (railY + 4), 26], state, 0.38, "dock");
+  }
+  box(dockRoot, "dock-center-stop", [36, 120, 24], [150, 0, 12], state, 0.38, "dock");
+}
+
+function createLayerGroup(id) {
+  const group = new THREE.Group();
+  group.name = "layer-" + id;
+  root.add(group);
+  visual.layerGroups[id] = group;
+  return group;
 }
 
 function proceduralBoard(manifest) {
@@ -199,6 +388,7 @@ function proceduralBoard(manifest) {
   visual.movable = [];
   visual.axles = {};
   visual.snow = {};
+  visual.layerGroups = {};
 
   const g = manifest.design_studies.chassis_reference;
   visual.geometry = g;
@@ -207,13 +397,7 @@ function proceduralBoard(manifest) {
   const axleX = g.wheelbase_mm / 2;
   const wheelRadius = g.wheel_diameter_mm / 2;
 
-  const deck = box(
-    root,
-    "deck",
-    [g.deck_length_mm, g.deck_width_mm, g.deck_reference_thickness_mm],
-    [0, 0, deckBottom + g.deck_reference_thickness_mm / 2],
-    componentState("deck")
-  );
+  const deck = roundedDeck(root, g, componentState("deck"));
   visual.deck = registerMovable(deck, [0, 0, 70]);
 
   for (const axle of [
@@ -223,76 +407,43 @@ function proceduralBoard(manifest) {
     const group = new THREE.Group();
     group.position.set(axle.x, 0, 0);
     group.userData.steerSign = axle.steerSign;
-
-    const truck = box(
-      group,
-      axle.id + "-truck",
-      [28, g.truck_total_width_mm, 18],
-      [0, 0, deckBottom - 9],
-      componentState("trucks")
-    );
-    const leftWheel = wheel(
-      group,
-      axle.id + "-wheel-left",
-      -g.wheel_center_lateral_mm,
-      wheelRadius,
-      g.wheel_width_mm,
-      componentState("wheels")
-    );
-    const rightWheel = wheel(
-      group,
-      axle.id + "-wheel-right",
-      g.wheel_center_lateral_mm,
-      wheelRadius,
-      g.wheel_width_mm,
-      componentState("wheels")
-    );
-
+    const truck = makeTruck(group, axle.id + "-truck", g.truck_total_width_mm, deckBottom, componentState("trucks"));
+    const leftWheel = wheel(group, axle.id + "-wheel-left", -g.wheel_center_lateral_mm, wheelRadius, g.wheel_width_mm, componentState("wheels"));
+    const rightWheel = wheel(group, axle.id + "-wheel-right", g.wheel_center_lateral_mm, wheelRadius, g.wheel_width_mm, componentState("wheels"));
     visual.axles[axle.id] = { group, truck, leftWheel, rightWheel };
     registerMovable(group, axle.explode);
     root.add(group);
   }
 
-  const pack = box(
-    root,
-    "pack-envelope",
-    [330, 188, 58],
-    [20, 0, deckTop + 35],
-    componentState("pack"),
-    0.30
-  );
-  visual.pack = registerMovable(pack, [0, 0, 250]);
+  const packLayer = createLayerGroup("pack");
+  const packHeight = 58;
+  const packCenterZ = Math.max(packHeight / 2 + 3, deckBottom - packHeight / 2 - 4);
+  const pack = box(packLayer, "pack-envelope", [330, 188, packHeight], [20, 0, packCenterZ],
+    componentState("pack"), 0.42, "pack");
+  visual.packEnvelope = {
+    height_mm: packHeight,
+    center_z_mm: packCenterZ,
+    visual_bottom_gap_mm: packCenterZ - packHeight / 2,
+  };
+  visual.pack = registerMovable(packLayer, [0, 0, 250]);
 
-  makeFootAssembly("rearFoot", -180, componentState("rider_interface"), deckTop);
-  makeFootAssembly("frontFoot", 180, componentState("rider_interface"), deckTop);
+  const snowLayer = createLayerGroup("snowdeck");
+  makeFootAssembly(snowLayer, "rearFoot", -180, componentState("rider_interface"), deckTop);
+  makeFootAssembly(snowLayer, "frontFoot", 180, componentState("rider_interface"), deckTop);
 
-  const brakeGhost = box(
-    root,
-    "brake-ghost",
-    [32, 330, 150],
-    [-axleX, 0, 92],
-    componentState("brake"),
-    0.20
-  );
-  visual.brakeGhost = registerMovable(brakeGhost, [-70, -180, 100]);
+  const brakeLayer = createLayerGroup("brake");
+  makeBrakeReference(brakeLayer, axleX, g, componentState("brake"));
 
-  const driveGhost = box(
-    root,
-    "drive-ghost",
-    [110, 340, 90],
-    [-axleX + 18, 0, 82],
-    componentState("drive"),
-    0.18
-  );
-  visual.driveGhost = registerMovable(driveGhost, [-70, 180, 100]);
+  const driveLayer = createLayerGroup("drive");
+  makeDriveReference(driveLayer, axleX, g, componentState("drive"));
 
   makeClearanceOverlay(g);
   makeArmorStudy(manifest, deckBottom);
+  makeDockStudy(g);
   applyTopology(visual.topologyId);
   updateSteering(0);
   updateSnowdeck();
 }
-
 function updateSteering(angle) {
   const max = visual.geometry ? visual.geometry.max_steer_deg : 22;
   visual.steerDeg = Math.max(-max, Math.min(max, Number(angle)));
@@ -317,6 +468,11 @@ function applyTopology(id) {
     axle.leftWheel.position.y = -branch.wheel_center_lateral_mm;
     axle.rightWheel.position.y = branch.wheel_center_lateral_mm;
   }
+
+  const lateralScale =
+    branch.wheel_center_lateral_mm / visual.geometry.wheel_center_lateral_mm;
+  if (visual.layerGroups.brake) visual.layerGroups.brake.scale.y = lateralScale;
+  if (visual.layerGroups.drive) visual.layerGroups.drive.scale.y = lateralScale;
 
   if (visual.brakeGhost) {
     visual.brakeGhost.material.opacity =
@@ -384,6 +540,7 @@ function updateSnowdeck() {
     const el = document.getElementById(id);
     if (el) el.textContent = value;
   });
+  refreshConfigurationUI();
 }
 
 function setExploded(on) {
@@ -398,21 +555,10 @@ function setExploded(on) {
 function setView(view) {
   setExploded(view === "exploded");
   clearanceRoot.visible = view === "clearance" || view === "risk" || view === "armor";
-  armorRoot.visible = view === "armor";
-
-  const views = {
-    hero: [[1050, -900, 600], [0, 0, 100]],
-    fit: [[0, -40, 1200], [0, 0, 80]],
-    clearance: [[920, -900, 300], [0, 0, 70]],
-    topology: [[1100, -750, 250], [0, 0, 90]],
-    exploded: [[1100, -900, 720], [0, 0, 180]],
-    risk: [[1180, -980, 520], [0, 0, 95]],
-    armor: [[900, -780, 220], [0, 0, 45]],
-  };
-  const v = views[view] || views.hero;
-  camera.position.set(...v[0]);
-  controls.target.set(...v[1]);
-  controls.update();
+  if (view === "armor" && !visual.layerVisibility.armor) {
+    setLayerVisibility("armor", true);
+  }
+  frameAssembly(view);
 }
 
 function deckStudyUI(manifest) {
@@ -431,10 +577,12 @@ function deckStudyUI(manifest) {
 
     btn.textContent =
       candidate.label + (physicallySelected ? " · PHYSICAL PICK" : "");
+    btn.dataset.candidateId = candidate.id;
     if (physicallySelected) btn.classList.add("physical-selected");
 
     btn.addEventListener("click", () => {
       if (!visual.deck || !visual.geometry) return;
+      visual.deckCandidateId = candidate.id;
       visual.deck.scale.x = candidate.length_mm / visual.geometry.deck_length_mm;
       visual.deck.scale.y = candidate.width_mm / visual.geometry.deck_width_mm;
       document.querySelectorAll("#deck-candidates button").forEach(x => x.classList.remove("active"));
@@ -446,6 +594,7 @@ function deckStudyUI(manifest) {
           ? "Selected by a fingerprint-valid full-scale deck comparison; this is not chassis qualification. "
           : "") +
         "Truck/wheel geometry is intentionally unchanged.";
+      refreshConfigurationUI();
     });
 
     host.appendChild(btn);
@@ -464,14 +613,295 @@ function topologyUI(manifest) {
   branches.forEach((branch, index) => {
     const btn = document.createElement("button");
     btn.textContent = branch.short_label;
+    btn.dataset.topologyId = branch.id;
     if (index === 0) btn.classList.add("active");
     btn.addEventListener("click", () => {
       document.querySelectorAll("#topology-branches button").forEach(x => x.classList.remove("active"));
       btn.classList.add("active");
       applyTopology(branch.id);
+      refreshConfigurationUI();
     });
     host.appendChild(btn);
   });
+}
+
+function currentDeckCandidate() {
+  const candidates = visual.manifest?.design_studies?.deck_candidates || [];
+  return candidates.find(candidate => candidate.id === visual.deckCandidateId) || candidates[0] || null;
+}
+
+function currentTopology() {
+  const branches = visual.manifest?.design_studies?.topology_branches || [];
+  return branches.find(branch => branch.id === visual.topologyId) || branches[0] || null;
+}
+
+function setLayerVisibility(id, visible, syncControl = true) {
+  visual.layerVisibility[id] = Boolean(visible);
+  if (visual.layerGroups[id]) visual.layerGroups[id].visible = Boolean(visible);
+  if (id === "armor") armorRoot.visible = Boolean(visible);
+  if (id === "dock") dockRoot.visible = Boolean(visible);
+  if (syncControl) {
+    const control = document.querySelector('#layer-toggles input[data-layer="' + id + '"]');
+    if (control) control.checked = Boolean(visible);
+  }
+  refreshConfigurationUI();
+}
+
+function activeLayerLabels() {
+  const lab = visual.manifest?.design_studies?.configuration_lab || {};
+  const rows = lab.layers || [];
+  return rows
+    .filter(row => visual.layerVisibility[row.id])
+    .map(row => row.label);
+}
+
+function currentConfiguration() {
+  const deck = currentDeckCandidate();
+  const topology = currentTopology();
+  const g = visual.geometry || {};
+  return {
+    deck_id: deck?.id || null,
+    deck_label: deck?.label || "Unknown deck",
+    deck_length_mm: deck?.length_mm ?? g.deck_length_mm ?? null,
+    deck_width_mm: deck?.width_mm ?? g.deck_width_mm ?? null,
+    topology_id: topology?.id || null,
+    topology_label: topology?.label || "Unknown topology",
+    truck_total_width_mm: topology?.truck_total_width_mm ?? g.truck_total_width_mm ?? null,
+    outer_wheel_width_mm: topology && g.wheel_width_mm
+      ? topology.wheel_center_lateral_mm * 2 + g.wheel_width_mm
+      : g.estimated_outer_wheel_envelope_width_mm ?? null,
+    static_clearance_mm: g.static_ground_clearance_mm ?? null,
+    compressed_clearance_mm: g.minimum_compressed_clearance_mm ?? null,
+    pack_visual_bottom_gap_mm: visual.packEnvelope?.visual_bottom_gap_mm ?? null,
+    brake_reference_compatible: topology?.brake_reference_compatible ?? null,
+    drive_reference_compatible: topology?.drive_reference_compatible ?? null,
+    layers: { ...visual.layerVisibility },
+    active_layers: activeLayerLabels(),
+    snowdeck: {
+      stance_mm: Number(document.getElementById("stance")?.value || 360),
+      front_yaw_deg: Number(document.getElementById("front-yaw")?.value || 0),
+      rear_yaw_deg: Number(document.getElementById("rear-yaw")?.value || 0),
+      front_cant_deg: Number(document.getElementById("front-cant")?.value || 0),
+      rear_cant_deg: Number(document.getElementById("rear-cant")?.value || 0),
+      insert_proxy_mm: Number(document.getElementById("insert-proxy")?.value || 0),
+    },
+  };
+}
+
+function configurationWarnings(config) {
+  const warnings = [];
+  if (config.layers.brake && config.brake_reference_compatible !== true) {
+    warnings.push("Mechanical-brake compatibility is not established for this topology.");
+  }
+  if (config.layers.drive && config.drive_reference_compatible !== true) {
+    warnings.push("Drive compatibility is not established for this topology.");
+  }
+  if (config.layers.brake && config.layers.drive) {
+    warnings.push("Brake + drive coexistence remains an unresolved packaging question, not a combined compatibility claim.");
+  }
+  if (config.layers.pack) {
+    warnings.push("Range-pack geometry is an inert packaging envelope only; mount/load path remains unqualified.");
+  }
+  if (config.layers.armor) {
+    warnings.push("Armor dimensions are visualization placeholders and consume clearance until physically resolved.");
+  }
+  if (config.layers.dock) {
+    warnings.push("Dock geometry is passive alignment only; no energized connector is represented.");
+  }
+  return warnings;
+}
+
+function formatCompatibility(value) {
+  if (value === true) return "reference yes";
+  if (value === false) return "reference no";
+  if (value === null || value === undefined) return "unknown";
+  return String(value).toLowerCase().replaceAll("_", " ");
+}
+
+function renderConfigurationSummary(config) {
+  const host = document.getElementById("config-summary");
+  if (!host || !config) return;
+  const warnings = configurationWarnings(config);
+  host.innerHTML =
+    '<div class="summary-grid">' +
+      '<div><span>Deck</span><strong>' + escapeHtml(config.deck_length_mm + " × " + config.deck_width_mm + " mm") + '</strong></div>' +
+      '<div><span>Outer wheel width</span><strong>' + escapeHtml(Math.round(config.outer_wheel_width_mm) + " mm") + '</strong></div>' +
+      '<div><span>Truck width</span><strong>' + escapeHtml(config.truck_total_width_mm + " mm") + '</strong></div>' +
+      '<div><span>Stance</span><strong>' + escapeHtml(config.snowdeck.stance_mm + " mm") + '</strong></div>' +
+      '<div><span>Pack visual gap</span><strong>' + escapeHtml(config.layers.pack && config.pack_visual_bottom_gap_mm !== null ? config.pack_visual_bottom_gap_mm.toFixed(0) + " mm" : "hidden") + '</strong></div>' +
+      '<div><span>Brake ref</span><strong>' + escapeHtml(formatCompatibility(config.brake_reference_compatible)) + '</strong></div>' +
+      '<div><span>Drive ref</span><strong>' + escapeHtml(formatCompatibility(config.drive_reference_compatible)) + '</strong></div>' +
+    '</div>' +
+    (warnings.length
+      ? warnings.map(message => '<div class="config-warning">' + escapeHtml(message) + '</div>').join("")
+      : '<div class="config-clear">No configuration-specific packaging conflict is asserted by the current reference data. Physical gates still apply.</div>');
+
+  const hud = document.getElementById("hud-config");
+  if (hud) hud.textContent = config.deck_label + " · " + config.topology_label;
+  const hudWarning = document.getElementById("hud-warning");
+  if (hudWarning) hudWarning.textContent = warnings.length ? warnings.length + " study warning" + (warnings.length === 1 ? "" : "s") : "No study warning";
+}
+
+function comparisonRows(a, b) {
+  return [
+    ["Deck envelope", a.deck_length_mm + "×" + a.deck_width_mm + " mm", b.deck_length_mm + "×" + b.deck_width_mm + " mm"],
+    ["Truck width", a.truck_total_width_mm + " mm", b.truck_total_width_mm + " mm"],
+    ["Outer wheel width", Math.round(a.outer_wheel_width_mm) + " mm", Math.round(b.outer_wheel_width_mm) + " mm"],
+    ["Static clearance ref", a.static_clearance_mm + " mm", b.static_clearance_mm + " mm"],
+    ["Compressed clearance ref", a.compressed_clearance_mm + " mm", b.compressed_clearance_mm + " mm"],
+    ["Pack visual bottom gap", a.layers.pack ? a.pack_visual_bottom_gap_mm.toFixed(0) + " mm" : "hidden", b.layers.pack ? b.pack_visual_bottom_gap_mm.toFixed(0) + " mm" : "hidden"],
+    ["Brake compatibility", formatCompatibility(a.brake_reference_compatible), formatCompatibility(b.brake_reference_compatible)],
+    ["Drive compatibility", formatCompatibility(a.drive_reference_compatible), formatCompatibility(b.drive_reference_compatible)],
+    ["Stance", a.snowdeck.stance_mm + " mm", b.snowdeck.stance_mm + " mm"],
+    ["Visible systems", a.active_layers.join(", ") || "none", b.active_layers.join(", ") || "none"],
+  ];
+}
+
+function renderComparison() {
+  const host = document.getElementById("config-compare");
+  if (!host) return;
+  const a = visual.snapshots.A;
+  const b = visual.snapshots.B;
+  if (!a || !b) {
+    host.innerHTML = '<p class="study-note">Save A and Save B to compare geometry and compatibility. No winner is selected.</p>';
+    return;
+  }
+  const rows = comparisonRows(a, b);
+  host.innerHTML =
+    '<div class="compare-head"><span>Metric</span><strong>A</strong><strong>B</strong></div>' +
+    rows.map(row =>
+      '<div class="compare-row"><span>' + escapeHtml(row[0]) + '</span><b>' + escapeHtml(row[1]) + '</b><b>' + escapeHtml(row[2]) + '</b></div>'
+    ).join("") +
+    '<p class="study-note">A/B is descriptive only. It does not rank the configurations or promote either one.</p>';
+}
+
+function refreshConfigurationUI() {
+  if (!visual.manifest || !visual.geometry) return;
+  renderConfigurationSummary(currentConfiguration());
+  renderComparison();
+}
+
+function selectDeckCandidate(id) {
+  const button = document.querySelector('#deck-candidates button[data-candidate-id="' + id + '"]');
+  if (button) button.click();
+}
+
+function selectTopology(id) {
+  const button = document.querySelector('#topology-branches button[data-topology-id="' + id + '"]');
+  if (button) button.click();
+}
+
+function setSnowdeckControls(values = {}) {
+  const mapping = {
+    stance_mm: "stance",
+    front_yaw_deg: "front-yaw",
+    rear_yaw_deg: "rear-yaw",
+    front_cant_deg: "front-cant",
+    rear_cant_deg: "rear-cant",
+    insert_proxy_mm: "insert-proxy",
+  };
+  Object.entries(mapping).forEach(([key, id]) => {
+    if (values[key] === undefined) return;
+    const el = document.getElementById(id);
+    if (el) el.value = values[key];
+  });
+  updateSnowdeck();
+}
+
+function applyConfigurationPreset(preset) {
+  if (!preset) return;
+  selectDeckCandidate(preset.deck_candidate_id);
+  selectTopology(preset.topology_id);
+  Object.entries(preset.layers || {}).forEach(([id, visible]) => setLayerVisibility(id, visible));
+  setSnowdeckControls(preset.snowdeck || {});
+  const note = document.getElementById("preset-note");
+  if (note) note.textContent = preset.description + " Visualization only; no authority is created.";
+  frameAssembly("hero");
+  refreshConfigurationUI();
+}
+
+function configurationLabUI(manifest) {
+  const lab = manifest.design_studies?.configuration_lab || {};
+  const layerHost = document.getElementById("layer-toggles");
+  const select = document.getElementById("config-preset");
+  if (!layerHost || !select) return;
+
+  layerHost.innerHTML = "";
+  (lab.layers || []).forEach(layer => {
+    const label = document.createElement("label");
+    label.className = "layer-toggle";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.dataset.layer = layer.id;
+    input.checked = Boolean(layer.default_visible);
+    input.addEventListener("change", () => setLayerVisibility(layer.id, input.checked, false));
+    label.appendChild(input);
+    label.appendChild(document.createTextNode(layer.label));
+    layerHost.appendChild(label);
+    setLayerVisibility(layer.id, input.checked, false);
+  });
+
+  select.innerHTML = "";
+  (lab.presets || []).forEach(preset => {
+    const option = document.createElement("option");
+    option.value = preset.id;
+    option.textContent = preset.label;
+    select.appendChild(option);
+  });
+
+  document.getElementById("apply-preset")?.addEventListener("click", () => {
+    const preset = (lab.presets || []).find(row => row.id === select.value);
+    applyConfigurationPreset(preset);
+  });
+  document.getElementById("save-a")?.addEventListener("click", () => {
+    visual.snapshots.A = currentConfiguration();
+    renderComparison();
+  });
+  document.getElementById("save-b")?.addEventListener("click", () => {
+    visual.snapshots.B = currentConfiguration();
+    renderComparison();
+  });
+  document.getElementById("reframe")?.addEventListener("click", () => frameAssembly("hero"));
+
+  const initial = (lab.presets || [])[0];
+  if (initial) applyConfigurationPreset(initial);
+  else refreshConfigurationUI();
+}
+
+function visibleAssemblyBounds() {
+  scene.updateMatrixWorld(true);
+  const bounds = new THREE.Box3();
+  const objects = [root];
+  if (armorRoot.visible) objects.push(armorRoot);
+  if (dockRoot.visible) objects.push(dockRoot);
+  objects.forEach(object => bounds.expandByObject(object));
+  return bounds;
+}
+
+function frameAssembly(view = "hero") {
+  const bounds = visibleAssemblyBounds();
+  if (bounds.isEmpty()) return;
+  const center = bounds.getCenter(new THREE.Vector3());
+  const size = bounds.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z * 2.2, 500);
+  const directions = {
+    hero: new THREE.Vector3(1.05, -1.35, 0.72),
+    fit: new THREE.Vector3(0.02, -0.04, 1),
+    clearance: new THREE.Vector3(1.1, -1.3, 0.32),
+    topology: new THREE.Vector3(1.2, -1.25, 0.38),
+    exploded: new THREE.Vector3(1.05, -1.35, 0.8),
+    risk: new THREE.Vector3(1.05, -1.35, 0.55),
+    armor: new THREE.Vector3(1.0, -1.3, 0.24),
+  };
+  const direction = (directions[view] || directions.hero).normalize();
+  const fov = THREE.MathUtils.degToRad(camera.fov);
+  const distance = maxDim / (2 * Math.tan(fov / 2)) * (view === "fit" ? 1.18 : 1.36);
+  camera.position.copy(center).add(direction.multiplyScalar(distance));
+  camera.near = Math.max(0.1, distance / 120);
+  camera.far = distance * 8;
+  camera.updateProjectionMatrix();
+  controls.target.copy(center);
+  controls.update();
 }
 
 function fmt(value, digits = 3) {
@@ -736,8 +1166,10 @@ fillUI(manifest);
 proceduralBoard(manifest);
 deckStudyUI(manifest);
 topologyUI(manifest);
-connectControls();
 resize();
+configurationLabUI(manifest);
+connectControls();
+frameAssembly("hero");
 await loadGeneratedAssetManifest();
 
 const clock = new THREE.Clock();

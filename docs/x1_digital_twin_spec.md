@@ -184,3 +184,34 @@ These are broad visualization bounds, not recommended ride settings.
 `cad/generate_snowdeck_study.py` produces the universal Fit Rig plate reference, 2 and 4 degree cant-study wedges, and the maximum compliant-insert envelope. Its generated authority explicitly keeps fabrication and ride authority false.
 
 Final rider-specific geometry remains downstream of qualified four-zone evidence and the existing Rev-B/template gates.
+
+
+## Configuration laboratory
+
+The viewer is also a non-authoritative trade-study laboratory. It may compose known reference and assumed layers into named visualization presets, but a preset is never an engineering release.
+
+The configuration lab must:
+
+- keep physical appearance visually distinct from evidence state, using normal-looking materials for the board and authority-colored outlines/ghost volumes for uncertainty;
+- expose deck candidate, truck/topology branch, SnowDeck setup, and system-layer visibility as explicit variables;
+- permit brake, drive, inert-pack, SnowDeck, armor, and passive-dock layers to be shown or hidden independently;
+- provide named presets only as reproducible starting points for questions such as brake-first packaging, SnowDeck fit, drive packaging, brake/drive coexistence, and service-envelope inspection;
+- allow two states to be captured as A and B and compared using descriptive geometry/compatibility fields;
+- surface incompatibility or unknown-reference warnings without reducing the design to a synthetic winner score;
+- automatically frame the currently visible assembly so a camera setting cannot hide clipping or make a packaging envelope appear larger than the board;
+- retain `winner_selected=false` and all existing procurement/fabrication/ride/power boundaries.
+
+The A/B comparison may report deck envelope, truck width, estimated outer wheel width, provisional clearance references, stance, reference brake compatibility, reference drive compatibility, and visible systems. It must not infer strength, ride quality, range, stopping distance, durability, or safety from those geometric fields.
+
+### Physical-looking geometry vs evidence
+
+The default scene should read as a recognizable mountainboard rather than a collection of authority-colored blocks:
+
+- deck, tires, hubs, and trucks use neutral physical materials;
+- reference/assumed/blocked status remains visible through colored edges, translucent volumes, textual state labels, and the component panel;
+- brake and drive studies may use representative packaging geometry only when clearly marked as reference/blocked;
+- the inert pack stays an under-deck envelope, not a battery product claim;
+- the passive dock remains mechanically inert in the visualization;
+- armor remains a replaceable first-contact study rather than a structural member.
+
+Detailed imported CAD remains available as an overlay for geometry audit. A prettier procedural model never supersedes generated CAD or physical measurement.
