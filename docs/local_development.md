@@ -94,19 +94,21 @@ The shell prompt should contain `.venv` but not `(base)`.
 
 ## Validate the repository
 
-Run the fast local software validation:
+Run the standard local software validation:
 
 ```bash
+bash tools/validate_local_dev.sh
+```
+
+That command runs the environment doctor, `pip check`, Python compilation, the complete pytest suite, and the browser module syntax check when Node is available.
+
+The equivalent manual commands are:
+
+```bash
+python tools/check_dev_environment.py
 python -m pip check
 python -m compileall -q tools cad fit simulation
 python -m pytest -q tests
-```
-
-If Node is installed, also parse the browser module:
-
-```bash
-cp showcase/app.js /tmp/x1-showcase-app.mjs
-node --check /tmp/x1-showcase-app.mjs
 ```
 
 CI additionally runs the procurement, mechanical, telemetry, firmware, and generated-CAD smoke tests.
