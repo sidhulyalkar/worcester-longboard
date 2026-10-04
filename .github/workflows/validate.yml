@@ -1393,7 +1393,7 @@ jobs:
         run: platformio run -d firmware/fit_rig_logger -e fit_rig_esp32s3_80sps
       - name: Generate fit-rig CAD reference artifacts
         run: |
-          python cad/generate_fit_rig.py
+          python -m cad.generate_fit_rig
           python - <<'PY'
           import json
           from pathlib import Path
@@ -1407,7 +1407,7 @@ jobs:
           PY
       - name: Generate SnowDeck bench-study CAD
         run: |
-          python cad/generate_snowdeck_study.py
+          python -m cad.generate_snowdeck_study
           python - <<'PY'
           import json
           from pathlib import Path
@@ -1423,7 +1423,7 @@ jobs:
           PY
       - name: Generate one-zone pilot CAD package
         run: |
-          python cad/generate_one_zone_pilot.py
+          python -m cad.generate_one_zone_pilot
           python - <<'PY'
           import json
           from pathlib import Path
@@ -1452,7 +1452,7 @@ jobs:
           PY
       - name: Generate donor-grounded rolling-chassis references
         run: |
-          python cad/generate_rolling_chassis.py
+          python -m cad.generate_rolling_chassis
           python - <<'PY'
           import json
           from pathlib import Path
