@@ -24,6 +24,7 @@ jobs:
           python -m pip check
           python tools/check_dev_environment.py --ci
           bash -n tools/bootstrap_dev_env.sh
+          bash -n tools/validate_local_dev.sh
       - name: Compile Python sources
         run: python -m compileall -q tools cad fit simulation
       - name: Parse digital-twin browser module
