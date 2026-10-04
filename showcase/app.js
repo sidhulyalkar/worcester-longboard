@@ -79,6 +79,7 @@ const visual = {
   layerGroups: {},
   layerVisibility: {},
   snapshots: { A: null, B: null },
+  packEnvelope: null,
 };
 
 clearanceRoot.visible = false;
@@ -419,6 +420,11 @@ function proceduralBoard(manifest) {
   const packCenterZ = Math.max(packHeight / 2 + 3, deckBottom - packHeight / 2 - 4);
   const pack = box(packLayer, "pack-envelope", [330, 188, packHeight], [20, 0, packCenterZ],
     componentState("pack"), 0.42, "pack");
+  visual.packEnvelope = {
+    height_mm: packHeight,
+    center_z_mm: packCenterZ,
+    visual_bottom_gap_mm: packCenterZ - packHeight / 2,
+  };
   visual.pack = registerMovable(packLayer, [0, 0, 250]);
 
   const snowLayer = createLayerGroup("snowdeck");
@@ -666,6 +672,7 @@ function currentConfiguration() {
       : g.estimated_outer_wheel_envelope_width_mm ?? null,
     static_clearance_mm: g.static_ground_clearance_mm ?? null,
     compressed_clearance_mm: g.minimum_compressed_clearance_mm ?? null,
+    pack_visual_bottom_gap_mm: visual.packEnvelope?.visual_bottom_gap_mm ?? null,
     brake_reference_compatible: topology?.brake_reference_compatible ?? null,
     drive_reference_compatible: topology?.drive_reference_compatible ?? null,
     layers: { ...visual.layerVisibility },
@@ -721,6 +728,7 @@ function renderConfigurationSummary(config) {
       '<div><span>Outer wheel width</span><strong>' + escapeHtml(Math.round(config.outer_wheel_width_mm) + " mm") + '</strong></div>' +
       '<div><span>Truck width</span><strong>' + escapeHtml(config.truck_total_width_mm + " mm") + '</strong></div>' +
       '<div><span>Stance</span><strong>' + escapeHtml(config.snowdeck.stance_mm + " mm") + '</strong></div>' +
+      '<div><span>Pack visual gap</span><strong>' + escapeHtml(config.layers.pack && config.pack_visual_bottom_gap_mm !== null ? config.pack_visual_bottom_gap_mm.toFixed(0) + " mm" : "hidden") + '</strong></div>' +
       '<div><span>Brake ref</span><strong>' + escapeHtml(formatCompatibility(config.brake_reference_compatible)) + '</strong></div>' +
       '<div><span>Drive ref</span><strong>' + escapeHtml(formatCompatibility(config.drive_reference_compatible)) + '</strong></div>' +
     '</div>' +
@@ -741,6 +749,7 @@ function comparisonRows(a, b) {
     ["Outer wheel width", Math.round(a.outer_wheel_width_mm) + " mm", Math.round(b.outer_wheel_width_mm) + " mm"],
     ["Static clearance ref", a.static_clearance_mm + " mm", b.static_clearance_mm + " mm"],
     ["Compressed clearance ref", a.compressed_clearance_mm + " mm", b.compressed_clearance_mm + " mm"],
+    ["Pack visual bottom gap", a.layers.pack ? a.pack_visual_bottom_gap_mm.toFixed(0) + " mm" : "hidden", b.layers.pack ? b.pack_visual_bottom_gap_mm.toFixed(0) + " mm" : "hidden"],
     ["Brake compatibility", formatCompatibility(a.brake_reference_compatible), formatCompatibility(b.brake_reference_compatible)],
     ["Drive compatibility", formatCompatibility(a.drive_reference_compatible), formatCompatibility(b.drive_reference_compatible)],
     ["Stance", a.snowdeck.stance_mm + " mm", b.snowdeck.stance_mm + " mm"],
