@@ -346,3 +346,92 @@ def test_deck_selection_projection_refuses_conflicting_valid_authorities():
         assert "conflicting qualified deck-comparison selections" in str(exc)
     else:
         raise AssertionError("conflicting physical deck selections must fail closed")
+
+
+def configuration_lab_seed():
+    return {
+        "project": "Worcester X1",
+        "configuration": "test",
+        "physical_authority": False,
+        "powered_operation_authorized": False,
+        "components": [
+            {
+                "id": "brake",
+                "evidence_state": "BLOCKED",
+                "render": {"kind": "brake"},
+            }
+        ],
+        "design_studies": {
+            "deck_candidates": [{"id": "comp95"}],
+            "topology_branches": [{"id": "brake_first_400mm"}],
+            "configuration_lab": {
+                "scope": "non_authoritative_visual_trade_study",
+                "winner_selected": False,
+                "layers": [
+                    {
+                        "id": "brake",
+                        "label": "Brake",
+                        "component_kind": "brake",
+                        "default_visible": True,
+                    }
+                ],
+                "presets": [
+                    {
+                        "id": "baseline",
+                        "label": "Baseline",
+                        "deck_candidate_id": "comp95",
+                        "topology_id": "brake_first_400mm",
+                        "layers": {"brake": True},
+                        "snowdeck": {
+                            "stance_mm": 360,
+                            "front_yaw_deg": 0,
+                            "rear_yaw_deg": 0,
+                            "front_cant_deg": 0,
+                            "rear_cant_deg": 0,
+                            "insert_proxy_mm": 0,
+                        },
+                    }
+                ],
+            },
+        },
+    }
+
+
+def test_validate_seed_accepts_non_authoritative_configuration_lab():
+    mod.validate_seed(configuration_lab_seed())
+
+
+def test_validate_seed_rejects_configuration_lab_unknown_topology():
+    seed = configuration_lab_seed()
+    seed["design_studies"]["configuration_lab"]["presets"][0]["topology_id"] = "imaginary"
+
+    try:
+        mod.validate_seed(seed)
+    except ValueError as exc:
+        assert "unknown topology" in str(exc)
+    else:
+        raise AssertionError("unknown configuration-lab topology must fail closed")
+
+
+def test_validate_seed_rejects_configuration_lab_ranking_key():
+    seed = configuration_lab_seed()
+    seed["design_studies"]["configuration_lab"]["presets"][0]["winner"] = True
+
+    try:
+        mod.validate_seed(seed)
+    except ValueError as exc:
+        assert "authority/ranking keys" in str(exc)
+    else:
+        raise AssertionError("configuration-lab winner claims must fail closed")
+
+
+def test_validate_seed_rejects_configuration_lab_out_of_bounds_snowdeck():
+    seed = configuration_lab_seed()
+    seed["design_studies"]["configuration_lab"]["presets"][0]["front_cant_deg"] = 9
+
+    try:
+        mod.validate_seed(seed)
+    except ValueError as exc:
+        assert "outside visual study bounds" in str(exc)
+    else:
+        raise AssertionError("out-of-bounds preset must fail closed")
