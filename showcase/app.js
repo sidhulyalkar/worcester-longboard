@@ -10,6 +10,19 @@ const STATE = {
   NOT_PRESENT: 0x606773,
 };
 
+const PHYSICAL = {
+  deck: 0x2f3948,
+  trucks: 0x9ca8b8,
+  wheels: 0x161a20,
+  hubs: 0x66758a,
+  pack: 0x313a48,
+  rider_interface: 0xd5dbe4,
+  brake: 0x9e3f49,
+  drive: 0x697687,
+  armor: 0x566170,
+  dock: 0x3e4856,
+};
+
 const sceneEl = document.getElementById("scene");
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -43,9 +56,10 @@ scene.add(ground);
 const root = new THREE.Group();
 const clearanceRoot = new THREE.Group();
 const armorRoot = new THREE.Group();
+const dockRoot = new THREE.Group();
 const cadNeutralRoot = new THREE.Group();
 const cadSweepRoot = new THREE.Group();
-scene.add(root, clearanceRoot, armorRoot, cadNeutralRoot, cadSweepRoot);
+scene.add(root, clearanceRoot, armorRoot, dockRoot, cadNeutralRoot, cadSweepRoot);
 
 const visual = {
   movable: [],
@@ -61,10 +75,15 @@ const visual = {
   cadCache: new Map(),
   showCad: false,
   showSweep: false,
+  deckCandidateId: "comp95",
+  layerGroups: {},
+  layerVisibility: {},
+  snapshots: { A: null, B: null },
 };
 
 clearanceRoot.visible = false;
 armorRoot.visible = false;
+dockRoot.visible = false;
 cadNeutralRoot.visible = false;
 cadSweepRoot.visible = false;
 
