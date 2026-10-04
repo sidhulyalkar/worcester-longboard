@@ -163,3 +163,17 @@ Current preset families include:
 The A/B table reports reference geometry and compatibility only. It never computes an overall score or winner, and it does not infer ride quality, strength, stopping distance, range, or safety.
 
 The default procedural assembly uses physically legible materials for the board and authority-colored edges/ghost volumes for evidence state. Generated GLB CAD can still be overlaid for geometry audit.
+
+
+## Camera controls
+
+The in-scene camera toolbar keeps the current board assembly as the orbit target.
+
+- **Hero**: centered three-quarter inspection view.
+- **Top**: exact top-down plan view for deck, stance, wheel-width, and packaging comparisons.
+- **Side**: lateral profile for clearance and under-deck packaging.
+- **Front / Rear**: end views for truck, wheel, brake, and drive-width inspection.
+- **↺ / ↻**: rotate the current inspection view in 90-degree increments around the board center. In Top view this rotates the plan-view screen orientation.
+- **Center**: refit the current view around the currently visible assembly.
+
+Mouse orbit and zoom remain enabled. Panning is intentionally disabled so manual inspection cannot lose the board center. Deck, topology, layer, preset, and window-size changes automatically schedule a refit using both horizontal and vertical camera field of view.
