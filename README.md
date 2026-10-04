@@ -28,6 +28,33 @@ X1 has moved beyond the original TRAMPA/14S Alpha sketch. Current build and purc
 
 If an older document conflicts with a current manifest, build gate, or qualified authority, the older document does **not** authorize a purchase, fabrication step, or ride test.
 
+## Local development
+
+Use Python **3.12** in a repository-local `.venv`. The tested direct dependencies are pinned in `requirements-dev.txt`, and the native CadQuery/OCP versions are pinned explicitly.
+
+If your shell shows both `(.venv)` and a Conda environment such as `(base)`, repair the environment before continuing. See `docs/local_development.md`.
+
+Fresh or repaired setup:
+
+```bash
+bash tools/bootstrap_dev_env.sh --recreate
+source .venv/bin/activate
+bash tools/validate_local_dev.sh
+```
+
+On Apple Silicon, if `python3.12` still resolves to Miniconda/Anaconda after deactivating Conda, use a standalone interpreter explicitly, commonly:
+
+```bash
+PYTHON_BIN=/opt/homebrew/bin/python3.12 \
+  bash tools/bootstrap_dev_env.sh --recreate
+```
+
+The environment doctor is:
+
+```bash
+python tools/check_dev_environment.py
+```
+
 ## Ordering and sourcing
 
 Start with `docs/x1_physical_kickoff.md` if you have not bought anything yet. One command creates the private Day-0 inventory, live Cart A packet, and all three full-scale Rev-C stance templates without opening any expensive gate.
