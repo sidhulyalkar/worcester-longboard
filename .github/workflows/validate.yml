@@ -32,6 +32,8 @@ jobs:
           cp showcase/app.js /tmp/x1-showcase-app.mjs
           node --check /tmp/x1-showcase-app.mjs
       - run: python -m pytest -q tests
+      - name: Smoke-test local showcase without PYTHONPATH
+        run: env -u PYTHONPATH python tools/prepare_x1_showcase.py --synthetic-snowdeck-demo
       - name: Validate staged procurement authority
         run: python tools/validate_procurement_manifest.py hardware/procurement_manifest.json
       - name: Validate complete ordering spec
