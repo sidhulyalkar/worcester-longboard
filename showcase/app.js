@@ -600,6 +600,7 @@ function deckStudyUI(manifest) {
           : "") +
         "Truck/wheel geometry is intentionally unchanged.";
       refreshConfigurationUI();
+      scheduleReframe();
     });
 
     host.appendChild(btn);
@@ -625,6 +626,7 @@ function topologyUI(manifest) {
       btn.classList.add("active");
       applyTopology(branch.id);
       refreshConfigurationUI();
+      scheduleReframe();
     });
     host.appendChild(btn);
   });
@@ -650,6 +652,7 @@ function setLayerVisibility(id, visible, syncControl = true) {
     if (control) control.checked = Boolean(visible);
   }
   refreshConfigurationUI();
+  scheduleReframe();
 }
 
 function activeLayerLabels() {
@@ -821,6 +824,8 @@ function applyConfigurationPreset(preset) {
   setSnowdeckControls(preset.snowdeck || {});
   const note = document.getElementById("preset-note");
   if (note) note.textContent = preset.description + " Visualization only; no authority is created.";
+  visual.cameraView = "hero";
+  visual.cameraQuarterTurns = 0;
   frameAssembly("hero");
   refreshConfigurationUI();
 }
@@ -866,7 +871,7 @@ function configurationLabUI(manifest) {
     visual.snapshots.B = currentConfiguration();
     renderComparison();
   });
-  document.getElementById("reframe")?.addEventListener("click", () => frameAssembly("hero"));
+  document.getElementById("reframe")?.addEventListener("click", () => frameAssembly(visual.cameraView || "hero"));
 
   const initial = (lab.presets || [])[0];
   if (initial) applyConfigurationPreset(initial);
@@ -1202,6 +1207,21 @@ async function loadCadTopology(id) {
 }
 
 function connectControls() {
+  document.querySelectorAll("[data-camera-view]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      visual.cameraQuarterTurns = 0;
+      frameAssembly(btn.dataset.cameraView || "hero");
+    });
+  });
+
+  document.querySelectorAll("[data-camera-rotate]").forEach(btn => {
+    btn.addEventListener("click", () => rotateCameraQuarter(btn.dataset.cameraRotate));
+  });
+
+  document.getElementById("camera-center")?.addEventListener("click", () => {
+    frameAssembly(visual.cameraView || "hero");
+  });
+
   document.querySelectorAll("[data-view]").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll("[data-view]").forEach(x => x.classList.remove("active"));
@@ -1257,6 +1277,7 @@ function resize() {
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
+  if (visual.geometry) scheduleReframe();
 }
 window.addEventListener("resize", resize);
 
