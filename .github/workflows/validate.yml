@@ -17,7 +17,12 @@ jobs:
         with:
           python-version: '3.12'
       - run: python simulation/x1_dynamics.py
-      - run: python -m pip install pytest trimesh numpy platformio cadquery
+      - name: Install pinned development dependencies
+        run: python -m pip install -r requirements-dev.txt
+      - name: Validate Python environment contract
+        run: |
+          python -m pip check
+          python tools/check_dev_environment.py --ci
       - name: Compile Python sources
         run: python -m compileall -q tools cad fit simulation
       - name: Parse digital-twin browser module
