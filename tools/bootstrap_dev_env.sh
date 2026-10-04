@@ -13,6 +13,17 @@ elif [[ -n "${1:-}" ]]; then
   exit 2
 fi
 
+if [[ -n "${VIRTUAL_ENV:-}" ]]; then
+  cat >&2 <<'EOF'
+A virtual environment is currently active.
+
+Run:
+  deactivate
+
+Then rerun this bootstrap script from the clean shell.
+EOF
+  exit 2
+fi
 if [[ -n "${CONDA_PREFIX:-}" ]]; then
   cat >&2 <<'EOF'
 Conda is currently active.
