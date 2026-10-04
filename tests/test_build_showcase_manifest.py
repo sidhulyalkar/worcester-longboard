@@ -427,7 +427,7 @@ def test_validate_seed_rejects_configuration_lab_ranking_key():
 
 def test_validate_seed_rejects_configuration_lab_out_of_bounds_snowdeck():
     seed = configuration_lab_seed()
-    seed["design_studies"]["configuration_lab"]["presets"][0]["front_cant_deg"] = 9
+    seed["design_studies"]["configuration_lab"]["presets"][0]["snowdeck"]["front_cant_deg"] = 9
 
     try:
         mod.validate_seed(seed)
