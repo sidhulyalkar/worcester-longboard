@@ -18,7 +18,12 @@
     </header>
 
     <section class="workspace">
-      <div id="scene" aria-label="3D X1 design viewer"></div>
+      <div id="scene" aria-label="3D X1 design viewer">
+        <div class="scene-hud">
+          <span id="hud-config">Configuration loading…</span>
+          <span id="hud-warning">Trade study only</span>
+        </div>
+      </div>
 
       <aside>
         <section class="panel-section">
@@ -31,6 +36,28 @@
           <label class="toggle"><input id="show-cad" type="checkbox" disabled> CAD geometry overlay</label>
           <label class="toggle"><input id="show-sweep" type="checkbox" disabled> steering sweep envelope</label>
           <p class="study-note" id="asset-status">Checking for generated CAD assets…</p>
+        </section>
+
+        <section class="panel-section config-lab">
+          <h2>Configuration lab</h2>
+          <div class="preset-row">
+            <select id="config-preset" aria-label="Configuration preset"></select>
+            <button id="apply-preset">Apply</button>
+          </div>
+          <p class="study-note" id="preset-note">Presets are non-authoritative visualization states.</p>
+
+          <h3>Visible systems</h3>
+          <div class="layer-grid" id="layer-toggles"></div>
+
+          <div class="snapshot-row">
+            <button id="save-a">Save A</button>
+            <button id="save-b">Save B</button>
+            <button id="reframe">Reframe</button>
+          </div>
+          <div id="config-summary" class="config-summary"></div>
+          <div id="config-compare" class="config-compare">
+            <p class="study-note">Save two configurations to compare geometry and compatibility. No winner is selected.</p>
+          </div>
         </section>
 
         <section class="panel-section">
