@@ -529,6 +529,7 @@ function updateSnowdeck() {
     const el = document.getElementById(id);
     if (el) el.textContent = value;
   });
+  refreshConfigurationUI();
 }
 
 function setExploded(on) {
@@ -543,21 +544,10 @@ function setExploded(on) {
 function setView(view) {
   setExploded(view === "exploded");
   clearanceRoot.visible = view === "clearance" || view === "risk" || view === "armor";
-  armorRoot.visible = view === "armor";
-
-  const views = {
-    hero: [[1050, -900, 600], [0, 0, 100]],
-    fit: [[0, -40, 1200], [0, 0, 80]],
-    clearance: [[920, -900, 300], [0, 0, 70]],
-    topology: [[1100, -750, 250], [0, 0, 90]],
-    exploded: [[1100, -900, 720], [0, 0, 180]],
-    risk: [[1180, -980, 520], [0, 0, 95]],
-    armor: [[900, -780, 220], [0, 0, 45]],
-  };
-  const v = views[view] || views.hero;
-  camera.position.set(...v[0]);
-  controls.target.set(...v[1]);
-  controls.update();
+  if (view === "armor" && !visual.layerVisibility.armor) {
+    setLayerVisibility("armor", true);
+  }
+  frameAssembly(view);
 }
 
 function deckStudyUI(manifest) {
