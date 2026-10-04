@@ -1152,8 +1152,10 @@ fillUI(manifest);
 proceduralBoard(manifest);
 deckStudyUI(manifest);
 topologyUI(manifest);
-connectControls();
 resize();
+configurationLabUI(manifest);
+connectControls();
+frameAssembly("hero");
 await loadGeneratedAssetManifest();
 
 const clock = new THREE.Clock();
