@@ -41,3 +41,31 @@ def test_configuration_changes_schedule_camera_reframe():
 def test_camera_bounds_ignore_hidden_layers():
     assert "traverseVisible" in APP
     assert "includeVisibleMeshes(root);" in APP
+
+
+CSS = (ROOT / "showcase" / "styles.css").read_text()
+
+
+def test_desktop_viewer_is_not_fixed_to_old_tall_canvas():
+    assert "min-height: 820px" not in CSS
+    assert "max-height: 820px" not in CSS
+    assert "height: min(66vh, 620px)" in CSS
+
+
+def test_view_specific_layout_compacts_long_board_views():
+    assert '.workspace[data-camera-view="side"] #scene' in CSS
+    assert "height: min(55vh, 520px)" in CSS
+    assert '.workspace[data-camera-view="top"] #scene' in CSS
+    assert "height: min(61vh, 570px)" in CSS
+
+
+def test_canvas_css_matches_measured_scene_box():
+    assert "width: 100%;" in CSS
+    assert "height: 100%;" in CSS
+    assert "syncRendererSize()" in APP
+    assert 'workspaceEl.dataset.cameraView = view;' in APP
+
+
+def test_camera_fit_uses_tighter_default_padding():
+    assert "padding = 1.05" in APP
+    assert 'view === "exploded" ? 1.10 : 1.05' in APP

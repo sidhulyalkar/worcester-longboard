@@ -24,6 +24,7 @@ const PHYSICAL = {
 };
 
 const sceneEl = document.getElementById("scene");
+const workspaceEl = document.querySelector(".workspace");
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
@@ -944,7 +945,7 @@ function boundsCorners(bounds) {
   ];
 }
 
-function fitDistanceForBounds(bounds, center, direction, cameraUp) {
+function fitDistanceForBounds(bounds, center, direction, cameraUp, padding = 1.05) {
   const forward = direction.clone().multiplyScalar(-1).normalize();
   let right = new THREE.Vector3().crossVectors(forward, cameraUp);
 
@@ -972,7 +973,7 @@ function fitDistanceForBounds(bounds, center, direction, cameraUp) {
     );
   }
 
-  return distance * 1.12;
+  return distance * padding;
 }
 
 function updateCameraToolbar() {
@@ -982,14 +983,18 @@ function updateCameraToolbar() {
 }
 
 function frameAssembly(view = visual.cameraView || "hero") {
+  visual.cameraView = view;
+  if (workspaceEl) workspaceEl.dataset.cameraView = view;
+  syncRendererSize();
+
   const bounds = visibleAssemblyBounds();
   if (bounds.isEmpty()) return;
 
-  visual.cameraView = view;
   const center = bounds.getCenter(new THREE.Vector3());
   const direction = cameraDirectionFor(view);
   const cameraUp = cameraUpFor(view);
-  const distance = fitDistanceForBounds(bounds, center, direction, cameraUp);
+  const padding = view === "exploded" ? 1.10 : 1.05;
+  const distance = fitDistanceForBounds(bounds, center, direction, cameraUp, padding);
 
   visual.cameraCenter.copy(center);
   camera.up.copy(cameraUp);
@@ -1271,12 +1276,16 @@ function connectControls() {
   });
 }
 
-function resize() {
-  const w = sceneEl.clientWidth;
-  const h = sceneEl.clientHeight;
+function syncRendererSize() {
+  const w = Math.max(1, sceneEl.clientWidth);
+  const h = Math.max(1, sceneEl.clientHeight);
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
+}
+
+function resize() {
+  syncRendererSize();
   if (visual.geometry) scheduleReframe();
 }
 window.addEventListener("resize", resize);

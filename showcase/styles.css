@@ -34,7 +34,8 @@ h1 {
 }
 #scene {
   position: relative;
-  min-height: 820px;
+  height: min(66vh, 620px);
+  min-height: 500px;
   border: 1px solid rgba(255,255,255,.1);
   border-radius: 24px;
   overflow: hidden;
@@ -42,7 +43,14 @@ h1 {
     radial-gradient(circle at 45% 35%, rgba(90,112,146,.08), transparent 42%),
     rgba(255,255,255,.025);
 }
-#scene canvas { position: absolute; inset: 0; z-index: 1; }
+#scene canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
 .scene-hud {
   position: absolute;
   z-index: 3;
@@ -98,8 +106,42 @@ h1 {
 .camera-toolbar .camera-center {
   min-width: 60px;
 }
+
+/* Match the viewport to the geometry being inspected instead of forcing every
+   camera into one tall near-square canvas. */
+.workspace[data-camera-view="top"] #scene,
+.workspace[data-camera-view="top"] aside,
+.workspace[data-camera-view="fit"] #scene,
+.workspace[data-camera-view="fit"] aside {
+  height: min(61vh, 570px);
+}
+.workspace[data-camera-view="side"] #scene,
+.workspace[data-camera-view="side"] aside {
+  height: min(55vh, 520px);
+}
+.workspace[data-camera-view="front"] #scene,
+.workspace[data-camera-view="front"] aside,
+.workspace[data-camera-view="rear"] #scene,
+.workspace[data-camera-view="rear"] aside {
+  height: min(58vh, 540px);
+}
+.workspace[data-camera-view="clearance"] #scene,
+.workspace[data-camera-view="clearance"] aside,
+.workspace[data-camera-view="topology"] #scene,
+.workspace[data-camera-view="topology"] aside,
+.workspace[data-camera-view="risk"] #scene,
+.workspace[data-camera-view="risk"] aside,
+.workspace[data-camera-view="armor"] #scene,
+.workspace[data-camera-view="armor"] aside {
+  height: min(61vh, 570px);
+}
+.workspace[data-camera-view="exploded"] #scene,
+.workspace[data-camera-view="exploded"] aside {
+  height: min(70vh, 660px);
+}
 aside {
-  max-height: 820px;
+  height: min(66vh, 620px);
+  max-height: none;
   overflow: auto;
   border: 1px solid rgba(255,255,255,.1);
   border-radius: 24px;
@@ -406,7 +448,11 @@ select {
   header { align-items: start; flex-direction: column; }
   .legend { justify-content: start; }
   .workspace { grid-template-columns: 1fr; }
-  #scene { min-height: 560px; }
+  #scene,
+  .workspace[data-camera-view] #scene {
+    height: 560px;
+    min-height: 560px;
+  }
   .camera-toolbar {
     bottom: 10px;
     gap: 4px;
@@ -417,5 +463,9 @@ select {
     padding: 7px 8px;
     font-size: 9px;
   }
-  aside { max-height: none; }
+  aside,
+  .workspace[data-camera-view] aside {
+    height: auto;
+    max-height: none;
+  }
 }
