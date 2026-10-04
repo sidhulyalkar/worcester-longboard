@@ -136,3 +136,30 @@ python tools/prepare_x1_showcase.py \
 A fingerprint-valid `x1_rev_c_deck_comparison` authority causes the viewer and generated design review to mark the selected maximum envelope as **PHYSICAL PICK**.
 
 This is an observation only. It does not satisfy `rev_c_chassis_release_qualified`, does not promote the deck/chassis component to QUALIFIED, and does not unlock MEASURE_FIRST procurement.
+
+
+## Configuration-lab workflow
+
+The viewer now supports reproducible, non-authoritative trade studies.
+
+Recommended loop:
+
+1. Apply a named preset that matches the question you want to inspect.
+2. Toggle only the systems relevant to that question.
+3. Adjust deck/topology/SnowDeck parameters.
+4. Save the state as **A**.
+5. Change one design choice and save the new state as **B**.
+6. Read the descriptive A/B table and configuration warnings.
+7. Use the result to decide which physical measurement or bench test would actually discriminate the two options.
+
+Current preset families include:
+
+- **Brake-first trail core**: brake-first donor reference with inert pack and SnowDeck visible.
+- **SnowDeck fit bench**: rider-interface study with drivetrain clutter removed.
+- **Drive packaging study**: drive-clearance branch with drive and pack envelopes visible.
+- **Brake + drive coexistence question**: intentionally shows both unresolved systems together so interference can be inspected without claiming compatibility.
+- **Armor + dock service study**: exposes underside protection and passive alignment geometry.
+
+The A/B table reports reference geometry and compatibility only. It never computes an overall score or winner, and it does not infer ride quality, strength, stopping distance, range, or safety.
+
+The default procedural assembly uses physically legible materials for the board and authority-colored edges/ghost volumes for evidence state. Generated GLB CAD can still be overlaid for geometry audit.
