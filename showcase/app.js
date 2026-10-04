@@ -37,6 +37,7 @@ camera.position.set(1050, -900, 600);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+controls.enablePan = false;
 controls.target.set(0, 0, 100);
 
 scene.add(new THREE.HemisphereLight(0xdce8ff, 0x171922, 2.0));
@@ -80,6 +81,10 @@ const visual = {
   layerVisibility: {},
   snapshots: { A: null, B: null },
   packEnvelope: null,
+  cameraView: "hero",
+  cameraQuarterTurns: 0,
+  cameraCenter: new THREE.Vector3(0, 0, 90),
+  reframePending: false,
 };
 
 clearanceRoot.visible = false;
@@ -595,6 +600,7 @@ function deckStudyUI(manifest) {
           : "") +
         "Truck/wheel geometry is intentionally unchanged.";
       refreshConfigurationUI();
+      scheduleReframe();
     });
 
     host.appendChild(btn);
@@ -620,6 +626,7 @@ function topologyUI(manifest) {
       btn.classList.add("active");
       applyTopology(branch.id);
       refreshConfigurationUI();
+      scheduleReframe();
     });
     host.appendChild(btn);
   });
@@ -645,6 +652,7 @@ function setLayerVisibility(id, visible, syncControl = true) {
     if (control) control.checked = Boolean(visible);
   }
   refreshConfigurationUI();
+  scheduleReframe();
 }
 
 function activeLayerLabels() {
@@ -816,6 +824,8 @@ function applyConfigurationPreset(preset) {
   setSnowdeckControls(preset.snowdeck || {});
   const note = document.getElementById("preset-note");
   if (note) note.textContent = preset.description + " Visualization only; no authority is created.";
+  visual.cameraView = "hero";
+  visual.cameraQuarterTurns = 0;
   frameAssembly("hero");
   refreshConfigurationUI();
 }
@@ -861,7 +871,7 @@ function configurationLabUI(manifest) {
     visual.snapshots.B = currentConfiguration();
     renderComparison();
   });
-  document.getElementById("reframe")?.addEventListener("click", () => frameAssembly("hero"));
+  document.getElementById("reframe")?.addEventListener("click", () => frameAssembly(visual.cameraView || "hero"));
 
   const initial = (lab.presets || [])[0];
   if (initial) applyConfigurationPreset(initial);
@@ -871,38 +881,146 @@ function configurationLabUI(manifest) {
 function visibleAssemblyBounds() {
   scene.updateMatrixWorld(true);
   const bounds = new THREE.Box3();
-  const objects = [root];
-  if (armorRoot.visible) objects.push(armorRoot);
-  if (dockRoot.visible) objects.push(dockRoot);
-  objects.forEach(object => bounds.expandByObject(object));
+
+  const includeVisibleMeshes = object => {
+    object.traverseVisible(child => {
+      if (!child.isMesh) return;
+      const childBounds = new THREE.Box3().setFromObject(child, true);
+      if (!childBounds.isEmpty()) bounds.union(childBounds);
+    });
+  };
+
+  includeVisibleMeshes(root);
+  if (armorRoot.visible) includeVisibleMeshes(armorRoot);
+  if (dockRoot.visible) includeVisibleMeshes(dockRoot);
   return bounds;
 }
 
-function frameAssembly(view = "hero") {
+function cameraDirectionFor(view) {
+  const directions = {
+    hero: new THREE.Vector3(1.0, -1.24, 0.62),
+    top: new THREE.Vector3(0, 0, 1),
+    side: new THREE.Vector3(0, -1, 0.12),
+    front: new THREE.Vector3(1, 0, 0.12),
+    rear: new THREE.Vector3(-1, 0, 0.12),
+    fit: new THREE.Vector3(0, 0, 1),
+    clearance: new THREE.Vector3(0.95, -1.25, 0.26),
+    topology: new THREE.Vector3(1.0, -1.2, 0.32),
+    exploded: new THREE.Vector3(1.0, -1.25, 0.72),
+    risk: new THREE.Vector3(1.0, -1.24, 0.48),
+    armor: new THREE.Vector3(0.9, -1.2, 0.2),
+  };
+  const direction = (directions[view] || directions.hero).clone().normalize();
+  if (view !== "top" && view !== "fit") {
+    direction.applyAxisAngle(
+      new THREE.Vector3(0, 0, 1),
+      visual.cameraQuarterTurns * Math.PI / 2
+    );
+  }
+  return direction.normalize();
+}
+
+function cameraUpFor(view) {
+  if (view === "top" || view === "fit") {
+    return new THREE.Vector3(0, 1, 0).applyAxisAngle(
+      new THREE.Vector3(0, 0, 1),
+      visual.cameraQuarterTurns * Math.PI / 2
+    );
+  }
+  return new THREE.Vector3(0, 0, 1);
+}
+
+function boundsCorners(bounds) {
+  const { min, max } = bounds;
+  return [
+    new THREE.Vector3(min.x, min.y, min.z),
+    new THREE.Vector3(min.x, min.y, max.z),
+    new THREE.Vector3(min.x, max.y, min.z),
+    new THREE.Vector3(min.x, max.y, max.z),
+    new THREE.Vector3(max.x, min.y, min.z),
+    new THREE.Vector3(max.x, min.y, max.z),
+    new THREE.Vector3(max.x, max.y, min.z),
+    new THREE.Vector3(max.x, max.y, max.z),
+  ];
+}
+
+function fitDistanceForBounds(bounds, center, direction, cameraUp) {
+  const forward = direction.clone().multiplyScalar(-1).normalize();
+  let right = new THREE.Vector3().crossVectors(forward, cameraUp);
+
+  if (right.lengthSq() < 1e-8) {
+    right = new THREE.Vector3(1, 0, 0);
+  } else {
+    right.normalize();
+  }
+  const screenUp = new THREE.Vector3().crossVectors(right, forward).normalize();
+
+  const verticalFov = THREE.MathUtils.degToRad(camera.fov);
+  const tanVertical = Math.tan(verticalFov / 2);
+  const tanHorizontal = tanVertical * Math.max(camera.aspect, 0.1);
+  let distance = 1;
+
+  for (const corner of boundsCorners(bounds)) {
+    const rel = corner.sub(center);
+    const towardCamera = rel.dot(direction);
+    const horizontal = Math.abs(rel.dot(right));
+    const vertical = Math.abs(rel.dot(screenUp));
+    distance = Math.max(
+      distance,
+      towardCamera + horizontal / tanHorizontal,
+      towardCamera + vertical / tanVertical
+    );
+  }
+
+  return distance * 1.12;
+}
+
+function updateCameraToolbar() {
+  document.querySelectorAll("[data-camera-view]").forEach(button => {
+    button.classList.toggle("active", button.dataset.cameraView === visual.cameraView);
+  });
+}
+
+function frameAssembly(view = visual.cameraView || "hero") {
   const bounds = visibleAssemblyBounds();
   if (bounds.isEmpty()) return;
+
+  visual.cameraView = view;
   const center = bounds.getCenter(new THREE.Vector3());
-  const size = bounds.getSize(new THREE.Vector3());
-  const maxDim = Math.max(size.x, size.y, size.z * 2.2, 500);
-  const directions = {
-    hero: new THREE.Vector3(1.05, -1.35, 0.72),
-    fit: new THREE.Vector3(0.02, -0.04, 1),
-    clearance: new THREE.Vector3(1.1, -1.3, 0.32),
-    topology: new THREE.Vector3(1.2, -1.25, 0.38),
-    exploded: new THREE.Vector3(1.05, -1.35, 0.8),
-    risk: new THREE.Vector3(1.05, -1.35, 0.55),
-    armor: new THREE.Vector3(1.0, -1.3, 0.24),
-  };
-  const direction = (directions[view] || directions.hero).normalize();
-  const fov = THREE.MathUtils.degToRad(camera.fov);
-  const distance = maxDim / (2 * Math.tan(fov / 2)) * (view === "fit" ? 1.18 : 1.36);
+  const direction = cameraDirectionFor(view);
+  const cameraUp = cameraUpFor(view);
+  const distance = fitDistanceForBounds(bounds, center, direction, cameraUp);
+
+  visual.cameraCenter.copy(center);
+  camera.up.copy(cameraUp);
   camera.position.copy(center).add(direction.multiplyScalar(distance));
-  camera.near = Math.max(0.1, distance / 120);
-  camera.far = distance * 8;
+  camera.near = Math.max(0.1, distance / 200);
+  camera.far = Math.max(5000, distance * 8);
   camera.updateProjectionMatrix();
+
   controls.target.copy(center);
+  controls.minDistance = Math.max(80, distance * 0.18);
+  controls.maxDistance = distance * 4;
   controls.update();
+  updateCameraToolbar();
 }
+
+function scheduleReframe(view = null) {
+  if (view) visual.cameraView = view;
+  if (visual.reframePending) return;
+  visual.reframePending = true;
+  requestAnimationFrame(() => {
+    visual.reframePending = false;
+    frameAssembly(visual.cameraView || "hero");
+  });
+}
+
+function rotateCameraQuarter(turns) {
+  visual.cameraQuarterTurns =
+    ((visual.cameraQuarterTurns + Number(turns)) % 4 + 4) % 4;
+  frameAssembly(visual.cameraView || "hero");
+}
+
 
 function fmt(value, digits = 3) {
   return Number.isFinite(Number(value)) ? Number(value).toFixed(digits) : "—";
@@ -1089,6 +1207,21 @@ async function loadCadTopology(id) {
 }
 
 function connectControls() {
+  document.querySelectorAll("[data-camera-view]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      visual.cameraQuarterTurns = 0;
+      frameAssembly(btn.dataset.cameraView || "hero");
+    });
+  });
+
+  document.querySelectorAll("[data-camera-rotate]").forEach(btn => {
+    btn.addEventListener("click", () => rotateCameraQuarter(btn.dataset.cameraRotate));
+  });
+
+  document.getElementById("camera-center")?.addEventListener("click", () => {
+    frameAssembly(visual.cameraView || "hero");
+  });
+
   document.querySelectorAll("[data-view]").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll("[data-view]").forEach(x => x.classList.remove("active"));
@@ -1144,6 +1277,7 @@ function resize() {
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
+  if (visual.geometry) scheduleReframe();
 }
 window.addEventListener("resize", resize);
 
