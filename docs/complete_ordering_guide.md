@@ -210,7 +210,7 @@ A current example cart using the verified $15 official Espressif board and inexp
 Generate the one-zone CAD package:
 
 ```bash
-PYTHONPATH=. python cad/generate_one_zone_pilot.py
+python -m cad.generate_one_zone_pilot
 ```
 
 You need only the one-zone carrier, pod, zone pad, reference cell and alignment-jig outputs required by `hardware/one_zone_pilot_assembly.md`.
