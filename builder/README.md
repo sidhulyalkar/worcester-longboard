@@ -2,7 +2,7 @@
 
 `builder/` is the browser product surface for the generic Worcester Board Builder.
 
-It consumes the versioned data under `configurator/` and `catalog/`. `builder/engine.mjs` derives requirements and candidate architectures, while `builder/swap_engine.mjs` powers the component Swap Lab. Both have deterministic Python counterparts and CI parity checks.
+It consumes the versioned data under `configurator/` and `catalog/`. `builder/engine.mjs` derives requirements and candidate architectures, `builder/swap_engine.mjs` powers the component Swap Lab, and `builder/visual_state.mjs` + `builder/preview_renderer.mjs` generate deterministic Hero/Top/Side board visuals from the same deck/topology geometry used by the 3D twin.
 
 ## Run
 
@@ -27,7 +27,7 @@ No separate build step is required.
 ```bash
 python tools/validate_board_builder.py
 python -m pytest -q tests/test_board_builder_engine.py tests/test_board_builder_contract.py tests/test_board_builder_ui_contract.py
-node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_builder_swap_lab.mjs
+node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_builder_swap_lab.mjs tests/js/test_board_builder_visuals.mjs
 ```
 
 The full repository validator also checks Python/browser parity.
@@ -53,3 +53,33 @@ The baseline candidate remains immutable. Every edit creates a separate non-auth
 - can be opened in the 3D twin with edited deck/topology/layer state.
 
 A Swap Lab design is not an order, fabrication release, or powered-operation permit.
+
+
+## Auto-generated visual gallery
+
+Candidate visuals regenerate automatically whenever the rider profile changes. A shared **Hero / Top / Side** control changes every candidate to the same view for direct comparison.
+
+The preview state is not inferred from marketing art. It is derived from:
+
+- the generated candidate's deck candidate ID;
+- the generated truck/topology branch;
+- the rider-profile stance center;
+- the candidate's actual wheel study;
+- the candidate BOM's brake, drive, battery, SnowDeck, armor and dock contents;
+- the current compatibility/readiness result.
+
+The dimensional source for deck and topology geometry is `showcase/x1_rev_c.json`, the same source used by the 3D twin. Candidate visuals therefore do not silently inherit extra systems from a convenient showcase preset.
+
+Every card can export its current preview as SVG. Headless export is also available:
+
+```bash
+node tools/render_board_candidate_previews.mjs \
+  configurator/examples/trail_rider_profile.json \
+  --out-dir /tmp/board-previews
+```
+
+This writes Hero, Top and Side SVGs plus a visualization-only manifest.
+
+Swap Lab edits regenerate a separate custom preview live. Opening the edited design in the 3D twin carries deck, topology, wheel study, stance and visible-system state in the URL.
+
+The SVGs are comparison illustrations, not fabrication drawings. In particular, a larger-wheel visual study does not itself recompute loaded clearance, tire deformation, gearing, structural loads or braking performance.

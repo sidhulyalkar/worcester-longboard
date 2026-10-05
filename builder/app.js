@@ -7,6 +7,14 @@ import {
   evaluateSwap,
   seedSwapSelection,
 } from "./swap_engine.mjs";
+import {
+  visualStateFromCandidate,
+  visualStateFromSwap,
+} from "./visual_state.mjs";
+import {
+  downloadBoardPreviewSvg,
+  renderBoardPreviewSvg,
+} from "./preview_renderer.mjs";
 
 const STORAGE_KEY = "worcester-board-builder-profile-v1";
 
@@ -20,6 +28,7 @@ const state = {
   swapBaselineId: null,
   swapSelection: null,
   swapResult: null,
+  galleryView: "hero",
 };
 
 const $ = selector => document.querySelector(selector);
@@ -40,15 +49,16 @@ async function fetchJson(path) {
 }
 
 async function loadBundle() {
-  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots] = await Promise.all([
+  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, twinSeed] = await Promise.all([
     fetchJson("../configurator/questionnaire.v1.json"),
     fetchJson("../configurator/rules.v1.json"),
     fetchJson("../catalog/board_components.v1.json"),
     fetchJson("../configurator/architectures.v1.json"),
     fetchJson("../configurator/compatibility_rules.v1.json"),
     fetchJson("../configurator/swap_slots.v1.json"),
+    fetchJson("../showcase/x1_rev_c.json"),
   ]);
-  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots };
+  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, twinSeed };
 }
 
 function restoreProfile(questionnaire) {
@@ -276,12 +286,19 @@ function partialCost(candidate) {
 
 function twinUrl(candidate) {
   const spec = candidate.personalized_spec || {};
+  const visual = candidateVisualState(candidate);
   const params = new URLSearchParams({
     preset: candidate.visual_preset,
     candidate: candidate.id,
+    deck: visual.deck.id,
+    topology: visual.topology.id,
+    wheel: visual.wheel.study_id,
   });
   if (Number.isFinite(Number(spec.stance_center_mm))) {
     params.set("stance_mm", String(spec.stance_center_mm));
+  }
+  for (const [layer, visible] of Object.entries(visual.layers)) {
+    params.set(layer, visible ? "1" : "0");
   }
   return "../showcase/?" + params.toString();
 }
@@ -304,6 +321,49 @@ function candidateSpecHtml(candidate) {
       '<span>' + escapeHtml(energy) + '</span>' +
     '</div>'
   );
+}
+
+function candidateVisualState(candidate) {
+  return visualStateFromCandidate(candidate, state.bundle.twinSeed, state.bundle.catalog);
+}
+
+function renderCandidateVisual(candidate) {
+  const visual = candidateVisualState(candidate);
+  const svg = renderBoardPreviewSvg(
+    visual,
+    state.galleryView,
+    { width: 720, height: 360, compact: true }
+  );
+  const wheel = visual.wheel.visible
+    ? Math.round(visual.wheel.diameter_mm) + " mm wheels"
+    : "fit bench";
+  const stance = visual.stance_mm ? Math.round(visual.stance_mm) + " mm stance" : "stance TBD";
+  return (
+    '<div class="candidate-visual" data-candidate-visual="' + escapeHtml(candidate.id) + '">' +
+      svg +
+      '<div class="candidate-visual-meta">' +
+        '<span>' + escapeHtml(visual.deck.id.replaceAll("_", " ")) + '</span>' +
+        '<span>' + escapeHtml(wheel) + '</span>' +
+        '<span>' + escapeHtml(stance) + '</span>' +
+      '</div>' +
+      '<div class="candidate-preview-actions">' +
+        '<button type="button" data-download-preview="' + escapeHtml(candidate.id) + '">SVG</button>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
+function setGalleryView(view) {
+  if (!["hero", "top", "side"].includes(view)) return;
+  state.galleryView = view;
+  document.querySelectorAll("[data-gallery-view]").forEach(button => {
+    button.classList.toggle("active", button.dataset.galleryView === view);
+  });
+  if (state.result) {
+    renderCandidates(state.result.candidates);
+    const candidate = state.result.candidates.find(row => row.id === state.selectedId);
+    if (candidate && state.swapResult) renderSwapPreview(candidate);
+  }
 }
 
 function traitsHtml(candidate) {
@@ -336,6 +396,7 @@ function renderCandidates(candidates) {
         : "";
 
     card.innerHTML =
+      renderCandidateVisual(candidate) +
       '<div class="candidate-top">' +
         '<div><h3>' + escapeHtml(candidate.label) + '</h3><p>' + escapeHtml(candidate.description) + '</p></div>' +
         '<div class="fit-score"><strong>' + Math.round(candidate.fit_score * 100) + '%</strong><span>profile fit</span></div>' +
@@ -355,6 +416,11 @@ function renderCandidates(candidates) {
           '<a href="' + escapeHtml(twinUrl(candidate)) + '">3D</a>' +
         '</div>' +
       '</div>';
+
+    card.querySelector("[data-download-preview]").addEventListener("click", event => {
+      event.stopPropagation();
+      downloadBoardPreviewSvg(candidateVisualState(candidate), state.galleryView);
+    });
 
     card.querySelector("[data-inspect]").addEventListener("click", () => {
       state.selectedId = candidate.id;
@@ -436,6 +502,12 @@ function customTwinUrl(candidate, swapResult) {
     candidate: "custom:" + candidate.id,
     deck: twin.deck_candidate_id || candidate.deck_candidate_id,
     topology: twin.topology_id || candidate.topology_id,
+    wheel: visualStateFromSwap(
+      candidate,
+      swapResult,
+      state.bundle.twinSeed,
+      state.bundle.catalog
+    ).wheel.study_id,
   });
   if (Number.isFinite(Number(twin.stance_mm))) {
     params.set("stance_mm", String(twin.stance_mm));
@@ -511,9 +583,27 @@ function renderSwapFindings(result) {
     '<div class="detail-box"><h3>Compatibility evidence</h3><ul>' + compatibility + '</ul></div>';
 }
 
+function renderSwapPreview(candidate) {
+  const host = $("#swap-preview");
+  if (!host || !state.swapResult) return;
+  const visual = visualStateFromSwap(
+    candidate,
+    state.swapResult,
+    state.bundle.twinSeed,
+    state.bundle.catalog
+  );
+  host.innerHTML = renderBoardPreviewSvg(
+    visual,
+    state.galleryView,
+    { width: 720, height: 360, compact: false }
+  );
+}
+
 function renderSwapResult(candidate) {
   const result = state.swapResult;
   if (!result) return;
+
+  renderSwapPreview(candidate);
 
   $("#swap-summary").innerHTML =
     '<span class="summary-pill">Edited subtotal: <strong>' +
@@ -621,6 +711,12 @@ function exportCustomDesign() {
     requirements: state.result.requirements,
     baseline_candidate: candidate,
     custom_study: state.swapResult,
+    visual_state: visualStateFromSwap(
+      candidate,
+      state.swapResult,
+      state.bundle.twinSeed,
+      state.bundle.catalog
+    ),
     winner_selected: false,
     source_snapshot_as_of: state.bundle.catalog.as_of,
     note:
@@ -684,6 +780,7 @@ function exportSelectedDesign() {
     profile: state.result.profile,
     requirements: state.result.requirements,
     selected_for_inspection: selected,
+    visual_state: candidateVisualState(selected),
     winner_selected: false,
     authority: state.result.authority,
     source_snapshot_as_of: state.bundle.catalog.as_of,
@@ -717,6 +814,9 @@ async function main() {
     $("#export-design").addEventListener("click", exportSelectedDesign);
     $("#reset-swaps").addEventListener("click", resetSwaps);
     $("#export-custom-design").addEventListener("click", exportCustomDesign);
+    document.querySelectorAll("[data-gallery-view]").forEach(button => {
+      button.addEventListener("click", () => setGalleryView(button.dataset.galleryView));
+    });
   } catch (error) {
     console.error(error);
     $("#questionnaire").innerHTML = '<div class="note warning">Board Builder failed to load: ' + escapeHtml(error.message) + '</div>';
