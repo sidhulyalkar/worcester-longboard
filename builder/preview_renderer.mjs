@@ -155,6 +155,117 @@ function deckPathTop(state, cx, cy, length, width) {
   ].join(" ");
 }
 
+function topTruckGlyph(state, x, cy, truckWidth) {
+  const family = state.visual_style?.steering_family || "generic";
+  const y0 = cy - truckWidth / 2;
+  const y1 = cy + truckWidth / 2;
+  if (family === "parallel_kingpin") {
+    return (
+      '<path d="M ' + (x - 9) + ' ' + y0 + ' L ' + (x + 10) + ' ' + (cy - 18) +
+      ' L ' + (x - 10) + ' ' + (cy + 18) + ' L ' + (x + 9) + ' ' + y1 +
+      '" fill="none" stroke="' + PALETTE.truck + '" stroke-width="5" stroke-linecap="round"/>' +
+      '<circle cx="' + x + '" cy="' + (cy - 14) + '" r="5" fill="' + PALETTE.truck + '"/>' +
+      '<circle cx="' + x + '" cy="' + (cy + 14) + '" r="5" fill="' + PALETTE.truck + '"/>'
+    );
+  }
+  let glyph =
+    '<line x1="' + x + '" x2="' + x + '" y1="' + y0 + '" y2="' + y1 +
+    '" stroke="' + PALETTE.truck + '" stroke-width="6" stroke-linecap="round"/>';
+  if (family === "channel_spring") {
+    glyph +=
+      '<rect x="' + (x - 5) + '" y="' + (cy - 34) + '" width="10" height="18" rx="4" fill="' +
+      PALETTE.truck + '" opacity=".72"/>' +
+      '<rect x="' + (x - 5) + '" y="' + (cy + 16) + '" width="10" height="18" rx="4" fill="' +
+      PALETTE.truck + '" opacity=".72"/>';
+  }
+  return glyph;
+}
+
+function sideTruckGlyph(state, x, deckY, truckLowY) {
+  const family = state.visual_style?.steering_family || "generic";
+  if (family === "parallel_kingpin") {
+    return (
+      '<path d="M ' + (x - 22) + ' ' + (deckY + 8) + ' L ' + (x - 5) + ' ' +
+      (truckLowY - 4) + ' L ' + (x + 22) + ' ' + (deckY + 8) +
+      '" fill="none" stroke="' + PALETTE.truck + '" stroke-width="4.5" stroke-linecap="round"/>' +
+      '<path d="M ' + (x - 13) + ' ' + (deckY + 12) + ' L ' + (x + 5) + ' ' +
+      (truckLowY + 2) + ' L ' + (x + 13) + ' ' + (deckY + 12) +
+      '" fill="none" stroke="' + PALETTE.truck + '" stroke-width="3" stroke-linecap="round" opacity=".8"/>'
+    );
+  }
+  return (
+    '<path d="M ' + (x - 20) + ' ' + (deckY + 9) + ' L ' + x + ' ' +
+    truckLowY + ' L ' + (x + 20) + ' ' + (deckY + 9) +
+    '" fill="none" stroke="' + PALETTE.truck +
+    '" stroke-width="5" stroke-linecap="round"/>'
+  );
+}
+
+function wheelSpokes(state, x, y, radius) {
+  const family = state.visual_style?.wheel_family || "";
+  const spokes = family.includes("superstar") || family.includes("megastar") ? 5 : 6;
+  let out = "";
+  for (let i = 0; i < spokes; i += 1) {
+    const angle = (Math.PI * 2 * i) / spokes;
+    const x2 = x + Math.cos(angle) * radius * 0.62;
+    const y2 = y + Math.sin(angle) * radius * 0.62;
+    out +=
+      '<line x1="' + x + '" y1="' + y + '" x2="' + x2 + '" y2="' + y2 +
+      '" stroke="' + PALETTE.hub + '" stroke-width="2" opacity=".72"/>';
+  }
+  return out;
+}
+
+function brakeGlyphTop(state, x, y) {
+  const hydraulic = (state.visual_style?.brake_family || "").includes("hs11");
+  let out =
+    '<circle cx="' + x + '" cy="' + y + '" r="13" fill="none" stroke="' +
+    PALETTE.brake + '" stroke-width="3"/>';
+  if (hydraulic) {
+    out +=
+      '<rect x="' + (x + 8) + '" y="' + (y - 7) +
+      '" width="16" height="14" rx="4" fill="' + PALETTE.brake + '" opacity=".82"/>';
+  }
+  return out;
+}
+
+function driveGlyphTop(state, x, y) {
+  const type = state.visual_style?.drive_type || "drive";
+  if (type === "open_belt") {
+    return (
+      '<rect x="' + (x - 24) + '" y="' + (y - 8) +
+      '" width="48" height="16" rx="8" fill="none" stroke="' + PALETTE.drive +
+      '" stroke-width="3"/>' +
+      '<circle cx="' + (x - 15) + '" cy="' + y + '" r="5" fill="' + PALETTE.drive + '"/>' +
+      '<circle cx="' + (x + 15) + '" cy="' + y + '" r="5" fill="' + PALETTE.drive + '"/>'
+    );
+  }
+  return (
+    '<circle cx="' + x + '" cy="' + y + '" r="14" fill="' + PALETTE.drive +
+    '" fill-opacity=".28" stroke="' + PALETTE.drive + '" stroke-width="2"/>' +
+    '<circle cx="' + x + '" cy="' + y + '" r="7" fill="' + PALETTE.drive + '" fill-opacity=".78"/>'
+  );
+}
+
+function driveGlyphSide(state, x, y) {
+  const type = state.visual_style?.drive_type || "drive";
+  if (type === "open_belt") {
+    return (
+      '<path d="M ' + (x - 23) + ' ' + (y - 7) + ' L ' + (x + 19) + ' ' + (y + 7) +
+      '" stroke="' + PALETTE.drive + '" stroke-width="5" stroke-linecap="round"/>' +
+      '<circle cx="' + (x - 23) + '" cy="' + (y - 7) + '" r="7" fill="none" stroke="' +
+      PALETTE.drive + '" stroke-width="2"/>' +
+      '<circle cx="' + (x + 19) + '" cy="' + (y + 7) + '" r="7" fill="none" stroke="' +
+      PALETTE.drive + '" stroke-width="2"/>'
+    );
+  }
+  return (
+    '<circle cx="' + x + '" cy="' + y + '" r="15" fill="' + PALETTE.drive +
+    '" fill-opacity=".3" stroke="' + PALETTE.drive + '" stroke-width="2"/>' +
+    '<circle cx="' + x + '" cy="' + y + '" r="7" fill="' + PALETTE.drive + '"/>'
+  );
+}
+
 function topShapes(state, width, height) {
   const g = geometry(state);
   const cx = width / 2;
@@ -169,10 +280,7 @@ function topShapes(state, width, height) {
 
   for (const axle of [-1, 1]) {
     const x = cx + axle * truckX;
-    trucks +=
-      '<line x1="' + x + '" x2="' + x + '" y1="' + (cy - g.truckWidth / 2) +
-      '" y2="' + (cy + g.truckWidth / 2) + '" stroke="' + PALETTE.truck +
-      '" stroke-width="6" stroke-linecap="round"/>';
+    trucks += topTruckGlyph(state, x, cy, g.truckWidth);
     if (state.wheel.visible) {
       for (const side of [-1, 1]) {
         const y = cy + side * g.wheelLateral;
@@ -208,12 +316,10 @@ function topShapes(state, width, height) {
       '" fill-opacity=".48" stroke="' + PALETTE.pack + '" stroke-width="1.5"/>';
   }
   if (state.layers.brake && state.wheel.visible) {
-    systems += '<circle cx="' + (cx - truckX) + '" cy="' + (cy + g.wheelLateral) +
-      '" r="13" fill="none" stroke="' + PALETTE.brake + '" stroke-width="3"/>';
+    systems += brakeGlyphTop(state, cx - truckX, cy + g.wheelLateral);
   }
   if (state.layers.drive && state.wheel.visible) {
-    systems += '<rect x="' + (cx - truckX - 17) + '" y="' + (cy - g.wheelLateral - 11) +
-      '" width="34" height="22" rx="6" fill="' + PALETTE.drive + '" fill-opacity=".68"/>';
+    systems += driveGlyphTop(state, cx - truckX, cy - g.wheelLateral);
   }
   if (state.layers.armor) {
     systems += '<rect x="' + (cx - 116) + '" y="' + (cy + g.deckWidth * 0.29) +
@@ -260,16 +366,13 @@ function sideShapes(state, width, height) {
   for (const side of [-1, 1]) {
     const x = cx + side * truckX;
     const truckLowY = state.wheel.visible ? wheelCenterY - 3 : deckY + 32;
-    trucks +=
-      '<path d="M ' + (x - 20) + ' ' + (deckY + 9) + ' L ' + x + ' ' +
-      truckLowY + ' L ' + (x + 20) + ' ' + (deckY + 9) +
-      '" fill="none" stroke="' + PALETTE.truck +
-      '" stroke-width="5" stroke-linecap="round"/>';
+    trucks += sideTruckGlyph(state, x, deckY, truckLowY);
     if (state.wheel.visible) {
       wheels +=
         '<circle cx="' + x + '" cy="' + wheelCenterY + '" r="' + wheelR +
         '" fill="' + PALETTE.tire + '" stroke="' + PALETTE.tireEdge +
         '" stroke-width="3"/>' +
+        wheelSpokes(state, x, wheelCenterY, wheelR) +
         '<circle cx="' + x + '" cy="' + wheelCenterY + '" r="' + Math.max(6, wheelR * 0.27) +
         '" fill="' + PALETTE.hub + '"/>';
     }
@@ -309,8 +412,7 @@ function sideShapes(state, width, height) {
       '" fill="none" stroke="' + PALETTE.brake + '" stroke-width="3"/>';
   }
   if (state.layers.drive && state.wheel.visible) {
-    systems += '<rect x="' + (cx - truckX - 19) + '" y="' + (wheelCenterY - wheelR * 0.52) +
-      '" width="38" height="24" rx="6" fill="' + PALETTE.drive + '" fill-opacity=".78"/>';
+    systems += driveGlyphSide(state, cx - truckX, wheelCenterY - wheelR * 0.38);
   }
   if (state.layers.dock) {
     systems += '<path d="M ' + (cx - 48) + ' ' + (groundY + 8) + ' Q ' + cx + ' ' +
