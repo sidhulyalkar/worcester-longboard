@@ -68,7 +68,7 @@ The preview state is not inferred from marketing art. It is derived from normali
 - the candidate BOM's brake, drive, battery, SnowDeck, armor and dock contents;
 - the current compatibility/readiness result.
 
-The dimensional source for deck and topology geometry is now `catalog/board_geometry.v1.json`, the same generic registry consumed by the 3D twin. Candidate visuals therefore support MBS, TRAMPA and Apex geometry without inheriting extra systems from a convenient X1 showcase preset.
+The dimensional source for deck and topology geometry is now `catalog/board_geometry.v1.json`, the same generic registry consumed by the 3D twin. Candidate visuals therefore support MBS, TRAMPA, Apex and Lacroix geometry without inheriting extra systems from a convenient X1 showcase preset.
 
 Every card can export its current preview as SVG. Headless export is also available:
 
@@ -87,7 +87,7 @@ The SVGs are comparison illustrations, not fabrication drawings. In particular, 
 
 ## Multi-vendor catalog
 
-The first real cross-vendor tranche includes MBS/Worcester, TRAMPA, Apex Boards and Boardnamics families. Generated candidates and Swap Lab edits can now produce visibly and mechanically different deck, truck, wheel, brake and drive combinations.
+The first real cross-vendor tranche includes MBS/Worcester, TRAMPA, Apex Boards, Boardnamics and Lacroix Boards families. Generated candidates and Swap Lab edits can now produce visibly and mechanically different deck, truck, wheel, brake and drive combinations.
 
 Catalog growth follows `docs/board_catalog_contract.md`. Critical cross-category interfaces default to `UNKNOWN` unless an explicit sourced rule exists.
 
