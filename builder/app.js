@@ -316,6 +316,49 @@ function candidateSpecHtml(candidate) {
   );
 }
 
+function candidateVisualState(candidate) {
+  return visualStateFromCandidate(candidate, state.bundle.twinSeed, state.bundle.catalog);
+}
+
+function renderCandidateVisual(candidate) {
+  const visual = candidateVisualState(candidate);
+  const svg = renderBoardPreviewSvg(
+    visual,
+    state.galleryView,
+    { width: 720, height: 360, compact: true }
+  );
+  const wheel = visual.wheel.visible
+    ? Math.round(visual.wheel.diameter_mm) + " mm wheels"
+    : "fit bench";
+  const stance = visual.stance_mm ? Math.round(visual.stance_mm) + " mm stance" : "stance TBD";
+  return (
+    '<div class="candidate-visual" data-candidate-visual="' + escapeHtml(candidate.id) + '">' +
+      svg +
+      '<div class="candidate-visual-meta">' +
+        '<span>' + escapeHtml(visual.deck.id.replaceAll("_", " ")) + '</span>' +
+        '<span>' + escapeHtml(wheel) + '</span>' +
+        '<span>' + escapeHtml(stance) + '</span>' +
+      '</div>' +
+      '<div class="candidate-preview-actions">' +
+        '<button type="button" data-download-preview="' + escapeHtml(candidate.id) + '">SVG</button>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
+function setGalleryView(view) {
+  if (!["hero", "top", "side"].includes(view)) return;
+  state.galleryView = view;
+  document.querySelectorAll("[data-gallery-view]").forEach(button => {
+    button.classList.toggle("active", button.dataset.galleryView === view);
+  });
+  if (state.result) {
+    renderCandidates(state.result.candidates);
+    const candidate = state.result.candidates.find(row => row.id === state.selectedId);
+    if (candidate && state.swapResult) renderSwapPreview(candidate);
+  }
+}
+
 function traitsHtml(candidate) {
   const labels = {
     range: "Range",
@@ -346,6 +389,7 @@ function renderCandidates(candidates) {
         : "";
 
     card.innerHTML =
+      renderCandidateVisual(candidate) +
       '<div class="candidate-top">' +
         '<div><h3>' + escapeHtml(candidate.label) + '</h3><p>' + escapeHtml(candidate.description) + '</p></div>' +
         '<div class="fit-score"><strong>' + Math.round(candidate.fit_score * 100) + '%</strong><span>profile fit</span></div>' +
@@ -365,6 +409,11 @@ function renderCandidates(candidates) {
           '<a href="' + escapeHtml(twinUrl(candidate)) + '">3D</a>' +
         '</div>' +
       '</div>';
+
+    card.querySelector("[data-download-preview]").addEventListener("click", event => {
+      event.stopPropagation();
+      downloadBoardPreviewSvg(candidateVisualState(candidate), state.galleryView);
+    });
 
     card.querySelector("[data-inspect]").addEventListener("click", () => {
       state.selectedId = candidate.id;
