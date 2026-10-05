@@ -113,3 +113,14 @@ test("stability fit follows rider preference direction", () => {
     candidate(plantedResult, "drive_clearance_range_study").preference_fit.stability
   );
 });
+
+
+test("zero-valued ride preferences are preserved rather than treated as missing", () => {
+  const result = generateCandidates(
+    { ...manual, snowboard_feel: 0, stability_preference: 0 },
+    bundle
+  );
+  const rangeStudy = candidate(result, "drive_clearance_range_study");
+  assert.ok(rangeStudy.preference_fit.carve < 0.5);
+  assert.ok(rangeStudy.preference_fit.stability < 0.5);
+});
