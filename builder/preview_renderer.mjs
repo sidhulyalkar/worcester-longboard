@@ -196,7 +196,7 @@ function topShapes(state, width, height) {
       '" r="13" fill="none" stroke="' + PALETTE.brake + '" stroke-width="3"/>';
   }
   if (state.layers.drive && state.wheel.visible) {
-    systems += '<rect x="' + (cx + truckX - 17) + '" y="' + (cy - g.wheelLateral - 11) +
+    systems += '<rect x="' + (cx - truckX - 17) + '" y="' + (cy - g.wheelLateral - 11) +
       '" width="34" height="22" rx="6" fill="' + PALETTE.drive + '" fill-opacity=".68"/>';
   }
   if (state.layers.armor) {
@@ -292,7 +292,7 @@ function sideShapes(state, width, height) {
       '" fill="none" stroke="' + PALETTE.brake + '" stroke-width="3"/>';
   }
   if (state.layers.drive && state.wheel.visible) {
-    systems += '<rect x="' + (cx + truckX - 19) + '" y="' + (wheelCenterY - wheelR * 0.52) +
+    systems += '<rect x="' + (cx - truckX - 19) + '" y="' + (wheelCenterY - wheelR * 0.52) +
       '" width="38" height="24" rx="6" fill="' + PALETTE.drive + '" fill-opacity=".78"/>';
   }
   if (state.layers.dock) {
