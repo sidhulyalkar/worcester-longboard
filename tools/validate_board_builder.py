@@ -16,6 +16,8 @@ def validate() -> dict[str, Any]:
     q = load("configurator/questionnaire.v1.json")
     rules = load("configurator/rules.v1.json")
     catalog = load("catalog/board_components.v1.json")
+    geometry = load("catalog/board_geometry.v1.json")
+    source_snapshots = load("catalog/source_snapshots_2026-10-04.json")
     architectures = load("configurator/architectures.v1.json")
     compatibility = load("configurator/compatibility_rules.v1.json")
     swap_slots = load("configurator/swap_slots.v1.json")
@@ -56,14 +58,74 @@ def validate() -> dict[str, Any]:
         if row.get("evidence_state") not in valid_evidence:
             errors.append(f"{cid}: invalid evidence_state")
         source = row.get("source") or {}
-        if source.get("kind") == "vendor":
+        if source.get("kind") in {"vendor", "retailer", "vendor_reference"}:
             if not source.get("url") or not source.get("as_of"):
-                errors.append(f"{cid}: vendor source requires url + as_of")
+                errors.append(f"{cid}: sourced component requires url + as_of")
+        if source.get("native_price_snapshot") and row.get("price") is not None:
+            errors.append(
+                f"{cid}: native-currency source snapshot may not be silently stored as USD price"
+            )
         if row.get("category") in {"drive", "motor", "esc", "battery", "charger"}:
             if row.get("procurement_state") != "POWER_GATED":
                 errors.append(f"{cid}: live-power category must remain POWER_GATED in seed catalog")
         if row.get("procurement_state") == "BUY_CANDIDATE":
             warnings.append(f"{cid}: BUY_CANDIDATE exists; verify generic purchase policy intentionally allows it")
+
+    source_rows = source_snapshots.get("sources", [])
+    source_ids = [row.get("id") for row in source_rows]
+    if len(source_ids) != len(set(source_ids)):
+        errors.append("source snapshot ids must be unique")
+    source_index = {row["id"]: row for row in source_rows if row.get("id")}
+
+    for row in components:
+        source = row.get("source") or {}
+        snapshot_id = source.get("snapshot_id")
+        if snapshot_id and snapshot_id not in source_index:
+            errors.append(f"{row['id']}: unknown source snapshot {snapshot_id!r}")
+        if snapshot_id:
+            snapshot = source_index[snapshot_id]
+            if source.get("url") != snapshot.get("url"):
+                errors.append(
+                    f"{row['id']}: component source URL differs from dated snapshot"
+                )
+
+    deck_rows = geometry.get("decks", [])
+    topology_rows = geometry.get("topologies", [])
+    deck_ids_list = [row.get("id") for row in deck_rows]
+    topology_ids_list = [row.get("id") for row in topology_rows]
+    if len(deck_ids_list) != len(set(deck_ids_list)):
+        errors.append("geometry deck ids must be unique")
+    if len(topology_ids_list) != len(set(topology_ids_list)):
+        errors.append("geometry topology ids must be unique")
+
+    deck_ids = set(deck_ids_list)
+    topology_ids = set(topology_ids_list)
+    for deck in deck_rows:
+        for key in ("length_mm", "width_mm", "shape_family", "evidence_state"):
+            if deck.get(key) is None:
+                errors.append(f"{deck.get('id')}: missing deck geometry {key}")
+    for topology in topology_rows:
+        for key in (
+            "truck_total_width_mm",
+            "wheel_center_lateral_mm",
+            "steering_family",
+            "evidence_state",
+        ):
+            if topology.get(key) is None:
+                errors.append(f"{topology.get('id')}: missing topology geometry {key}")
+
+    twin_deck_ids = {
+        row["id"]
+        for row in twin.get("design_studies", {}).get("deck_candidates", [])
+    }
+    twin_topology_ids = {
+        row["id"]
+        for row in twin.get("design_studies", {}).get("topology_branches", [])
+    }
+    if not twin_deck_ids.issubset(deck_ids):
+        errors.append("generic geometry registry must contain every X1 twin deck")
+    if not twin_topology_ids.issubset(topology_ids):
+        errors.append("generic geometry registry must contain every X1 twin topology")
 
     architecture_ids: set[str] = set()
     required_traits = {"range", "carve", "stability", "durability", "portability", "cost", "low_maintenance", "rough_terrain"}
@@ -71,9 +133,6 @@ def validate() -> dict[str, Any]:
         row["id"]
         for row in twin.get("design_studies", {}).get("configuration_lab", {}).get("presets", [])
     }
-    deck_ids = {row["id"] for row in twin.get("design_studies", {}).get("deck_candidates", [])}
-    topology_ids = {row["id"] for row in twin.get("design_studies", {}).get("topology_branches", [])}
-
     for architecture in architectures.get("architectures", []):
         aid = architecture.get("id")
         if not aid or aid in architecture_ids:
@@ -85,6 +144,8 @@ def validate() -> dict[str, Any]:
             errors.append(f"{aid}: unknown BOM ids {missing}")
         if architecture.get("visual_preset") not in twin_presets:
             errors.append(f"{aid}: visual_preset does not resolve in showcase")
+        if not architecture.get("vendor_family"):
+            errors.append(f"{aid}: vendor_family is required")
         if architecture.get("deck_candidate_id") not in deck_ids:
             errors.append(f"{aid}: unknown deck candidate")
         if architecture.get("topology_id") not in topology_ids:
@@ -98,10 +159,38 @@ def validate() -> dict[str, Any]:
         if "winner" in architecture or "qualified" in architecture or "authority" in architecture:
             errors.append(f"{aid}: architecture template may not carry winner/authority claims")
 
+    valid_compat_states = {
+        "COMPATIBLE",
+        "REFERENCE_COMPATIBLE",
+        "MEASURE_FIRST",
+        "UNKNOWN",
+        "INCOMPATIBLE",
+    }
     for rule in compatibility.get("pair_rules", []):
         for side in ("a", "b"):
             if rule.get(side) not in component_index:
                 errors.append(f"{rule.get('id')}: compatibility rule references unknown {side}")
+        if rule.get("state") not in valid_compat_states:
+            errors.append(f"{rule.get('id')}: invalid compatibility state")
+
+    default_pairs: set[tuple[str, str]] = set()
+    conservative_defaults = {"MEASURE_FIRST", "UNKNOWN", "INCOMPATIBLE"}
+    known_categories = {row["category"] for row in components}
+    for fallback in compatibility.get("category_pair_defaults", []):
+        categories = fallback.get("categories") or []
+        if len(categories) != 2 or categories[0] == categories[1]:
+            errors.append("category_pair_defaults require two distinct categories")
+            continue
+        pair = tuple(sorted(categories))
+        if pair in default_pairs:
+            errors.append(f"duplicate category-pair default {pair}")
+        default_pairs.add(pair)
+        if any(category not in known_categories for category in categories):
+            errors.append(f"unknown category in pair default {categories}")
+        if fallback.get("state") not in conservative_defaults:
+            errors.append(
+                f"category-pair default {categories} must fail closed, not {fallback.get('state')!r}"
+            )
 
     if swap_slots.get("scope") != "non_authoritative_component_swap_study":
         errors.append("swap_slots scope must remain non-authoritative")
@@ -162,6 +251,16 @@ def validate() -> dict[str, Any]:
             if support_id not in component_index:
                 errors.append(f"swap support component unknown: {support_id!r}")
 
+    wheel_options = slot_options.get("wheel", set())
+    for wheel_id, support_ids in swap_slots.get(
+        "wheel_support_components", {}
+    ).items():
+        if wheel_id not in wheel_options:
+            errors.append(f"swap wheel support unknown: {wheel_id!r}")
+        for support_id in support_ids:
+            if support_id not in component_index:
+                errors.append(f"swap wheel support component unknown: {support_id!r}")
+
     for topology_id, support_ids in swap_slots.get(
         "topology_support_components", {}
     ).items():
@@ -218,6 +317,9 @@ def validate() -> dict[str, Any]:
         "warnings": warnings,
         "questionnaire_fields": len(field_ids),
         "catalog_components": len(component_index),
+        "catalog_sources": len(source_index),
+        "geometry_decks": len(deck_ids),
+        "geometry_topologies": len(topology_ids),
         "architectures": len(architecture_ids),
         "swap_slots": len(swap_slot_ids),
         "candidate_visual_views": 3,
