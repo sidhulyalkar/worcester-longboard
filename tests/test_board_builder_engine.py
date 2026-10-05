@@ -161,3 +161,19 @@ def test_stability_preference_is_directional_not_more_is_always_better():
         playful_range["preference_fit"]["stability"]
         < planted_range["preference_fit"]["stability"]
     )
+
+
+def test_reference_profiles_produce_distinct_rankings_with_cross_vendor_top_three():
+    manual_result = generate_candidates(MANUAL)
+    trail_result = generate_candidates(TRAIL)
+
+    assert manual_result["candidates"][0]["id"] != trail_result["candidates"][0]["id"]
+
+    manual_families = {
+        row["vendor_family"] for row in manual_result["candidates"][:3]
+    }
+    trail_families = {
+        row["vendor_family"] for row in trail_result["candidates"][:3]
+    }
+    assert len(manual_families) >= 2
+    assert len(trail_families) >= 2
