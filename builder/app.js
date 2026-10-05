@@ -3,6 +3,10 @@ import {
   generateCandidates,
   questionnaireDefaults,
 } from "./engine.mjs";
+import {
+  evaluateSwap,
+  seedSwapSelection,
+} from "./swap_engine.mjs";
 
 const STORAGE_KEY = "worcester-board-builder-profile-v1";
 
@@ -13,6 +17,9 @@ const state = {
   selectedId: null,
   advanced: false,
   renderQueued: false,
+  swapBaselineId: null,
+  swapSelection: null,
+  swapResult: null,
 };
 
 const $ = selector => document.querySelector(selector);
@@ -33,14 +40,15 @@ async function fetchJson(path) {
 }
 
 async function loadBundle() {
-  const [questionnaire, rules, catalog, architectures, compatibility] = await Promise.all([
+  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots] = await Promise.all([
     fetchJson("../configurator/questionnaire.v1.json"),
     fetchJson("../configurator/rules.v1.json"),
     fetchJson("../catalog/board_components.v1.json"),
     fetchJson("../configurator/architectures.v1.json"),
     fetchJson("../configurator/compatibility_rules.v1.json"),
+    fetchJson("../configurator/swap_slots.v1.json"),
   ]);
-  return { questionnaire, rules, catalog, architectures, compatibility };
+  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots };
 }
 
 function restoreProfile(questionnaire) {
