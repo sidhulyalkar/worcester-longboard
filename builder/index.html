@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Worcester Board Builder</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">WORCESTER BOARD BUILDER</p>
+        <h1>Design the board around the rider.</h1>
+        <p class="lede">Describe your body, terrain, mission and ride feel. The builder derives requirements, compares board architectures, audits compatibility and assembles a source-aware BOM.</p>
+      </div>
+      <nav>
+        <a href="../showcase/">3D Twin</a>
+        <a href="../">Project home</a>
+      </nav>
+    </header>
+
+    <section class="boundary-banner">
+      <strong>Planning tool, not a build permit.</strong>
+      <span>Questionnaire answers can shape a design study. They cannot qualify structure, braking, batteries, charging or powered operation. Unknown interfaces fail closed.</span>
+    </section>
+
+    <section class="builder-grid">
+      <aside class="intake-panel">
+        <div class="panel-head">
+          <div>
+            <p class="kicker">01 / Rider + mission</p>
+            <h2>Your specification</h2>
+          </div>
+          <button id="detail-mode" type="button">Show advanced</button>
+        </div>
+        <div id="questionnaire"></div>
+        <div class="intake-actions">
+          <button id="reset-profile" type="button">Reset</button>
+          <button id="export-profile" type="button">Export profile JSON</button>
+        </div>
+        <p class="privacy-note">Profile answers stay in this browser unless you explicitly export them.</p>
+      </aside>
+
+      <section class="results-panel">
+        <div class="results-head">
+          <div>
+            <p class="kicker">02 / Derived engineering targets</p>
+            <h2>What the board needs to do</h2>
+          </div>
+          <span id="recompute-status">Live</span>
+        </div>
+        <div id="requirements" class="requirements-grid"></div>
+        <div id="requirement-notes"></div>
+
+        <div class="section-head">
+          <div>
+            <p class="kicker">03 / Trade space</p>
+            <h2>Candidate architectures</h2>
+          </div>
+          <span class="no-winner">No automatic winner</span>
+        </div>
+        <p class="section-copy">Candidates are ordered by how closely their declared traits match your priorities. Compatibility blockers and unknowns remain separate from the fit score.</p>
+        <div id="candidates" class="candidate-grid"></div>
+
+        <section id="bom-section" class="bom-section">
+          <div class="section-head">
+            <div>
+              <p class="kicker">04 / Source-aware BOM</p>
+              <h2 id="bom-title">Select a candidate</h2>
+            </div>
+            <a id="open-twin" class="primary-link disabled" href="../showcase/">Open in 3D twin</a>
+          </div>
+          <div id="bom-summary"></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>System</th>
+                  <th>Part</th>
+                  <th>Compatibility / purchase state</th>
+                  <th>Price snapshot</th>
+                  <th>Source</th>
+                </tr>
+              </thead>
+              <tbody id="bom-body">
+                <tr><td colspan="5" class="empty">Choose a candidate to inspect its parts and unresolved gates.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="candidate-detail" class="candidate-detail"></div>
+        </section>
+      </section>
+    </section>
+  </main>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
