@@ -8,11 +8,13 @@
     "schema_version",
     "scope",
     "subject_id",
+    "vendor_family",
     "deck",
     "topology",
     "wheel",
     "stance_mm",
     "layers",
+    "visual_style",
     "readiness",
     "checkout_state",
     "views",
@@ -40,27 +42,52 @@
       "additionalProperties": false,
       "required": [
         "id",
+        "manufacturer",
         "length_mm",
         "width_mm",
+        "shape_family",
         "evidence_state"
       ],
       "properties": {
         "id": {
-          "enum": [
-            "comp95",
-            "pro_warren_iii",
-            "agent"
+          "type": "string",
+          "minLength": 1
+        },
+        "manufacturer": {
+          "type": [
+            "string",
+            "null"
           ]
         },
         "length_mm": {
           "type": "number",
-          "minimum": 800,
-          "maximum": 1200
+          "minimum": 700,
+          "maximum": 1300
         },
         "width_mm": {
           "type": "number",
-          "minimum": 180,
-          "maximum": 360
+          "minimum": 150,
+          "maximum": 400
+        },
+        "wheelbase_mm": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 500,
+          "maximum": 1200
+        },
+        "tip_angle_deg": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 60
+        },
+        "shape_family": {
+          "type": "string",
+          "minLength": 1
         },
         "evidence_state": {
           "enum": [
@@ -75,28 +102,55 @@
       "additionalProperties": false,
       "required": [
         "id",
+        "manufacturer",
         "truck_total_width_mm",
         "wheel_center_lateral_mm",
+        "steering_family",
         "evidence_state"
       ],
       "properties": {
         "id": {
-          "enum": [
-            "brake_first_400mm",
-            "drive_clearance_420mm",
-            "brake_hanger_70mm_topology_study"
+          "type": "string",
+          "minLength": 1
+        },
+        "manufacturer": {
+          "type": [
+            "string",
+            "null"
           ]
         },
         "truck_total_width_mm": {
-          "type": "number"
+          "type": "number",
+          "minimum": 250,
+          "maximum": 600
         },
         "wheel_center_lateral_mm": {
-          "type": "number"
+          "type": "number",
+          "minimum": 100,
+          "maximum": 300
+        },
+        "steering_family": {
+          "type": "string",
+          "minLength": 1
+        },
+        "axle_diameter_mm": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 30
         },
         "evidence_state": {
           "enum": [
             "REFERENCE",
             "ASSUMED"
+          ]
+        },
+        "visual_geometry_state": {
+          "type": [
+            "string",
+            "null"
           ]
         }
       }
@@ -106,25 +160,42 @@
       "additionalProperties": false,
       "required": [
         "study_id",
+        "manufacturer",
+        "wheel_class",
+        "hub_family",
         "diameter_mm",
         "width_mm",
         "visible"
       ],
       "properties": {
         "study_id": {
-          "enum": [
-            "TIRE-T1-8-REF",
-            "TIRE-T2-9",
-            "none"
+          "type": "string",
+          "minLength": 1
+        },
+        "manufacturer": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "wheel_class": {
+          "type": "string"
+        },
+        "hub_family": {
+          "type": [
+            "string",
+            "null"
           ]
         },
         "diameter_mm": {
           "type": "number",
-          "minimum": 0
+          "minimum": 0,
+          "maximum": 500
         },
         "width_mm": {
           "type": "number",
-          "minimum": 0
+          "minimum": 0,
+          "maximum": 200
         },
         "visible": {
           "type": "boolean"
@@ -234,6 +305,38 @@
         },
         "powered_operation_authorized": {
           "const": false
+        }
+      }
+    },
+    "vendor_family": {
+      "type": "string",
+      "minLength": 1
+    },
+    "visual_style": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deck_shape",
+        "steering_family",
+        "wheel_family",
+        "brake_family",
+        "drive_type"
+      ],
+      "properties": {
+        "deck_shape": {
+          "type": "string"
+        },
+        "steering_family": {
+          "type": "string"
+        },
+        "wheel_family": {
+          "type": "string"
+        },
+        "brake_family": {
+          "type": "string"
+        },
+        "drive_type": {
+          "type": "string"
         }
       }
     }
