@@ -255,8 +255,8 @@ export function scoreArchitecture(profile, requirements, architecture, catalog, 
   const traits = architecture.traits;
   const preferenceFit = {
     range: Number(traits.range),
-    carve: 1 - Math.abs(Number(traits.carve) - Number(profile.snowboard_feel || 100) / 100),
-    stability: 1 - Math.abs(Number(traits.stability) - Number(profile.stability_preference || 100) / 100),
+    carve: 1 - Math.abs(Number(traits.carve) - Number(profile.snowboard_feel ?? 100) / 100),
+    stability: 1 - Math.abs(Number(traits.stability) - Number(profile.stability_preference ?? 100) / 100),
     durability: Number(traits.durability),
     portability: Number(traits.portability),
     cost: Number(traits.cost),
