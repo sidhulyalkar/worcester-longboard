@@ -203,3 +203,59 @@ def test_cross_vendor_swap_defaults_to_unknown_instead_of_assuming_fit():
         and finding["state"] == "UNKNOWN"
         for finding in result["compatibility_findings"]
     )
+
+
+def test_lacroix_family_is_normalized_without_promoting_complete_board_facts():
+    catalog = load("catalog/board_components.v1.json")
+    geometry = load("catalog/board_geometry.v1.json")
+    components = {row["id"]: row for row in catalog["components"]}
+    decks = {row["id"]: row for row in geometry["decks"]}
+    topologies = {row["id"]: row for row in geometry["topologies"]}
+
+    deck = components["DECK-LACROIX-BARREL-REF"]
+    truck = components["TRUCK-LACROIX-HYPERLITE"]
+    wheel = components["WHEEL-LACROIX-KENDA8-RSII"]
+    drive = components["DRIVE-LACROIX-BARREL-BELT"]
+
+    assert deck["procurement_state"] == "STUDY_ONLY"
+    assert deck["interfaces"]["standalone_part_source"] is False
+    assert truck["interfaces"]["published_hanger_width_mm"] == 381
+    assert truck["interfaces"]["steering_family"] == "precision_bushing_spring"
+    assert wheel["interfaces"]["published_diameter_mm"] == 203.2
+    assert wheel["interfaces"]["visual_geometry_state"] == "ASSUMED"
+    assert drive["interfaces"]["drive_type"] == "belt"
+    assert drive["procurement_state"] == "POWER_GATED"
+
+    assert decks["lacroix_barrel_876"]["length_mm"] == 876.3
+    assert decks["lacroix_barrel_876"]["wheelbase_mm"] == 838.2
+    assert topologies["lacroix_hyperlite_381"]["truck_total_width_mm"] == 381
+    assert topologies["lacroix_hyperlite_381"]["visual_geometry_state"] == "ASSUMED"
+
+
+def test_lacroix_native_pairs_are_reference_compatible_but_power_study_stays_blocked():
+    manual = load("configurator/examples/manual_carver_profile.json")
+    trail = load("configurator/examples/trail_rider_profile.json")
+
+    manual_result = generate_candidates(manual)
+    trail_result = generate_candidates(trail)
+
+    carve = candidate(manual_result, "lacroix_barrel_carve_reference")
+    power = candidate(trail_result, "lacroix_barrel_belt_study")
+
+    assert carve["vendor_family"] == "Lacroix Boards"
+    assert carve["readiness"] == "REFERENCE_COMPATIBLE"
+    assert carve["checkout_state"] == "HOLD_MEASURE"
+    assert any(
+        finding["id"] == "lacroix_barrel_hyperlite"
+        and finding["state"] == "REFERENCE_COMPATIBLE"
+        for finding in carve["compatibility_findings"]
+    )
+
+    assert power["readiness"] == "BLOCKED"
+    assert power["checkout_state"] == "BLOCKED"
+    assert any(
+        finding["id"] == "lacroix_hyperlite_belt"
+        and finding["state"] == "REFERENCE_COMPATIBLE"
+        for finding in power["compatibility_findings"]
+    )
+    assert any("friction-brake" in text for text in power["blockers"])
