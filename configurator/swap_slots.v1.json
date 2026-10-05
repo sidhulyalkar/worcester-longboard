@@ -267,7 +267,7 @@
       "ESC-DUAL-CLASS"
     ],
     "DRIVE-TRAMPA-OBD-DUAL": [
-      "MOTOR-6374-CLASS",
+      "MOTOR-63XX-CLASS",
       "ESC-DUAL-CLASS"
     ]
   },
