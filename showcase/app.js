@@ -1449,6 +1449,52 @@ function resize() {
 }
 window.addEventListener("resize", resize);
 
+async function loadCatalogExtensions() {
+  try {
+    const [geometryResponse, catalogResponse] = await Promise.all([
+      fetch("../catalog/board_geometry.v1.json", { cache: "no-store" }),
+      fetch("../catalog/board_components.v1.json", { cache: "no-store" }),
+    ]);
+    if (!geometryResponse.ok || !catalogResponse.ok) {
+      throw new Error("generic board catalog unavailable");
+    }
+    return {
+      geometry: await geometryResponse.json(),
+      catalog: await catalogResponse.json(),
+    };
+  } catch (error) {
+    return null;
+  }
+}
+
+function mergeRowsById(existing, additions) {
+  const extra = new Map((additions || []).map(row => [row.id, row]));
+  const merged = (existing || []).map(row => {
+    const generic = extra.get(row.id);
+    if (!generic) return row;
+    extra.delete(row.id);
+    return { ...generic, ...row };
+  });
+  merged.push(...extra.values());
+  return merged;
+}
+
+function extendManifestWithCatalog(manifest, extensions) {
+  if (!extensions) return;
+  const studies = manifest.design_studies || (manifest.design_studies = {});
+  studies.deck_candidates = mergeRowsById(
+    studies.deck_candidates,
+    extensions.geometry?.decks
+  );
+  studies.topology_branches = mergeRowsById(
+    studies.topology_branches,
+    extensions.geometry?.topologies
+  );
+  visual.componentCatalog = new Map(
+    (extensions.catalog?.components || []).map(row => [row.id, row])
+  );
+}
+
 async function loadManifest() {
   try {
     const response = await fetch("./x1_runtime_manifest.json", { cache: "no-store" });
@@ -1463,6 +1509,8 @@ async function loadManifest() {
 }
 
 const manifest = await loadManifest();
+const catalogExtensions = await loadCatalogExtensions();
+extendManifestWithCatalog(manifest, catalogExtensions);
 visual.manifest = manifest;
 fillUI(manifest);
 proceduralBoard(manifest);
