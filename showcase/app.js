@@ -87,6 +87,7 @@ const visual = {
   cameraCenter: new THREE.Vector3(0, 0, 90),
   reframePending: false,
   wheelStudyId: "TIRE-T1-8-REF",
+  componentCatalog: new Map(),
 };
 
 clearanceRoot.visible = false;
@@ -501,32 +502,48 @@ function applyTopology(id) {
   loadCadTopology(branch.id);
 }
 
+function wheelStudyGeometry(id) {
+  if (!visual.geometry) return null;
+  if (id === "none") {
+    return {
+      id: "none",
+      diameter_mm: 0,
+      width_mm: 0,
+      visible: false,
+    };
+  }
+
+  const component = visual.componentCatalog.get(id);
+  const interfaces = component?.interfaces || {};
+  const diameter = Number(
+    interfaces.measured_reference_diameter_mm ??
+    interfaces.published_diameter_mm ??
+    visual.geometry.wheel_diameter_mm
+  );
+  const width = Number(
+    interfaces.measured_reference_width_mm ??
+    interfaces.published_width_mm ??
+    visual.geometry.wheel_width_mm
+  );
+  return {
+    id: component ? id : "TIRE-T1-8-REF",
+    diameter_mm: diameter,
+    width_mm: width,
+    visible: true,
+  };
+}
+
 function applyWheelStudy(id) {
   if (!visual.geometry) return;
-  const studies = {
-    "TIRE-T1-8-REF": {
-      diameter_mm: visual.geometry.wheel_diameter_mm,
-      width_mm: visual.geometry.wheel_width_mm,
-      visible: true,
-    },
-    "TIRE-T2-9": {
-      diameter_mm: 219,
-      width_mm: 67,
-      visible: true,
-    },
-    "none": {
-      diameter_mm: visual.geometry.wheel_diameter_mm,
-      width_mm: visual.geometry.wheel_width_mm,
-      visible: false,
-    },
-  };
-  const study = studies[id] || studies["TIRE-T1-8-REF"];
-  visual.wheelStudyId = studies[id] ? id : "TIRE-T1-8-REF";
+  const study = wheelStudyGeometry(id) || wheelStudyGeometry("TIRE-T1-8-REF");
+  visual.wheelStudyId = study.id;
 
   const diameterScale =
-    study.diameter_mm / visual.geometry.wheel_diameter_mm;
+    (study.diameter_mm || visual.geometry.wheel_diameter_mm) /
+    visual.geometry.wheel_diameter_mm;
   const widthScale =
-    study.width_mm / visual.geometry.wheel_width_mm;
+    (study.width_mm || visual.geometry.wheel_width_mm) /
+    visual.geometry.wheel_width_mm;
 
   for (const axle of Object.values(visual.axles)) {
     for (const wheelGroup of [axle.leftWheel, axle.rightWheel]) {
@@ -707,23 +724,7 @@ function currentConfiguration() {
   const deck = currentDeckCandidate();
   const topology = currentTopology();
   const g = visual.geometry || {};
-  const wheelStudy = {
-    "TIRE-T1-8-REF": {
-      diameter_mm: g.wheel_diameter_mm ?? 194,
-      width_mm: g.wheel_width_mm ?? 51,
-      visible: true,
-    },
-    "TIRE-T2-9": {
-      diameter_mm: 219,
-      width_mm: 67,
-      visible: true,
-    },
-    "none": {
-      diameter_mm: 0,
-      width_mm: 0,
-      visible: false,
-    },
-  }[visual.wheelStudyId] || {
+  const wheelStudy = wheelStudyGeometry(visual.wheelStudyId) || {
     diameter_mm: g.wheel_diameter_mm ?? 194,
     width_mm: g.wheel_width_mm ?? 51,
     visible: true,
@@ -984,7 +985,10 @@ function configurationLabUI(manifest) {
       setLayerVisibility(layerId, visible);
     }
 
-    if (["TIRE-T1-8-REF", "TIRE-T2-9", "none"].includes(requestedWheelId)) {
+    if (
+      requestedWheelId === "none" ||
+      visual.componentCatalog.get(requestedWheelId)?.category === "wheel"
+    ) {
       applyWheelStudy(requestedWheelId);
     }
 
