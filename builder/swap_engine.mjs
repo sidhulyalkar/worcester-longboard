@@ -74,29 +74,30 @@ function slotOptionIndex(slots) {
 }
 
 export function seedSwapSelection(candidate) {
-  const bomIds = new Set(candidate.bom.map(row => row.component_id));
-  let wheel = null;
-  if (candidate.capabilities && candidate.capabilities.wheel_class === "8in_pneumatic") {
-    wheel = "TIRE-T1-8-REF";
-  } else if (bomIds.has("TIRE-T2-9")) {
-    wheel = "TIRE-T2-9";
-  }
+  if (candidate.swap_defaults) return structuredClone(candidate.swap_defaults);
 
-  let battery = null;
-  for (const id of ["BATTERY-TRAIL-CLASS", "BATTERY-RANGE-CLASS"]) {
-    if (bomIds.has(id)) {
-      battery = id;
-      break;
-    }
+  const bomIds = new Set(candidate.bom.map(row => row.component_id));
+  const firstPresent = ids => ids.find(id => bomIds.has(id)) || null;
+  let wheel = firstPresent([
+    "WHEEL-TRAMPA-MEGASTAR9",
+    "WHEEL-TRAMPA-ALPHA8",
+    "TIRE-T2-9",
+  ]);
+  if (!wheel && candidate.capabilities?.wheel_class === "8in_pneumatic") {
+    wheel = "TIRE-T1-8-REF";
   }
 
   return {
     deck: candidate.deck_candidate_id,
     topology: candidate.topology_id,
     wheel,
-    brake: bomIds.has("BRAKE-V5") ? "BRAKE-V5" : null,
-    drive: bomIds.has("DRIVE-G1-DUAL") ? "DRIVE-G1-DUAL" : null,
-    battery,
+    brake: firstPresent(["BRAKE-TRAMPA-HS11", "BRAKE-V5"]),
+    drive: firstPresent([
+      "DRIVE-BOARDNAMICS-M1-AT",
+      "DRIVE-TRAMPA-OBD-DUAL",
+      "DRIVE-G1-DUAL",
+    ]),
+    battery: firstPresent(["BATTERY-TRAIL-CLASS", "BATTERY-RANGE-CLASS"]),
     rider_interface: bomIds.has("SNOWDECK-V01-CUSTOM") ? "SNOWDECK-V01-CUSTOM" : null,
     armor: bomIds.has("TRAIL-ARMOR-STUDY") ? "TRAIL-ARMOR-STUDY" : null,
     dock: bomIds.has("PASSIVE-DOCK-STUDY") ? "PASSIVE-DOCK-STUDY" : null,
@@ -136,9 +137,7 @@ export function resolveSwapComponentIds(selection, slots) {
       const option = options[slotId].get(selection[slotId]);
       if (option && option.component_id) ids.push(option.component_id);
     }
-    if (selection.wheel === "TIRE-T1-8-REF" || selection.wheel === "TIRE-T2-9") {
-      ids.push("HUB-RSII");
-    }
+    ids.push(...((slots.wheel_support_components || {})[selection.wheel] || []));
     ids.push(...((slots.topology_support_components || {})[selection.topology] || []));
   }
 
@@ -156,11 +155,15 @@ export function resolveSwapComponentIds(selection, slots) {
   return uniq(ids);
 }
 
-function pairFindings(ids, compatibility) {
+function pairFindings(ids, compatibility, catalog) {
   const selected = new Set(ids);
   const findings = [];
+  const explicitPairs = new Set();
+  const pairKey = (a, b) => [a, b].sort().join("::");
+
   for (const rule of compatibility.pair_rules || []) {
     if (!selected.has(rule.a) || !selected.has(rule.b)) continue;
+    explicitPairs.add(pairKey(rule.a, rule.b));
     findings.push({
       id: rule.id,
       state: rule.state,
@@ -168,6 +171,28 @@ function pairFindings(ids, compatibility) {
       b: rule.b,
       reason: rule.reason,
     });
+  }
+
+  const index = componentIndex(catalog);
+  const selectedRows = [...selected].map(id => index.get(id)).filter(Boolean);
+  for (const fallback of compatibility.category_pair_defaults || []) {
+    const [categoryA, categoryB] = fallback.categories;
+    const rowsA = selectedRows.filter(row => row.category === categoryA);
+    const rowsB = selectedRows.filter(row => row.category === categoryB);
+    for (const a of rowsA) {
+      for (const b of rowsB) {
+        if (a.id === b.id || explicitPairs.has(pairKey(a.id, b.id))) continue;
+        const key = pairKey(a.id, b.id);
+        explicitPairs.add(key);
+        findings.push({
+          id: "default:" + categoryA + ":" + categoryB + ":" + a.id + ":" + b.id,
+          state: fallback.state,
+          a: a.id,
+          b: b.id,
+          reason: fallback.reason,
+        });
+      }
+    }
   }
   return findings;
 }
@@ -186,7 +211,7 @@ export function evaluateSwap(baselineCandidate, requirements, selection, bundle,
   const packed = bomRows(ids, bundle.catalog);
   const bom = packed.rows;
   const cost = packed.cost;
-  const findings = pairFindings(ids, bundle.compatibility);
+  const findings = pairFindings(ids, bundle.compatibility, bundle.catalog);
 
   let readiness = "REFERENCE_COMPATIBLE";
   const blockers = [];
@@ -201,13 +226,6 @@ export function evaluateSwap(baselineCandidate, requirements, selection, bundle,
       readiness = worsen(readiness, "MEASURE_FIRST");
       unknowns.push(finding.reason);
     }
-  }
-
-  if (selection.deck !== "comp95") {
-    readiness = worsen(readiness, "MEASURE_FIRST");
-    unknowns.push(
-      "Deck-to-truck structural interface is not normalized for this seed catalog; received geometry or a sourced mount pattern is required."
-    );
   }
 
   if (requirements.independent_friction_brake_required && !selection.brake) {
@@ -247,7 +265,7 @@ export function evaluateSwap(baselineCandidate, requirements, selection, bundle,
 
   if (
     requirements.wheel_strategy === "nine_inch_rollover_study" &&
-    selection.wheel === "TIRE-T1-8-REF"
+    ["TIRE-T1-8-REF", "WHEEL-TRAMPA-ALPHA8"].includes(selection.wheel)
   ) {
     readiness = worsen(readiness, "MEASURE_FIRST");
     unknowns.push(
@@ -255,9 +273,9 @@ export function evaluateSwap(baselineCandidate, requirements, selection, bundle,
     );
   }
 
-  if (selection.wheel === "TIRE-T2-9") {
+  if (["TIRE-T2-9", "WHEEL-TRAMPA-MEGASTAR9"].includes(selection.wheel)) {
     notes.push(
-      "The 9-inch tire is a rollover study only; hub fit, clearance and gearing remain separate checks."
+      "The 9-inch wheel is a rollover study only; hub/axle fit, offset, clearance and gearing remain separate checks."
     );
   }
 
