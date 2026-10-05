@@ -9,7 +9,13 @@ It consumes the versioned data under `configurator/` and `catalog/` and uses `bu
 From the repository root:
 
 ```bash
-python -m http.server 8000 --bind 127.0.0.1
+python tools/serve_board_platform.py
+```
+
+Or rebuild the twin first:
+
+```bash
+python tools/serve_board_platform.py --prepare-showcase --synthetic-snowdeck-demo
 ```
 
 Open `http://127.0.0.1:8000/builder/`.
