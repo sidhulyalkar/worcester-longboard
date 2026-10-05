@@ -20,6 +20,7 @@ def validate() -> dict[str, Any]:
     compatibility = load("configurator/compatibility_rules.v1.json")
     swap_slots = load("configurator/swap_slots.v1.json")
     refs = load("configurator/reference_builds.v1.json")
+    visual_schema = load("configurator/schemas/candidate_visual_state.schema.json")
     twin = load("showcase/x1_rev_c.json")
 
     errors: list[str] = []
@@ -194,6 +195,23 @@ def validate() -> dict[str, Any]:
     if rules.get("model_class") != "PLANNING_ESTIMATE":
         errors.append("rules model_class must remain PLANNING_ESTIMATE")
 
+    visual_props = visual_schema.get("properties") or {}
+    authority_props = (
+        visual_props.get("authority", {}).get("properties", {})
+    )
+    if (
+        authority_props.get("visualization_only", {}).get("const") is not True
+        or authority_props.get("procurement_authorized", {}).get("const") is not False
+        or authority_props.get("fabrication_authorized", {}).get("const") is not False
+        or authority_props.get("powered_operation_authorized", {}).get("const") is not False
+    ):
+        errors.append(
+            "candidate visual-state schema must remain visualization-only and authority-false"
+        )
+    visual_views = visual_props.get("views", {}).get("prefixItems", [])
+    if [row.get("const") for row in visual_views] != ["hero", "top", "side"]:
+        errors.append("candidate visual-state views must remain hero/top/side")
+
     return {
         "valid": not errors,
         "errors": errors,
@@ -202,6 +220,7 @@ def validate() -> dict[str, Any]:
         "catalog_components": len(component_index),
         "architectures": len(architecture_ids),
         "swap_slots": len(swap_slot_ids),
+        "candidate_visual_views": 3,
         "power_categories_checkout_enabled": False,
         "generic_builder_may_promote_x1_authority": False,
     }
