@@ -29,6 +29,7 @@ const state = {
   swapSelection: null,
   swapResult: null,
   galleryView: "hero",
+  vendorFilter: "all",
 };
 
 const $ = selector => document.querySelector(selector);
@@ -280,6 +281,10 @@ function readinessLabel(readiness) {
 
 function partialCost(candidate) {
   const c = candidate.cost;
+  const unpriced = (c.unpriced_component_ids || []).length;
+  if (unpriced && c.known_min_usd === 0 && c.known_max_usd === 0) {
+    return "USD subtotal incomplete";
+  }
   if (c.known_min_usd === c.known_max_usd) return "USD " + c.known_min_usd.toFixed(0);
   return "USD " + c.known_min_usd.toFixed(0) + "–" + c.known_max_usd.toFixed(0);
 }
@@ -342,6 +347,7 @@ function renderCandidateVisual(candidate) {
     '<div class="candidate-visual" data-candidate-visual="' + escapeHtml(candidate.id) + '">' +
       svg +
       '<div class="candidate-visual-meta">' +
+        '<span>' + escapeHtml(visual.vendor_family) + '</span>' +
         '<span>' + escapeHtml(visual.deck.id.replaceAll("_", " ")) + '</span>' +
         '<span>' + escapeHtml(wheel) + '</span>' +
         '<span>' + escapeHtml(stance) + '</span>' +
@@ -366,6 +372,51 @@ function setGalleryView(view) {
   }
 }
 
+function renderVendorFilters(candidates) {
+  const host = $("#vendor-filters");
+  if (!host) return;
+  const families = [...new Set(candidates.map(row => row.vendor_family || "Unspecified"))]
+    .sort((a, b) => a.localeCompare(b));
+  if (
+    state.vendorFilter !== "all" &&
+    !families.includes(state.vendorFilter)
+  ) {
+    state.vendorFilter = "all";
+  }
+
+  const options = [["all", "All"], ...families.map(value => [value, value])];
+  host.innerHTML = "";
+  for (const [value, label] of options) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.vendorFilter = value;
+    button.textContent = label;
+    button.classList.toggle("active", state.vendorFilter === value);
+    button.addEventListener("click", () => {
+      state.vendorFilter = value;
+      renderVendorFilters(state.result.candidates);
+      renderCandidates(state.result.candidates);
+    });
+    host.appendChild(button);
+  }
+
+  const visible = state.vendorFilter === "all"
+    ? candidates.length
+    : candidates.filter(row => row.vendor_family === state.vendorFilter).length;
+  const vendors = new Set(
+    candidates.flatMap(row =>
+      (row.bom || []).map(item => item.manufacturer).filter(Boolean)
+    )
+  );
+  const sourced = state.bundle.catalog.components.filter(
+    item => item.source?.url
+  ).length;
+  $("#catalog-coverage").textContent =
+    visible + " shown · " + candidates.length + " generated · " +
+    vendors.size + " named manufacturers · " + sourced +
+    " catalog parts with source links";
+}
+
 function traitsHtml(candidate) {
   const labels = {
     range: "Range",
@@ -385,7 +436,11 @@ function renderCandidates(candidates) {
   const host = $("#candidates");
   host.innerHTML = "";
 
-  for (const candidate of candidates) {
+  const visibleCandidates = state.vendorFilter === "all"
+    ? candidates
+    : candidates.filter(row => row.vendor_family === state.vendorFilter);
+
+  for (const candidate of visibleCandidates) {
     const card = document.createElement("article");
     card.className = "candidate" + (candidate.id === state.selectedId ? " selected" : "");
 
@@ -402,6 +457,7 @@ function renderCandidates(candidates) {
         '<div class="fit-score"><strong>' + Math.round(candidate.fit_score * 100) + '%</strong><span>profile fit</span></div>' +
       '</div>' +
       '<div class="badges">' +
+        '<span class="badge vendor-chip">' + escapeHtml(candidate.vendor_family || "Unspecified") + '</span>' +
         '<span class="badge ' + statusClass(candidate.readiness) + '">' + escapeHtml(readinessLabel(candidate.readiness)) + '</span>' +
         (candidate.trade_space_frontier ? '<span class="badge frontier">trade-space frontier</span>' : '') +
         '<span class="badge">' + escapeHtml(candidate.checkout_state.replaceAll("_", " ").toLowerCase()) + '</span>' +
@@ -410,7 +466,10 @@ function renderCandidates(candidates) {
       candidateSpecHtml(candidate) +
       issueText +
       '<div class="candidate-footer">' +
-        '<div class="cost"><strong>' + partialCost(candidate) + '</strong><small>known-price subtotal · shipping/tax excluded</small></div>' +
+        '<div class="cost"><strong>' + partialCost(candidate) + '</strong><small>known USD subtotal · ' +
+          candidate.cost.unpriced_component_ids.length + ' unpriced/source-native item' +
+          (candidate.cost.unpriced_component_ids.length === 1 ? '' : 's') +
+          ' · shipping/tax excluded</small></div>' +
         '<div class="candidate-actions">' +
           '<button type="button" data-inspect="' + escapeHtml(candidate.id) + '">Inspect BOM</button>' +
           '<a href="' + escapeHtml(twinUrl(candidate)) + '">3D</a>' +
@@ -463,7 +522,8 @@ function renderBom(candidate) {
         escapeHtml([row.manufacturer, row.sku].filter(Boolean).join(" · ") || row.component_id) + '</small></td>' +
       '<td><span class="badge ' + (row.procurement_state === "POWER_GATED" ? "blocked" : row.procurement_state === "HOLD_MEASURE" ? "measure" : "") + '">' +
         escapeHtml(row.procurement_state.replaceAll("_", " ").toLowerCase()) + '</span>' + hold + '</td>' +
-      '<td>' + escapeHtml(formatPrice(row.price)) + '</td>' +
+      '<td>' + escapeHtml(row.price ? formatPrice(row.price) : (row.source_native_price || "Unpriced")) +
+        (row.source_native_price && !row.price ? '<small>native source snapshot</small>' : '') + '</td>' +
       '<td>' + source + '</td>' +
     '</tr>';
   }).join("");
@@ -543,7 +603,8 @@ function renderSwapBom(rows) {
       '<td><span class="badge ' + stateClass + '">' +
         escapeHtml(row.procurement_state.replaceAll("_", " ").toLowerCase()) +
       '</span>' + hold + '</td>' +
-      '<td>' + escapeHtml(formatPrice(row.price)) + '</td>' +
+      '<td>' + escapeHtml(row.price ? formatPrice(row.price) : (row.source_native_price || "Unpriced")) +
+        (row.source_native_price && !row.price ? '<small>native source snapshot</small>' : '') + '</td>' +
       '<td>' + source + '</td>' +
     '</tr>';
   }).join("");
@@ -736,9 +797,13 @@ function recompute() {
   }
 
   renderRequirements(state.result.requirements);
+  renderVendorFilters(state.result.candidates);
   renderCandidates(state.result.candidates);
   renderBom(state.result.candidates.find(x => x.id === state.selectedId));
-  $("#recompute-status").textContent = "Live · " + state.result.candidates.length + " candidates";
+  $("#recompute-status").textContent =
+    "Live · " + state.result.candidates.length + " candidates · " +
+    new Set(state.result.candidates.map(row => row.vendor_family || "Unspecified")).size +
+    " families";
 }
 
 function scheduleRecompute() {
