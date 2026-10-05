@@ -57,6 +57,7 @@ def _wheel_state(
             "hub_family": None,
             "diameter_mm": 0.0,
             "width_mm": 0.0,
+            "visual_geometry_state": None,
             "visible": False,
         }
 
@@ -74,7 +75,7 @@ def _wheel_state(
     width = float(
         _first_interface(
             interface,
-            ("measured_reference_width_mm", "published_width_mm"),
+            ("measured_reference_width_mm", "published_width_mm", "visual_width_mm"),
             0,
         )
     )
@@ -96,6 +97,7 @@ def _wheel_state(
         "hub_family": hub_family,
         "diameter_mm": diameter,
         "width_mm": width,
+        "visual_geometry_state": interface.get("visual_geometry_state"),
         "visible": True,
     }
 
