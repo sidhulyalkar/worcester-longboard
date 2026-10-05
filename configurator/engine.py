@@ -536,24 +536,16 @@ def score_architecture(
     resolved_architecture["bom"] = resolved_bom
     bom, cost = _bom(resolved_architecture, catalog)
     selected_ids = {row["component_id"] for row in bom}
-    pair_rules = _selected_pair_rules(selected_ids, compatibility)
-    pair_findings: list[dict[str, Any]] = []
-    for rule in pair_rules:
-        pair_findings.append(
-            {
-                "id": rule["id"],
-                "state": rule["state"],
-                "reason": rule["reason"],
-                "a": rule["a"],
-                "b": rule["b"],
-            }
-        )
-        if rule["state"] == "INCOMPATIBLE":
+    pair_findings = _compatibility_findings(
+        selected_ids, catalog, compatibility
+    )
+    for finding in pair_findings:
+        if finding["state"] == "INCOMPATIBLE":
             readiness = _worsen(readiness, "INCOMPATIBLE")
-            blockers.append(rule["reason"])
-        elif rule["state"] in {"MEASURE_FIRST", "UNKNOWN"}:
+            blockers.append(finding["reason"])
+        elif finding["state"] in {"MEASURE_FIRST", "UNKNOWN"}:
             readiness = _worsen(readiness, "MEASURE_FIRST")
-            unknowns.append(rule["reason"])
+            unknowns.append(finding["reason"])
 
     hard_budget = requirements["budget"]["hard_max_usd"]
     if cost["known_min_usd"] > hard_budget:
@@ -590,6 +582,7 @@ def score_architecture(
         "architecture_id": architecture["id"],
         "label": architecture["label"],
         "short_label": architecture["short_label"],
+        "vendor_family": architecture.get("vendor_family", "Unspecified"),
         "description": architecture["description"],
         "fit_score": round(score, 4),
         "readiness": readiness,
