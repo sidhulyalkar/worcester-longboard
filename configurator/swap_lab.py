@@ -71,6 +71,7 @@ def _bom_rows(ids: list[str], catalog: dict[str, Any]) -> tuple[list[dict[str, A
                 "price": copy.deepcopy(component.get("price")),
                 "source_url": (component.get("source") or {}).get("url"),
                 "source_as_of": (component.get("source") or {}).get("as_of"),
+                "source_native_price": (component.get("source") or {}).get("native_price_snapshot"),
                 "hold_reason": component.get("hold_reason"),
             }
         )
