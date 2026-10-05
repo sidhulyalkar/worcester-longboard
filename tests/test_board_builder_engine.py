@@ -114,3 +114,50 @@ def test_candidate_set_exposes_trade_space_instead_of_winner():
     assert result["winner_selected"] is False
     assert any(row["trade_space_frontier"] for row in result["candidates"])
     assert all("fit_score" in row and "readiness" in row for row in result["candidates"])
+
+
+def test_compact_electric_candidate_selects_energy_class_from_mission():
+    profile = dict(TRAIL)
+    profile["longest_miles"] = 40
+    result = generate_candidates(profile)
+    electric = candidate(result, "x1_compact_electric_study")
+
+    assert electric["personalized_spec"]["planning_installed_energy_wh"] > 650
+    assert electric["personalized_spec"]["planning_installed_energy_wh"] <= 1150
+    assert electric["personalized_spec"]["selected_energy_class"] == "BATTERY-RANGE-CLASS"
+    assert any(
+        row["component_id"] == "BATTERY-RANGE-CLASS"
+        for row in electric["bom"]
+    )
+    assert not any(
+        row["component_id"] == "BATTERY-TRAIL-CLASS"
+        for row in electric["bom"]
+    )
+
+
+def test_mission_beyond_seeded_energy_class_fails_closed():
+    profile = dict(TRAIL)
+    profile["longest_miles"] = 50
+    result = generate_candidates(profile)
+    electric = candidate(result, "x1_compact_electric_study")
+
+    assert electric["personalized_spec"]["planning_installed_energy_wh"] > 1150
+    assert electric["readiness"] == "BLOCKED"
+    assert any("largest seeded 1150 Wh" in blocker for blocker in electric["blockers"])
+
+
+def test_stability_preference_is_directional_not_more_is_always_better():
+    playful = dict(MANUAL)
+    playful["stability_preference"] = 20
+    planted = dict(MANUAL)
+    planted["stability_preference"] = 95
+
+    playful_result = generate_candidates(playful)
+    planted_result = generate_candidates(planted)
+
+    playful_range = candidate(playful_result, "drive_clearance_range_study")
+    planted_range = candidate(planted_result, "drive_clearance_range_study")
+    assert (
+        playful_range["preference_fit"]["stability"]
+        < planted_range["preference_fit"]["stability"]
+    )
