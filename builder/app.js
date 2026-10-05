@@ -49,16 +49,16 @@ async function fetchJson(path) {
 }
 
 async function loadBundle() {
-  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, twinSeed] = await Promise.all([
+  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry] = await Promise.all([
     fetchJson("../configurator/questionnaire.v1.json"),
     fetchJson("../configurator/rules.v1.json"),
     fetchJson("../catalog/board_components.v1.json"),
     fetchJson("../configurator/architectures.v1.json"),
     fetchJson("../configurator/compatibility_rules.v1.json"),
     fetchJson("../configurator/swap_slots.v1.json"),
-    fetchJson("../showcase/x1_rev_c.json"),
+    fetchJson("../catalog/board_geometry.v1.json"),
   ]);
-  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, twinSeed };
+  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry };
 }
 
 function restoreProfile(questionnaire) {
@@ -324,7 +324,7 @@ function candidateSpecHtml(candidate) {
 }
 
 function candidateVisualState(candidate) {
-  return visualStateFromCandidate(candidate, state.bundle.twinSeed, state.bundle.catalog);
+  return visualStateFromCandidate(candidate, state.bundle.geometry, state.bundle.catalog);
 }
 
 function renderCandidateVisual(candidate) {
@@ -505,7 +505,7 @@ function customTwinUrl(candidate, swapResult) {
     wheel: visualStateFromSwap(
       candidate,
       swapResult,
-      state.bundle.twinSeed,
+      state.bundle.geometry,
       state.bundle.catalog
     ).wheel.study_id,
   });
@@ -714,7 +714,7 @@ function exportCustomDesign() {
     visual_state: visualStateFromSwap(
       candidate,
       state.swapResult,
-      state.bundle.twinSeed,
+      state.bundle.geometry,
       state.bundle.catalog
     ),
     winner_selected: false,
