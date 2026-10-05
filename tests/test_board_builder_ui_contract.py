@@ -30,14 +30,24 @@ def test_vendor_links_are_source_links_not_generic_buy_buttons():
     assert ">Buy<" not in HTML
 
 
-def test_builder_candidate_deep_links_into_known_twin_preset():
-    assert '"../showcase/?preset="' in APP
+def test_builder_candidate_deep_links_personalized_stance_into_twin():
+    assert 'function twinUrl(candidate)' in APP
+    assert 'params.set("stance_mm"' in APP
     assert 'new URLSearchParams(window.location.search)' in TWIN
     assert 'params.get("preset")' in TWIN
     assert 'params.get("candidate")' in TWIN
+    assert 'params.get("stance_mm")' in TWIN
+    assert 'setSnowdeckControls({ stance_mm: requestedStanceMm })' in TWIN
 
 
 def test_builder_never_renders_authority_as_checkout_permission():
     assert "Planning tool, not a build permit." in HTML
     assert "cannot qualify structure" in HTML
     assert "generic_builder_may_promote_x1_authority: false" in (ROOT / "builder" / "engine.mjs").read_text()
+
+
+def test_builder_can_export_selected_design_with_authority_boundary():
+    assert 'id="export-design"' in HTML
+    assert "function exportSelectedDesign()" in APP
+    assert "selected_for_inspection" in APP
+    assert "winner_selected: false" in APP
