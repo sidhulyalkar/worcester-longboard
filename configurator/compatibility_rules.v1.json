@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "states": [
+    "COMPATIBLE",
+    "REFERENCE_COMPATIBLE",
+    "MEASURE_FIRST",
+    "UNKNOWN",
+    "INCOMPATIBLE"
+  ],
+  "global_constraints": [
+    {
+      "id": "powered_friction_brake",
+      "when": {
+        "electric_intent": [
+          "yes",
+          "eventually"
+        ],
+        "independent_friction_brake_required": true
+      },
+      "requires": "friction_brake_path",
+      "minimum_state": "REFERENCE_COMPATIBLE",
+      "failure_state": "BLOCKED",
+      "reason": "Powered candidates must preserve an independent friction-brake path; regen is supplemental only."
+    },
+    {
+      "id": "power_procurement_gate",
+      "when": {
+        "contains_category": [
+          "drive",
+          "motor",
+          "esc",
+          "battery",
+          "charger"
+        ]
+      },
+      "checkout_state": "BLOCKED",
+      "reason": "The current catalog's live-power selections are planning references until sourced electrical/thermal architecture and project gates exist."
+    }
+  ],
+  "pair_rules": [
+    {
+      "id": "comp95_v5",
+      "a": "DONOR-COMP95",
+      "b": "BRAKE-V5",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "Vendor references list Matrix trucks and Rockstar/Rockstar II hubs as V5 compatible; physical Issue #14 qualification remains separate."
+    },
+    {
+      "id": "matrix400_v5",
+      "a": "TRUCK-M3-400",
+      "b": "BRAKE-V5",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "400 mm Matrix III is the brake-first reference."
+    },
+    {
+      "id": "matrix400_g1_as_shipped",
+      "a": "TRUCK-M3-400",
+      "b": "DRIVE-G1-DUAL",
+      "state": "INCOMPATIBLE",
+      "reason": "The 50 mm axle brake-first reference does not satisfy the G1 70 mm axle requirement."
+    },
+    {
+      "id": "axle70_g1",
+      "a": "AXLE-M3-70",
+      "b": "DRIVE-G1-DUAL",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "The G1 reference path requires the 70 mm axle geometry."
+    },
+    {
+      "id": "axle70_v5",
+      "a": "AXLE-M3-70",
+      "b": "BRAKE-V5",
+      "state": "MEASURE_FIRST",
+      "reason": "V5 alignment after the 70 mm axle swap is not qualified; do not infer coexistence from separate compatibility claims."
+    },
+    {
+      "id": "rockstarII_v5",
+      "a": "HUB-RSII",
+      "b": "BRAKE-V5",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "Vendor documentation lists Rockstar/Rockstar II hub compatibility."
+    },
+    {
+      "id": "rockstarII_t2_9",
+      "a": "HUB-RSII",
+      "b": "TIRE-T2-9",
+      "state": "MEASURE_FIRST",
+      "reason": "Current T2 9-inch listing names FiveStar, Tri-Spoke and Rockstar Pro II XL, not standard Rockstar II; do not assume a drop-in fit."
+    }
+  ]
+}
