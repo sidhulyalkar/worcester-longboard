@@ -877,6 +877,7 @@ function configurationLabUI(manifest) {
   const params = new URLSearchParams(window.location.search);
   const requestedPresetId = params.get("preset");
   const requestedCandidateId = params.get("candidate");
+  const requestedStanceMm = Number(params.get("stance_mm"));
   const initial =
     (lab.presets || []).find(row => row.id === requestedPresetId) ||
     (lab.presets || [])[0];
@@ -884,12 +885,26 @@ function configurationLabUI(manifest) {
   if (initial) {
     select.value = initial.id;
     applyConfigurationPreset(initial);
+    if (
+      Number.isFinite(requestedStanceMm) &&
+      requestedStanceMm >= 260 &&
+      requestedStanceMm <= 520
+    ) {
+      setSnowdeckControls({ stance_mm: requestedStanceMm });
+    }
     if (requestedPresetId && initial.id === requestedPresetId) {
       const note = document.getElementById("preset-note");
       if (note) {
-        const suffix = requestedCandidateId
+        const candidateSuffix = requestedCandidateId
           ? " Loaded from Board Builder candidate " + requestedCandidateId + "."
           : " Loaded from Board Builder.";
+        const stanceSuffix =
+          Number.isFinite(requestedStanceMm) &&
+          requestedStanceMm >= 260 &&
+          requestedStanceMm <= 520
+            ? " Rider-profile stance study center: " + requestedStanceMm + " mm."
+            : "";
+        const suffix = candidateSuffix + stanceSuffix;
         note.textContent = initial.description + suffix + " Visualization only; no authority is created.";
       }
     }
