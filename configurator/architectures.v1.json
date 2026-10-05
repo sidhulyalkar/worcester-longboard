@@ -375,6 +375,90 @@
       "hard_blockers": [
         "No documented independent friction-brake path is present in this seeded Apex power study."
       ]
+    },
+    {
+      "id": "lacroix_barrel_carve_reference",
+      "label": "Lacroix Barrel Carve Reference",
+      "short_label": "Lacroix Barrel",
+      "vendor_family": "Lacroix Boards",
+      "description": "Short asymmetric flex-deck carve reference using the Barrel envelope, Hypertruck Lite precision truck family and 8-inch Kenda/Rockstar II wheel reference. Propulsion is intentionally omitted so geometry and ride character can be compared independently.",
+      "visual_preset": "snowdeck_fit",
+      "deck_candidate_id": "lacroix_barrel_876",
+      "topology_id": "lacroix_hyperlite_381",
+      "traits": {
+        "range": 0.18,
+        "carve": 0.99,
+        "stability": 0.76,
+        "durability": 0.88,
+        "portability": 0.72,
+        "cost": 0.35,
+        "low_maintenance": 0.66,
+        "rough_terrain": 0.7
+      },
+      "capabilities": {
+        "friction_brake_path": "NOT_PRESENT",
+        "drive_path": "NOT_PRESENT",
+        "electric_complete": false,
+        "wheel_class": "8in_pneumatic",
+        "snowdeck": false
+      },
+      "bom": [
+        "DECK-LACROIX-BARREL-REF",
+        "TRUCK-LACROIX-HYPERLITE",
+        "WHEEL-LACROIX-KENDA8-RSII",
+        "HUB-RSII"
+      ],
+      "known_unknowns": [
+        "Standalone Barrel deck procurement is not sourced",
+        "Exact Hypertruck Lite axle/bearing stack",
+        "Kenda tire width is visualization-only until exact SKU is normalized"
+      ],
+      "hard_blockers": []
+    },
+    {
+      "id": "lacroix_barrel_belt_study",
+      "label": "Lacroix Barrel Belt-Drive Study",
+      "short_label": "Lacroix Belt",
+      "vendor_family": "Lacroix Boards",
+      "description": "Native Lacroix electric packaging study combining the Barrel envelope, Hypertruck Lite precision trucks, Rockstar II/Kenda 8-inch wheel family and dedicated 72T adjustable belt-drive reference.",
+      "visual_preset": "drive_packaging",
+      "deck_candidate_id": "lacroix_barrel_876",
+      "topology_id": "lacroix_hyperlite_381",
+      "traits": {
+        "range": 0.72,
+        "carve": 0.94,
+        "stability": 0.84,
+        "durability": 0.84,
+        "portability": 0.5,
+        "cost": 0.24,
+        "low_maintenance": 0.46,
+        "rough_terrain": 0.76
+      },
+      "capabilities": {
+        "friction_brake_path": "NOT_PRESENT",
+        "drive_path": "REFERENCE_COMPATIBLE",
+        "electric_complete": false,
+        "wheel_class": "8in_pneumatic",
+        "snowdeck": false
+      },
+      "bom": [
+        "DECK-LACROIX-BARREL-REF",
+        "TRUCK-LACROIX-HYPERLITE",
+        "WHEEL-LACROIX-KENDA8-RSII",
+        "HUB-RSII",
+        "DRIVE-LACROIX-BARREL-BELT",
+        "MOTOR-6374-CLASS",
+        "ESC-DUAL-CLASS",
+        "BATTERY-TRAIL-CLASS"
+      ],
+      "known_unknowns": [
+        "Independent friction-brake architecture",
+        "Exact motor/controller/battery selection outside the complete-board reference",
+        "Exact rear axle/bearing/pulley retention stack"
+      ],
+      "hard_blockers": [
+        "No documented independent friction-brake path is present in this seeded Lacroix power study."
+      ]
     }
   ]
 }
