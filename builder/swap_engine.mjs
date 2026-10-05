@@ -51,6 +51,7 @@ function bomRows(ids, catalog) {
       price: component.price || null,
       source_url: component.source && component.source.url ? component.source.url : null,
       source_as_of: component.source ? component.source.as_of : null,
+      source_native_price: component.source ? component.source.native_price_snapshot || null : null,
       hold_reason: component.hold_reason || null,
     });
   }
