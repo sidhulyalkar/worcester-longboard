@@ -261,6 +261,20 @@
       "b": "BRAKE-TRAMPA-HS11",
       "state": "UNKNOWN",
       "reason": "TRAMPA HS11 brake hardware is documented around dedicated TRAMPA brake hangers; do not infer an MBS Matrix fit."
+    },
+    {
+      "id": "trampa_alpha8_boardnamics",
+      "a": "WHEEL-TRAMPA-ALPHA8",
+      "b": "DRIVE-BOARDNAMICS-M1-AT",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "The selected 8-inch wheel uses the TRAMPA Superstar hub family, which Boardnamics explicitly lists for M1-AT."
+    },
+    {
+      "id": "trampa_megastar9_obd",
+      "a": "WHEEL-TRAMPA-MEGASTAR9",
+      "b": "DRIVE-TRAMPA-OBD-DUAL",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "TRAMPA currently sells OBD electric configurations with MEGASTAR wheel families; exact pulley/rim option and offset remain configuration details."
     }
   ],
   "category_pair_defaults": [
@@ -311,6 +325,14 @@
       ],
       "state": "UNKNOWN",
       "reason": "No explicit hub-to-drive rule exists for this pair; wheel adapter/gear interface must be resolved."
+    },
+    {
+      "categories": [
+        "wheel",
+        "drive"
+      ],
+      "state": "UNKNOWN",
+      "reason": "No explicit wheel-to-drive rule exists for this pair; hub adapter, wheel gear/pulley interface, offset and fastener retention must be resolved."
     }
   ]
 }
