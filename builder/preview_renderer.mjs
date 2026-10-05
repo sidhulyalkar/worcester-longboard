@@ -60,7 +60,9 @@ function geometry(state) {
   const wheelWidth = Number(state.wheel.width_mm) * deckScale;
   const wheelLateral = Number(state.topology.wheel_center_lateral_mm) * deckScale;
   const truckWidth = Number(state.topology.truck_total_width_mm) * deckScale;
-  const wheelbase = Math.min(deckLength * 0.81, 395);
+  const wheelbase = state.deck.wheelbase_mm
+    ? Number(state.deck.wheelbase_mm) * deckScale
+    : Math.min(deckLength * 0.81, 395);
   const stance = state.stance_mm ? Number(state.stance_mm) * deckScale : deckLength * 0.38;
   return {
     deckScale,
