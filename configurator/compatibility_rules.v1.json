@@ -121,6 +121,253 @@
       "b": "TIRE-T2-9",
       "state": "MEASURE_FIRST",
       "reason": "The Comp 95 donor includes standard Rockstar II hubs, while the current T2 9-inch listing does not establish standard Rockstar II compatibility."
+    },
+    {
+      "id": "agent_matrix420",
+      "a": "DECK-AGENT-REF",
+      "b": "TRUCK-M3-420-REF",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "The existing Agent/MBS drive-clearance architecture is the repository reference pairing; physical structural qualification remains separate."
+    },
+    {
+      "id": "trampa_short_vertigo",
+      "a": "DECK-TRAMPA-SHORT-969",
+      "b": "TRUCK-TRAMPA-VERTIGO-12",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "TRAMPA specifies the Short 35° deck for spring trucks and VERTIGO fits 35° TRAMPA mountainboard decks."
+    },
+    {
+      "id": "trampa_hs11_infinity",
+      "a": "DECK-TRAMPA-HS11-969",
+      "b": "TRUCK-TRAMPA-INFINITY-HS11",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "The HS11 deck is specifically shaped for MAGURA brake clearance and the INFINITY brake hanger is the matching 12 mm brake-mount family."
+    },
+    {
+      "id": "trampa_hs11_vertigo",
+      "a": "DECK-TRAMPA-HS11-969",
+      "b": "TRUCK-TRAMPA-VERTIGO-12",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "TRAMPA documents the HS11 deck with modified VERTIGO/INFINITY brake-hanger families; standard VERTIGO still requires the correct brake hanger for HS11 braking."
+    },
+    {
+      "id": "trampa_infinity_hs11_brake",
+      "a": "TRUCK-TRAMPA-INFINITY-HS11",
+      "b": "BRAKE-TRAMPA-HS11",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "TRAMPA's INFINITY brake hanger is machined specifically for the MAGURA HS11 mount."
+    },
+    {
+      "id": "trampa_alpha8_hs11",
+      "a": "WHEEL-TRAMPA-ALPHA8",
+      "b": "BRAKE-TRAMPA-HS11",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "The SUPERSTAR five-spoke family supports the TRAMPA brake disk system referenced by the HS11 brake truck."
+    },
+    {
+      "id": "trampa_megastar9_hs11",
+      "a": "WHEEL-TRAMPA-MEGASTAR9",
+      "b": "BRAKE-TRAMPA-HS11",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "TRAMPA describes HS11 disks for its five-spoke wheel families; exact selected rim/disk hardware still requires assembly verification."
+    },
+    {
+      "id": "trampa_vertigo_alpha8",
+      "a": "TRUCK-TRAMPA-VERTIGO-12",
+      "b": "WHEEL-TRAMPA-ALPHA8",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "The Alpha/SUPERSTAR wheel supports 12 mm mountainboard axles and the VERTIGO reference uses 12 mm axles."
+    },
+    {
+      "id": "trampa_infinity_alpha8",
+      "a": "TRUCK-TRAMPA-INFINITY-HS11",
+      "b": "WHEEL-TRAMPA-ALPHA8",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "The SUPERSTAR wheel family supports 12 mm mountainboard axles and the INFINITY brake hanger uses 12 mm solid axles."
+    },
+    {
+      "id": "trampa_vertigo_megastar9",
+      "a": "TRUCK-TRAMPA-VERTIGO-12",
+      "b": "WHEEL-TRAMPA-MEGASTAR9",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "TRAMPA documents its 9-inch MEGASTAR wheel on VERTIGO/INFINITY truck families; offset/clearance remain configuration-specific."
+    },
+    {
+      "id": "trampa_infinity_megastar9",
+      "a": "TRUCK-TRAMPA-INFINITY-HS11",
+      "b": "WHEEL-TRAMPA-MEGASTAR9",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "TRAMPA documents its 9-inch MEGASTAR wheel on 12 mm mountainboard truck families; offset/clearance remain configuration-specific."
+    },
+    {
+      "id": "trampa_vertigo_obd",
+      "a": "TRUCK-TRAMPA-VERTIGO-12",
+      "b": "DRIVE-TRAMPA-OBD-DUAL",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "TRAMPA's current preconfigured OBD electric mountainboard pairs the 20 mm OBD system with VERTIGO 12 mm hollow-axle trucks."
+    },
+    {
+      "id": "trampa_vertigo_boardnamics",
+      "a": "TRUCK-TRAMPA-VERTIGO-12",
+      "b": "DRIVE-BOARDNAMICS-M1-AT",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "Boardnamics explicitly lists TRAMPA Precision Vertigo as an M1-AT truck compatibility."
+    },
+    {
+      "id": "apex_air_boardnamics",
+      "a": "TRUCK-APEX-AIR",
+      "b": "DRIVE-BOARDNAMICS-M1-AT",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "Boardnamics explicitly lists Apex Air as an M1-AT truck compatibility."
+    },
+    {
+      "id": "trampa_superstar_boardnamics",
+      "a": "HUB-TRAMPA-SUPERSTAR",
+      "b": "DRIVE-BOARDNAMICS-M1-AT",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "Boardnamics explicitly lists TRAMPA Superstar hubs as an M1-AT wheel compatibility."
+    },
+    {
+      "id": "rockstarII_boardnamics",
+      "a": "HUB-RSII",
+      "b": "DRIVE-BOARDNAMICS-M1-AT",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "Boardnamics explicitly lists MBS Rockstar II hubs as an M1-AT wheel compatibility."
+    },
+    {
+      "id": "apex_air_hs11_unknown",
+      "a": "TRUCK-APEX-AIR",
+      "b": "BRAKE-TRAMPA-HS11",
+      "state": "UNKNOWN",
+      "reason": "No sourced Apex Air to TRAMPA/Magura HS11 brake interface was found in this catalog tranche."
+    },
+    {
+      "id": "apex_air_v5_unknown",
+      "a": "TRUCK-APEX-AIR",
+      "b": "BRAKE-V5",
+      "state": "UNKNOWN",
+      "reason": "No sourced Apex Air to MBS V5 brake interface was found in this catalog tranche."
+    },
+    {
+      "id": "vertigo_v5_unknown",
+      "a": "TRUCK-TRAMPA-VERTIGO-12",
+      "b": "BRAKE-V5",
+      "state": "UNKNOWN",
+      "reason": "No sourced VERTIGO to MBS V5 brake interface was found in this catalog tranche."
+    },
+    {
+      "id": "matrix_hs11_unknown",
+      "a": "TRUCK-M3-400",
+      "b": "BRAKE-TRAMPA-HS11",
+      "state": "UNKNOWN",
+      "reason": "TRAMPA HS11 brake hardware is documented around dedicated TRAMPA brake hangers; do not infer an MBS Matrix fit."
+    },
+    {
+      "id": "trampa_alpha8_boardnamics",
+      "a": "WHEEL-TRAMPA-ALPHA8",
+      "b": "DRIVE-BOARDNAMICS-M1-AT",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "The selected 8-inch wheel uses the TRAMPA Superstar hub family, which Boardnamics explicitly lists for M1-AT."
+    },
+    {
+      "id": "trampa_megastar9_obd",
+      "a": "WHEEL-TRAMPA-MEGASTAR9",
+      "b": "DRIVE-TRAMPA-OBD-DUAL",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "TRAMPA currently sells OBD electric configurations with MEGASTAR wheel families; exact pulley/rim option and offset remain configuration details."
+    },
+    {
+      "id": "lacroix_barrel_hyperlite",
+      "a": "DECK-LACROIX-BARREL-REF",
+      "b": "TRUCK-LACROIX-HYPERLITE",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "Lacroix's Barrel complete-board specification pairs the Barrel deck with Hypertruck Lite trucks."
+    },
+    {
+      "id": "lacroix_hyperlite_kenda_rsii",
+      "a": "TRUCK-LACROIX-HYPERLITE",
+      "b": "WHEEL-LACROIX-KENDA8-RSII",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "The Hypertruck Lite package and Barrel complete-board reference use the Kenda 8-inch / MBS hub wheel family."
+    },
+    {
+      "id": "lacroix_hyperlite_belt",
+      "a": "TRUCK-LACROIX-HYPERLITE",
+      "b": "DRIVE-LACROIX-BARREL-BELT",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "The Hypertruck Lite product family includes its dedicated motor mounts and 72T rear pulley belt-drive hardware."
+    },
+    {
+      "id": "lacroix_wheel_belt",
+      "a": "WHEEL-LACROIX-KENDA8-RSII",
+      "b": "DRIVE-LACROIX-BARREL-BELT",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "The native Hypertruck Lite/Barrel drive package is documented around the Kenda tire / MBS hub rear-wheel family."
+    },
+    {
+      "id": "rockstarII_lacroix_belt",
+      "a": "HUB-RSII",
+      "b": "DRIVE-LACROIX-BARREL-BELT",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "Lacroix documents its Barrel wheel pulley around MBS Rockstar II hubs."
+    }
+  ],
+  "category_pair_defaults": [
+    {
+      "categories": [
+        "deck",
+        "truck"
+      ],
+      "state": "UNKNOWN",
+      "reason": "No explicit deck-to-truck interface rule exists for this cross-vendor pair; mounting pattern and tip-angle geometry must be sourced or measured."
+    },
+    {
+      "categories": [
+        "truck",
+        "wheel"
+      ],
+      "state": "UNKNOWN",
+      "reason": "No explicit truck-to-wheel rule exists for this pair; axle diameter, bearings/spacers, wheel offset and retention must be resolved."
+    },
+    {
+      "categories": [
+        "truck",
+        "brake"
+      ],
+      "state": "UNKNOWN",
+      "reason": "No explicit truck-to-brake rule exists for this pair; hanger mount, actuator clearance and steering sweep must be resolved."
+    },
+    {
+      "categories": [
+        "wheel",
+        "brake"
+      ],
+      "state": "UNKNOWN",
+      "reason": "No explicit wheel-to-brake rule exists for this pair; disk/rotor mounting and caliper clearance must be resolved."
+    },
+    {
+      "categories": [
+        "truck",
+        "drive"
+      ],
+      "state": "UNKNOWN",
+      "reason": "No explicit truck-to-drive rule exists for this pair; hanger profile, axle space and retention must be resolved."
+    },
+    {
+      "categories": [
+        "hub",
+        "drive"
+      ],
+      "state": "UNKNOWN",
+      "reason": "No explicit hub-to-drive rule exists for this pair; wheel adapter/gear interface must be resolved."
+    },
+    {
+      "categories": [
+        "wheel",
+        "drive"
+      ],
+      "state": "UNKNOWN",
+      "reason": "No explicit wheel-to-drive rule exists for this pair; hub adapter, wheel gear/pulley interface, offset and fastener retention must be resolved."
     }
   ]
 }

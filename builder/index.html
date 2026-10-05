@@ -68,7 +68,14 @@
             <span class="no-winner">No automatic winner</span>
           </div>
         </div>
-        <p class="section-copy">Every candidate is rendered automatically from the same deck, topology, stance and system state handed to the 3D twin. Switch views to compare every build from the same angle.</p>
+        <p class="section-copy">Every candidate is rendered automatically from normalized deck, topology, wheel and system data. Switch views to compare every build from the same angle, or filter by vendor family without changing the underlying ranking.</p>
+        <div class="catalog-toolbar">
+          <div>
+            <span class="toolbar-label">Vendor family</span>
+            <div id="vendor-filters" class="vendor-filters" aria-label="Filter generated boards by vendor family"></div>
+          </div>
+          <div id="catalog-coverage" class="catalog-coverage"></div>
+        </div>
         <div id="candidates" class="candidate-grid visual-candidate-grid"></div>
 
         <section id="bom-section" class="bom-section">

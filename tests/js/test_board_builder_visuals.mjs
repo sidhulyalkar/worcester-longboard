@@ -23,7 +23,7 @@ const bundle = {
   architectures: read("configurator/architectures.v1.json"),
   compatibility: read("configurator/compatibility_rules.v1.json"),
 };
-const twin = read("showcase/x1_rev_c.json");
+const geometry = read("catalog/board_geometry.v1.json");
 const trail = read("configurator/examples/trail_rider_profile.json");
 const manual = read("configurator/examples/manual_carver_profile.json");
 const incompatible = read("configurator/examples/swap_incompatible_study.json");
@@ -33,7 +33,7 @@ const get = (result, id) => result.candidates.find(row => row.id === id);
 test("candidate visual state mirrors X1 geometry contract", () => {
   const generated = generateCandidates(trail, bundle);
   const row = get(generated, "x1_compact_electric_study");
-  const visual = visualStateFromCandidate(row, twin, bundle.catalog);
+  const visual = visualStateFromCandidate(row, geometry, bundle.catalog);
 
   assert.equal(visual.deck.id, "comp95");
   assert.equal(visual.deck.length_mm, 950);
@@ -56,7 +56,7 @@ test("fit bench hides wheels while keeping rider interface", () => {
   const generated = generateCandidates(manual, bundle);
   const visual = visualStateFromCandidate(
     get(generated, "snowdeck_fit_bench"),
-    twin,
+    geometry,
     bundle.catalog
   );
   assert.equal(visual.wheel.visible, false);
@@ -68,7 +68,7 @@ test("fit bench preview keeps topology while omitting tires", () => {
   const generated = generateCandidates(manual, bundle);
   const visual = visualStateFromCandidate(
     get(generated, "snowdeck_fit_bench"),
-    twin,
+    geometry,
     bundle.catalog
   );
   const svg = renderBoardPreviewSvg(visual, "top");
@@ -87,7 +87,7 @@ test("Swap Lab visual carries 9-inch study and incompatible readiness", () => {
     bundle,
     read("configurator/swap_slots.v1.json")
   );
-  const visual = visualStateFromSwap(baseline, swap, twin, bundle.catalog);
+  const visual = visualStateFromSwap(baseline, swap, geometry, bundle.catalog);
 
   assert.equal(visual.scope, "custom_swap_preview");
   assert.equal(visual.readiness, "INCOMPATIBLE");
@@ -100,7 +100,7 @@ test("renderer produces distinct deterministic Hero Top and Side SVGs", () => {
   const generated = generateCandidates(trail, bundle);
   const visual = visualStateFromCandidate(
     get(generated, "x1_compact_electric_study"),
-    twin,
+    geometry,
     bundle.catalog
   );
 
@@ -123,7 +123,7 @@ test("renderer escapes candidate labels", () => {
   const generated = generateCandidates(trail, bundle);
   const visual = visualStateFromCandidate(
     get(generated, "brake_first_trail_core"),
-    twin,
+    geometry,
     bundle.catalog
   );
   visual.label = '<script>alert("x")</script>';
@@ -131,4 +131,100 @@ test("renderer escapes candidate labels", () => {
 
   assert.ok(!svg.includes("<script>"));
   assert.ok(svg.includes("&lt;script&gt;"));
+});
+
+
+test("TRAMPA generated candidates carry distinct normalized visual families", () => {
+  const generated = generateCandidates(manual, bundle);
+  const carve = visualStateFromCandidate(
+    get(generated, "trampa_short_carve_core"),
+    geometry,
+    bundle.catalog
+  );
+  const hydraulic = visualStateFromCandidate(
+    get(generated, "trampa_hydraulic_freeride"),
+    geometry,
+    bundle.catalog
+  );
+
+  assert.equal(carve.vendor_family, "TRAMPA");
+  assert.equal(carve.deck.id, "trampa_short_969");
+  assert.equal(carve.deck.length_mm, 895);
+  assert.equal(carve.visual_style.deck_shape, "trampa_composite");
+  assert.equal(carve.visual_style.steering_family, "channel_spring");
+  assert.equal(carve.wheel.study_id, "WHEEL-TRAMPA-ALPHA8");
+  assert.equal(carve.wheel.diameter_mm, 203.2);
+
+  assert.equal(hydraulic.visual_style.brake_family, "trampa_magura_hs11");
+  assert.equal(hydraulic.layers.brake, true);
+});
+
+test("Apex and TRAMPA OBD previews expose different steering and drive families", () => {
+  const generated = generateCandidates(trail, bundle);
+  const apex = visualStateFromCandidate(
+    get(generated, "apex_m1at_rough_study"),
+    geometry,
+    bundle.catalog
+  );
+  const obd = visualStateFromCandidate(
+    get(generated, "trampa_obd_9in_power_study"),
+    geometry,
+    bundle.catalog
+  );
+
+  assert.equal(apex.visual_style.steering_family, "parallel_kingpin");
+  assert.equal(apex.visual_style.drive_type, "gear");
+  assert.equal(obd.visual_style.drive_type, "open_belt");
+  assert.equal(obd.wheel.study_id, "WHEEL-TRAMPA-MEGASTAR9");
+  assert.equal(obd.wheel.diameter_mm, 230);
+
+  const apexSvg = renderBoardPreviewSvg(apex, "top");
+  const obdSvg = renderBoardPreviewSvg(obd, "side");
+  assert.notEqual(apexSvg, obdSvg);
+});
+
+
+test("Lacroix candidate carries asymmetric deck precision truck and assumed wheel proxy", () => {
+  const generated = generateCandidates(manual, bundle);
+  const visual = visualStateFromCandidate(
+    get(generated, "lacroix_barrel_carve_reference"),
+    geometry,
+    bundle.catalog
+  );
+
+  assert.equal(visual.vendor_family, "Lacroix Boards");
+  assert.equal(visual.deck.id, "lacroix_barrel_876");
+  assert.equal(visual.deck.shape_family, "lacroix_asymmetric_flex");
+  assert.equal(visual.topology.steering_family, "precision_bushing_spring");
+  assert.equal(visual.wheel.study_id, "WHEEL-LACROIX-KENDA8-RSII");
+  assert.equal(visual.wheel.visual_geometry_state, "ASSUMED");
+
+  const top = renderBoardPreviewSvg(visual, "top");
+  const side = renderBoardPreviewSvg(visual, "side");
+  assert.ok(top.includes("VISUAL STUDY"));
+  assert.ok(side.includes("VISUAL STUDY"));
+});
+
+test("Lacroix belt study renders belt drive rather than gear or open-belt family", () => {
+  const generated = generateCandidates(trail, bundle);
+  const visual = visualStateFromCandidate(
+    get(generated, "lacroix_barrel_belt_study"),
+    geometry,
+    bundle.catalog
+  );
+
+  assert.equal(visual.visual_style.drive_type, "belt");
+  assert.equal(visual.layers.drive, true);
+  assert.equal(visual.readiness, "BLOCKED");
+  assert.notEqual(
+    renderBoardPreviewSvg(visual, "side"),
+    renderBoardPreviewSvg(
+      visualStateFromCandidate(
+        get(generated, "trampa_obd_9in_power_study"),
+        geometry,
+        bundle.catalog
+      ),
+      "side"
+    )
+  );
 });

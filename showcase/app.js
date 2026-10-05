@@ -87,6 +87,9 @@ const visual = {
   cameraCenter: new THREE.Vector3(0, 0, 90),
   reframePending: false,
   wheelStudyId: "TIRE-T1-8-REF",
+  componentCatalog: new Map(),
+  driveType: "gear",
+  brakeFamily: "mbs_v5_mechanical",
 };
 
 clearanceRoot.visible = false;
@@ -127,6 +130,8 @@ function addEvidenceEdges(mesh, state, opacity = 0.72) {
     })
   );
   edges.renderOrder = 4;
+  edges.name = "evidence-edges";
+  edges.userData.evidenceEdge = true;
   mesh.add(edges);
   return mesh;
 }
@@ -152,13 +157,41 @@ function box(parent, name, size, pos, state, opacity = 1, physicalKind = null) {
   return mesh;
 }
 
-function roundedDeck(parent, g, state) {
-  const length = g.deck_length_mm;
-  const width = g.deck_width_mm;
-  const r = Math.min(34, width * 0.14);
+function deckShape2D(length, width, family = "generic_mountainboard") {
   const x = length / 2;
   const y = width / 2;
   const shape = new THREE.Shape();
+
+  if (family === "lacroix_asymmetric_flex") {
+    const nose = Math.min(92, length * 0.105);
+    const tail = Math.min(68, length * 0.078);
+    const frontInset = Math.min(22, width * 0.08);
+    const rearInset = Math.min(42, width * 0.16);
+    shape.moveTo(-x + tail, -y + rearInset);
+    shape.quadraticCurveTo(-x + 4, -y + width * 0.34, -x, 4);
+    shape.quadraticCurveTo(-x + 8, y - width * 0.18, -x + tail, y - rearInset * 0.55);
+    shape.quadraticCurveTo(-length * 0.10, y + 7, x - nose, y - frontInset);
+    shape.quadraticCurveTo(x - 4, y - width * 0.15, x, 0);
+    shape.quadraticCurveTo(x - 4, -y + width * 0.15, x - nose, -y + frontInset);
+    shape.quadraticCurveTo(-length * 0.08, -y - 7, -x + tail, -y + rearInset);
+    return shape;
+  }
+
+  if (family.startsWith("trampa_")) {
+    const r = Math.min(28, width * 0.10);
+    shape.moveTo(-x + r, -y);
+    shape.lineTo(x - r, -y);
+    shape.quadraticCurveTo(x, -y, x, -y + r);
+    shape.lineTo(x, y - r);
+    shape.quadraticCurveTo(x, y, x - r, y);
+    shape.lineTo(-x + r, y);
+    shape.quadraticCurveTo(-x, y, -x, y - r);
+    shape.lineTo(-x, -y + r);
+    shape.quadraticCurveTo(-x, -y, -x + r, -y);
+    return shape;
+  }
+
+  const r = Math.min(34, width * 0.14);
   shape.moveTo(-x + r, -y);
   shape.lineTo(x - r, -y);
   shape.quadraticCurveTo(x, -y, x, -y + r);
@@ -168,14 +201,42 @@ function roundedDeck(parent, g, state) {
   shape.quadraticCurveTo(-x, y, -x, y - r);
   shape.lineTo(-x, -y + r);
   shape.quadraticCurveTo(-x, -y, -x + r, -y);
-  const geometry = new THREE.ExtrudeGeometry(shape, {
-    depth: g.deck_reference_thickness_mm,
-    bevelEnabled: true,
-    bevelSegments: 2,
-    steps: 1,
-    bevelSize: 2.5,
-    bevelThickness: 1.5,
-  });
+  return shape;
+}
+
+function deckGeometry(length, width, thickness, family) {
+  return new THREE.ExtrudeGeometry(
+    deckShape2D(length, width, family),
+    {
+      depth: thickness,
+      bevelEnabled: true,
+      bevelSegments: 2,
+      steps: 1,
+      bevelSize: 2.5,
+      bevelThickness: 1.5,
+    }
+  );
+}
+
+function replaceMeshGeometry(mesh, geometry, state) {
+  if (mesh.geometry) mesh.geometry.dispose();
+  for (const child of [...mesh.children]) {
+    if (!child.userData?.evidenceEdge) continue;
+    mesh.remove(child);
+    child.geometry?.dispose?.();
+    child.material?.dispose?.();
+  }
+  mesh.geometry = geometry;
+  addEvidenceEdges(mesh, state, 0.48);
+}
+
+function roundedDeck(parent, g, state) {
+  const geometry = deckGeometry(
+    g.deck_length_mm,
+    g.deck_width_mm,
+    g.deck_reference_thickness_mm,
+    "mbs_powerlam"
+  );
   const mesh = new THREE.Mesh(geometry, materialFor(state, 1, false, "deck"));
   mesh.name = "deck";
   mesh.position.z = g.static_ground_clearance_mm;
@@ -244,8 +305,75 @@ function makeTruck(parent, name, width, deckBottom, state) {
 
   box(group, name + "-baseplate", [94, 70, 7], [0, 0, deckBottom - 5], state, 1, "trucks");
   box(group, name + "-pivot", [40, 34, 26], [0, 0, deckBottom - 17], state, 1, "trucks");
+
+  const styleGroups = {};
+
+  const channel = new THREE.Group();
+  channel.name = name + "-style-channel-spring";
+  for (const side of [-1, 1]) {
+    box(
+      channel,
+      name + "-channel-spring-" + side,
+      [28, 13, 30],
+      [0, side * 28, deckBottom - 18],
+      state,
+      0.86,
+      "trucks"
+    );
+  }
+  group.add(channel);
+  styleGroups.channel_spring = channel;
+
+  const pkp = new THREE.Group();
+  pkp.name = name + "-style-parallel-kingpin";
+  for (const side of [-1, 1]) {
+    const pin = new THREE.Mesh(
+      new THREE.CylinderGeometry(4.5, 4.5, 48, 24),
+      materialFor(state, 1, false, "trucks")
+    );
+    pin.rotation.x = side * 0.62;
+    pin.position.set(0, side * 17, deckBottom - 17);
+    pkp.add(pin);
+  }
+  group.add(pkp);
+  styleGroups.parallel_kingpin = pkp;
+
+  const precision = new THREE.Group();
+  precision.name = name + "-style-precision-bushing-spring";
+  for (const side of [-1, 1]) {
+    const spring = new THREE.Mesh(
+      new THREE.TorusGeometry(9, 2.2, 10, 28),
+      materialFor(state, 0.9, false, "trucks")
+    );
+    spring.rotation.x = Math.PI / 2;
+    spring.position.set(0, side * 25, deckBottom - 18);
+    precision.add(spring);
+    box(
+      precision,
+      name + "-precision-bushing-" + side,
+      [26, 14, 12],
+      [0, side * 25, deckBottom - 8],
+      state,
+      0.9,
+      "trucks"
+    );
+  }
+  group.add(precision);
+  styleGroups.precision_bushing_spring = precision;
+
+  group.userData.styleGroups = styleGroups;
   parent.add(group);
   return group;
+}
+
+function applyTruckVisualFamily(truck, family) {
+  const groups = truck?.userData?.styleGroups || {};
+  for (const [id, group] of Object.entries(groups)) {
+    group.visible = id === family;
+  }
+  if (!groups[family] && groups.channel_spring) {
+    groups.channel_spring.visible = true;
+  }
 }
 
 function lineRectangle(width, height, z, color) {
@@ -322,6 +450,8 @@ function makeBrakeReference(parent, axleX, g, state) {
   group.position.x = -axleX;
   const rotorOuter = g.wheel_diameter_mm * 0.31;
   const rotorInner = rotorOuter * 0.72;
+  const hydraulic = new THREE.Group();
+  hydraulic.name = "brake-style-hydraulic";
   for (const side of [-1, 1]) {
     const y = side * (g.wheel_center_lateral_mm - g.wheel_width_mm / 2 - 3);
     const rotor = new THREE.Mesh(
@@ -333,22 +463,66 @@ function makeBrakeReference(parent, axleX, g, state) {
     group.add(rotor);
     box(group, "brake-caliper-" + side, [30, 18, 34],
       [18, y, g.wheel_diameter_mm * 0.63], state, 0.72, "brake");
+
+    const slave = new THREE.Mesh(
+      new THREE.CylinderGeometry(6, 6, 28, 24),
+      materialFor(state, 0.86, false, "brake")
+    );
+    slave.rotation.z = Math.PI / 2;
+    slave.position.set(30, y, g.wheel_diameter_mm * 0.66);
+    hydraulic.add(slave);
+
+    const hosePoints = [
+      new THREE.Vector3(30, y, g.wheel_diameter_mm * 0.66),
+      new THREE.Vector3(12, side * 52, g.wheel_diameter_mm * 0.82),
+      new THREE.Vector3(-20, side * 34, g.wheel_diameter_mm * 0.94),
+    ];
+    const hose = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(hosePoints),
+      new THREE.LineBasicMaterial({
+        color: STATE[state] || STATE.ASSUMED,
+        transparent: true,
+        opacity: 0.72,
+      })
+    );
+    hydraulic.add(hose);
   }
+  group.add(hydraulic);
+  group.userData.hydraulicStyle = hydraulic;
+
   const envelope = box(group, "brake-packaging-envelope",
     [40, g.truck_total_width_mm - 34, g.wheel_diameter_mm * 0.78],
     [0, 0, g.wheel_diameter_mm / 2], state, 0.055);
   visual.brakeGhost = envelope;
+  visual.brakeReferenceGroup = group;
   registerMovable(group, [-70, -180, 100]);
   parent.add(group);
   return group;
+}
+
+function applyBrakeVisualFamily(family) {
+  visual.brakeFamily = family || "mbs_v5_mechanical";
+  const hydraulic = visual.brakeReferenceGroup?.userData?.hydraulicStyle;
+  if (hydraulic) {
+    hydraulic.visible = String(visual.brakeFamily).includes("hs11");
+  }
 }
 
 function makeDriveReference(parent, axleX, g, state) {
   const group = new THREE.Group();
   group.name = "drive-packaging-reference";
   group.position.x = -axleX + 28;
+
+  const gearStyle = new THREE.Group();
+  gearStyle.name = "drive-style-gear";
+  const openBeltStyle = new THREE.Group();
+  openBeltStyle.name = "drive-style-open-belt";
+  const beltStyle = new THREE.Group();
+  beltStyle.name = "drive-style-belt";
+
   for (const side of [-1, 1]) {
     const y = side * (g.wheel_center_lateral_mm - 58);
+    const wheelY = side * (g.wheel_center_lateral_mm - g.wheel_width_mm / 2 - 7);
     const motor = new THREE.Mesh(
       new THREE.CylinderGeometry(28, 28, 48, 36),
       materialFor(state, 0.58, state === "BLOCKED", "drive")
@@ -356,19 +530,89 @@ function makeDriveReference(parent, axleX, g, state) {
     motor.position.set(36, y, 78);
     motor.castShadow = true;
     group.add(motor);
+
     const gear = new THREE.Mesh(
       new THREE.CylinderGeometry(34, 34, 7, 40),
       materialFor(state, 0.5, true, "drive")
     );
-    gear.position.set(0, side * (g.wheel_center_lateral_mm - g.wheel_width_mm / 2 - 7), g.wheel_diameter_mm / 2);
-    group.add(gear);
+    gear.position.set(0, wheelY, g.wheel_diameter_mm / 2);
+    gearStyle.add(gear);
+
+    const wheelPulley = new THREE.Mesh(
+      new THREE.CylinderGeometry(29, 29, 6, 40),
+      materialFor(state, 0.54, false, "drive")
+    );
+    wheelPulley.position.set(0, wheelY, g.wheel_diameter_mm / 2);
+    openBeltStyle.add(wheelPulley);
+
+    const motorPulley = new THREE.Mesh(
+      new THREE.CylinderGeometry(10, 10, 8, 28),
+      materialFor(state, 0.68, false, "drive")
+    );
+    motorPulley.position.set(36, y, 78);
+    openBeltStyle.add(motorPulley);
+
+    const beltPoints = [
+      new THREE.Vector3(0, wheelY, g.wheel_diameter_mm / 2),
+      new THREE.Vector3(36, y, 78),
+    ];
+    const belt = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(beltPoints),
+      new THREE.LineBasicMaterial({
+        color: STATE[state] || STATE.ASSUMED,
+        transparent: true,
+        opacity: 0.9,
+      })
+    );
+    openBeltStyle.add(belt);
+
+    const enclosedWheelPulley = wheelPulley.clone();
+    enclosedWheelPulley.material = materialFor(state, 0.46, false, "drive");
+    beltStyle.add(enclosedWheelPulley);
+    const enclosedMotorPulley = motorPulley.clone();
+    enclosedMotorPulley.material = materialFor(state, 0.52, false, "drive");
+    beltStyle.add(enclosedMotorPulley);
+    const enclosedBelt = belt.clone();
+    enclosedBelt.material = new THREE.LineBasicMaterial({
+      color: STATE[state] || STATE.ASSUMED,
+      transparent: true,
+      opacity: 0.62,
+    });
+    beltStyle.add(enclosedBelt);
+    box(
+      beltStyle,
+      "belt-cover-" + side,
+      [58, 18, 34],
+      [18, (wheelY + y) / 2, (g.wheel_diameter_mm / 2 + 78) / 2],
+      state,
+      0.16,
+      "drive"
+    );
   }
+
+  group.add(gearStyle, openBeltStyle, beltStyle);
+  group.userData.driveStyles = {
+    gear: gearStyle,
+    open_belt: openBeltStyle,
+    belt: beltStyle,
+  };
+
   const envelope = box(group, "drive-packaging-envelope",
     [122, g.truck_total_width_mm - 48, 92], [24, 0, 74], state, 0.055);
   visual.driveGhost = envelope;
+  visual.driveReferenceGroup = group;
   registerMovable(group, [-70, 180, 100]);
   parent.add(group);
   return group;
+}
+
+function applyDriveVisualType(type) {
+  visual.driveType = type || "gear";
+  const styles = visual.driveReferenceGroup?.userData?.driveStyles || {};
+  for (const [id, group] of Object.entries(styles)) {
+    group.visible = id === visual.driveType;
+  }
+  if (!styles[visual.driveType] && styles.gear) styles.gear.visible = true;
 }
 
 function makeDockStudy(g) {
@@ -472,6 +716,7 @@ function applyTopology(id) {
   visual.topologyId = branch.id;
   for (const axle of Object.values(visual.axles)) {
     axle.truck.scale.y = branch.truck_total_width_mm / visual.geometry.truck_total_width_mm;
+    applyTruckVisualFamily(axle.truck, branch.steering_family || "channel_spring");
     axle.leftWheel.position.y = -branch.wheel_center_lateral_mm;
     axle.rightWheel.position.y = branch.wheel_center_lateral_mm;
   }
@@ -501,32 +746,49 @@ function applyTopology(id) {
   loadCadTopology(branch.id);
 }
 
+function wheelStudyGeometry(id) {
+  if (!visual.geometry) return null;
+  if (id === "none") {
+    return {
+      id: "none",
+      diameter_mm: 0,
+      width_mm: 0,
+      visible: false,
+    };
+  }
+
+  const component = visual.componentCatalog.get(id);
+  const interfaces = component?.interfaces || {};
+  const diameter = Number(
+    interfaces.measured_reference_diameter_mm ??
+    interfaces.published_diameter_mm ??
+    visual.geometry.wheel_diameter_mm
+  );
+  const width = Number(
+    interfaces.measured_reference_width_mm ??
+    interfaces.published_width_mm ??
+    interfaces.visual_width_mm ??
+    visual.geometry.wheel_width_mm
+  );
+  return {
+    id: component ? id : "TIRE-T1-8-REF",
+    diameter_mm: diameter,
+    width_mm: width,
+    visible: true,
+  };
+}
+
 function applyWheelStudy(id) {
   if (!visual.geometry) return;
-  const studies = {
-    "TIRE-T1-8-REF": {
-      diameter_mm: visual.geometry.wheel_diameter_mm,
-      width_mm: visual.geometry.wheel_width_mm,
-      visible: true,
-    },
-    "TIRE-T2-9": {
-      diameter_mm: 219,
-      width_mm: 67,
-      visible: true,
-    },
-    "none": {
-      diameter_mm: visual.geometry.wheel_diameter_mm,
-      width_mm: visual.geometry.wheel_width_mm,
-      visible: false,
-    },
-  };
-  const study = studies[id] || studies["TIRE-T1-8-REF"];
-  visual.wheelStudyId = studies[id] ? id : "TIRE-T1-8-REF";
+  const study = wheelStudyGeometry(id) || wheelStudyGeometry("TIRE-T1-8-REF");
+  visual.wheelStudyId = study.id;
 
   const diameterScale =
-    study.diameter_mm / visual.geometry.wheel_diameter_mm;
+    (study.diameter_mm || visual.geometry.wheel_diameter_mm) /
+    visual.geometry.wheel_diameter_mm;
   const widthScale =
-    study.width_mm / visual.geometry.wheel_width_mm;
+    (study.width_mm || visual.geometry.wheel_width_mm) /
+    visual.geometry.wheel_width_mm;
 
   for (const axle of Object.values(visual.axles)) {
     for (const wheelGroup of [axle.leftWheel, axle.rightWheel]) {
@@ -628,8 +890,17 @@ function deckStudyUI(manifest) {
     btn.addEventListener("click", () => {
       if (!visual.deck || !visual.geometry) return;
       visual.deckCandidateId = candidate.id;
-      visual.deck.scale.x = candidate.length_mm / visual.geometry.deck_length_mm;
-      visual.deck.scale.y = candidate.width_mm / visual.geometry.deck_width_mm;
+      visual.deck.scale.set(1, 1, 1);
+      replaceMeshGeometry(
+        visual.deck,
+        deckGeometry(
+          candidate.length_mm,
+          candidate.width_mm,
+          visual.geometry.deck_reference_thickness_mm,
+          candidate.shape_family || "generic_mountainboard"
+        ),
+        componentState("deck")
+      );
       document.querySelectorAll("#deck-candidates button").forEach(x => x.classList.remove("active"));
       btn.classList.add("active");
       document.getElementById("deck-note").textContent =
@@ -707,23 +978,7 @@ function currentConfiguration() {
   const deck = currentDeckCandidate();
   const topology = currentTopology();
   const g = visual.geometry || {};
-  const wheelStudy = {
-    "TIRE-T1-8-REF": {
-      diameter_mm: g.wheel_diameter_mm ?? 194,
-      width_mm: g.wheel_width_mm ?? 51,
-      visible: true,
-    },
-    "TIRE-T2-9": {
-      diameter_mm: 219,
-      width_mm: 67,
-      visible: true,
-    },
-    "none": {
-      diameter_mm: 0,
-      width_mm: 0,
-      visible: false,
-    },
-  }[visual.wheelStudyId] || {
+  const wheelStudy = wheelStudyGeometry(visual.wheelStudyId) || {
     diameter_mm: g.wheel_diameter_mm ?? 194,
     width_mm: g.wheel_width_mm ?? 51,
     visible: true,
@@ -736,6 +991,8 @@ function currentConfiguration() {
     topology_id: topology?.id || null,
     topology_label: topology?.label || "Unknown topology",
     wheel_study_id: visual.wheelStudyId,
+    drive_type: visual.driveType,
+    brake_family: visual.brakeFamily,
     wheel_diameter_mm: wheelStudy.diameter_mm,
     wheel_width_mm: wheelStudy.width_mm,
     truck_total_width_mm: topology?.truck_total_width_mm ?? g.truck_total_width_mm ?? null,
@@ -892,6 +1149,8 @@ function applyConfigurationPreset(preset) {
   selectDeckCandidate(preset.deck_candidate_id);
   selectTopology(preset.topology_id);
   applyWheelStudy("TIRE-T1-8-REF");
+  applyDriveVisualType("gear");
+  applyBrakeVisualFamily("mbs_v5_mechanical");
   Object.entries(preset.layers || {}).forEach(([id, visible]) => setLayerVisibility(id, visible));
   setSnowdeckControls(preset.snowdeck || {});
   const note = document.getElementById("preset-note");
@@ -952,6 +1211,8 @@ function configurationLabUI(manifest) {
   const requestedDeckId = params.get("deck");
   const requestedTopologyId = params.get("topology");
   const requestedWheelId = params.get("wheel");
+  const requestedDriveType = params.get("drive_type");
+  const requestedBrakeFamily = params.get("brake_family");
   const requestedLayers = {};
   for (const layerId of ["brake", "drive", "pack", "snowdeck", "armor", "dock"]) {
     const raw = params.get(layerId);
@@ -984,8 +1245,18 @@ function configurationLabUI(manifest) {
       setLayerVisibility(layerId, visible);
     }
 
-    if (["TIRE-T1-8-REF", "TIRE-T2-9", "none"].includes(requestedWheelId)) {
+    if (
+      requestedWheelId === "none" ||
+      visual.componentCatalog.get(requestedWheelId)?.category === "wheel"
+    ) {
       applyWheelStudy(requestedWheelId);
+    }
+
+    if (["gear", "open_belt", "belt", "none"].includes(requestedDriveType)) {
+      applyDriveVisualType(requestedDriveType === "none" ? "gear" : requestedDriveType);
+    }
+    if (requestedBrakeFamily) {
+      applyBrakeVisualFamily(requestedBrakeFamily);
     }
 
     if (
@@ -1009,6 +1280,8 @@ function configurationLabUI(manifest) {
           requestedDeckId ||
           requestedTopologyId ||
           requestedWheelId ||
+          requestedDriveType ||
+          requestedBrakeFamily ||
           Object.keys(requestedLayers).length
             ? " URL overrides are visualization-only design-study state."
             : "";
@@ -1445,6 +1718,52 @@ function resize() {
 }
 window.addEventListener("resize", resize);
 
+async function loadCatalogExtensions() {
+  try {
+    const [geometryResponse, catalogResponse] = await Promise.all([
+      fetch("../catalog/board_geometry.v1.json", { cache: "no-store" }),
+      fetch("../catalog/board_components.v1.json", { cache: "no-store" }),
+    ]);
+    if (!geometryResponse.ok || !catalogResponse.ok) {
+      throw new Error("generic board catalog unavailable");
+    }
+    return {
+      geometry: await geometryResponse.json(),
+      catalog: await catalogResponse.json(),
+    };
+  } catch (error) {
+    return null;
+  }
+}
+
+function mergeRowsById(existing, additions) {
+  const extra = new Map((additions || []).map(row => [row.id, row]));
+  const merged = (existing || []).map(row => {
+    const generic = extra.get(row.id);
+    if (!generic) return row;
+    extra.delete(row.id);
+    return { ...generic, ...row };
+  });
+  merged.push(...extra.values());
+  return merged;
+}
+
+function extendManifestWithCatalog(manifest, extensions) {
+  if (!extensions) return;
+  const studies = manifest.design_studies || (manifest.design_studies = {});
+  studies.deck_candidates = mergeRowsById(
+    studies.deck_candidates,
+    extensions.geometry?.decks
+  );
+  studies.topology_branches = mergeRowsById(
+    studies.topology_branches,
+    extensions.geometry?.topologies
+  );
+  visual.componentCatalog = new Map(
+    (extensions.catalog?.components || []).map(row => [row.id, row])
+  );
+}
+
 async function loadManifest() {
   try {
     const response = await fetch("./x1_runtime_manifest.json", { cache: "no-store" });
@@ -1459,6 +1778,8 @@ async function loadManifest() {
 }
 
 const manifest = await loadManifest();
+const catalogExtensions = await loadCatalogExtensions();
+extendManifestWithCatalog(manifest, catalogExtensions);
 visual.manifest = manifest;
 fillUI(manifest);
 proceduralBoard(manifest);

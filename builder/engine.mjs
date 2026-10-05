@@ -220,6 +220,7 @@ function makeBom(architecture, catalog) {
       price: c.price || null,
       source_url: c.source && c.source.url ? c.source.url : null,
       source_as_of: c.source ? c.source.as_of : null,
+      source_native_price: c.source ? c.source.native_price_snapshot || null : null,
       hold_reason: c.hold_reason || null,
     };
   });
@@ -240,14 +241,59 @@ function worsen(current, next) {
 
 function deckFit(requirements, deckId) {
   const allowed = {
-    compact: new Set(["comp95"]),
-    balanced: new Set(["comp95", "pro_warren_iii"]),
-    long_stable: new Set(["pro_warren_iii", "agent"]),
+    compact: new Set(["comp95", "trampa_short_969", "lacroix_barrel_876"]),
+    balanced: new Set(["comp95", "pro_warren_iii", "trampa_short_969", "trampa_hs11_969"]),
+    long_stable: new Set(["pro_warren_iii", "agent", "trampa_hs11_969"]),
   };
   if (allowed[requirements.deck_envelope_preference].has(deckId)) {
     return [0.05, "Deck envelope matches the " + requirements.deck_envelope_preference + " planning preference."];
   }
   return [-0.02, "Deck envelope differs from the " + requirements.deck_envelope_preference + " planning preference."];
+}
+
+function compatibilityFindings(selectedIds, catalog, compatibility) {
+  const selected = new Set(selectedIds);
+  const index = new Map(catalog.components.map(row => [row.id, row]));
+  const findings = [];
+  const covered = new Set();
+  const pairKey = (a, b) => [a, b].sort().join("::");
+
+  for (const rule of compatibility.pair_rules || []) {
+    if (!selected.has(rule.a) || !selected.has(rule.b)) continue;
+    covered.add(pairKey(rule.a, rule.b));
+    findings.push({
+      id: rule.id,
+      state: rule.state,
+      reason: rule.reason,
+      a: rule.a,
+      b: rule.b,
+      source: "explicit_rule",
+    });
+  }
+
+  const rows = [...selected].map(id => index.get(id)).filter(Boolean);
+  for (const fallback of compatibility.category_pair_defaults || []) {
+    const [categoryA, categoryB] = fallback.categories;
+    const aRows = rows.filter(row => row.category === categoryA);
+    const bRows = rows.filter(row => row.category === categoryB);
+    for (const a of aRows) {
+      for (const b of bRows) {
+        if (a.id === b.id) continue;
+        const key = pairKey(a.id, b.id);
+        if (covered.has(key)) continue;
+        covered.add(key);
+        findings.push({
+          id: "default:" + categoryA + ":" + categoryB + ":" + a.id + ":" + b.id,
+          state: fallback.state,
+          reason: fallback.reason,
+          a: a.id,
+          b: b.id,
+          source: "category_default",
+        });
+      }
+    }
+  }
+  return findings;
 }
 
 export function scoreArchitecture(profile, requirements, architecture, catalog, compatibility) {
@@ -267,9 +313,9 @@ export function scoreArchitecture(profile, requirements, architecture, catalog, 
     0
   );
   let score = weighted;
-  let readiness = "REFERENCE_COMPATIBLE";
   const explanations = [];
   const blockers = [...(architecture.hard_blockers || [])];
+  let readiness = blockers.length ? "BLOCKED" : "REFERENCE_COMPATIBLE";
   const unknowns = [...(architecture.known_unknowns || [])];
 
   const d = deckFit(requirements, architecture.deck_candidate_id);
@@ -288,6 +334,11 @@ export function scoreArchitecture(profile, requirements, architecture, catalog, 
   } else if (drive === "REFERENCE_COMPATIBLE") {
     score += 0.06;
     explanations.push("Drive reference aligns with the electric mission intent.");
+  } else if (drive === "MEASURE_FIRST") {
+    score += 0.01;
+    readiness = worsen(readiness, "MEASURE_FIRST");
+    unknowns.push("Drive path is catalog-plausible but still depends on an unresolved physical interface.");
+    explanations.push("Drive path is promising for the electric mission, but coexistence still needs measurement.");
   } else if (drive === "NOT_PRESENT") {
     score -= 0.14;
     readiness = worsen(readiness, "MEASURE_FIRST");
@@ -311,13 +362,15 @@ export function scoreArchitecture(profile, requirements, architecture, catalog, 
     }
   }
 
-  if (
-    requirements.wheel_strategy === "nine_inch_rollover_study" &&
-    architecture.capabilities.wheel_class === "8in_pneumatic"
-  ) {
-    score -= 0.03;
-    unknowns.push("Rough-terrain profile justifies a separate 9-inch rollover study.");
-    explanations.push("Eight-inch pneumatics remain the reference baseline; larger wheels should be tested only if rollover is a measured deficiency.");
+  if (requirements.wheel_strategy === "nine_inch_rollover_study") {
+    if (architecture.capabilities.wheel_class === "9in_pneumatic") {
+      score += 0.04;
+      explanations.push("Nine-inch pneumatic study directly matches the rough-terrain rollover target.");
+    } else if (architecture.capabilities.wheel_class === "8in_pneumatic") {
+      score -= 0.03;
+      unknowns.push("Rough-terrain profile justifies a separate 9-inch rollover study.");
+      explanations.push("Eight-inch pneumatics remain a lower-rollover baseline for this terrain model.");
+    }
   } else if (
     requirements.wheel_strategy === "eight_inch_pneumatic_reference" &&
     architecture.capabilities.wheel_class === "8in_pneumatic"
@@ -362,17 +415,15 @@ export function scoreArchitecture(profile, requirements, architecture, catalog, 
   const bom = packed.rows;
   const cost = packed.cost;
   const ids = new Set(bom.map(x => x.component_id));
-  const findings = [];
+  const findings = compatibilityFindings(ids, catalog, compatibility);
 
-  for (const rule of compatibility.pair_rules || []) {
-    if (!ids.has(rule.a) || !ids.has(rule.b)) continue;
-    findings.push({ id: rule.id, state: rule.state, reason: rule.reason, a: rule.a, b: rule.b });
-    if (rule.state === "INCOMPATIBLE") {
+  for (const finding of findings) {
+    if (finding.state === "INCOMPATIBLE") {
       readiness = worsen(readiness, "INCOMPATIBLE");
-      blockers.push(rule.reason);
-    } else if (rule.state === "MEASURE_FIRST" || rule.state === "UNKNOWN") {
+      blockers.push(finding.reason);
+    } else if (finding.state === "MEASURE_FIRST" || finding.state === "UNKNOWN") {
       readiness = worsen(readiness, "MEASURE_FIRST");
-      unknowns.push(rule.reason);
+      unknowns.push(finding.reason);
     }
   }
 
@@ -410,6 +461,7 @@ export function scoreArchitecture(profile, requirements, architecture, catalog, 
     architecture_id: architecture.id,
     label: architecture.label,
     short_label: architecture.short_label,
+    vendor_family: architecture.vendor_family || "Unspecified",
     description: architecture.description,
     fit_score: Number(score.toFixed(4)),
     readiness,

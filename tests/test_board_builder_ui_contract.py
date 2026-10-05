@@ -115,9 +115,38 @@ def test_visual_exports_are_svg_and_design_exports_include_visual_state():
     assert 'type: "image/svg+xml;charset=utf-8"' in renderer
 
 
-def test_visual_handoff_carries_wheel_study_into_twin():
+def test_visual_handoff_carries_catalog_wheel_study_into_twin():
     assert 'wheel: visual.wheel.study_id' in APP
     assert 'params.get("wheel")' in TWIN
+    assert 'function wheelStudyGeometry(id)' in TWIN
     assert 'function applyWheelStudy(id)' in TWIN
-    assert '"TIRE-T2-9"' in TWIN
-    assert '"none"' in TWIN
+    assert 'visual.componentCatalog.get(id)' in TWIN
+    assert 'category === "wheel"' in TWIN
+    assert 'requestedWheelId === "none"' in TWIN
+
+
+def test_multivendor_gallery_exposes_family_filters_and_generic_geometry():
+    assert 'id="vendor-filters"' in HTML
+    assert 'id="catalog-coverage"' in HTML
+    assert 'state.vendorFilter' in APP
+    assert 'row.vendor_family' in APP
+    assert '../catalog/board_geometry.v1.json' in APP
+    assert '../catalog/board_geometry.v1.json' in TWIN
+    assert '../catalog/board_components.v1.json' in TWIN
+
+
+def test_visual_handoff_preserves_brake_and_drive_family_into_twin():
+    assert 'drive_type: visual.visual_style.drive_type' in APP
+    assert 'brake_family: visual.visual_style.brake_family' in APP
+    assert 'params.get("drive_type")' in TWIN
+    assert 'params.get("brake_family")' in TWIN
+    assert 'function applyDriveVisualType(type)' in TWIN
+    assert 'function applyBrakeVisualFamily(family)' in TWIN
+
+
+def test_twin_has_distinct_procedural_deck_and_truck_family_geometry():
+    assert 'lacroix_asymmetric_flex' in TWIN
+    assert 'parallel_kingpin' in TWIN
+    assert 'precision_bushing_spring' in TWIN
+    assert 'function applyTruckVisualFamily(truck, family)' in TWIN
+    assert 'function replaceMeshGeometry(mesh, geometry, state)' in TWIN

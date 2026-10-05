@@ -38,7 +38,8 @@
         "Physical V5 interface/stopping performance",
         "Rider-specific SnowDeck geometry"
       ],
-      "hard_blockers": []
+      "hard_blockers": [],
+      "vendor_family": "MBS / Worcester"
     },
     {
       "id": "x1_compact_electric_study",
@@ -82,7 +83,8 @@
         "Exact motor/controller/battery selection",
         "Live enclosure and thermal architecture"
       ],
-      "hard_blockers": []
+      "hard_blockers": [],
+      "vendor_family": "MBS / Worcester"
     },
     {
       "id": "drive_clearance_range_study",
@@ -127,7 +129,8 @@
       ],
       "hard_blockers": [
         "No documented independent friction-brake path in this reference branch."
-      ]
+      ],
+      "vendor_family": "MBS / Worcester"
     },
     {
       "id": "snowdeck_fit_bench",
@@ -162,7 +165,300 @@
         "Left/right plate geometry",
         "Compliance cartridge behavior"
       ],
+      "hard_blockers": [],
+      "vendor_family": "MBS / Worcester"
+    },
+    {
+      "id": "trampa_short_carve_core",
+      "label": "TRAMPA Short Carve Core",
+      "short_label": "TRAMPA Carve",
+      "vendor_family": "TRAMPA",
+      "description": "Compact 35° composite mountainboard architecture using VERTIGO spring trucks and 8-inch SUPERSTAR/Alpha wheels. It prioritizes lively carving and portability while deliberately carrying no powered hardware.",
+      "visual_preset": "snowdeck_fit",
+      "deck_candidate_id": "trampa_short_969",
+      "topology_id": "trampa_vertigo_406",
+      "traits": {
+        "range": 0.22,
+        "carve": 0.96,
+        "stability": 0.68,
+        "durability": 0.84,
+        "portability": 0.9,
+        "cost": 0.64,
+        "low_maintenance": 0.78,
+        "rough_terrain": 0.72
+      },
+      "capabilities": {
+        "friction_brake_path": "NOT_PRESENT",
+        "drive_path": "NOT_PRESENT",
+        "electric_complete": false,
+        "wheel_class": "8in_pneumatic",
+        "snowdeck": false
+      },
+      "bom": [
+        "DECK-TRAMPA-SHORT-969",
+        "TRUCK-TRAMPA-VERTIGO-12",
+        "WHEEL-TRAMPA-ALPHA8"
+      ],
+      "known_unknowns": [
+        "Exact rider-specific TRAMPA ply/flex selection",
+        "Received deck/truck hardware stack and steering tune"
+      ],
       "hard_blockers": []
+    },
+    {
+      "id": "trampa_hydraulic_freeride",
+      "label": "TRAMPA Hydraulic Freeride",
+      "short_label": "TRAMPA HS11",
+      "vendor_family": "TRAMPA",
+      "description": "Unpowered brake-first freeride architecture built around the HS11 brake-clearance deck, INFINITY brake hanger, SUPERSTAR 8-inch wheel family and Magura hydraulic friction braking.",
+      "visual_preset": "brake_first_trail",
+      "deck_candidate_id": "trampa_hs11_969",
+      "topology_id": "trampa_infinity_hs11_406",
+      "traits": {
+        "range": 0.25,
+        "carve": 0.86,
+        "stability": 0.84,
+        "durability": 0.9,
+        "portability": 0.65,
+        "cost": 0.48,
+        "low_maintenance": 0.55,
+        "rough_terrain": 0.86
+      },
+      "capabilities": {
+        "friction_brake_path": "REFERENCE_COMPATIBLE",
+        "drive_path": "NOT_PRESENT",
+        "electric_complete": false,
+        "wheel_class": "8in_pneumatic",
+        "snowdeck": false
+      },
+      "bom": [
+        "DECK-TRAMPA-HS11-969",
+        "TRUCK-TRAMPA-INFINITY-HS11",
+        "WHEEL-TRAMPA-ALPHA8",
+        "BRAKE-TRAMPA-HS11"
+      ],
+      "known_unknowns": [
+        "Physical stopping performance and hose routing",
+        "Rider-specific deck ply/flex",
+        "Received rotor/caliper/wheel clearance"
+      ],
+      "hard_blockers": []
+    },
+    {
+      "id": "trampa_boardnamics_coexistence",
+      "label": "TRAMPA Brake + M1-AT Coexistence Study",
+      "short_label": "TRAMPA + M1-AT",
+      "vendor_family": "TRAMPA + Boardnamics",
+      "description": "Cross-vendor electric study retaining a sourced TRAMPA hydraulic friction-brake path while testing whether a Boardnamics M1-AT drive can coexist on the INFINITY brake-hanger family. Wheel/drive compatibility is sourced; truck/drive coexistence remains deliberately unknown.",
+      "visual_preset": "coexistence_question",
+      "deck_candidate_id": "trampa_hs11_969",
+      "topology_id": "trampa_infinity_hs11_406",
+      "traits": {
+        "range": 0.78,
+        "carve": 0.8,
+        "stability": 0.86,
+        "durability": 0.76,
+        "portability": 0.5,
+        "cost": 0.34,
+        "low_maintenance": 0.44,
+        "rough_terrain": 0.88
+      },
+      "capabilities": {
+        "friction_brake_path": "REFERENCE_COMPATIBLE",
+        "drive_path": "MEASURE_FIRST",
+        "electric_complete": false,
+        "wheel_class": "8in_pneumatic",
+        "snowdeck": false
+      },
+      "bom": [
+        "DECK-TRAMPA-HS11-969",
+        "TRUCK-TRAMPA-INFINITY-HS11",
+        "WHEEL-TRAMPA-ALPHA8",
+        "BRAKE-TRAMPA-HS11",
+        "DRIVE-BOARDNAMICS-M1-AT",
+        "MOTOR-63XX-8MM-SHAFT-CLASS",
+        "ESC-DUAL-CLASS",
+        "BATTERY-TRAIL-CLASS"
+      ],
+      "known_unknowns": [
+        "M1-AT fit on INFINITY HS11 brake hanger",
+        "Brake/drive axial and steering-sweep coexistence",
+        "Exact motor/controller/battery architecture"
+      ],
+      "hard_blockers": []
+    },
+    {
+      "id": "trampa_obd_9in_power_study",
+      "label": "TRAMPA 9-inch OBD Trail Study",
+      "short_label": "TRAMPA 9 OBD",
+      "vendor_family": "TRAMPA",
+      "description": "Nine-inch rollover and open-belt-drive packaging study using the HS11 deck envelope, VERTIGO truck family and MEGASTAR 9 wheels. It intentionally exposes the missing independent friction-brake coexistence path.",
+      "visual_preset": "drive_packaging",
+      "deck_candidate_id": "trampa_hs11_969",
+      "topology_id": "trampa_vertigo_406",
+      "traits": {
+        "range": 0.8,
+        "carve": 0.72,
+        "stability": 0.88,
+        "durability": 0.68,
+        "portability": 0.42,
+        "cost": 0.32,
+        "low_maintenance": 0.38,
+        "rough_terrain": 0.97
+      },
+      "capabilities": {
+        "friction_brake_path": "NOT_PRESENT",
+        "drive_path": "REFERENCE_COMPATIBLE",
+        "electric_complete": false,
+        "wheel_class": "9in_pneumatic",
+        "snowdeck": false
+      },
+      "bom": [
+        "DECK-TRAMPA-HS11-969",
+        "TRUCK-TRAMPA-VERTIGO-12",
+        "WHEEL-TRAMPA-MEGASTAR9",
+        "DRIVE-TRAMPA-OBD-DUAL",
+        "MOTOR-63XX-CLASS",
+        "ESC-DUAL-CLASS",
+        "BATTERY-TRAIL-CLASS"
+      ],
+      "known_unknowns": [
+        "Independent friction-brake coexistence",
+        "9-inch wheel offset/clearance under steering",
+        "Exact motor/controller/battery architecture"
+      ],
+      "hard_blockers": [
+        "No documented independent friction-brake path is preserved in this seeded OBD study."
+      ]
+    },
+    {
+      "id": "apex_m1at_rough_study",
+      "label": "Apex Air + M1-AT Rough-Terrain Study",
+      "short_label": "Apex PKP",
+      "vendor_family": "Apex + Boardnamics",
+      "description": "Parallel-kingpin rough-terrain study combining the wide Apex Air truck with Boardnamics M1-AT drive compatibility and a compact composite deck envelope. Cross-vendor deck mounting, wheel/axle fit and friction braking remain unresolved.",
+      "visual_preset": "drive_packaging",
+      "deck_candidate_id": "trampa_short_969",
+      "topology_id": "apex_air_434",
+      "traits": {
+        "range": 0.76,
+        "carve": 0.7,
+        "stability": 0.94,
+        "durability": 0.8,
+        "portability": 0.46,
+        "cost": 0.28,
+        "low_maintenance": 0.5,
+        "rough_terrain": 0.96
+      },
+      "capabilities": {
+        "friction_brake_path": "NOT_PRESENT",
+        "drive_path": "REFERENCE_COMPATIBLE",
+        "electric_complete": false,
+        "wheel_class": "8in_pneumatic",
+        "snowdeck": false
+      },
+      "bom": [
+        "DECK-TRAMPA-SHORT-969",
+        "TRUCK-APEX-AIR",
+        "WHEEL-TRAMPA-ALPHA8",
+        "DRIVE-BOARDNAMICS-M1-AT",
+        "MOTOR-63XX-8MM-SHAFT-CLASS",
+        "ESC-DUAL-CLASS",
+        "BATTERY-TRAIL-CLASS"
+      ],
+      "known_unknowns": [
+        "TRAMPA deck to Apex Air mounting pattern",
+        "Apex axle/bearing fit for selected wheel",
+        "Independent friction-brake architecture",
+        "Exact motor/controller/battery architecture"
+      ],
+      "hard_blockers": [
+        "No documented independent friction-brake path is present in this seeded Apex power study."
+      ]
+    },
+    {
+      "id": "lacroix_barrel_carve_reference",
+      "label": "Lacroix Barrel Carve Reference",
+      "short_label": "Lacroix Barrel",
+      "vendor_family": "Lacroix Boards",
+      "description": "Short asymmetric flex-deck carve reference using the Barrel envelope, Hypertruck Lite precision truck family and 8-inch Kenda/Rockstar II wheel reference. Propulsion is intentionally omitted so geometry and ride character can be compared independently.",
+      "visual_preset": "snowdeck_fit",
+      "deck_candidate_id": "lacroix_barrel_876",
+      "topology_id": "lacroix_hyperlite_381",
+      "traits": {
+        "range": 0.18,
+        "carve": 0.99,
+        "stability": 0.76,
+        "durability": 0.88,
+        "portability": 0.72,
+        "cost": 0.35,
+        "low_maintenance": 0.66,
+        "rough_terrain": 0.7
+      },
+      "capabilities": {
+        "friction_brake_path": "NOT_PRESENT",
+        "drive_path": "NOT_PRESENT",
+        "electric_complete": false,
+        "wheel_class": "8in_pneumatic",
+        "snowdeck": false
+      },
+      "bom": [
+        "DECK-LACROIX-BARREL-REF",
+        "TRUCK-LACROIX-HYPERLITE",
+        "WHEEL-LACROIX-KENDA8-RSII",
+        "HUB-RSII"
+      ],
+      "known_unknowns": [
+        "Standalone Barrel deck procurement is not sourced",
+        "Exact Hypertruck Lite axle/bearing stack",
+        "Kenda tire width is visualization-only until exact SKU is normalized"
+      ],
+      "hard_blockers": []
+    },
+    {
+      "id": "lacroix_barrel_belt_study",
+      "label": "Lacroix Barrel Belt-Drive Study",
+      "short_label": "Lacroix Belt",
+      "vendor_family": "Lacroix Boards",
+      "description": "Native Lacroix electric packaging study combining the Barrel envelope, Hypertruck Lite precision trucks, Rockstar II/Kenda 8-inch wheel family and dedicated 72T adjustable belt-drive reference.",
+      "visual_preset": "drive_packaging",
+      "deck_candidate_id": "lacroix_barrel_876",
+      "topology_id": "lacroix_hyperlite_381",
+      "traits": {
+        "range": 0.72,
+        "carve": 0.94,
+        "stability": 0.84,
+        "durability": 0.84,
+        "portability": 0.5,
+        "cost": 0.24,
+        "low_maintenance": 0.46,
+        "rough_terrain": 0.76
+      },
+      "capabilities": {
+        "friction_brake_path": "NOT_PRESENT",
+        "drive_path": "REFERENCE_COMPATIBLE",
+        "electric_complete": false,
+        "wheel_class": "8in_pneumatic",
+        "snowdeck": false
+      },
+      "bom": [
+        "DECK-LACROIX-BARREL-REF",
+        "TRUCK-LACROIX-HYPERLITE",
+        "WHEEL-LACROIX-KENDA8-RSII",
+        "HUB-RSII",
+        "DRIVE-LACROIX-BARREL-BELT",
+        "MOTOR-6374-CLASS",
+        "ESC-DUAL-CLASS",
+        "BATTERY-TRAIL-CLASS"
+      ],
+      "known_unknowns": [
+        "Independent friction-brake architecture",
+        "Exact motor/controller/battery selection outside the complete-board reference",
+        "Exact rear axle/bearing/pulley retention stack"
+      ],
+      "hard_blockers": [
+        "No documented independent friction-brake path is present in this seeded Lacroix power study."
+      ]
     }
   ]
 }

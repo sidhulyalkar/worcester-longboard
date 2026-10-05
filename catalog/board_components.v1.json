@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "as_of": "2026-10-01",
+  "as_of": "2026-10-04",
   "currency": "USD",
   "refresh_before_checkout": true,
-  "note": "Seed catalog assembled from repository source snapshots and explicit planning placeholders. Vendor prices/stock are snapshots, not live checkout quotes.",
+  "note": "Cross-vendor planning catalog assembled from dated vendor/retailer source snapshots and explicit planning placeholders. USD prices are included only where the repository has a USD snapshot; native-currency source prices remain in the dated source snapshot and are not silently converted. Links are source references, not checkout authorization.",
   "components": [
     {
       "id": "DONOR-COMP95",
@@ -497,6 +497,505 @@
         "as_of": "2026-10-01"
       },
       "price": null
+    },
+    {
+      "id": "DECK-TRAMPA-SHORT-969",
+      "category": "deck",
+      "label": "TRAMPA 35° Short 9/69 deck",
+      "manufacturer": "TRAMPA",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "SOURCE_ONLY",
+      "interfaces": {
+        "deck_family": "trampa_35_short_969",
+        "length_mm": 895,
+        "width_mm": 228,
+        "wheelbase_mm": 888,
+        "tip_angle_deg": 35,
+        "truck_mount_family": "trampa_35deg_spring",
+        "published_cross_brand_note": "Vendor states it can also fit MBS Matrix trucks; exact mount pattern remains measurement-gated."
+      },
+      "source": {
+        "kind": "vendor",
+        "url": "https://trampaboards.com/35-short-original-969-trampa-mountainboard-or-kiteboard-deck-p-26940.html",
+        "as_of": "2026-10-04",
+        "seller": "TRAMPA",
+        "snapshot_id": "trampa_short_969",
+        "native_price_snapshot": "GBP 140+"
+      },
+      "price": null,
+      "hold_reason": "Cross-vendor truck mounting and rider-specific flex/ply choice remain unqualified."
+    },
+    {
+      "id": "DECK-TRAMPA-HS11-969",
+      "category": "deck",
+      "label": "TRAMPA HS11 9/69 brake-clearance deck",
+      "manufacturer": "TRAMPA",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "SOURCE_ONLY",
+      "interfaces": {
+        "deck_family": "trampa_hs11_969",
+        "length_mm": 912,
+        "width_mm": 228,
+        "wheelbase_mm": 945,
+        "tip_angle_deg": 35,
+        "truck_mount_family": "trampa_35deg_spring",
+        "brake_clearance_shape": true
+      },
+      "source": {
+        "kind": "vendor",
+        "url": "https://trampaboards.com/35-hs11-original-969-trampa-mountainboard-or-kiteboard-blank-deck-p-27149.html",
+        "as_of": "2026-10-04",
+        "seller": "TRAMPA",
+        "snapshot_id": "trampa_hs11_969",
+        "native_price_snapshot": "GBP 165+"
+      },
+      "price": null,
+      "hold_reason": "Deck flex/ply and received brake/truck clearance must be selected and verified physically."
+    },
+    {
+      "id": "TRUCK-TRAMPA-VERTIGO-12",
+      "category": "truck",
+      "label": "TRAMPA VERTIGO 16 in truck · 12 mm hollow axles",
+      "manufacturer": "TRAMPA",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "SOURCE_ONLY",
+      "interfaces": {
+        "truck_family": "trampa_vertigo",
+        "steering_family": "channel_spring",
+        "total_width_mm": 406.4,
+        "axle_diameter_mm": 12,
+        "axle_type": "hollow",
+        "deck_mount_family": "trampa_35deg_spring",
+        "motor_mount_reference": true,
+        "brake_reference": "requires_dedicated_brake_hanger"
+      },
+      "source": {
+        "kind": "vendor",
+        "url": "https://trampaboards.com/cnc-precision-vertigo-atb-mountainboard-truck--165-inch-wide-with-12mm-hollow-steel-axles-used-when-fixing-motor-mounts-p-33883.html",
+        "as_of": "2026-10-04",
+        "seller": "TRAMPA",
+        "snapshot_id": "trampa_vertigo_12"
+      },
+      "price": null,
+      "hold_reason": "Sourced truck geometry is not a Worcester fabrication or ride qualification."
+    },
+    {
+      "id": "TRUCK-TRAMPA-INFINITY-HS11",
+      "category": "truck",
+      "label": "TRAMPA INFINITY HS11 brake hanger · 12 mm solid axles",
+      "manufacturer": "TRAMPA",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "SOURCE_ONLY",
+      "interfaces": {
+        "truck_family": "trampa_infinity_hs11",
+        "steering_family": "channel_spring",
+        "total_width_mm": 406.4,
+        "center_wheel_width_mm": 355.6,
+        "axle_diameter_mm": 12,
+        "axle_type": "solid",
+        "deck_mount_family": "trampa_35deg_spring",
+        "brake_reference": "magura_hs11_mount",
+        "drive_mount_points_present": true
+      },
+      "source": {
+        "kind": "vendor",
+        "url": "https://scripts.trampaboards.com/infinity-brake-hanger--12mm-solid-axles-modifed-to-fit-magura-hydraulic-brakes-p-28389.html",
+        "as_of": "2026-10-04",
+        "seller": "TRAMPA",
+        "snapshot_id": "trampa_infinity_hs11",
+        "native_price_snapshot": "GBP 62.50 hanger"
+      },
+      "price": null,
+      "hold_reason": "Brake-hanger reference still requires complete truck/brake/wheel assembly verification."
+    },
+    {
+      "id": "HUB-TRAMPA-SUPERSTAR",
+      "category": "hub",
+      "label": "TRAMPA SUPERSTAR 3.75 × 2 in hub family",
+      "manufacturer": "TRAMPA",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "SOURCE_ONLY",
+      "interfaces": {
+        "hub_family": "trampa_superstar",
+        "rim_size_in": "3.75x2",
+        "axle_options_mm": [
+          8,
+          9.525,
+          12
+        ],
+        "tire_classes": [
+          "5-8in_trampa",
+          "8in_3.75_rim"
+        ],
+        "disk_brake_mount": true,
+        "drive_gear_mount": true
+      },
+      "source": {
+        "kind": "vendor",
+        "url": "https://scripts.trampaboards.com/superstar-8-inch-wheel--black-rim-with-silver-anodised-spokes--black-alpha-8-inch-tyres-p-10163.html",
+        "as_of": "2026-10-04",
+        "seller": "TRAMPA",
+        "snapshot_id": "trampa_superstar_alpha8"
+      },
+      "price": null,
+      "hold_reason": "Bearing/spacer selection must match the chosen axle; source compatibility is not physical qualification."
+    },
+    {
+      "id": "WHEEL-TRAMPA-ALPHA8",
+      "category": "wheel",
+      "label": "TRAMPA SUPERSTAR + PRIMO Alpha 8 in wheel reference",
+      "manufacturer": "TRAMPA",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "SOURCE_ONLY",
+      "interfaces": {
+        "wheel_class": "8in_pneumatic",
+        "hub_family": "trampa_superstar",
+        "published_diameter_mm": 203.2,
+        "published_width_mm": 50.8,
+        "recommended_pressure_psi": 50,
+        "axle_options_mm": [
+          8,
+          9.525,
+          12
+        ],
+        "wheel_weight_g": 473
+      },
+      "source": {
+        "kind": "vendor",
+        "url": "https://scripts.trampaboards.com/superstar-8-inch-wheel--black-rim-with-silver-anodised-spokes--black-alpha-8-inch-tyres-p-10163.html",
+        "as_of": "2026-10-04",
+        "seller": "TRAMPA",
+        "snapshot_id": "trampa_superstar_alpha8",
+        "native_price_snapshot": "GBP 45+ per wheel"
+      },
+      "price": null,
+      "hold_reason": "Axle bearing/spacer choice and board-specific clearance remain configuration dependent."
+    },
+    {
+      "id": "WHEEL-TRAMPA-MEGASTAR9",
+      "category": "wheel",
+      "label": "TRAMPA MEGASTAR 9 deep-dish 9 in wheel study",
+      "manufacturer": "TRAMPA",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "SOURCE_ONLY",
+      "interfaces": {
+        "wheel_class": "9in_pneumatic",
+        "hub_family": "trampa_megastar9",
+        "published_diameter_mm": 230,
+        "published_width_mm": 75,
+        "rim_family": "3.75/4in_deep_dish",
+        "axle_reducer_options_mm": [
+          9.525,
+          10
+        ],
+        "bearing_default_mm": 12
+      },
+      "source": {
+        "kind": "vendor",
+        "url": "https://trampaboards.com/deepdish-megastar-9-rims-with-9-inch-tyres--trampa-9-inch-wheel-p-34338.html",
+        "as_of": "2026-10-04",
+        "seller": "TRAMPA",
+        "snapshot_id": "trampa_megastar9",
+        "native_price_snapshot": "GBP 75+ per wheel"
+      },
+      "price": null,
+      "hold_reason": "9-inch tire model, bearing/spacer choice, wheel offset, clearance and gearing remain separate checks."
+    },
+    {
+      "id": "BRAKE-TRAMPA-HS11",
+      "category": "brake",
+      "label": "TRAMPA / Magura HS11 hydraulic friction-brake reference",
+      "manufacturer": "TRAMPA / Magura",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "SOURCE_ONLY",
+      "interfaces": {
+        "brake_family": "trampa_magura_hs11",
+        "friction_brake": true,
+        "braked_wheels": 2,
+        "required_truck_families": [
+          "trampa_infinity_hs11",
+          "trampa_vertigo_brake_hanger"
+        ],
+        "required_wheel_feature": "trampa_5_spoke_disk_mount"
+      },
+      "source": {
+        "kind": "vendor",
+        "url": "https://trampaboards.com/trampa-brake-truck-fitted-with-hs11-magura-hydraulic-brake-calipers--disks-to-fit-5-spoke-wheels--p-35969.html",
+        "as_of": "2026-10-04",
+        "seller": "TRAMPA",
+        "snapshot_id": "trampa_hs11_brake_truck",
+        "native_price_snapshot": "GBP 150+ brake truck"
+      },
+      "price": null,
+      "hold_reason": "Hydraulic brake selection does not bypass physical braking, hose-routing, rotor-clearance or stopping qualification."
+    },
+    {
+      "id": "DRIVE-TRAMPA-OBD-DUAL",
+      "category": "drive",
+      "label": "TRAMPA 20 mm Open Belt Drive dual reference",
+      "manufacturer": "TRAMPA",
+      "sku": null,
+      "evidence_state": "BLOCKED",
+      "procurement_state": "POWER_GATED",
+      "interfaces": {
+        "drive_family": "trampa_obd",
+        "drive_type": "open_belt",
+        "reference_truck_family": "trampa_vertigo",
+        "slave_pulley_teeth": [
+          66,
+          76
+        ],
+        "motor_pulley_teeth": [
+          13,
+          14,
+          15
+        ],
+        "belt_width_mm": 20
+      },
+      "source": {
+        "kind": "vendor_reference",
+        "url": "https://trampaboards.com/preconfigured--open-belt-drive-electric-mountainboard--vertigo-trucks-classic-monster-box--megastars--gunmetal--silver-p-36450.html",
+        "as_of": "2026-10-04",
+        "seller": "TRAMPA",
+        "snapshot_id": "trampa_obd"
+      },
+      "price": null,
+      "hold_reason": "Power gated. Exact drive kit, motors, belts, controller, thermal limits and battery architecture are not released."
+    },
+    {
+      "id": "TRUCK-APEX-AIR",
+      "category": "truck",
+      "label": "Apex Air PKP 434 mm eMTB truck",
+      "manufacturer": "Apex Boards",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "SOURCE_ONLY",
+      "interfaces": {
+        "truck_family": "apex_air",
+        "steering_family": "parallel_kingpin",
+        "total_width_mm": 434,
+        "inner_wheel_bearing_spacing_mm": 300,
+        "motor_mount_profile_mm": "22x22 square r6 corners",
+        "bushing_family": "skate_longboard",
+        "weight_g_each": 820
+      },
+      "source": {
+        "kind": "retailer",
+        "url": "https://www.atbshop.co.uk/mountainboard-accessories/apex-boards-air-emtb-truck",
+        "as_of": "2026-10-04",
+        "seller": "ATBShop",
+        "snapshot_id": "apex_air",
+        "native_price_snapshot": "GBP 219 each"
+      },
+      "price": null,
+      "hold_reason": "Deck mount, wheel center, steering tune and brake architecture remain configuration-specific and measurement-gated."
+    },
+    {
+      "id": "DRIVE-BOARDNAMICS-M1-AT",
+      "category": "drive",
+      "label": "Boardnamics M1-AT dual gear-drive reference",
+      "manufacturer": "Boardnamics",
+      "sku": null,
+      "evidence_state": "BLOCKED",
+      "procurement_state": "POWER_GATED",
+      "interfaces": {
+        "drive_family": "boardnamics_m1_at",
+        "drive_type": "gear",
+        "ratios": [
+          5.2,
+          4.6,
+          3.95
+        ],
+        "motor_shaft_diameter_mm": 8,
+        "motor_shaft_length_mm": 26.5,
+        "truck_families": [
+          "mbs_matrix_ii",
+          "bn270",
+          "trampa_vertigo",
+          "apex_air",
+          "3dservisas_fatboy",
+          "nkp_3link",
+          "lacroix_hypertruck"
+        ],
+        "hub_families": [
+          "rockstar_ii",
+          "fivestar",
+          "trampa_superstar",
+          "bergmeister"
+        ],
+        "dual_gearbox_weight_g_approx": 1350
+      },
+      "source": {
+        "kind": "vendor",
+        "url": "https://boardnamics.com/product/m1-at-drive/",
+        "as_of": "2026-10-04",
+        "seller": "Boardnamics",
+        "snapshot_id": "boardnamics_m1_at"
+      },
+      "price": null,
+      "hold_reason": "Power gated. Published compatibility is a catalog reference, not Worcester drivetrain or braking qualification."
+    },
+    {
+      "id": "MOTOR-63XX-8MM-SHAFT-CLASS",
+      "category": "motor",
+      "label": "63xx motor · 8 mm shaft planning class",
+      "manufacturer": null,
+      "sku": null,
+      "evidence_state": "BLOCKED",
+      "procurement_state": "POWER_GATED",
+      "interfaces": {
+        "motor_class": "63xx",
+        "shaft_diameter_mm": 8,
+        "selection_status": "TBD"
+      },
+      "source": {
+        "kind": "planning_placeholder",
+        "url": null,
+        "as_of": "2026-10-04"
+      },
+      "price": null,
+      "hold_reason": "Exact motor KV, shaft length, sensors, thermal limits and vendor remain unfrozen."
+    },
+    {
+      "id": "MOTOR-63XX-CLASS",
+      "category": "motor",
+      "label": "63xx motor planning class",
+      "manufacturer": null,
+      "sku": null,
+      "evidence_state": "BLOCKED",
+      "procurement_state": "POWER_GATED",
+      "interfaces": {
+        "motor_class": "63xx",
+        "selection_status": "TBD"
+      },
+      "source": {
+        "kind": "planning_placeholder",
+        "url": null,
+        "as_of": "2026-10-04"
+      },
+      "price": null,
+      "hold_reason": "Exact motor size, KV, shaft, sensors, thermal limits and vendor remain unfrozen."
+    },
+    {
+      "id": "DECK-LACROIX-BARREL-REF",
+      "category": "deck",
+      "label": "Lacroix Barrel asymmetric deck reference",
+      "manufacturer": "Lacroix Boards",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "STUDY_ONLY",
+      "interfaces": {
+        "deck_family": "lacroix_barrel",
+        "length_mm": 876.3,
+        "width_mm": 273.05,
+        "wheelbase_mm": 838.2,
+        "foot_platform_length_mm": 660.4,
+        "shape_family": "lacroix_asymmetric_flex",
+        "standalone_part_source": false
+      },
+      "source": {
+        "kind": "vendor_reference",
+        "url": "https://www.lacroixboards.com/products/the-barrel%E2%84%A2",
+        "as_of": "2026-10-04",
+        "seller": "Lacroix Boards",
+        "snapshot_id": "lacroix_barrel"
+      },
+      "price": null,
+      "hold_reason": "Dimensions come from the complete Barrel board reference; no standalone deck purchase or structural authority is implied."
+    },
+    {
+      "id": "TRUCK-LACROIX-HYPERLITE",
+      "category": "truck",
+      "label": "Lacroix Hypertruck Lite 15 in precision truck family",
+      "manufacturer": "Lacroix Boards",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "SOURCE_ONLY",
+      "interfaces": {
+        "truck_family": "lacroix_hypertruck_lite",
+        "steering_family": "precision_bushing_spring",
+        "published_hanger_width_mm": 381,
+        "published_width_basis": "hanger",
+        "material": "7075_aluminum",
+        "steering_elements": [
+          "bushings",
+          "springs"
+        ],
+        "rear_motor_mount_reference": true,
+        "rear_pulley_teeth_reference": 72
+      },
+      "source": {
+        "kind": "vendor",
+        "url": "https://www.lacroixboards.com/products/lacroix-hypertruck%E2%84%A2-lite",
+        "as_of": "2026-10-04",
+        "seller": "Lacroix Boards",
+        "snapshot_id": "lacroix_hypertruck_lite",
+        "native_price_snapshot": "USD 549.99 page headline; variant-dependent"
+      },
+      "price": null,
+      "hold_reason": "Product page price is variant-dependent; exact axle/bearing/mount dimensions remain unresolved for cross-vendor use."
+    },
+    {
+      "id": "WHEEL-LACROIX-KENDA8-RSII",
+      "category": "wheel",
+      "label": "Lacroix Barrel 8 in Kenda + Rockstar II wheel reference",
+      "manufacturer": "Lacroix / MBS",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "STUDY_ONLY",
+      "interfaces": {
+        "wheel_class": "8in_pneumatic",
+        "hub_family": "rockstar_ii",
+        "published_diameter_mm": 203.2,
+        "visual_width_mm": 50.8,
+        "visual_geometry_state": "ASSUMED",
+        "visual_geometry_note": "Vendor publishes 8-inch Kenda tires on Rockstar II hubs but not tire width; 50.8 mm is a visualization proxy only."
+      },
+      "source": {
+        "kind": "vendor_reference",
+        "url": "https://www.lacroixboards.com/products/the-barrel%E2%84%A2",
+        "as_of": "2026-10-04",
+        "seller": "Lacroix Boards",
+        "snapshot_id": "lacroix_barrel"
+      },
+      "price": null,
+      "hold_reason": "Complete-board wheel reference only; exact Kenda tire SKU, width, bearings and spacers are not normalized."
+    },
+    {
+      "id": "DRIVE-LACROIX-BARREL-BELT",
+      "category": "drive",
+      "label": "Lacroix Hypertruck Lite adjustable dual belt-drive reference",
+      "manufacturer": "Lacroix Boards",
+      "sku": null,
+      "evidence_state": "BLOCKED",
+      "procurement_state": "POWER_GATED",
+      "interfaces": {
+        "drive_family": "lacroix_barrel_belt",
+        "drive_type": "belt",
+        "reference_truck_family": "lacroix_hypertruck_lite",
+        "rear_pulley_teeth": 72,
+        "wheel_hub_family": "rockstar_ii",
+        "motor_mount_hole_pattern_mm": 30,
+        "complete_board_belt_reference": "HTD 425-5m",
+        "motor_reference": "dual 6374 190kv"
+      },
+      "source": {
+        "kind": "vendor_reference",
+        "url": "https://www.lacroixboards.com/products/lacroix-hypertruck%E2%84%A2-lite",
+        "as_of": "2026-10-04",
+        "seller": "Lacroix Boards",
+        "snapshot_id": "lacroix_hypertruck_lite"
+      },
+      "price": null,
+      "hold_reason": "Power gated. Complete-board/native drive reference does not qualify cross-vendor motor, ESC, braking, retention or powered operation."
     }
   ]
 }

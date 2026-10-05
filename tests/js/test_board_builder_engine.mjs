@@ -124,3 +124,69 @@ test("zero-valued ride preferences are preserved rather than treated as missing"
   assert.ok(rangeStudy.preference_fit.carve < 0.5);
   assert.ok(rangeStudy.preference_fit.stability < 0.5);
 });
+
+
+test("multi-vendor candidates include reference TRAMPA and mixed-vendor studies", () => {
+  const result = generateCandidates(manual, bundle);
+  assert.ok(result.candidates.length >= 9);
+
+  const carve = candidate(result, "trampa_short_carve_core");
+  const hydraulic = candidate(result, "trampa_hydraulic_freeride");
+  assert.equal(carve.vendor_family, "TRAMPA");
+  assert.equal(carve.readiness, "REFERENCE_COMPATIBLE");
+  assert.equal(hydraulic.readiness, "REFERENCE_COMPATIBLE");
+  assert.ok(hydraulic.compatibility_findings.some(
+    finding => finding.id === "trampa_infinity_hs11_brake" &&
+      finding.state === "REFERENCE_COMPATIBLE"
+  ));
+});
+
+test("mixed TRAMPA Boardnamics candidate preserves unresolved truck-drive coexistence", () => {
+  const result = generateCandidates(trail, bundle);
+  const mixed = candidate(result, "trampa_boardnamics_coexistence");
+  assert.equal(mixed.readiness, "MEASURE_FIRST");
+  assert.equal(mixed.checkout_state, "BLOCKED");
+  assert.ok(mixed.compatibility_findings.some(
+    finding => finding.id.startsWith("default:truck:drive:") &&
+      finding.state === "UNKNOWN" &&
+      finding.source === "category_default"
+  ));
+  assert.ok(mixed.compatibility_findings.some(
+    finding => finding.id === "trampa_alpha8_boardnamics" &&
+      finding.state === "REFERENCE_COMPATIBLE"
+  ));
+});
+
+test("Apex M1-AT study keeps published drive compatibility without inventing full-system fit", () => {
+  const result = generateCandidates(trail, bundle);
+  const apex = candidate(result, "apex_m1at_rough_study");
+  assert.equal(apex.readiness, "BLOCKED");
+  assert.ok(apex.compatibility_findings.some(
+    finding => finding.id === "apex_air_boardnamics" &&
+      finding.state === "REFERENCE_COMPATIBLE"
+  ));
+  assert.ok(apex.compatibility_findings.some(
+    finding => finding.source === "category_default" &&
+      finding.state === "UNKNOWN"
+  ));
+});
+
+test("nine-inch TRAMPA study earns rollover match but remains blocked by system architecture", () => {
+  const result = generateCandidates(trail, bundle);
+  const obd = candidate(result, "trampa_obd_9in_power_study");
+  assert.equal(result.requirements.wheel_strategy, "nine_inch_rollover_study");
+  assert.equal(obd.readiness, "BLOCKED");
+  assert.ok(obd.explanations.some(text =>
+    text.includes("Nine-inch pneumatic study directly matches")
+  ));
+});
+
+
+test("reference riders receive distinct rankings with cross-vendor top-three breadth", () => {
+  const manualResult = generateCandidates(manual, bundle);
+  const trailResult = generateCandidates(trail, bundle);
+
+  assert.notEqual(manualResult.candidates[0].id, trailResult.candidates[0].id);
+  assert.ok(new Set(manualResult.candidates.slice(0, 3).map(row => row.vendor_family)).size >= 2);
+  assert.ok(new Set(trailResult.candidates.slice(0, 3).map(row => row.vendor_family)).size >= 2);
+});

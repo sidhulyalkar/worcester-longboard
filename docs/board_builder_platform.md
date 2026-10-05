@@ -59,13 +59,23 @@ An unknown spatial or mechanical interface propagates uncertainty. The solver ma
 
 ## Catalog and provenance
 
-`catalog/board_components.v1.json` is the initial catalog. Entries may carry category, manufacturer/SKU, evidence state, procurement state, interface facts, source type, dated URL, price snapshot/range and hold reason.
+The catalog is now split into three layers so source text, normalized mechanical interfaces and recommendation logic cannot blur together:
 
-Procurement states are `SOURCE_ONLY`, `HOLD_MEASURE`, `POWER_GATED`, `STUDY_ONLY`, and `BUY_CANDIDATE`. The seed catalog intentionally contains no buy-candidate power items. Vendor links are source links, not purchase authorization, and planning placeholders receive no invented vendor link.
+- `catalog/source_snapshots_YYYY-MM-DD.json` preserves dated vendor/retailer facts and native-currency source prices;
+- `catalog/board_components.v1.json` normalizes stable component IDs, interface facts, evidence/procurement state and source provenance;
+- `catalog/board_geometry.v1.json` normalizes deck/truck geometry used by the 2D renderer and 3D twin, including explicit visualization-only proxy values where an exact dimension is not published.
+
+The first cross-vendor tranche includes MBS/Worcester, TRAMPA, Apex Boards, Boardnamics and Lacroix Boards reference parts. Procurement states remain `SOURCE_ONLY`, `HOLD_MEASURE`, `POWER_GATED`, `STUDY_ONLY`, and `BUY_CANDIDATE`. The catalog intentionally contains no buy-candidate power items. Vendor links are source links, not purchase authorization, and planning placeholders receive no invented vendor link.
+
+Native-currency source prices remain source metadata rather than being silently converted into USD. The UI therefore reports a known USD subtotal plus explicit unpriced/source-native items.
+
+See `docs/board_catalog_contract.md` for the ingestion, interface, compatibility, visual-substitution and freshness rules.
 
 ## Candidate architectures
 
-`configurator/architectures.v1.json` currently seeds four deliberately different hypotheses: Brake-first Trail Core, Compact Electric Coexistence Study, Range Explorer Drive Study, and SnowDeck Fit Bench. Their trait vectors are soft trade-space declarations. Hard compatibility findings remain separate.
+`configurator/architectures.v1.json` now spans materially different mechanical families rather than only X1 variations. In addition to the MBS/Worcester brake-first, coexistence, range and SnowDeck studies, the current tranche includes a TRAMPA Short carve core, a TRAMPA HS11 hydraulic freeride core, a TRAMPA + Boardnamics coexistence study, a TRAMPA 9-inch open-belt-drive study, an Apex Air parallel-kingpin + Boardnamics M1-AT study, a Lacroix Barrel unpowered carve reference, and a Lacroix Hypertruck Lite native belt-drive study.
+
+Their trait vectors are soft trade-space declarations. Hard compatibility findings remain separate. Regression tests require the reference manual-carver and electric-trail profiles to produce different top-ranked architectures and to retain cross-vendor breadth in each top-three set.
 
 ## Fit score and trade-space frontier
 
@@ -118,7 +128,7 @@ Every generated candidate also projects into a versioned `candidate_visual_state
 
 The visual state contains the candidate's deck envelope, truck/topology branch, wheel study, rider-profile stance center, visible systems, readiness, checkout state, fit score and known-price band. Its authority object is hard-coded to visualization-only with procurement/fabrication/powered-operation authorization false.
 
-The dimensional geometry comes from the same `showcase/x1_rev_c.json` deck/topology references consumed by the digital twin. System visibility comes from the candidate BOM, not merely from a named showcase preset. This matters because a preset may intentionally display a conceptual pack or subsystem that a generated candidate does not actually contain.
+The dimensional geometry now comes from `catalog/board_geometry.v1.json`, which is consumed by both the Builder and the digital twin. System visibility comes from the candidate BOM, not merely from a named showcase preset. The visual state also carries deck-shape, steering, wheel/hub, brake and drive families, so substitution can change the actual schematic character of the board rather than only its label.
 
 The browser renderer in `builder/preview_renderer.mjs` emits deterministic SVG in three comparison views:
 
@@ -128,11 +138,11 @@ The browser renderer in `builder/preview_renderer.mjs` emits deterministic SVG i
 
 One view selector updates the whole candidate gallery so builds are compared from the same perspective.
 
-The current preview renderer is schematic. It intentionally does not claim fabrication-level surface geometry, loaded ground clearance, tire deformation, exact drive/brake packaging or structural strength.
+The current preview renderer is schematic. It distinguishes MBS-style, TRAMPA composite and Lacroix asymmetric deck silhouettes; channel-spring, parallel-kingpin and precision bushing/spring trucks; wheel/hub families; hydraulic/mechanical brake cues; gear/open-belt/native-belt drive cues; and 8-inch/9-inch proportions. It intentionally does not claim fabrication-level surface geometry, loaded ground clearance, tire deformation, exact drive/brake packaging or structural strength.
 
 ### Visual parity and headless export
 
-Python and browser visual-state derivation are implemented separately in `configurator/visual_state.py` and `builder/visual_state.mjs`, but consume the same catalog and twin source data. CI compares their full serialized visual states.
+Python and browser visual-state derivation are implemented separately in `configurator/visual_state.py` and `builder/visual_state.mjs`, but consume the same component catalog and generic geometry registry. CI compares their full serialized visual states.
 
 Headless SVG generation uses the browser renderer directly:
 
@@ -171,6 +181,8 @@ python tools/render_board_bom.py \
   --out /tmp/x1-electric-study-bom.md
 
 python tools/validate_board_builder.py
+
+python tools/audit_board_catalog.py
 ```
 
 ## Browser workflow
@@ -189,6 +201,6 @@ Open `http://127.0.0.1:8000/builder/`. The root landing page is `http://127.0.0.
 
 ## Current limits
 
-This first platform version does not claim exhaustive multi-vendor coverage, live stock/prices, automated checkout, arbitrary third-party compatibility, validated structural loads/braking, exact electric range/thermal behavior, battery/charger qualification, legal operating eligibility, fabrication authority, or powered-operation authority.
+The platform now has real cross-vendor mechanical breadth, but it still does not claim exhaustive coverage, live stock/prices, automated checkout, arbitrary third-party compatibility, validated structural loads/braking, exact electric range/thermal behavior, battery/charger qualification, legal operating eligibility, fabrication authority, or powered-operation authority.
 
-The next catalog phase should prioritize interface/provenance quality before volume: normalize deck/truck/axle/hub/wheel/brake interfaces, add sourced dimensions/SKUs, add evidence for mixed-vendor interfaces, build a separate live price/stock refresh service, mature electrical schemas before sourcing power hardware, and eventually replace planning priors with measured ride telemetry.
+The next catalog phase should continue expanding interface quality before raw item count: more deck/truck/hub/wheel/brake families, stronger mixed-vendor interface evidence, explicit mounting-pattern schemas, more complete visual geometry, a separate live price/stock refresh service, and electrical schemas mature enough to compare controllers/packs without pretending they are released hardware.

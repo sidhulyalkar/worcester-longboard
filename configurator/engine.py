@@ -311,6 +311,7 @@ def _bom(
                 "price": component.get("price"),
                 "source_url": source.get("url"),
                 "source_as_of": source.get("as_of"),
+                "source_native_price": source.get("native_price_snapshot"),
                 "hold_reason": component.get("hold_reason"),
             }
         )
@@ -323,15 +324,57 @@ def _bom(
     }
 
 
-def _selected_pair_rules(
+def _compatibility_findings(
     selected_ids: set[str],
+    catalog: dict[str, Any],
     compatibility: dict[str, Any],
 ) -> list[dict[str, Any]]:
-    return [
-        rule
-        for rule in compatibility.get("pair_rules", [])
-        if rule["a"] in selected_ids and rule["b"] in selected_ids
-    ]
+    index = {row["id"]: row for row in catalog["components"]}
+    findings: list[dict[str, Any]] = []
+    covered: set[tuple[str, str]] = set()
+
+    def pair_key(a: str, b: str) -> tuple[str, str]:
+        return tuple(sorted((a, b)))
+
+    for rule in compatibility.get("pair_rules", []):
+        if rule["a"] not in selected_ids or rule["b"] not in selected_ids:
+            continue
+        covered.add(pair_key(rule["a"], rule["b"]))
+        findings.append(
+            {
+                "id": rule["id"],
+                "state": rule["state"],
+                "reason": rule["reason"],
+                "a": rule["a"],
+                "b": rule["b"],
+                "source": "explicit_rule",
+            }
+        )
+
+    rows = [index[item] for item in selected_ids if item in index]
+    for fallback in compatibility.get("category_pair_defaults", []):
+        category_a, category_b = fallback["categories"]
+        rows_a = [row for row in rows if row["category"] == category_a]
+        rows_b = [row for row in rows if row["category"] == category_b]
+        for a in rows_a:
+            for b in rows_b:
+                if a["id"] == b["id"]:
+                    continue
+                key = pair_key(a["id"], b["id"])
+                if key in covered:
+                    continue
+                covered.add(key)
+                findings.append(
+                    {
+                        "id": f"default:{category_a}:{category_b}:{a['id']}:{b['id']}",
+                        "state": fallback["state"],
+                        "reason": fallback["reason"],
+                        "a": a["id"],
+                        "b": b["id"],
+                        "source": "category_default",
+                    }
+                )
+    return findings
 
 
 def _worsen(readiness: str, candidate: str) -> str:
@@ -340,9 +383,9 @@ def _worsen(readiness: str, candidate: str) -> str:
 
 def _deck_fit_adjustment(requirements: dict[str, Any], deck_candidate_id: str) -> tuple[float, str]:
     mapping = {
-        "compact": {"comp95"},
-        "balanced": {"comp95", "pro_warren_iii"},
-        "long_stable": {"pro_warren_iii", "agent"},
+        "compact": {"comp95", "trampa_short_969", "lacroix_barrel_876"},
+        "balanced": {"comp95", "pro_warren_iii", "trampa_short_969", "trampa_hs11_969"},
+        "long_stable": {"pro_warren_iii", "agent", "trampa_hs11_969"},
     }
     if deck_candidate_id in mapping[requirements["deck_envelope_preference"]]:
         return 0.05, f"Deck envelope matches the {requirements['deck_envelope_preference']} planning preference."
@@ -383,7 +426,7 @@ def score_architecture(
     explanations: list[str] = []
     blockers = list(architecture.get("hard_blockers", []))
     unknowns = list(architecture.get("known_unknowns", []))
-    readiness = "REFERENCE_COMPATIBLE"
+    readiness = "BLOCKED" if blockers else "REFERENCE_COMPATIBLE"
 
     deck_adjustment, deck_explanation = _deck_fit_adjustment(
         requirements, architecture["deck_candidate_id"]
@@ -404,6 +447,15 @@ def score_architecture(
         if drive_path == "REFERENCE_COMPATIBLE":
             score += 0.06
             explanations.append("Drive reference aligns with the electric mission intent.")
+        elif drive_path == "MEASURE_FIRST":
+            score += 0.01
+            readiness = _worsen(readiness, "MEASURE_FIRST")
+            unknowns.append(
+                "Drive path is catalog-plausible but still depends on an unresolved physical interface."
+            )
+            explanations.append(
+                "Drive path is promising for the electric mission, but coexistence still needs measurement."
+            )
         elif drive_path == "NOT_PRESENT":
             score -= 0.14
             readiness = _worsen(readiness, "MEASURE_FIRST")
@@ -426,12 +478,20 @@ def score_architecture(
 
     wheel_strategy = requirements["wheel_strategy"]
     wheel_class = architecture["capabilities"]["wheel_class"]
-    if wheel_strategy == "nine_inch_rollover_study" and wheel_class == "8in_pneumatic":
-        unknowns.append("Rough-terrain profile justifies a separate 9-inch rollover study.")
-        explanations.append(
-            "Eight-inch pneumatics remain the reference baseline; larger wheels should be tested only if rollover is a measured deficiency."
-        )
-        score -= 0.03
+    if wheel_strategy == "nine_inch_rollover_study":
+        if wheel_class == "9in_pneumatic":
+            score += 0.04
+            explanations.append(
+                "Nine-inch pneumatic study directly matches the rough-terrain rollover target."
+            )
+        elif wheel_class == "8in_pneumatic":
+            unknowns.append(
+                "Rough-terrain profile justifies a separate 9-inch rollover study."
+            )
+            explanations.append(
+                "Eight-inch pneumatics remain a lower-rollover baseline for this terrain model."
+            )
+            score -= 0.03
     elif wheel_strategy == "eight_inch_pneumatic_reference" and wheel_class == "8in_pneumatic":
         score += 0.03
         explanations.append("Eight-inch pneumatic reference matches the current terrain model.")
@@ -477,24 +537,16 @@ def score_architecture(
     resolved_architecture["bom"] = resolved_bom
     bom, cost = _bom(resolved_architecture, catalog)
     selected_ids = {row["component_id"] for row in bom}
-    pair_rules = _selected_pair_rules(selected_ids, compatibility)
-    pair_findings: list[dict[str, Any]] = []
-    for rule in pair_rules:
-        pair_findings.append(
-            {
-                "id": rule["id"],
-                "state": rule["state"],
-                "reason": rule["reason"],
-                "a": rule["a"],
-                "b": rule["b"],
-            }
-        )
-        if rule["state"] == "INCOMPATIBLE":
+    pair_findings = _compatibility_findings(
+        selected_ids, catalog, compatibility
+    )
+    for finding in pair_findings:
+        if finding["state"] == "INCOMPATIBLE":
             readiness = _worsen(readiness, "INCOMPATIBLE")
-            blockers.append(rule["reason"])
-        elif rule["state"] in {"MEASURE_FIRST", "UNKNOWN"}:
+            blockers.append(finding["reason"])
+        elif finding["state"] in {"MEASURE_FIRST", "UNKNOWN"}:
             readiness = _worsen(readiness, "MEASURE_FIRST")
-            unknowns.append(rule["reason"])
+            unknowns.append(finding["reason"])
 
     hard_budget = requirements["budget"]["hard_max_usd"]
     if cost["known_min_usd"] > hard_budget:
@@ -531,6 +583,7 @@ def score_architecture(
         "architecture_id": architecture["id"],
         "label": architecture["label"],
         "short_label": architecture["short_label"],
+        "vendor_family": architecture.get("vendor_family", "Unspecified"),
         "description": architecture["description"],
         "fit_score": round(score, 4),
         "readiness": readiness,
@@ -663,7 +716,7 @@ def render_bom_markdown(candidate: dict[str, Any]) -> str:
     for row in candidate["bom"]:
         price = row.get("price")
         if not price:
-            price_text = "unpriced"
+            price_text = row.get("source_native_price") or "unpriced"
         elif price["kind"] in {"unit", "ceiling"}:
             price_text = f"USD {price['unit_price_usd'] * price.get('qty', 1):.2f}"
         else:
@@ -680,7 +733,13 @@ def render_bom_markdown(candidate: dict[str, Any]) -> str:
     cost = candidate["cost"]
     lines += [
         "",
-        f"Known-price subtotal: **USD {cost['known_min_usd']:.2f}–{cost['known_max_usd']:.2f}** before shipping/tax.",
+        (
+            "Known USD subtotal: **incomplete** before shipping/tax."
+            if cost["unpriced_component_ids"]
+            and cost["known_min_usd"] == 0
+            and cost["known_max_usd"] == 0
+            else f"Known-price subtotal: **USD {cost['known_min_usd']:.2f}–{cost['known_max_usd']:.2f}** before shipping/tax."
+        ),
     ]
     if cost["unpriced_component_ids"]:
         lines.append(

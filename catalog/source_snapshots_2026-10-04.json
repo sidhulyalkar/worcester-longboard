@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-04",
+  "note": "Current cross-vendor source snapshot. Source facts support catalog/reference studies only; stock, tax and delivered price must be refreshed before any purchase.",
+  "sources": [
+    {
+      "id": "trampa_short_969",
+      "seller": "TRAMPA",
+      "kind": "vendor",
+      "url": "https://trampaboards.com/35-short-original-969-trampa-mountainboard-or-kiteboard-deck-p-26940.html",
+      "facts": {
+        "length_mm": 895,
+        "width_mm": 228,
+        "wheelbase_mm": 888,
+        "tip_angle_deg": 35,
+        "advertised_price_native": "GBP 140+",
+        "availability_note": "12-ply selectable at crawl; other plys showed out-of-stock states"
+      }
+    },
+    {
+      "id": "trampa_hs11_969",
+      "seller": "TRAMPA",
+      "kind": "vendor",
+      "url": "https://trampaboards.com/35-hs11-original-969-trampa-mountainboard-or-kiteboard-blank-deck-p-27149.html",
+      "facts": {
+        "length_mm": 912,
+        "width_mm": 228,
+        "wheelbase_mm": 945,
+        "tip_angle_deg": 35,
+        "advertised_price_native": "GBP 165+",
+        "brake_clearance_deck": true
+      }
+    },
+    {
+      "id": "trampa_vertigo_12",
+      "seller": "TRAMPA",
+      "kind": "vendor",
+      "url": "https://trampaboards.com/cnc-precision-vertigo-atb-mountainboard-truck--165-inch-wide-with-12mm-hollow-steel-axles-used-when-fixing-motor-mounts-p-33883.html",
+      "facts": {
+        "total_width_in": 16,
+        "total_width_mm": 406.4,
+        "axle_diameter_mm": 12,
+        "axle_type": "hollow",
+        "truck_weight_g": 659,
+        "deck_tip_angle_deg": 35
+      }
+    },
+    {
+      "id": "trampa_infinity_hs11",
+      "seller": "TRAMPA",
+      "kind": "vendor",
+      "url": "https://scripts.trampaboards.com/infinity-brake-hanger--12mm-solid-axles-modifed-to-fit-magura-hydraulic-brakes-p-28389.html",
+      "facts": {
+        "total_width_in": 16,
+        "total_width_mm": 406.4,
+        "center_wheel_width_in": 14,
+        "center_wheel_width_mm": 355.6,
+        "axle_diameter_mm": 12,
+        "axle_type": "solid",
+        "brake_mount": "Magura HS11",
+        "advertised_price_native": "GBP 62.50 hanger"
+      }
+    },
+    {
+      "id": "trampa_superstar_alpha8",
+      "seller": "TRAMPA",
+      "kind": "vendor",
+      "url": "https://scripts.trampaboards.com/superstar-8-inch-wheel--black-rim-with-silver-anodised-spokes--black-alpha-8-inch-tyres-p-10163.html",
+      "facts": {
+        "diameter_in": 8,
+        "diameter_mm": 203.2,
+        "width_in": 2,
+        "width_mm": 50.8,
+        "rim_size_in": "3.75 x 2",
+        "axle_options_mm": [
+          8,
+          9.525,
+          12
+        ],
+        "wheel_weight_g": 473,
+        "advertised_price_native": "GBP 45+"
+      }
+    },
+    {
+      "id": "trampa_megastar9",
+      "seller": "TRAMPA",
+      "kind": "vendor",
+      "url": "https://trampaboards.com/deepdish-megastar-9-rims-with-9-inch-tyres--trampa-9-inch-wheel-p-34338.html",
+      "facts": {
+        "nominal_tire_in": 9,
+        "published_tire_mm": "230x75 class",
+        "rim_family": "MEGASTAR 9 deep-dish",
+        "axle_reducer_options_mm": [
+          9.525,
+          10
+        ],
+        "advertised_price_native": "GBP 75+ per wheel"
+      }
+    },
+    {
+      "id": "trampa_hs11_brake_truck",
+      "seller": "TRAMPA",
+      "kind": "vendor",
+      "url": "https://trampaboards.com/trampa-brake-truck-fitted-with-hs11-magura-hydraulic-brake-calipers--disks-to-fit-5-spoke-wheels--p-35969.html",
+      "facts": {
+        "friction_brake": true,
+        "braked_wheels": 2,
+        "hanger_options": [
+          "INFINITY",
+          "VERTIGO"
+        ],
+        "wheel_requirement": "TRAMPA 5-spoke disk-compatible wheels",
+        "advertised_price_native": "GBP 150+"
+      }
+    },
+    {
+      "id": "trampa_obd",
+      "seller": "TRAMPA",
+      "kind": "vendor_reference",
+      "url": "https://trampaboards.com/preconfigured--open-belt-drive-electric-mountainboard--vertigo-trucks-classic-monster-box--megastars--gunmetal--silver-p-36450.html",
+      "facts": {
+        "drive_type": "open_belt",
+        "slave_pulley_teeth": [
+          66,
+          76
+        ],
+        "motor_pulley_teeth": [
+          13,
+          14,
+          15
+        ],
+        "belt_width_mm": 20,
+        "reference_truck": "VERTIGO 12 mm hollow axle"
+      }
+    },
+    {
+      "id": "apex_air",
+      "seller": "ATBShop",
+      "kind": "retailer",
+      "url": "https://www.atbshop.co.uk/mountainboard-accessories/apex-boards-air-emtb-truck",
+      "facts": {
+        "axle_end_width_mm": 434,
+        "inner_wheel_bearing_spacing_mm": 300,
+        "motor_mount_profile_mm": "22 x 22 square with 6 mm radius corners",
+        "weight_g_per_truck": 820,
+        "steering_family": "parallel_kingpin",
+        "advertised_price_native": "GBP 219 each"
+      }
+    },
+    {
+      "id": "boardnamics_m1_at",
+      "seller": "Boardnamics",
+      "kind": "vendor",
+      "url": "https://boardnamics.com/product/m1-at-drive/",
+      "facts": {
+        "drive_type": "gear",
+        "ratios": [
+          5.2,
+          4.6,
+          3.95
+        ],
+        "motor_shaft_diameter_mm": 8,
+        "motor_shaft_length_mm": 26.5,
+        "dual_gearbox_weight_g_approx": 1350,
+        "truck_compatibility": [
+          "MBS Matrix II",
+          "BN270",
+          "TRAMPA Precision Vertigo",
+          "Apex Air",
+          "3D Servisas Fatboy",
+          "NKP 3-Links",
+          "Lacroix Hypertruck"
+        ],
+        "wheel_compatibility": [
+          "MBS Rockstar II",
+          "MBS Fivestar",
+          "TRAMPA Superstar",
+          "Bergmeister"
+        ]
+      }
+    },
+    {
+      "id": "lacroix_barrel",
+      "seller": "Lacroix Boards",
+      "kind": "vendor_reference",
+      "url": "https://www.lacroixboards.com/products/the-barrel%E2%84%A2",
+      "facts": {
+        "complete_board_price_usd": 1899.99,
+        "complete_board_dimensions_in": "41 x 16 x 8",
+        "deck_with_tabs_in": "34.5 x 10.75",
+        "deck_with_tabs_mm": [
+          876.3,
+          273.05
+        ],
+        "foot_platform_in": "26 x 10.75",
+        "foot_platform_mm": [
+          660.4,
+          273.05
+        ],
+        "wheelbase_in": 33,
+        "wheelbase_mm": 838.2,
+        "truck_family": "Hypertruck Lite",
+        "wheel_reference": "8 in Kenda tire on MBS Rockstar II hub",
+        "motor_reference": "dual 6374 190kv",
+        "belt_reference": "HTD 425-5m spare belts included",
+        "battery_reference": "725 Wh 12s4p complete-board reference"
+      }
+    },
+    {
+      "id": "lacroix_hypertruck_lite",
+      "seller": "Lacroix Boards",
+      "kind": "vendor",
+      "url": "https://www.lacroixboards.com/products/lacroix-hypertruck%E2%84%A2-lite",
+      "facts": {
+        "advertised_page_price_usd": 549.99,
+        "variant_dependent_price": true,
+        "availability_note": "page showed sold-out/unavailable variants at refresh",
+        "hanger_width_in": 15,
+        "hanger_width_mm": 381,
+        "material": "7075 aluminum",
+        "truck_pair_weight_lb_approx": 5.5,
+        "steering_elements": [
+          "bushings",
+          "springs"
+        ],
+        "rear_motor_mounts_included_in_pair_variant": true,
+        "rear_wheel_pulley_teeth": 72,
+        "wheel_reference": "MBS hubs + Kenda tires in trucks/mounts/wheels variant"
+      }
+    }
+  ]
+}

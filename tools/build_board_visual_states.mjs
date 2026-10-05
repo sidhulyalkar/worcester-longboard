@@ -31,14 +31,14 @@ const bundle = {
   architectures: repoJson("configurator/architectures.v1.json"),
   compatibility: repoJson("configurator/compatibility_rules.v1.json"),
 };
-const twinSeed = repoJson("showcase/x1_rev_c.json");
+const geometry = repoJson("catalog/board_geometry.v1.json");
 const generated = generateCandidates(readJson(profilePath), bundle);
 const payload = {
   schema_version: 1,
   winner_selected: false,
   visualization_only: true,
   states: generated.candidates.map(candidate =>
-    visualStateFromCandidate(candidate, twinSeed, bundle.catalog)
+    visualStateFromCandidate(candidate, geometry, bundle.catalog)
   ),
 };
 process.stdout.write(JSON.stringify(payload, null, 2) + "\n");

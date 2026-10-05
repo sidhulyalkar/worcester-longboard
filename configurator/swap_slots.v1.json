@@ -5,7 +5,7 @@
   "slots": [
     {
       "id": "deck",
-      "label": "Deck envelope",
+      "label": "Deck",
       "kind": "design_reference",
       "required": true,
       "options": [
@@ -26,6 +26,27 @@
           "label": "Agent · 1020 × 284 mm",
           "component_id": "DECK-AGENT-REF",
           "twin_deck_id": "agent"
+        },
+        {
+          "value": "trampa_short_969",
+          "label": "TRAMPA Short 9/69 · 895 × 228 mm",
+          "component_id": "DECK-TRAMPA-SHORT-969",
+          "twin_deck_id": "trampa_short_969",
+          "vendor": "TRAMPA"
+        },
+        {
+          "value": "trampa_hs11_969",
+          "label": "TRAMPA HS11 9/69 · 912 × 228 mm",
+          "component_id": "DECK-TRAMPA-HS11-969",
+          "twin_deck_id": "trampa_hs11_969",
+          "vendor": "TRAMPA"
+        },
+        {
+          "value": "lacroix_barrel_876",
+          "label": "Lacroix Barrel · 876 × 273 mm",
+          "component_id": "DECK-LACROIX-BARREL-REF",
+          "twin_deck_id": "lacroix_barrel_876",
+          "vendor": "Lacroix Boards"
         }
       ]
     },
@@ -52,6 +73,34 @@
           "label": "440 mm coexistence study",
           "component_id": "TRUCK-M3-440-STUDY",
           "twin_topology_id": "brake_hanger_70mm_topology_study"
+        },
+        {
+          "value": "trampa_vertigo_406",
+          "label": "TRAMPA VERTIGO · 406 mm / 12 mm hollow",
+          "component_id": "TRUCK-TRAMPA-VERTIGO-12",
+          "twin_topology_id": "trampa_vertigo_406",
+          "vendor": "TRAMPA"
+        },
+        {
+          "value": "trampa_infinity_hs11_406",
+          "label": "TRAMPA INFINITY HS11 · 406 mm / 12 mm solid",
+          "component_id": "TRUCK-TRAMPA-INFINITY-HS11",
+          "twin_topology_id": "trampa_infinity_hs11_406",
+          "vendor": "TRAMPA"
+        },
+        {
+          "value": "apex_air_434",
+          "label": "Apex Air PKP · 434 mm",
+          "component_id": "TRUCK-APEX-AIR",
+          "twin_topology_id": "apex_air_434",
+          "vendor": "Apex Boards"
+        },
+        {
+          "value": "lacroix_hyperlite_381",
+          "label": "Lacroix Hypertruck Lite · 381 mm hanger",
+          "component_id": "TRUCK-LACROIX-HYPERLITE",
+          "twin_topology_id": "lacroix_hyperlite_381",
+          "vendor": "Lacroix Boards"
         }
       ]
     },
@@ -75,6 +124,24 @@
           "value": "TIRE-T2-9",
           "label": "T2 9-inch rollover study",
           "component_id": "TIRE-T2-9"
+        },
+        {
+          "value": "WHEEL-TRAMPA-ALPHA8",
+          "label": "TRAMPA SUPERSTAR + Alpha · 8 in",
+          "component_id": "WHEEL-TRAMPA-ALPHA8",
+          "vendor": "TRAMPA"
+        },
+        {
+          "value": "WHEEL-TRAMPA-MEGASTAR9",
+          "label": "TRAMPA MEGASTAR 9 · 9 in",
+          "component_id": "WHEEL-TRAMPA-MEGASTAR9",
+          "vendor": "TRAMPA"
+        },
+        {
+          "value": "WHEEL-LACROIX-KENDA8-RSII",
+          "label": "Lacroix Kenda 8 in + Rockstar II reference",
+          "component_id": "WHEEL-LACROIX-KENDA8-RSII",
+          "vendor": "Lacroix / MBS"
         }
       ]
     },
@@ -93,6 +160,12 @@
           "value": "BRAKE-V5",
           "label": "MBS V5 reference",
           "component_id": "BRAKE-V5"
+        },
+        {
+          "value": "BRAKE-TRAMPA-HS11",
+          "label": "TRAMPA / Magura HS11 hydraulic",
+          "component_id": "BRAKE-TRAMPA-HS11",
+          "vendor": "TRAMPA"
         }
       ]
     },
@@ -111,6 +184,24 @@
           "value": "DRIVE-G1-DUAL",
           "label": "MBS G1 dual gear-drive reference",
           "component_id": "DRIVE-G1-DUAL"
+        },
+        {
+          "value": "DRIVE-TRAMPA-OBD-DUAL",
+          "label": "TRAMPA dual Open Belt Drive reference",
+          "component_id": "DRIVE-TRAMPA-OBD-DUAL",
+          "vendor": "TRAMPA"
+        },
+        {
+          "value": "DRIVE-BOARDNAMICS-M1-AT",
+          "label": "Boardnamics M1-AT dual gear drive",
+          "component_id": "DRIVE-BOARDNAMICS-M1-AT",
+          "vendor": "Boardnamics"
+        },
+        {
+          "value": "DRIVE-LACROIX-BARREL-BELT",
+          "label": "Lacroix Hypertruck Lite dual belt-drive reference",
+          "component_id": "DRIVE-LACROIX-BARREL-BELT",
+          "vendor": "Lacroix Boards"
         }
       ]
     },
@@ -196,12 +287,28 @@
     "DRIVE-G1-DUAL": [
       "MOTOR-6374-CLASS",
       "ESC-DUAL-CLASS"
+    ],
+    "DRIVE-BOARDNAMICS-M1-AT": [
+      "MOTOR-63XX-8MM-SHAFT-CLASS",
+      "ESC-DUAL-CLASS"
+    ],
+    "DRIVE-TRAMPA-OBD-DUAL": [
+      "MOTOR-63XX-CLASS",
+      "ESC-DUAL-CLASS"
+    ],
+    "DRIVE-LACROIX-BARREL-BELT": [
+      "MOTOR-6374-CLASS",
+      "ESC-DUAL-CLASS"
     ]
   },
   "topology_support_components": {
     "brake_hanger_70mm_topology_study": [
       "AXLE-M3-70"
-    ]
+    ],
+    "trampa_vertigo_406": [],
+    "trampa_infinity_hs11_406": [],
+    "apex_air_434": [],
+    "lacroix_hyperlite_381": []
   },
   "packaged_foundation_rules": [
     {
@@ -252,5 +359,18 @@
       ],
       "replace_design_reference_components": true
     }
-  ]
+  ],
+  "wheel_support_components": {
+    "TIRE-T1-8-REF": [
+      "HUB-RSII"
+    ],
+    "TIRE-T2-9": [
+      "HUB-RSII"
+    ],
+    "WHEEL-TRAMPA-ALPHA8": [],
+    "WHEEL-TRAMPA-MEGASTAR9": [],
+    "WHEEL-LACROIX-KENDA8-RSII": [
+      "HUB-RSII"
+    ]
+  }
 }

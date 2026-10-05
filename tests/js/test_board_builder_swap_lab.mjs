@@ -92,3 +92,56 @@ test("Swap Lab never promotes authority", () => {
     generic_builder_may_promote_x1_authority: false,
   });
 });
+
+
+test("TRAMPA hydraulic candidate seeds exact vendor family into Swap Lab", () => {
+  const generated = generateCandidates(manual, bundle);
+  const baseline = findCandidate(generated, "trampa_hydraulic_freeride");
+  const selection = seedSwapSelection(baseline);
+  const result = evaluateSwap(
+    baseline,
+    generated.requirements,
+    selection,
+    bundle,
+    slots
+  );
+
+  assert.deepEqual(selection, {
+    deck: "trampa_hs11_969",
+    topology: "trampa_infinity_hs11_406",
+    wheel: "WHEEL-TRAMPA-ALPHA8",
+    brake: "BRAKE-TRAMPA-HS11",
+    drive: null,
+    battery: null,
+    rider_interface: null,
+    armor: null,
+    dock: null,
+  });
+  assert.equal(result.readiness, "REFERENCE_COMPATIBLE");
+  assert.equal(result.checkout_state, "SOURCE_LINKS");
+});
+
+test("unsupported Apex brake swap defaults to unknown rather than compatible", () => {
+  const generated = generateCandidates(manual, bundle);
+  const baseline = findCandidate(generated, "trampa_hydraulic_freeride");
+  const selection = seedSwapSelection(baseline);
+  selection.topology = "apex_air_434";
+
+  const result = evaluateSwap(
+    baseline,
+    generated.requirements,
+    selection,
+    bundle,
+    slots
+  );
+
+  assert.equal(result.readiness, "MEASURE_FIRST");
+  assert.ok(result.compatibility_findings.some(
+    finding => finding.id === "apex_air_hs11_unknown" &&
+      finding.state === "UNKNOWN"
+  ));
+  assert.ok(result.compatibility_findings.some(
+    finding => finding.id.startsWith("default:deck:truck:") &&
+      finding.state === "UNKNOWN"
+  ));
+});
