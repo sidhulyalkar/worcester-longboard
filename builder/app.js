@@ -286,12 +286,18 @@ function partialCost(candidate) {
 
 function twinUrl(candidate) {
   const spec = candidate.personalized_spec || {};
+  const visual = candidateVisualState(candidate);
   const params = new URLSearchParams({
     preset: candidate.visual_preset,
     candidate: candidate.id,
+    deck: visual.deck.id,
+    topology: visual.topology.id,
   });
   if (Number.isFinite(Number(spec.stance_center_mm))) {
     params.set("stance_mm", String(spec.stance_center_mm));
+  }
+  for (const [layer, visible] of Object.entries(visual.layers)) {
+    params.set(layer, visible ? "1" : "0");
   }
   return "../showcase/?" + params.toString();
 }
