@@ -298,6 +298,8 @@ function twinUrl(candidate) {
     deck: visual.deck.id,
     topology: visual.topology.id,
     wheel: visual.wheel.study_id,
+    drive_type: visual.visual_style.drive_type,
+    brake_family: visual.visual_style.brake_family,
   });
   if (Number.isFinite(Number(spec.stance_center_mm))) {
     params.set("stance_mm", String(spec.stance_center_mm));
@@ -557,17 +559,20 @@ function signedUsd(value) {
 
 function customTwinUrl(candidate, swapResult) {
   const twin = swapResult.twin_state || {};
+  const visual = visualStateFromSwap(
+    candidate,
+    swapResult,
+    state.bundle.geometry,
+    state.bundle.catalog
+  );
   const params = new URLSearchParams({
     preset: candidate.visual_preset,
     candidate: "custom:" + candidate.id,
     deck: twin.deck_candidate_id || candidate.deck_candidate_id,
     topology: twin.topology_id || candidate.topology_id,
-    wheel: visualStateFromSwap(
-      candidate,
-      swapResult,
-      state.bundle.geometry,
-      state.bundle.catalog
-    ).wheel.study_id,
+    wheel: visual.wheel.study_id,
+    drive_type: visual.visual_style.drive_type,
+    brake_family: visual.visual_style.brake_family,
   });
   if (Number.isFinite(Number(twin.stance_mm))) {
     params.set("stance_mm", String(twin.stance_mm));
