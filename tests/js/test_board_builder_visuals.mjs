@@ -64,6 +64,19 @@ test("fit bench hides wheels while keeping rider interface", () => {
   assert.equal(visual.layers.drive, false);
 });
 
+test("fit bench preview keeps topology while omitting tires", () => {
+  const generated = generateCandidates(manual, bundle);
+  const visual = visualStateFromCandidate(
+    get(generated, "snowdeck_fit_bench"),
+    twin,
+    bundle.catalog
+  );
+  const svg = renderBoardPreviewSvg(visual, "top");
+
+  assert.ok(svg.includes('stroke="#9aa4b2"'));
+  assert.ok(!svg.includes('fill="#131922"'));
+});
+
 test("Swap Lab visual carries 9-inch study and incompatible readiness", () => {
   const generated = generateCandidates(trail, bundle);
   const baseline = get(generated, "x1_compact_electric_study");
