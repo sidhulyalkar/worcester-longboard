@@ -716,7 +716,7 @@ def render_bom_markdown(candidate: dict[str, Any]) -> str:
     for row in candidate["bom"]:
         price = row.get("price")
         if not price:
-            price_text = "unpriced"
+            price_text = row.get("source_native_price") or "unpriced"
         elif price["kind"] in {"unit", "ceiling"}:
             price_text = f"USD {price['unit_price_usd'] * price.get('qty', 1):.2f}"
         else:
@@ -733,7 +733,13 @@ def render_bom_markdown(candidate: dict[str, Any]) -> str:
     cost = candidate["cost"]
     lines += [
         "",
-        f"Known-price subtotal: **USD {cost['known_min_usd']:.2f}–{cost['known_max_usd']:.2f}** before shipping/tax.",
+        (
+            "Known USD subtotal: **incomplete** before shipping/tax."
+            if cost["unpriced_component_ids"]
+            and cost["known_min_usd"] == 0
+            and cost["known_max_usd"] == 0
+            else f"Known-price subtotal: **USD {cost['known_min_usd']:.2f}–{cost['known_max_usd']:.2f}** before shipping/tax."
+        ),
     ]
     if cost["unpriced_component_ids"]:
         lines.append(
