@@ -46,6 +46,24 @@ jobs:
       - run: python -m pytest -q tests
       - name: Validate Board Builder catalog and authority boundary
         run: python tools/validate_board_builder.py
+      - name: Audit multi-vendor catalog provenance and snapshot freshness
+        run: |
+          python tools/audit_board_catalog.py \
+            --as-of 2026-10-04 \
+            --max-source-age-days 30 \
+            --strict-freshness \
+            --out /tmp/board-catalog-audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('/tmp/board-catalog-audit.json').read_text())
+          assert report['valid'] is True
+          assert report['stale'] is False
+          assert len(report['coverage']['vendor_families']) >= 3
+          assert len(report['coverage']['steering_families']) >= 2
+          assert len(report['coverage']['drive_types']) >= 2
+          assert all(value is False for value in report['authority'].values())
+          PY
       - name: Cross-check Python and browser Board Builder engines
         run: |
           env -u PYTHONPATH python tools/derive_board_requirements.py             configurator/examples/trail_rider_profile.json             --out /tmp/board-requirements.json
