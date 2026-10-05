@@ -220,6 +220,7 @@ function makeBom(architecture, catalog) {
       price: c.price || null,
       source_url: c.source && c.source.url ? c.source.url : null,
       source_as_of: c.source ? c.source.as_of : null,
+      source_native_price: c.source ? c.source.native_price_snapshot || null : null,
       hold_reason: c.hold_reason || null,
     };
   });
