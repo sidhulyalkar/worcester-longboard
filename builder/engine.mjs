@@ -253,7 +253,19 @@ function deckFit(requirements, deckId) {
 export function scoreArchitecture(profile, requirements, architecture, catalog, compatibility) {
   const ps = requirements.priorities;
   const traits = architecture.traits;
-  const weighted = Object.keys(ps).reduce((sum, key) => sum + ps[key] * Number(traits[key]), 0);
+  const preferenceFit = {
+    range: Number(traits.range),
+    carve: 1 - Math.abs(Number(traits.carve) - Number(profile.snowboard_feel || 100) / 100),
+    stability: 1 - Math.abs(Number(traits.stability) - Number(profile.stability_preference || 100) / 100),
+    durability: Number(traits.durability),
+    portability: Number(traits.portability),
+    cost: Number(traits.cost),
+    low_maintenance: Number(traits.low_maintenance),
+  };
+  const weighted = Object.keys(ps).reduce(
+    (sum, key) => sum + ps[key] * clamp(preferenceFit[key], 0, 1),
+    0
+  );
   let score = weighted;
   let readiness = "REFERENCE_COMPATIBLE";
   const explanations = [];
@@ -314,7 +326,39 @@ export function scoreArchitecture(profile, requirements, architecture, catalog, 
     explanations.push("Eight-inch pneumatic reference matches the current terrain model.");
   }
 
-  const packed = makeBom(architecture, catalog);
+  const resolvedArchitecture = structuredClone(architecture);
+  let resolvedBom = [...resolvedArchitecture.bom];
+  const energyWh = Number(requirements.planning_installed_energy_wh);
+  let selectedEnergyClass = null;
+
+  if (resolvedBom.includes("BATTERY-TRAIL-CLASS")) {
+    if (energyWh <= 650) {
+      selectedEnergyClass = "BATTERY-TRAIL-CLASS";
+      explanations.push("The 500–650 Wh trail planning class covers the derived mission-energy envelope.");
+    } else if (energyWh <= 1150) {
+      resolvedBom = resolvedBom.map(item =>
+        item === "BATTERY-TRAIL-CLASS" ? "BATTERY-RANGE-CLASS" : item
+      );
+      selectedEnergyClass = "BATTERY-RANGE-CLASS";
+      explanations.push("Mission energy exceeds the trail-pack class, so this study moves to the 950–1150 Wh range class.");
+    } else {
+      resolvedBom = resolvedBom.map(item =>
+        item === "BATTERY-TRAIL-CLASS" ? "BATTERY-RANGE-CLASS" : item
+      );
+      selectedEnergyClass = "BATTERY-RANGE-CLASS";
+      blockers.push("Derived mission energy exceeds the largest seeded 1150 Wh planning class.");
+      readiness = worsen(readiness, "BLOCKED");
+    }
+  } else if (resolvedBom.includes("BATTERY-RANGE-CLASS")) {
+    selectedEnergyClass = "BATTERY-RANGE-CLASS";
+    if (energyWh > 1150) {
+      blockers.push("Derived mission energy exceeds the largest seeded 1150 Wh planning class.");
+      readiness = worsen(readiness, "BLOCKED");
+    }
+  }
+
+  resolvedArchitecture.bom = resolvedBom;
+  const packed = makeBom(resolvedArchitecture, catalog);
   const bom = packed.rows;
   const cost = packed.cost;
   const ids = new Set(bom.map(x => x.component_id));
@@ -357,7 +401,7 @@ export function scoreArchitecture(profile, requirements, architecture, catalog, 
 
   score = clamp(score, 0, 1);
   explanations.unshift(
-    "Priority-weighted architecture fit is " + (weighted * 100).toFixed(0) +
+    "Priority-weighted preference match is " + (weighted * 100).toFixed(0) +
     "% before mission compatibility adjustments."
   );
 
@@ -374,7 +418,26 @@ export function scoreArchitecture(profile, requirements, architecture, catalog, 
     deck_candidate_id: architecture.deck_candidate_id,
     topology_id: architecture.topology_id,
     traits: structuredClone(traits),
+    preference_fit: Object.fromEntries(
+      Object.entries(preferenceFit).map(([key, value]) => [
+        key,
+        Number(clamp(value, 0, 1).toFixed(4)),
+      ])
+    ),
     capabilities: structuredClone(architecture.capabilities),
+    personalized_spec: {
+      target_range_mi: requirements.target_range_mi,
+      planning_installed_energy_wh: requirements.planning_installed_energy_wh,
+      selected_energy_class: selectedEnergyClass,
+      wheel_strategy: requirements.wheel_strategy,
+      stance_center_mm: requirements.stance_study.center_mm,
+      stance_range_mm: [
+        requirements.stance_study.min_mm,
+        requirements.stance_study.max_mm,
+      ],
+      independent_friction_brake_required:
+        requirements.independent_friction_brake_required,
+    },
     bom,
     cost,
     compatibility_findings: findings,
