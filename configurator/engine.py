@@ -358,7 +358,27 @@ def score_architecture(
 ) -> dict[str, Any]:
     priorities = requirements["priorities"]
     traits = architecture["traits"]
-    weighted = sum(priorities[key] * float(traits[key]) for key in priorities)
+    preference_fit = {
+        "range": float(traits["range"]),
+        "carve": 1.0
+        - abs(
+            float(traits["carve"])
+            - float(profile.get("snowboard_feel", 100.0)) / 100.0
+        ),
+        "stability": 1.0
+        - abs(
+            float(traits["stability"])
+            - float(profile.get("stability_preference", 100.0)) / 100.0
+        ),
+        "durability": float(traits["durability"]),
+        "portability": float(traits["portability"]),
+        "cost": float(traits["cost"]),
+        "low_maintenance": float(traits["low_maintenance"]),
+    }
+    weighted = sum(
+        priorities[key] * _clamp(preference_fit[key], 0.0, 1.0)
+        for key in priorities
+    )
     score = weighted
     explanations: list[str] = []
     blockers = list(architecture.get("hard_blockers", []))
@@ -416,7 +436,46 @@ def score_architecture(
         score += 0.03
         explanations.append("Eight-inch pneumatic reference matches the current terrain model.")
 
-    bom, cost = _bom(architecture, catalog)
+    resolved_architecture = copy.deepcopy(architecture)
+    resolved_bom = list(resolved_architecture["bom"])
+    energy_wh = float(requirements["planning_installed_energy_wh"])
+    selected_energy_class = None
+
+    if "BATTERY-TRAIL-CLASS" in resolved_bom:
+        if energy_wh <= 650:
+            selected_energy_class = "BATTERY-TRAIL-CLASS"
+            explanations.append(
+                "The 500–650 Wh trail planning class covers the derived mission-energy envelope."
+            )
+        elif energy_wh <= 1150:
+            resolved_bom = [
+                "BATTERY-RANGE-CLASS" if item == "BATTERY-TRAIL-CLASS" else item
+                for item in resolved_bom
+            ]
+            selected_energy_class = "BATTERY-RANGE-CLASS"
+            explanations.append(
+                "Mission energy exceeds the trail-pack class, so this study moves to the 950–1150 Wh range class."
+            )
+        else:
+            resolved_bom = [
+                "BATTERY-RANGE-CLASS" if item == "BATTERY-TRAIL-CLASS" else item
+                for item in resolved_bom
+            ]
+            selected_energy_class = "BATTERY-RANGE-CLASS"
+            blockers.append(
+                "Derived mission energy exceeds the largest seeded 1150 Wh planning class."
+            )
+            readiness = _worsen(readiness, "BLOCKED")
+    elif "BATTERY-RANGE-CLASS" in resolved_bom:
+        selected_energy_class = "BATTERY-RANGE-CLASS"
+        if energy_wh > 1150:
+            blockers.append(
+                "Derived mission energy exceeds the largest seeded 1150 Wh planning class."
+            )
+            readiness = _worsen(readiness, "BLOCKED")
+
+    resolved_architecture["bom"] = resolved_bom
+    bom, cost = _bom(resolved_architecture, catalog)
     selected_ids = {row["component_id"] for row in bom}
     pair_rules = _selected_pair_rules(selected_ids, compatibility)
     pair_findings: list[dict[str, Any]] = []
@@ -464,7 +523,7 @@ def score_architecture(
     score = _clamp(score, 0.0, 1.0)
     explanations.insert(
         0,
-        f"Priority-weighted architecture fit is {weighted * 100:.0f}% before mission compatibility adjustments."
+        f"Priority-weighted preference match is {weighted * 100:.0f}% before mission compatibility adjustments."
     )
 
     return {
@@ -480,7 +539,27 @@ def score_architecture(
         "deck_candidate_id": architecture["deck_candidate_id"],
         "topology_id": architecture["topology_id"],
         "traits": copy.deepcopy(traits),
+        "preference_fit": {
+            key: round(_clamp(value, 0.0, 1.0), 4)
+            for key, value in preference_fit.items()
+        },
         "capabilities": copy.deepcopy(architecture["capabilities"]),
+        "personalized_spec": {
+            "target_range_mi": requirements["target_range_mi"],
+            "planning_installed_energy_wh": requirements[
+                "planning_installed_energy_wh"
+            ],
+            "selected_energy_class": selected_energy_class,
+            "wheel_strategy": requirements["wheel_strategy"],
+            "stance_center_mm": requirements["stance_study"]["center_mm"],
+            "stance_range_mm": [
+                requirements["stance_study"]["min_mm"],
+                requirements["stance_study"]["max_mm"],
+            ],
+            "independent_friction_brake_required": requirements[
+                "independent_friction_brake_required"
+            ],
+        },
         "bom": bom,
         "cost": cost,
         "compatibility_findings": pair_findings,
