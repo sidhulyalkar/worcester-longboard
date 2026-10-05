@@ -180,3 +180,13 @@ test("nine-inch TRAMPA study earns rollover match but remains blocked by system 
     text.includes("Nine-inch pneumatic study directly matches")
   ));
 });
+
+
+test("reference riders receive distinct rankings with cross-vendor top-three breadth", () => {
+  const manualResult = generateCandidates(manual, bundle);
+  const trailResult = generateCandidates(trail, bundle);
+
+  assert.notEqual(manualResult.candidates[0].id, trailResult.candidates[0].id);
+  assert.ok(new Set(manualResult.candidates.slice(0, 3).map(row => row.vendor_family)).size >= 2);
+  assert.ok(new Set(trailResult.candidates.slice(0, 3).map(row => row.vendor_family)).size >= 2);
+});
