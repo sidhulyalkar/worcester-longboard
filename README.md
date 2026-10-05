@@ -28,6 +28,30 @@ X1 has moved beyond the original TRAMPA/14S Alpha sketch. Current build and purc
 
 If an older document conflicts with a current manifest, build gate, or qualified authority, the older document does **not** authorize a purchase, fabrication step, or ride test.
 
+## Board Builder platform
+
+Worcester X1 now also serves as reference build **#0001** for a generic rider-spec board configurator.
+
+The Board Builder separates rider/mission requirements from available products, compares multiple architecture hypotheses, propagates explicit compatibility states, renders dated source links and partial BOM price bands, and can hand a candidate into the authority-aware 3D twin.
+
+Run the product surface from the repository root:
+
+```bash
+python -m http.server 8000 --bind 127.0.0.1
+```
+
+Then open:
+
+- `http://127.0.0.1:8000/` for the product landing page;
+- `http://127.0.0.1:8000/builder/` for the rider/mission configurator;
+- `http://127.0.0.1:8000/showcase/` for the 3D engineering twin.
+
+Machine-readable inputs live under `configurator/` and `catalog/`. The deterministic Python engine is `configurator/engine.py`; the browser counterpart is `builder/engine.mjs`. CI compares both on shared profiles.
+
+See `docs/board_builder_platform.md` for the full product/compatibility model.
+
+> The generic Builder is a planning and sourcing tool. A high profile-fit score, vendor source link, or generated BOM never promotes X1 procurement, fabrication, charging, or powered-operation authority.
+
 ## Local development
 
 Use Python **3.12** in a repository-local `.venv`. The tested direct dependencies are pinned in `requirements-dev.txt`, and the native CadQuery/OCP versions are pinned explicitly.
