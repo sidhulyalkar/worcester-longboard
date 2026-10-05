@@ -358,6 +358,9 @@ function renderCandidates(candidates) {
 
     card.querySelector("[data-inspect]").addEventListener("click", () => {
       state.selectedId = candidate.id;
+      state.swapBaselineId = null;
+      state.swapSelection = null;
+      state.swapResult = null;
       renderCandidates(state.result.candidates);
       renderBom(candidate);
       $("#bom-section").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -416,11 +419,221 @@ function renderBom(candidate) {
     '</ul></div>';
 
   $("#candidate-detail").innerHTML = blocks + unknowns + why + compatibility;
+  renderSwapLab(candidate, state.swapBaselineId !== candidate.id);
+}
+
+
+function signedUsd(value) {
+  const number = Number(value || 0);
+  if (Math.abs(number) < 0.005) return "USD 0";
+  return (number > 0 ? "+USD " : "−USD ") + Math.abs(number).toFixed(0);
+}
+
+function customTwinUrl(candidate, swapResult) {
+  const twin = swapResult.twin_state || {};
+  const params = new URLSearchParams({
+    preset: candidate.visual_preset,
+    candidate: "custom:" + candidate.id,
+    deck: twin.deck_candidate_id || candidate.deck_candidate_id,
+    topology: twin.topology_id || candidate.topology_id,
+  });
+  if (Number.isFinite(Number(twin.stance_mm))) {
+    params.set("stance_mm", String(twin.stance_mm));
+  }
+  for (const [layer, visible] of Object.entries(twin.layers || {})) {
+    params.set(layer, visible ? "1" : "0");
+  }
+  return "../showcase/?" + params.toString();
+}
+
+function renderSwapBom(rows) {
+  const body = $("#swap-bom-body");
+  if (!body) return;
+  body.innerHTML = rows.map(row => {
+    const source = row.source_url
+      ? '<a class="source-link" href="' + escapeHtml(row.source_url) + '" target="_blank" rel="noreferrer">Vendor source</a>' +
+        '<small>snapshot ' + escapeHtml(row.source_as_of || "unknown") + '</small>'
+      : '<span>Reference / TBD</span><small>No checkout link is asserted.</small>';
+    const hold = row.hold_reason
+      ? '<small>' + escapeHtml(row.hold_reason) + '</small>'
+      : "";
+    const stateClass =
+      row.procurement_state === "POWER_GATED"
+        ? "blocked"
+        : row.procurement_state === "HOLD_MEASURE"
+          ? "measure"
+          : "";
+    return '<tr>' +
+      '<td>' + escapeHtml(row.category.replaceAll("_", " ")) + '</td>' +
+      '<td><strong>' + escapeHtml(row.label) + '</strong><small>' +
+        escapeHtml([row.manufacturer, row.sku].filter(Boolean).join(" · ") || row.component_id) +
+      '</small></td>' +
+      '<td><span class="badge ' + stateClass + '">' +
+        escapeHtml(row.procurement_state.replaceAll("_", " ").toLowerCase()) +
+      '</span>' + hold + '</td>' +
+      '<td>' + escapeHtml(formatPrice(row.price)) + '</td>' +
+      '<td>' + source + '</td>' +
+    '</tr>';
+  }).join("");
+}
+
+function renderSwapFindings(result) {
+  const host = $("#swap-findings");
+  if (!host) return;
+
+  const blockers = result.blockers.length
+    ? result.blockers.map(text => '<li>' + escapeHtml(text) + '</li>').join("")
+    : '<li>No custom-design hard blocker is asserted by the current rules. Physical gates still apply.</li>';
+
+  const unknowns = result.unknowns.length
+    ? result.unknowns.map(text => '<li>' + escapeHtml(text) + '</li>').join("")
+    : '<li>No additional custom-design measurement hold is asserted.</li>';
+
+  const compatibility = result.compatibility_findings.length
+    ? result.compatibility_findings.map(finding =>
+        '<li><strong>' + escapeHtml(finding.state.replaceAll("_", " ").toLowerCase()) +
+        ':</strong> ' + escapeHtml(finding.reason) + '</li>'
+      ).join("")
+    : '<li>No selected component pair triggered an explicit compatibility rule.</li>';
+
+  const changes = result.changes.length
+    ? result.changes.map(change =>
+        '<li><strong>' + escapeHtml(change.slot.replaceAll("_", " ")) + ':</strong> ' +
+        escapeHtml(String(change.from ?? "none")) + ' → ' +
+        escapeHtml(String(change.to ?? "none")) + '</li>'
+      ).join("")
+    : '<li>Edited design matches the generated baseline.</li>';
+
+  host.innerHTML =
+    '<div class="detail-box"><h3>Changes from baseline</h3><ul>' + changes + '</ul></div>' +
+    '<div class="detail-box"><h3>Blockers</h3><ul>' + blockers + '</ul></div>' +
+    '<div class="detail-box"><h3>Measure / resolve next</h3><ul>' + unknowns + '</ul></div>' +
+    '<div class="detail-box"><h3>Compatibility evidence</h3><ul>' + compatibility + '</ul></div>';
+}
+
+function renderSwapResult(candidate) {
+  const result = state.swapResult;
+  if (!result) return;
+
+  $("#swap-summary").innerHTML =
+    '<span class="summary-pill">Edited subtotal: <strong>' +
+      escapeHtml(partialCost(result)) + '</strong></span>' +
+    '<span class="summary-pill">Readiness: <strong>' +
+      escapeHtml(readinessLabel(result.readiness)) + '</strong></span>' +
+    '<span class="summary-pill">Checkout: <strong>' +
+      escapeHtml(result.checkout_state.replaceAll("_", " ").toLowerCase()) + '</strong></span>' +
+    '<span class="summary-pill">Changes: <strong>' +
+      result.changes.length + '</strong></span>';
+
+  const delta = result.cost_delta_vs_baseline;
+  $("#swap-delta").innerHTML =
+    '<div><span>Known-price delta low</span><strong>' +
+      escapeHtml(signedUsd(delta.known_min_usd)) + '</strong></div>' +
+    '<div><span>Known-price delta high</span><strong>' +
+      escapeHtml(signedUsd(delta.known_max_usd)) + '</strong></div>' +
+    '<div><span>Unpriced study items</span><strong>' +
+      result.cost.unpriced_component_ids.length + '</strong></div>';
+
+  renderSwapFindings(result);
+  renderSwapBom(result.bom);
+
+  const twin = $("#open-custom-twin");
+  twin.classList.remove("disabled");
+  twin.href = customTwinUrl(candidate, result);
+}
+
+function evaluateCurrentSwap(candidate) {
+  if (!candidate || !state.swapSelection) return;
+  state.swapResult = evaluateSwap(
+    candidate,
+    state.result.requirements,
+    state.swapSelection,
+    state.bundle,
+    state.bundle.swapSlots
+  );
+  renderSwapResult(candidate);
+}
+
+function renderSwapControls(candidate) {
+  const host = $("#swap-controls");
+  if (!host) return;
+  const baseline = seedSwapSelection(candidate);
+  host.innerHTML = "";
+
+  for (const slot of state.bundle.swapSlots.slots || []) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "swap-control";
+
+    const label = document.createElement("label");
+    label.htmlFor = "swap-" + slot.id;
+    label.textContent = slot.label;
+
+    const select = document.createElement("select");
+    select.id = "swap-" + slot.id;
+    select.dataset.swapSlot = slot.id;
+
+    for (const optionRow of slot.options || []) {
+      const option = document.createElement("option");
+      option.value = optionRow.value === null ? "__none__" : String(optionRow.value);
+      option.textContent =
+        optionRow.label +
+        (baseline[slot.id] === optionRow.value ? " · baseline" : "");
+      select.appendChild(option);
+    }
+
+    const selected = state.swapSelection[slot.id];
+    select.value = selected === null ? "__none__" : String(selected);
+    select.addEventListener("change", () => {
+      state.swapSelection[slot.id] =
+        select.value === "__none__" ? null : select.value;
+      evaluateCurrentSwap(candidate);
+    });
+
+    wrapper.append(label, select);
+    host.appendChild(wrapper);
+  }
+}
+
+function renderSwapLab(candidate, forceReset = false) {
+  if (!candidate) return;
+  if (forceReset || state.swapBaselineId !== candidate.id || !state.swapSelection) {
+    state.swapBaselineId = candidate.id;
+    state.swapSelection = seedSwapSelection(candidate);
+  }
+  renderSwapControls(candidate);
+  evaluateCurrentSwap(candidate);
+}
+
+function resetSwaps() {
+  const candidate = state.result?.candidates.find(row => row.id === state.selectedId);
+  if (!candidate) return;
+  state.swapSelection = seedSwapSelection(candidate);
+  renderSwapControls(candidate);
+  evaluateCurrentSwap(candidate);
+}
+
+function exportCustomDesign() {
+  const candidate = state.result?.candidates.find(row => row.id === state.selectedId);
+  if (!candidate || !state.swapResult) return;
+  downloadJson("worcester-custom-board-" + candidate.id + ".json", {
+    schema_version: 1,
+    profile: state.result.profile,
+    requirements: state.result.requirements,
+    baseline_candidate: candidate,
+    custom_study: state.swapResult,
+    winner_selected: false,
+    source_snapshot_as_of: state.bundle.catalog.as_of,
+    note:
+      "Exported Swap Lab design study. It does not create procurement, fabrication, charging or powered-operation authority.",
+  });
 }
 
 function recompute() {
   if (!state.bundle) return;
   state.result = generateCandidates(state.profile, state.bundle);
+  state.swapBaselineId = null;
+  state.swapSelection = null;
+  state.swapResult = null;
 
   if (!state.selectedId || !state.result.candidates.some(x => x.id === state.selectedId)) {
     state.selectedId = state.result.candidates[0]?.id || null;
@@ -502,6 +715,8 @@ async function main() {
 
     $("#export-profile").addEventListener("click", exportProfile);
     $("#export-design").addEventListener("click", exportSelectedDesign);
+    $("#reset-swaps").addEventListener("click", resetSwaps);
+    $("#export-custom-design").addEventListener("click", exportCustomDesign);
   } catch (error) {
     console.error(error);
     $("#questionnaire").innerHTML = '<div class="note warning">Board Builder failed to load: ' + escapeHtml(error.message) + '</div>';
