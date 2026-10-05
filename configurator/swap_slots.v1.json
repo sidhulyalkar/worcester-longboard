@@ -40,6 +40,13 @@
           "component_id": "DECK-TRAMPA-HS11-969",
           "twin_deck_id": "trampa_hs11_969",
           "vendor": "TRAMPA"
+        },
+        {
+          "value": "lacroix_barrel_876",
+          "label": "Lacroix Barrel · 876 × 273 mm",
+          "component_id": "DECK-LACROIX-BARREL-REF",
+          "twin_deck_id": "lacroix_barrel_876",
+          "vendor": "Lacroix Boards"
         }
       ]
     },
@@ -87,6 +94,13 @@
           "component_id": "TRUCK-APEX-AIR",
           "twin_topology_id": "apex_air_434",
           "vendor": "Apex Boards"
+        },
+        {
+          "value": "lacroix_hyperlite_381",
+          "label": "Lacroix Hypertruck Lite · 381 mm hanger",
+          "component_id": "TRUCK-LACROIX-HYPERLITE",
+          "twin_topology_id": "lacroix_hyperlite_381",
+          "vendor": "Lacroix Boards"
         }
       ]
     },
@@ -122,6 +136,12 @@
           "label": "TRAMPA MEGASTAR 9 · 9 in",
           "component_id": "WHEEL-TRAMPA-MEGASTAR9",
           "vendor": "TRAMPA"
+        },
+        {
+          "value": "WHEEL-LACROIX-KENDA8-RSII",
+          "label": "Lacroix Kenda 8 in + Rockstar II reference",
+          "component_id": "WHEEL-LACROIX-KENDA8-RSII",
+          "vendor": "Lacroix / MBS"
         }
       ]
     },
@@ -176,6 +196,12 @@
           "label": "Boardnamics M1-AT dual gear drive",
           "component_id": "DRIVE-BOARDNAMICS-M1-AT",
           "vendor": "Boardnamics"
+        },
+        {
+          "value": "DRIVE-LACROIX-BARREL-BELT",
+          "label": "Lacroix Hypertruck Lite dual belt-drive reference",
+          "component_id": "DRIVE-LACROIX-BARREL-BELT",
+          "vendor": "Lacroix Boards"
         }
       ]
     },
@@ -269,6 +295,10 @@
     "DRIVE-TRAMPA-OBD-DUAL": [
       "MOTOR-63XX-CLASS",
       "ESC-DUAL-CLASS"
+    ],
+    "DRIVE-LACROIX-BARREL-BELT": [
+      "MOTOR-6374-CLASS",
+      "ESC-DUAL-CLASS"
     ]
   },
   "topology_support_components": {
@@ -277,7 +307,8 @@
     ],
     "trampa_vertigo_406": [],
     "trampa_infinity_hs11_406": [],
-    "apex_air_434": []
+    "apex_air_434": [],
+    "lacroix_hyperlite_381": []
   },
   "packaged_foundation_rules": [
     {
@@ -337,6 +368,9 @@
       "HUB-RSII"
     ],
     "WHEEL-TRAMPA-ALPHA8": [],
-    "WHEEL-TRAMPA-MEGASTAR9": []
+    "WHEEL-TRAMPA-MEGASTAR9": [],
+    "WHEEL-LACROIX-KENDA8-RSII": [
+      "HUB-RSII"
+    ]
   }
 }
