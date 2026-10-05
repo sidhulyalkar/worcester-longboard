@@ -36,7 +36,7 @@ const bundle = {
   architectures: repoJson("configurator/architectures.v1.json"),
   compatibility: repoJson("configurator/compatibility_rules.v1.json"),
 };
-const twinSeed = repoJson("showcase/x1_rev_c.json");
+const geometry = repoJson("catalog/board_geometry.v1.json");
 const generated = generateCandidates(readJson(profilePath), bundle);
 const manifest = {
   schema_version: 1,
@@ -45,7 +45,7 @@ const manifest = {
 };
 
 for (const candidate of generated.candidates) {
-  const state = visualStateFromCandidate(candidate, twinSeed, bundle.catalog);
+  const state = visualStateFromCandidate(candidate, geometry, bundle.catalog);
   for (const view of state.views) {
     const filename = candidate.id + "-" + view + ".svg";
     fs.writeFileSync(
