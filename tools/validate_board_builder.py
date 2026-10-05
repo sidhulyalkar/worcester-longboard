@@ -18,6 +18,7 @@ def validate() -> dict[str, Any]:
     catalog = load("catalog/board_components.v1.json")
     architectures = load("configurator/architectures.v1.json")
     compatibility = load("configurator/compatibility_rules.v1.json")
+    swap_slots = load("configurator/swap_slots.v1.json")
     refs = load("configurator/reference_builds.v1.json")
     twin = load("showcase/x1_rev_c.json")
 
@@ -101,6 +102,89 @@ def validate() -> dict[str, Any]:
             if rule.get(side) not in component_index:
                 errors.append(f"{rule.get('id')}: compatibility rule references unknown {side}")
 
+    if swap_slots.get("scope") != "non_authoritative_component_swap_study":
+        errors.append("swap_slots scope must remain non-authoritative")
+
+    swap_slot_ids: set[str] = set()
+    slot_options: dict[str, set[Any]] = {}
+    for slot in swap_slots.get("slots", []):
+        slot_id = slot.get("id")
+        if not slot_id or slot_id in swap_slot_ids:
+            errors.append(f"duplicate/missing swap slot id: {slot_id!r}")
+            continue
+        swap_slot_ids.add(slot_id)
+        values: set[Any] = set()
+        for option in slot.get("options", []):
+            value = option.get("value")
+            if value in values:
+                errors.append(f"{slot_id}: duplicate swap option {value!r}")
+            values.add(value)
+            component_id = option.get("component_id")
+            if component_id is not None and component_id not in component_index:
+                errors.append(
+                    f"{slot_id}: swap option references unknown component {component_id!r}"
+                )
+            twin_deck_id = option.get("twin_deck_id")
+            if twin_deck_id is not None and twin_deck_id not in deck_ids:
+                errors.append(
+                    f"{slot_id}: unknown twin deck id {twin_deck_id!r}"
+                )
+            twin_topology_id = option.get("twin_topology_id")
+            if twin_topology_id is not None and twin_topology_id not in topology_ids:
+                errors.append(
+                    f"{slot_id}: unknown twin topology id {twin_topology_id!r}"
+                )
+        slot_options[slot_id] = values
+
+    required_swap_slots = {
+        "deck",
+        "topology",
+        "wheel",
+        "brake",
+        "drive",
+        "battery",
+        "rider_interface",
+        "armor",
+        "dock",
+    }
+    if swap_slot_ids != required_swap_slots:
+        errors.append(
+            "swap slot ids must exactly match the supported editing contract"
+        )
+
+    for source_id, support_ids in swap_slots.get(
+        "automatic_support_components", {}
+    ).items():
+        if source_id not in component_index:
+            errors.append(f"swap support source component unknown: {source_id!r}")
+        for support_id in support_ids:
+            if support_id not in component_index:
+                errors.append(f"swap support component unknown: {support_id!r}")
+
+    for topology_id, support_ids in swap_slots.get(
+        "topology_support_components", {}
+    ).items():
+        if topology_id not in topology_ids:
+            errors.append(f"swap topology support unknown: {topology_id!r}")
+        for support_id in support_ids:
+            if support_id not in component_index:
+                errors.append(f"swap topology component unknown: {support_id!r}")
+
+    for packaged in swap_slots.get("packaged_foundation_rules", []):
+        when = packaged.get("when") or {}
+        for slot_id, value in when.items():
+            if slot_id not in slot_options:
+                errors.append(f"packaged swap rule references unknown slot {slot_id!r}")
+            elif value not in slot_options[slot_id]:
+                errors.append(
+                    f"packaged swap rule has unknown {slot_id} option {value!r}"
+                )
+        for component_id in packaged.get("use", []):
+            if component_id not in component_index:
+                errors.append(
+                    f"packaged swap rule references unknown component {component_id!r}"
+                )
+
     for ref in refs.get("builds", []):
         if ref.get("architecture_id") not in architecture_ids:
             errors.append(f"{ref.get('id')}: unknown architecture")
@@ -117,6 +201,7 @@ def validate() -> dict[str, Any]:
         "questionnaire_fields": len(field_ids),
         "catalog_components": len(component_index),
         "architectures": len(architecture_ids),
+        "swap_slots": len(swap_slot_ids),
         "power_categories_checkout_enabled": False,
         "generic_builder_may_promote_x1_authority": False,
     }

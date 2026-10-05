@@ -478,6 +478,25 @@
         "as_of": "2026-10-01"
       },
       "price": null
+    },
+    {
+      "id": "DECK-COMP95-REF",
+      "category": "deck",
+      "label": "Comp 95 950 × 251 mm deck envelope reference",
+      "manufacturer": "MBS",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "SOURCE_ONLY",
+      "interfaces": {
+        "length_mm": 950,
+        "width_mm": 251
+      },
+      "source": {
+        "kind": "repository_reference",
+        "url": null,
+        "as_of": "2026-10-01"
+      },
+      "price": null
     }
   ]
 }

@@ -91,6 +91,43 @@
           </div>
           <div id="candidate-detail" class="candidate-detail"></div>
         </section>
+
+        <section id="swap-lab" class="swap-lab">
+          <div class="section-head">
+            <div>
+              <p class="kicker">05 / Swap Lab</p>
+              <h2>Change one component and see what breaks.</h2>
+            </div>
+            <div class="swap-actions">
+              <button id="reset-swaps" type="button">Reset swaps</button>
+              <button id="export-custom-design" type="button">Export custom design</button>
+              <a id="open-custom-twin" class="primary-link disabled" href="../showcase/">Inspect edited board in 3D</a>
+            </div>
+          </div>
+          <p class="section-copy">The baseline candidate stays immutable. These controls create a separate design-study state, rebuild its BOM, rerun compatibility rules, and show the delta without opening any purchase or build authority.</p>
+          <div class="swap-grid">
+            <div id="swap-controls" class="swap-controls"></div>
+            <div class="swap-results">
+              <div id="swap-summary"></div>
+              <div id="swap-delta" class="swap-delta"></div>
+              <div id="swap-findings" class="candidate-detail"></div>
+            </div>
+          </div>
+          <div class="table-wrap swap-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>System</th>
+                  <th>Edited component</th>
+                  <th>Purchase state</th>
+                  <th>Price snapshot</th>
+                  <th>Source</th>
+                </tr>
+              </thead>
+              <tbody id="swap-bom-body"></tbody>
+            </table>
+          </div>
+        </section>
       </section>
     </section>
   </main>

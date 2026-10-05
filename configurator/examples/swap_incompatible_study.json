@@ -1,0 +1,11 @@
+{
+  "deck": "comp95",
+  "topology": "drive_clearance_420mm",
+  "wheel": "TIRE-T2-9",
+  "brake": "BRAKE-V5",
+  "drive": "DRIVE-G1-DUAL",
+  "battery": "BATTERY-RANGE-CLASS",
+  "rider_interface": "SNOWDECK-V01-CUSTOM",
+  "armor": "TRAIL-ARMOR-STUDY",
+  "dock": null
+}

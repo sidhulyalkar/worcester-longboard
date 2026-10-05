@@ -324,6 +324,85 @@ td small { display: block; margin-top: 3px; color: rgba(240,245,255,.42); line-h
   gap: 10px;
   margin-top: 10px;
 }
+.swap-lab {
+  margin-top: 28px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.swap-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: flex-end;
+}
+.swap-actions button {
+  color: inherit;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.045);
+  border-radius: 9px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 9px;
+}
+.swap-grid {
+  display: grid;
+  grid-template-columns: minmax(310px, .9fr) minmax(0, 1.4fr);
+  gap: 12px;
+  align-items: start;
+}
+.swap-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.swap-control {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,.065);
+  border-radius: 11px;
+  background: rgba(255,255,255,.022);
+}
+.swap-control label {
+  font-size: 9px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.swap-control select {
+  font-size: 10px;
+}
+.swap-results {
+  display: grid;
+  gap: 9px;
+}
+#swap-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.swap-delta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+.swap-delta > div {
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.06);
+  background: var(--panel-2);
+}
+.swap-delta span {
+  display: block;
+  font-size: 8px;
+  color: var(--muted);
+}
+.swap-delta strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+}
+.swap-table-wrap { margin-top: 12px; }
 .detail-box {
   padding: 11px;
   border: 1px solid rgba(255,255,255,.065);
@@ -347,9 +426,12 @@ td small { display: block; margin-top: 3px; color: rgba(240,245,255,.42); line-h
   .intake-panel { position: static; max-height: none; }
   .requirements-grid { grid-template-columns: 1fr 1fr; }
   .candidate-detail { grid-template-columns: 1fr; }
+  .swap-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 520px) {
   .requirements-grid { grid-template-columns: 1fr; }
   .traits { grid-template-columns: 1fr; }
   .intake-actions { grid-template-columns: 1fr; }
+  .swap-controls,
+  .swap-delta { grid-template-columns: 1fr; }
 }

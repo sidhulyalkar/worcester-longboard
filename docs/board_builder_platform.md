@@ -79,9 +79,42 @@ Each generated candidate gets a BOM with component ID, category, manufacturer/SK
 
 `checkout_state` is independent of fit score: `SOURCE_LINKS` means browsing only, `HOLD_MEASURE` means unresolved measurement/study holds, and `BLOCKED` means a power gate or hard blocker is present. The current platform does not place orders.
 
+## Swap Lab
+
+The Board Builder now supports a component-level **Swap Lab** on top of every generated candidate.
+
+`configurator/swap_slots.v1.json` defines the editable slots and their allowed catalog-backed options. The current editable study dimensions are deck envelope, truck/axle topology, wheel/tire study, mechanical brake, drive, battery class, rider interface, trail armor, and passive dock.
+
+The baseline candidate is immutable. A swap creates a separate `non_authoritative_component_swap_study` and recalculates:
+
+- resolved component IDs and source-aware BOM;
+- known-price range and delta versus the generated baseline;
+- pairwise compatibility rules;
+- mission-required friction braking;
+- mission energy versus the selected battery class;
+- wheel-strategy mismatch;
+- procurement state;
+- blockers, unknowns, and measure-first findings.
+
+The Swap Lab deliberately supports bad combinations because showing *why* they fail is useful. For example, the current rules reject a V5 brake on the 420 mm drive-clearance reference, keep the 440 mm / 70 mm coexistence branch measure-first, and keep the T2 9-inch tire on standard Rockstar II geometry measure-first.
+
+Power selections remain `POWER_GATED`. A user can study them, but the editor cannot convert them into a purchasable or ride-authorized system.
+
+### Swap Lab CLI
+
+```bash
+python tools/evaluate_board_swap.py \
+  configurator/examples/trail_rider_profile.json \
+  configurator/examples/swap_incompatible_study.json \
+  --candidate x1_compact_electric_study \
+  --out /tmp/custom-board.json
+```
+
+The browser engine counterpart is `builder/swap_engine.mjs`. CI evaluates the same edit through Python and JavaScript and compares the outputs.
+
 ## Digital-twin handoff
 
-Candidate cards deep-link to `/showcase/?preset=<configuration-preset>&candidate=<architecture-id>`. The twin applies the matching visualization preset. This handoff does not add evidence to the build-authority graph.
+Candidate cards deep-link to the matching visualization preset and rider-profile stance center. Swap Lab studies additionally carry explicit deck, topology, and layer visibility overrides into the twin. URL overrides are visualization-only and do not add evidence to the build-authority graph.
 
 ## Deterministic engines
 

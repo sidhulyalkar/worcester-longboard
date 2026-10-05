@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "scope": "non_authoritative_component_swap_study",
+  "note": "Selections simulate a custom design. They do not alter repository authority or guarantee fit.",
+  "slots": [
+    {
+      "id": "deck",
+      "label": "Deck envelope",
+      "kind": "design_reference",
+      "required": true,
+      "options": [
+        {
+          "value": "comp95",
+          "label": "Comp 95 · 950 × 251 mm",
+          "component_id": "DECK-COMP95-REF",
+          "twin_deck_id": "comp95"
+        },
+        {
+          "value": "pro_warren_iii",
+          "label": "Pro Warren III · 980 × 244 mm",
+          "component_id": "DECK-PRO-WARREN-REF",
+          "twin_deck_id": "pro_warren_iii"
+        },
+        {
+          "value": "agent",
+          "label": "Agent · 1020 × 284 mm",
+          "component_id": "DECK-AGENT-REF",
+          "twin_deck_id": "agent"
+        }
+      ]
+    },
+    {
+      "id": "topology",
+      "label": "Truck / axle topology",
+      "kind": "design_reference",
+      "required": true,
+      "options": [
+        {
+          "value": "brake_first_400mm",
+          "label": "Brake-first 400 mm / 50 mm",
+          "component_id": "TRUCK-M3-400",
+          "twin_topology_id": "brake_first_400mm"
+        },
+        {
+          "value": "drive_clearance_420mm",
+          "label": "Drive-clearance 420 mm / 70 mm",
+          "component_id": "TRUCK-M3-420-REF",
+          "twin_topology_id": "drive_clearance_420mm"
+        },
+        {
+          "value": "brake_hanger_70mm_topology_study",
+          "label": "440 mm coexistence study",
+          "component_id": "TRUCK-M3-440-STUDY",
+          "twin_topology_id": "brake_hanger_70mm_topology_study"
+        }
+      ]
+    },
+    {
+      "id": "wheel",
+      "label": "Wheel / tire study",
+      "kind": "catalog_component",
+      "required": false,
+      "options": [
+        {
+          "value": null,
+          "label": "No wheel selected",
+          "component_id": null
+        },
+        {
+          "value": "TIRE-T1-8-REF",
+          "label": "T1 8-inch pneumatic reference",
+          "component_id": "TIRE-T1-8-REF"
+        },
+        {
+          "value": "TIRE-T2-9",
+          "label": "T2 9-inch rollover study",
+          "component_id": "TIRE-T2-9"
+        }
+      ]
+    },
+    {
+      "id": "brake",
+      "label": "Mechanical brake",
+      "kind": "catalog_component",
+      "required": false,
+      "options": [
+        {
+          "value": null,
+          "label": "No friction brake",
+          "component_id": null
+        },
+        {
+          "value": "BRAKE-V5",
+          "label": "MBS V5 reference",
+          "component_id": "BRAKE-V5"
+        }
+      ]
+    },
+    {
+      "id": "drive",
+      "label": "Drive",
+      "kind": "catalog_component",
+      "required": false,
+      "options": [
+        {
+          "value": null,
+          "label": "No drive",
+          "component_id": null
+        },
+        {
+          "value": "DRIVE-G1-DUAL",
+          "label": "MBS G1 dual gear-drive reference",
+          "component_id": "DRIVE-G1-DUAL"
+        }
+      ]
+    },
+    {
+      "id": "battery",
+      "label": "Battery class",
+      "kind": "catalog_component",
+      "required": false,
+      "options": [
+        {
+          "value": null,
+          "label": "No traction pack",
+          "component_id": null
+        },
+        {
+          "value": "BATTERY-TRAIL-CLASS",
+          "label": "500–650 Wh professional trail-pack class",
+          "component_id": "BATTERY-TRAIL-CLASS"
+        },
+        {
+          "value": "BATTERY-RANGE-CLASS",
+          "label": "950–1150 Wh professional range-pack class",
+          "component_id": "BATTERY-RANGE-CLASS"
+        }
+      ]
+    },
+    {
+      "id": "rider_interface",
+      "label": "Rider interface",
+      "kind": "catalog_component",
+      "required": false,
+      "options": [
+        {
+          "value": null,
+          "label": "No custom interface",
+          "component_id": null
+        },
+        {
+          "value": "SNOWDECK-V01-CUSTOM",
+          "label": "SnowDeck v0.1 study",
+          "component_id": "SNOWDECK-V01-CUSTOM"
+        }
+      ]
+    },
+    {
+      "id": "armor",
+      "label": "Trail armor",
+      "kind": "catalog_component",
+      "required": false,
+      "options": [
+        {
+          "value": null,
+          "label": "No armor study",
+          "component_id": null
+        },
+        {
+          "value": "TRAIL-ARMOR-STUDY",
+          "label": "Sacrificial trail-armor study",
+          "component_id": "TRAIL-ARMOR-STUDY"
+        }
+      ]
+    },
+    {
+      "id": "dock",
+      "label": "Passive dock",
+      "kind": "catalog_component",
+      "required": false,
+      "options": [
+        {
+          "value": null,
+          "label": "No dock study",
+          "component_id": null
+        },
+        {
+          "value": "PASSIVE-DOCK-STUDY",
+          "label": "Passive charge-cradle alignment study",
+          "component_id": "PASSIVE-DOCK-STUDY"
+        }
+      ]
+    }
+  ],
+  "automatic_support_components": {
+    "DRIVE-G1-DUAL": [
+      "MOTOR-6374-CLASS",
+      "ESC-DUAL-CLASS"
+    ]
+  },
+  "topology_support_components": {
+    "brake_hanger_70mm_topology_study": [
+      "AXLE-M3-70"
+    ]
+  },
+  "packaged_foundation_rules": [
+    {
+      "when": {
+        "deck": "comp95",
+        "topology": "brake_first_400mm",
+        "wheel": "TIRE-T1-8-REF"
+      },
+      "use": [
+        "DONOR-COMP95"
+      ],
+      "replace_design_reference_components": true
+    },
+    {
+      "when": {
+        "deck": "comp95",
+        "topology": "brake_hanger_70mm_topology_study",
+        "wheel": "TIRE-T1-8-REF"
+      },
+      "use": [
+        "DONOR-COMP95",
+        "AXLE-M3-70"
+      ],
+      "replace_design_reference_components": true
+    },
+    {
+      "when": {
+        "deck": "comp95",
+        "topology": "brake_first_400mm",
+        "wheel": "TIRE-T2-9"
+      },
+      "use": [
+        "DONOR-COMP95",
+        "TIRE-T2-9"
+      ],
+      "replace_design_reference_components": true
+    },
+    {
+      "when": {
+        "deck": "comp95",
+        "topology": "brake_hanger_70mm_topology_study",
+        "wheel": "TIRE-T2-9"
+      },
+      "use": [
+        "DONOR-COMP95",
+        "AXLE-M3-70",
+        "TIRE-T2-9"
+      ],
+      "replace_design_reference_components": true
+    }
+  ]
+}

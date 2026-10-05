@@ -86,6 +86,41 @@
       "b": "TIRE-T2-9",
       "state": "MEASURE_FIRST",
       "reason": "Current T2 9-inch listing names FiveStar, Tri-Spoke and Rockstar Pro II XL, not standard Rockstar II; do not assume a drop-in fit."
+    },
+    {
+      "id": "matrix420_v5",
+      "a": "TRUCK-M3-420-REF",
+      "b": "BRAKE-V5",
+      "state": "INCOMPATIBLE",
+      "reason": "The 420 mm Matrix III drive-clearance reference is explicitly not the MBS brake-compatible branch."
+    },
+    {
+      "id": "matrix440_v5",
+      "a": "TRUCK-M3-440-STUDY",
+      "b": "BRAKE-V5",
+      "state": "MEASURE_FIRST",
+      "reason": "The 300 mm hanger + 70 mm axle study preserves a plausible brake hanger but V5 alignment after the axle change is not established."
+    },
+    {
+      "id": "matrix420_g1",
+      "a": "TRUCK-M3-420-REF",
+      "b": "DRIVE-G1-DUAL",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "The 420 mm / 70 mm Matrix III reference is the drive-clearance branch used for G1 packaging studies."
+    },
+    {
+      "id": "matrix440_g1",
+      "a": "TRUCK-M3-440-STUDY",
+      "b": "DRIVE-G1-DUAL",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "The 300 mm hanger + 70 mm axle study retains the 70 mm drive-reference interface."
+    },
+    {
+      "id": "comp95_t2_9",
+      "a": "DONOR-COMP95",
+      "b": "TIRE-T2-9",
+      "state": "MEASURE_FIRST",
+      "reason": "The Comp 95 donor includes standard Rockstar II hubs, while the current T2 9-inch listing does not establish standard Rockstar II compatibility."
     }
   ]
 }

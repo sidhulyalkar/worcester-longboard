@@ -878,6 +878,14 @@ function configurationLabUI(manifest) {
   const requestedPresetId = params.get("preset");
   const requestedCandidateId = params.get("candidate");
   const requestedStanceMm = Number(params.get("stance_mm"));
+  const requestedDeckId = params.get("deck");
+  const requestedTopologyId = params.get("topology");
+  const requestedLayers = {};
+  for (const layerId of ["brake", "drive", "pack", "snowdeck", "armor", "dock"]) {
+    const raw = params.get(layerId);
+    if (raw === "1" || raw === "0") requestedLayers[layerId] = raw === "1";
+  }
+
   const initial =
     (lab.presets || []).find(row => row.id === requestedPresetId) ||
     (lab.presets || [])[0];
@@ -885,6 +893,25 @@ function configurationLabUI(manifest) {
   if (initial) {
     select.value = initial.id;
     applyConfigurationPreset(initial);
+
+    if (
+      requestedDeckId &&
+      (manifest.design_studies?.deck_candidates || []).some(row => row.id === requestedDeckId)
+    ) {
+      selectDeckCandidate(requestedDeckId);
+    }
+
+    if (
+      requestedTopologyId &&
+      (manifest.design_studies?.topology_branches || []).some(row => row.id === requestedTopologyId)
+    ) {
+      selectTopology(requestedTopologyId);
+    }
+
+    for (const [layerId, visible] of Object.entries(requestedLayers)) {
+      setLayerVisibility(layerId, visible);
+    }
+
     if (
       Number.isFinite(requestedStanceMm) &&
       requestedStanceMm >= 260 &&
@@ -892,22 +919,37 @@ function configurationLabUI(manifest) {
     ) {
       setSnowdeckControls({ stance_mm: requestedStanceMm });
     }
+
     if (requestedPresetId && initial.id === requestedPresetId) {
       const note = document.getElementById("preset-note");
       if (note) {
+        const custom = requestedCandidateId?.startsWith("custom:");
         const candidateSuffix = requestedCandidateId
-          ? " Loaded from Board Builder candidate " + requestedCandidateId + "."
+          ? " Loaded from Board Builder " +
+            (custom ? "Swap Lab study " : "candidate ") +
+            requestedCandidateId.replace(/^custom:/, "") + "."
           : " Loaded from Board Builder.";
+        const geometrySuffix =
+          requestedDeckId || requestedTopologyId || Object.keys(requestedLayers).length
+            ? " URL overrides are visualization-only design-study state."
+            : "";
         const stanceSuffix =
           Number.isFinite(requestedStanceMm) &&
           requestedStanceMm >= 260 &&
           requestedStanceMm <= 520
             ? " Rider-profile stance study center: " + requestedStanceMm + " mm."
             : "";
-        const suffix = candidateSuffix + stanceSuffix;
-        note.textContent = initial.description + suffix + " Visualization only; no authority is created.";
+        note.textContent =
+          initial.description +
+          candidateSuffix +
+          geometrySuffix +
+          stanceSuffix +
+          " Visualization only; no authority is created.";
       }
     }
+
+    refreshConfigurationUI();
+    scheduleReframe();
   } else {
     refreshConfigurationUI();
   }
