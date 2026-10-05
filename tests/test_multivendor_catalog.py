@@ -194,13 +194,12 @@ def test_cross_vendor_swap_defaults_to_unknown_instead_of_assuming_fit():
 
     assert result["readiness"] == "MEASURE_FIRST"
     assert any(
-        finding["state"] == "UNKNOWN"
-        and "APEX" not in finding["reason"].upper()
-        or finding["id"] == "apex_air_hs11_unknown"
+        finding["id"] == "apex_air_hs11_unknown"
+        and finding["state"] == "UNKNOWN"
         for finding in result["compatibility_findings"]
     )
     assert any(
-        finding["id"] == "apex_air_hs11_unknown"
+        finding["id"].startswith("default:deck:truck:")
         and finding["state"] == "UNKNOWN"
         for finding in result["compatibility_findings"]
     )
