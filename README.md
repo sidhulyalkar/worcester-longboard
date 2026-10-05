@@ -37,7 +37,13 @@ The Board Builder separates rider/mission requirements from available products, 
 Run the product surface from the repository root:
 
 ```bash
-python -m http.server 8000 --bind 127.0.0.1
+python tools/serve_board_platform.py
+```
+
+To regenerate the twin and serve everything in one command:
+
+```bash
+python tools/serve_board_platform.py --prepare-showcase --synthetic-snowdeck-demo
 ```
 
 Then open:
