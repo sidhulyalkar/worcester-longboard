@@ -707,6 +707,27 @@ function currentConfiguration() {
   const deck = currentDeckCandidate();
   const topology = currentTopology();
   const g = visual.geometry || {};
+  const wheelStudy = {
+    "TIRE-T1-8-REF": {
+      diameter_mm: g.wheel_diameter_mm ?? 194,
+      width_mm: g.wheel_width_mm ?? 51,
+      visible: true,
+    },
+    "TIRE-T2-9": {
+      diameter_mm: 219,
+      width_mm: 67,
+      visible: true,
+    },
+    "none": {
+      diameter_mm: 0,
+      width_mm: 0,
+      visible: false,
+    },
+  }[visual.wheelStudyId] || {
+    diameter_mm: g.wheel_diameter_mm ?? 194,
+    width_mm: g.wheel_width_mm ?? 51,
+    visible: true,
+  };
   return {
     deck_id: deck?.id || null,
     deck_label: deck?.label || "Unknown deck",
@@ -715,10 +736,13 @@ function currentConfiguration() {
     topology_id: topology?.id || null,
     topology_label: topology?.label || "Unknown topology",
     wheel_study_id: visual.wheelStudyId,
+    wheel_diameter_mm: wheelStudy.diameter_mm,
+    wheel_width_mm: wheelStudy.width_mm,
     truck_total_width_mm: topology?.truck_total_width_mm ?? g.truck_total_width_mm ?? null,
-    outer_wheel_width_mm: topology && g.wheel_width_mm
-      ? topology.wheel_center_lateral_mm * 2 + g.wheel_width_mm
-      : g.estimated_outer_wheel_envelope_width_mm ?? null,
+    outer_wheel_width_mm:
+      topology && wheelStudy.visible
+        ? topology.wheel_center_lateral_mm * 2 + wheelStudy.width_mm
+        : null,
     static_clearance_mm: g.static_ground_clearance_mm ?? null,
     compressed_clearance_mm: g.minimum_compressed_clearance_mm ?? null,
     pack_visual_bottom_gap_mm: visual.packEnvelope?.visual_bottom_gap_mm ?? null,
@@ -795,8 +819,13 @@ function comparisonRows(a, b) {
   return [
     ["Deck envelope", a.deck_length_mm + "×" + a.deck_width_mm + " mm", b.deck_length_mm + "×" + b.deck_width_mm + " mm"],
     ["Truck width", a.truck_total_width_mm + " mm", b.truck_total_width_mm + " mm"],
-    ["Outer wheel width", Math.round(a.outer_wheel_width_mm) + " mm", Math.round(b.outer_wheel_width_mm) + " mm"],
+    [
+      "Outer wheel width",
+      a.outer_wheel_width_mm === null ? "no wheels" : Math.round(a.outer_wheel_width_mm) + " mm",
+      b.outer_wheel_width_mm === null ? "no wheels" : Math.round(b.outer_wheel_width_mm) + " mm",
+    ],
     ["Wheel study", a.wheel_study_id || "TIRE-T1-8-REF", b.wheel_study_id || "TIRE-T1-8-REF"],
+    ["Wheel diameter", a.wheel_diameter_mm + " mm", b.wheel_diameter_mm + " mm"],
     ["Static clearance ref", a.static_clearance_mm + " mm", b.static_clearance_mm + " mm"],
     ["Compressed clearance ref", a.compressed_clearance_mm + " mm", b.compressed_clearance_mm + " mm"],
     ["Pack visual bottom gap", a.layers.pack ? a.pack_visual_bottom_gap_mm.toFixed(0) + " mm" : "hidden", b.layers.pack ? b.pack_visual_bottom_gap_mm.toFixed(0) + " mm" : "hidden"],
