@@ -1,0 +1,290 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://worcester-x1.local/schemas/rider_mission_profile.schema.json",
+  "title": "Worcester Board Builder rider + mission profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "height_in",
+    "weight_lb",
+    "stance",
+    "board_experience",
+    "electric_propulsion",
+    "typical_miles",
+    "longest_miles",
+    "speed_ceiling_mph",
+    "hill_profile",
+    "wet_exposure",
+    "snowboard_feel",
+    "stability_preference",
+    "budget_usd",
+    "hard_budget_usd"
+  ],
+  "properties": {
+    "height_in": {
+      "type": "number",
+      "minimum": 48,
+      "maximum": 84
+    },
+    "weight_lb": {
+      "type": "number",
+      "minimum": 70,
+      "maximum": 350
+    },
+    "cargo_lb": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 60,
+      "default": 0
+    },
+    "stance": {
+      "enum": [
+        "regular",
+        "goofy",
+        "unknown"
+      ]
+    },
+    "shoe_left_us": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 2,
+      "maximum": 16
+    },
+    "shoe_right_us": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 2,
+      "maximum": 16
+    },
+    "stance_width_mm": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 260,
+      "maximum": 520
+    },
+    "fit_notes": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "board_experience": {
+      "enum": [
+        "none",
+        "beginner",
+        "intermediate",
+        "advanced",
+        "expert"
+      ]
+    },
+    "snowboard_experience": {
+      "enum": [
+        "none",
+        "beginner",
+        "intermediate",
+        "advanced",
+        "expert"
+      ]
+    },
+    "speed_comfort": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "electric_propulsion": {
+      "enum": [
+        "yes",
+        "eventually",
+        "no"
+      ]
+    },
+    "typical_miles": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 80
+    },
+    "longest_miles": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 120
+    },
+    "cruise_mph": {
+      "type": "number",
+      "minimum": 5,
+      "maximum": 30
+    },
+    "speed_ceiling_mph": {
+      "type": "number",
+      "minimum": 8,
+      "maximum": 35
+    },
+    "recharge_hours": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 1,
+      "maximum": 12
+    },
+    "stop_start": {
+      "type": "boolean"
+    },
+    "terrain_pavement": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "terrain_packed_dirt": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "terrain_loose_gravel": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "terrain_roots_rocks": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "terrain_grass_brush": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "hill_profile": {
+      "enum": [
+        "flat",
+        "rolling",
+        "steep",
+        "long_descents"
+      ]
+    },
+    "wet_exposure": {
+      "enum": [
+        "never",
+        "occasional",
+        "frequent"
+      ]
+    },
+    "jumps_drops": {
+      "enum": [
+        "none",
+        "small",
+        "moderate",
+        "aggressive"
+      ]
+    },
+    "snowboard_feel": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "stability_preference": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "compliance_preference": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "maneuverability_preference": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "budget_usd": {
+      "type": "number",
+      "minimum": 400,
+      "maximum": 5000
+    },
+    "hard_budget_usd": {
+      "type": "number",
+      "minimum": 400,
+      "maximum": 7000
+    },
+    "max_board_weight_lb": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 15,
+      "maximum": 60
+    },
+    "portability_need": {
+      "enum": [
+        "low",
+        "moderate",
+        "high"
+      ]
+    },
+    "maintenance_tolerance": {
+      "enum": [
+        "low",
+        "moderate",
+        "high"
+      ]
+    },
+    "noise_priority": {
+      "type": "boolean"
+    },
+    "fabrication_access": {
+      "enum": [
+        "none",
+        "basic",
+        "printer",
+        "advanced"
+      ]
+    },
+    "electronics_skill": {
+      "enum": [
+        "none",
+        "basic",
+        "advanced"
+      ]
+    },
+    "priority_range": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "priority_carve": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "priority_stability": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "priority_durability": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "priority_portability": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "priority_cost": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "priority_low_maintenance": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    }
+  }
+}
