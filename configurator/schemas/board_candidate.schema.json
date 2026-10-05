@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://worcester-x1.local/schemas/board_candidate.schema.json",
+  "title": "Generated board candidate",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "id",
+    "label",
+    "fit_score",
+    "readiness",
+    "architecture_id",
+    "bom",
+    "explanations",
+    "blockers",
+    "unknowns",
+    "personalized_spec",
+    "preference_fit"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "label": {
+      "type": "string"
+    },
+    "fit_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "readiness": {
+      "enum": [
+        "REFERENCE_COMPATIBLE",
+        "MEASURE_FIRST",
+        "BLOCKED",
+        "INCOMPATIBLE"
+      ]
+    },
+    "architecture_id": {
+      "type": "string"
+    },
+    "bom": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "explanations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unknowns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "visual_preset": {
+      "type": "string"
+    },
+    "preference_fit": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      }
+    },
+    "personalized_spec": {
+      "type": "object",
+      "required": [
+        "target_range_mi",
+        "planning_installed_energy_wh",
+        "selected_energy_class",
+        "wheel_strategy",
+        "stance_center_mm",
+        "stance_range_mm",
+        "independent_friction_brake_required"
+      ],
+      "properties": {
+        "target_range_mi": {
+          "type": "number"
+        },
+        "planning_installed_energy_wh": {
+          "type": "number"
+        },
+        "selected_energy_class": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "wheel_strategy": {
+          "type": "string"
+        },
+        "stance_center_mm": {
+          "type": "number"
+        },
+        "stance_range_mm": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "independent_friction_brake_required": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

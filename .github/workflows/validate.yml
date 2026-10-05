@@ -26,12 +26,29 @@ jobs:
           bash -n tools/bootstrap_dev_env.sh
           bash -n tools/validate_local_dev.sh
       - name: Compile Python sources
-        run: python -m compileall -q tools cad fit simulation
-      - name: Parse digital-twin browser module
+        run: python -m compileall -q tools cad fit simulation configurator
+      - name: Parse browser modules
         run: |
           cp showcase/app.js /tmp/x1-showcase-app.mjs
+          cp builder/app.js /tmp/x1-builder-app.mjs
           node --check /tmp/x1-showcase-app.mjs
+          node --check /tmp/x1-builder-app.mjs
+          node --check builder/engine.mjs
+          node --check tools/generate_board_candidates.mjs
+      - name: Test browser Board Builder engine
+        run: node --test tests/js/test_board_builder_engine.mjs
       - run: python -m pytest -q tests
+      - name: Validate Board Builder catalog and authority boundary
+        run: python tools/validate_board_builder.py
+      - name: Cross-check Python and browser Board Builder engines
+        run: |
+          env -u PYTHONPATH python tools/derive_board_requirements.py             configurator/examples/trail_rider_profile.json             --out /tmp/board-requirements.json
+          env -u PYTHONPATH python tools/generate_board_candidates.py             configurator/examples/trail_rider_profile.json             --out /tmp/board-python.json
+          node tools/generate_board_candidates.mjs             configurator/examples/trail_rider_profile.json             > /tmp/board-browser.json
+          python tools/compare_board_builder_engines.py             /tmp/board-python.json             /tmp/board-browser.json
+          env -u PYTHONPATH python tools/render_board_bom.py             configurator/examples/trail_rider_profile.json             --candidate x1_compact_electric_study             --out /tmp/board-bom.md
+          grep -q "Source links are not checkout authorization" /tmp/board-bom.md
+          grep -q "POWER_GATED" /tmp/board-bom.md
       - name: Smoke-test local showcase without PYTHONPATH
         run: env -u PYTHONPATH python tools/prepare_x1_showcase.py --synthetic-snowdeck-demo
       - name: Validate staged procurement authority

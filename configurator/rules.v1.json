@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "model_class": "PLANNING_ESTIMATE",
+  "note": "All range/energy/stance outputs are planning estimates used to compare architectures. They do not size or qualify a live battery, brake, structure, or rider interface.",
+  "unit_conversions": {
+    "lb_to_kg": 0.45359237,
+    "in_to_mm": 25.4
+  },
+  "stance": {
+    "height_ratio": 0.23,
+    "min_center_mm": 300,
+    "max_center_mm": 470,
+    "default_half_span_mm": 45
+  },
+  "energy": {
+    "base_wh_per_mile": 18,
+    "reference_loaded_mass_lb": 175,
+    "mass_exponent": 0.65,
+    "terrain_multipliers": {
+      "pavement": 1,
+      "packed_dirt": 1.08,
+      "loose_gravel": 1.18,
+      "roots_rocks": 1.28,
+      "grass_brush": 1.24
+    },
+    "hill_multipliers": {
+      "flat": 1,
+      "rolling": 1.1,
+      "steep": 1.24,
+      "long_descents": 1.18
+    },
+    "stop_start_multiplier": 1.06,
+    "reserve_fraction_base": 0.2,
+    "reserve_fraction_rough_bonus": 0.05,
+    "reserve_fraction_wet_bonus": 0.04,
+    "reserve_fraction_steep_bonus": 0.05,
+    "reserve_fraction_max": 0.35,
+    "target_range_typical_multiplier": 1.35
+  },
+  "wheel_strategy": {
+    "rollover_rough_fraction_threshold": 0.45,
+    "rollover_roots_fraction_threshold": 0.15,
+    "pavement_efficiency_fraction_threshold": 0.78,
+    "eight_inch_reference_diameter_mm": 194,
+    "nine_inch_reference_diameter_mm": 219
+  },
+  "brake": {
+    "powered_speed_threshold_mph": 15,
+    "require_for_nonflat_powered": true,
+    "require_for_long_descents_even_unpowered": true
+  },
+  "deck": {
+    "compact_height_in_max": 64,
+    "long_height_in_min": 72,
+    "long_stability_threshold": 80,
+    "compact_requires_high_portability": true
+  },
+  "readiness_order": [
+    "REFERENCE_COMPATIBLE",
+    "MEASURE_FIRST",
+    "BLOCKED",
+    "INCOMPATIBLE"
+  ],
+  "procurement_order": [
+    "SOURCE_ONLY",
+    "HOLD_MEASURE",
+    "POWER_GATED",
+    "STUDY_ONLY"
+  ],
+  "hard_rules": [
+    "A powered candidate requiring independent friction braking cannot be checkout-ready without a documented friction-brake path.",
+    "A configurator recommendation cannot unlock X1 project procurement, fabrication, charging, or powered-operation authority.",
+    "Unknown interface geometry propagates MEASURE_FIRST rather than being treated as compatible.",
+    "Power-planning placeholders never become purchase links solely from rider questionnaire answers."
+  ]
+}

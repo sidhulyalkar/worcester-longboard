@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "builds": [
+    {
+      "id": "worcester_x1_0001",
+      "label": "Worcester X1 reference build #0001",
+      "architecture_id": "x1_compact_electric_study",
+      "status": "EVIDENCE_GATED_REFERENCE",
+      "description": "Project reference configuration used to bootstrap the generic builder. It remains subject to the repository's existing Issue #25 and downstream authority gates.",
+      "authority_source": "tools/evaluate_build_authority.py",
+      "generic_builder_may_promote_authority": false
+    }
+  ]
+}

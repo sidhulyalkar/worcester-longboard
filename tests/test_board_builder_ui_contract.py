@@ -1,0 +1,53 @@
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+HTML = (ROOT / "builder" / "index.html").read_text()
+APP = (ROOT / "builder" / "app.js").read_text()
+TWIN = (ROOT / "showcase" / "app.js").read_text()
+
+
+def test_builder_exposes_progressive_intake_trade_space_and_bom():
+    assert 'id="questionnaire"' in HTML
+    assert 'id="detail-mode"' in HTML
+    assert 'id="requirements"' in HTML
+    assert 'id="candidates"' in HTML
+    assert 'id="bom-body"' in HTML
+    assert "No automatic winner" in HTML
+
+
+def test_builder_keeps_profile_local_until_explicit_export():
+    assert "localStorage" in APP
+    assert 'id="export-profile"' in HTML
+    assert "Profile answers stay in this browser unless you explicitly export them." in HTML
+    assert "fetch(" not in APP.split("async function loadBundle()", 1)[1].split("function restoreProfile", 1)[0].replace("fetchJson", "")
+
+
+def test_vendor_links_are_source_links_not_generic_buy_buttons():
+    assert "Vendor source" in APP
+    assert "source_as_of" in APP
+    assert "hold_reason" in APP
+    assert "POWER_GATED" in APP
+    assert ">Buy<" not in HTML
+
+
+def test_builder_candidate_deep_links_personalized_stance_into_twin():
+    assert 'function twinUrl(candidate)' in APP
+    assert 'params.set("stance_mm"' in APP
+    assert 'new URLSearchParams(window.location.search)' in TWIN
+    assert 'params.get("preset")' in TWIN
+    assert 'params.get("candidate")' in TWIN
+    assert 'params.get("stance_mm")' in TWIN
+    assert 'setSnowdeckControls({ stance_mm: requestedStanceMm })' in TWIN
+
+
+def test_builder_never_renders_authority_as_checkout_permission():
+    assert "Planning tool, not a build permit." in HTML
+    assert "cannot qualify structure" in HTML
+    assert "generic_builder_may_promote_x1_authority: false" in (ROOT / "builder" / "engine.mjs").read_text()
+
+
+def test_builder_can_export_selected_design_with_authority_boundary():
+    assert 'id="export-design"' in HTML
+    assert "function exportSelectedDesign()" in APP
+    assert "selected_for_inspection" in APP
+    assert "winner_selected: false" in APP

@@ -1,0 +1,724 @@
+{
+  "schema_version": 1,
+  "product": "Worcester Board Builder",
+  "note": "Questionnaire definitions only. Unknown values remain explicit and are not physical authority.",
+  "sections": [
+    {
+      "id": "rider",
+      "label": "Rider",
+      "summary": "Your body sets the starting ergonomic and load envelope.",
+      "fields": [
+        {
+          "id": "height_in",
+          "label": "Height",
+          "type": "number",
+          "required": true,
+          "quick": true,
+          "min": 48,
+          "max": 84,
+          "step": 1,
+          "unit": "in",
+          "default": 68,
+          "help": "Used only to seed an adjustable stance study range."
+        },
+        {
+          "id": "weight_lb",
+          "label": "Body weight",
+          "type": "number",
+          "required": true,
+          "quick": true,
+          "min": 70,
+          "max": 350,
+          "step": 1,
+          "unit": "lb",
+          "default": 170,
+          "help": "Combined with carried load for planning mass."
+        },
+        {
+          "id": "cargo_lb",
+          "label": "Typical backpack / carried load",
+          "type": "number",
+          "required": false,
+          "quick": false,
+          "min": 0,
+          "max": 60,
+          "step": 1,
+          "unit": "lb",
+          "default": 5
+        },
+        {
+          "id": "stance",
+          "label": "Stance",
+          "type": "select",
+          "required": true,
+          "quick": true,
+          "default": "unknown",
+          "options": [
+            [
+              "regular",
+              "Regular"
+            ],
+            [
+              "goofy",
+              "Goofy"
+            ],
+            [
+              "unknown",
+              "Not sure / either"
+            ]
+          ]
+        },
+        {
+          "id": "shoe_left_us",
+          "label": "Left shoe size",
+          "type": "number",
+          "required": false,
+          "quick": false,
+          "min": 2,
+          "max": 16,
+          "step": 0.5,
+          "unit": "US",
+          "default": null
+        },
+        {
+          "id": "shoe_right_us",
+          "label": "Right shoe size",
+          "type": "number",
+          "required": false,
+          "quick": false,
+          "min": 2,
+          "max": 16,
+          "step": 0.5,
+          "unit": "US",
+          "default": null
+        },
+        {
+          "id": "stance_width_mm",
+          "label": "Known comfortable stance width",
+          "type": "number",
+          "required": false,
+          "quick": false,
+          "min": 260,
+          "max": 520,
+          "step": 5,
+          "unit": "mm",
+          "default": null,
+          "help": "Leave blank if unknown; the builder will create an adjustable study range."
+        },
+        {
+          "id": "fit_notes",
+          "label": "Fit / mobility notes",
+          "type": "text",
+          "required": false,
+          "quick": false,
+          "default": "",
+          "help": "Optional free text. Kept local in the browser unless you explicitly export the profile."
+        }
+      ]
+    },
+    {
+      "id": "experience",
+      "label": "Experience",
+      "summary": "Experience changes how strongly we weight stability, responsiveness and speed margin.",
+      "fields": [
+        {
+          "id": "board_experience",
+          "label": "Skate / longboard experience",
+          "type": "select",
+          "required": true,
+          "quick": true,
+          "default": "intermediate",
+          "options": [
+            [
+              "none",
+              "None"
+            ],
+            [
+              "beginner",
+              "Beginner"
+            ],
+            [
+              "intermediate",
+              "Intermediate"
+            ],
+            [
+              "advanced",
+              "Advanced"
+            ],
+            [
+              "expert",
+              "Expert"
+            ]
+          ]
+        },
+        {
+          "id": "snowboard_experience",
+          "label": "Snowboard experience",
+          "type": "select",
+          "required": true,
+          "quick": false,
+          "default": "intermediate",
+          "options": [
+            [
+              "none",
+              "None"
+            ],
+            [
+              "beginner",
+              "Beginner"
+            ],
+            [
+              "intermediate",
+              "Intermediate"
+            ],
+            [
+              "advanced",
+              "Advanced"
+            ],
+            [
+              "expert",
+              "Expert"
+            ]
+          ]
+        },
+        {
+          "id": "speed_comfort",
+          "label": "Comfort with speed",
+          "type": "range",
+          "required": true,
+          "quick": false,
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 45,
+          "left_label": "Conservative",
+          "right_label": "Very comfortable"
+        }
+      ]
+    },
+    {
+      "id": "mission",
+      "label": "Mission",
+      "summary": "How far, how fast, and how often you expect to ride.",
+      "fields": [
+        {
+          "id": "electric_propulsion",
+          "label": "Electric propulsion",
+          "type": "select",
+          "required": true,
+          "quick": true,
+          "default": "yes",
+          "options": [
+            [
+              "yes",
+              "Yes"
+            ],
+            [
+              "eventually",
+              "Eventually / design for it"
+            ],
+            [
+              "no",
+              "No, unpowered board"
+            ]
+          ]
+        },
+        {
+          "id": "typical_miles",
+          "label": "Typical ride",
+          "type": "number",
+          "required": true,
+          "quick": true,
+          "min": 1,
+          "max": 80,
+          "step": 1,
+          "unit": "mi",
+          "default": 10
+        },
+        {
+          "id": "longest_miles",
+          "label": "Longest desired ride",
+          "type": "number",
+          "required": true,
+          "quick": true,
+          "min": 1,
+          "max": 120,
+          "step": 1,
+          "unit": "mi",
+          "default": 18
+        },
+        {
+          "id": "cruise_mph",
+          "label": "Preferred cruise",
+          "type": "number",
+          "required": true,
+          "quick": false,
+          "min": 5,
+          "max": 30,
+          "step": 1,
+          "unit": "mph",
+          "default": 14
+        },
+        {
+          "id": "speed_ceiling_mph",
+          "label": "Desired speed ceiling",
+          "type": "number",
+          "required": true,
+          "quick": true,
+          "min": 8,
+          "max": 35,
+          "step": 1,
+          "unit": "mph",
+          "default": 20
+        },
+        {
+          "id": "recharge_hours",
+          "label": "Desired recharge time",
+          "type": "number",
+          "required": false,
+          "quick": false,
+          "min": 1,
+          "max": 12,
+          "step": 0.5,
+          "unit": "h",
+          "default": 5
+        },
+        {
+          "id": "stop_start",
+          "label": "Frequent stop / start riding",
+          "type": "boolean",
+          "required": false,
+          "quick": false,
+          "default": false
+        }
+      ]
+    },
+    {
+      "id": "terrain",
+      "label": "Terrain",
+      "summary": "Terrain drives wheel, clearance, braking, ingress and durability requirements.",
+      "fields": [
+        {
+          "id": "terrain_pavement",
+          "label": "Pavement",
+          "type": "range",
+          "required": true,
+          "quick": false,
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 20,
+          "unit": "%"
+        },
+        {
+          "id": "terrain_packed_dirt",
+          "label": "Packed dirt",
+          "type": "range",
+          "required": true,
+          "quick": true,
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 35,
+          "unit": "%"
+        },
+        {
+          "id": "terrain_loose_gravel",
+          "label": "Loose gravel",
+          "type": "range",
+          "required": true,
+          "quick": true,
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 25,
+          "unit": "%"
+        },
+        {
+          "id": "terrain_roots_rocks",
+          "label": "Roots / rocks",
+          "type": "range",
+          "required": true,
+          "quick": true,
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 15,
+          "unit": "%"
+        },
+        {
+          "id": "terrain_grass_brush",
+          "label": "Grass / brush",
+          "type": "range",
+          "required": true,
+          "quick": false,
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 5,
+          "unit": "%"
+        },
+        {
+          "id": "hill_profile",
+          "label": "Hills",
+          "type": "select",
+          "required": true,
+          "quick": true,
+          "default": "rolling",
+          "options": [
+            [
+              "flat",
+              "Mostly flat"
+            ],
+            [
+              "rolling",
+              "Rolling / moderate"
+            ],
+            [
+              "steep",
+              "Frequent steep grades"
+            ],
+            [
+              "long_descents",
+              "Long sustained descents"
+            ]
+          ]
+        },
+        {
+          "id": "wet_exposure",
+          "label": "Wet / splash exposure",
+          "type": "select",
+          "required": true,
+          "quick": false,
+          "default": "occasional",
+          "options": [
+            [
+              "never",
+              "Dry only"
+            ],
+            [
+              "occasional",
+              "Occasional splash / damp trail"
+            ],
+            [
+              "frequent",
+              "Frequent wet / muddy conditions"
+            ]
+          ]
+        },
+        {
+          "id": "jumps_drops",
+          "label": "Jumps / drops",
+          "type": "select",
+          "required": true,
+          "quick": false,
+          "default": "small",
+          "options": [
+            [
+              "none",
+              "None"
+            ],
+            [
+              "small",
+              "Small trail hops"
+            ],
+            [
+              "moderate",
+              "Moderate jumps / drops"
+            ],
+            [
+              "aggressive",
+              "Aggressive airtime"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "feel",
+      "label": "Ride feel",
+      "summary": "Tell the solver what kind of machine you actually want to ride.",
+      "fields": [
+        {
+          "id": "snowboard_feel",
+          "label": "Snowboard-like carve feel",
+          "type": "range",
+          "required": true,
+          "quick": true,
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 80,
+          "left_label": "Skate-like",
+          "right_label": "Snowboard-like"
+        },
+        {
+          "id": "stability_preference",
+          "label": "Stability",
+          "type": "range",
+          "required": true,
+          "quick": true,
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 70,
+          "left_label": "Playful",
+          "right_label": "Locked-in"
+        },
+        {
+          "id": "compliance_preference",
+          "label": "Ride compliance",
+          "type": "range",
+          "required": true,
+          "quick": false,
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 70,
+          "left_label": "Direct",
+          "right_label": "Plush"
+        },
+        {
+          "id": "maneuverability_preference",
+          "label": "Low-speed maneuverability",
+          "type": "range",
+          "required": true,
+          "quick": false,
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 65,
+          "left_label": "Long tracking",
+          "right_label": "Tight turning"
+        }
+      ]
+    },
+    {
+      "id": "constraints",
+      "label": "Constraints",
+      "summary": "Budget, portability and maintenance determine which attractive designs are actually useful.",
+      "fields": [
+        {
+          "id": "budget_usd",
+          "label": "Target parts budget",
+          "type": "number",
+          "required": true,
+          "quick": true,
+          "min": 400,
+          "max": 5000,
+          "step": 50,
+          "unit": "USD",
+          "default": 1600
+        },
+        {
+          "id": "hard_budget_usd",
+          "label": "Absolute maximum budget",
+          "type": "number",
+          "required": true,
+          "quick": false,
+          "min": 400,
+          "max": 7000,
+          "step": 50,
+          "unit": "USD",
+          "default": 2200
+        },
+        {
+          "id": "max_board_weight_lb",
+          "label": "Maximum acceptable board weight",
+          "type": "number",
+          "required": false,
+          "quick": false,
+          "min": 15,
+          "max": 60,
+          "step": 1,
+          "unit": "lb",
+          "default": 34
+        },
+        {
+          "id": "portability_need",
+          "label": "Portability",
+          "type": "select",
+          "required": true,
+          "quick": false,
+          "default": "moderate",
+          "options": [
+            [
+              "low",
+              "Rarely carried"
+            ],
+            [
+              "moderate",
+              "Carry into car / short stairs"
+            ],
+            [
+              "high",
+              "Frequent carrying"
+            ]
+          ]
+        },
+        {
+          "id": "maintenance_tolerance",
+          "label": "Maintenance tolerance",
+          "type": "select",
+          "required": true,
+          "quick": false,
+          "default": "moderate",
+          "options": [
+            [
+              "low",
+              "Low maintenance"
+            ],
+            [
+              "moderate",
+              "Routine inspection is fine"
+            ],
+            [
+              "high",
+              "Happy to tune / service often"
+            ]
+          ]
+        },
+        {
+          "id": "noise_priority",
+          "label": "Quiet operation important",
+          "type": "boolean",
+          "required": false,
+          "quick": false,
+          "default": false
+        },
+        {
+          "id": "fabrication_access",
+          "label": "Fabrication access",
+          "type": "select",
+          "required": true,
+          "quick": false,
+          "default": "basic",
+          "options": [
+            [
+              "none",
+              "Hand tools only"
+            ],
+            [
+              "basic",
+              "Drill / saw / common shop tools"
+            ],
+            [
+              "printer",
+              "3D printer + common tools"
+            ],
+            [
+              "advanced",
+              "CNC / machine-shop access"
+            ]
+          ]
+        },
+        {
+          "id": "electronics_skill",
+          "label": "Electronics assembly comfort",
+          "type": "select",
+          "required": true,
+          "quick": false,
+          "default": "basic",
+          "options": [
+            [
+              "none",
+              "Prefer plug-and-play"
+            ],
+            [
+              "basic",
+              "Basic wiring / connectors"
+            ],
+            [
+              "advanced",
+              "Comfortable with embedded electronics"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "priorities",
+      "label": "Priorities",
+      "summary": "These weights shape the trade-space. They never override hard compatibility failures.",
+      "fields": [
+        {
+          "id": "priority_range",
+          "label": "Range",
+          "type": "range",
+          "required": true,
+          "quick": false,
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 70
+        },
+        {
+          "id": "priority_carve",
+          "label": "Carve feel",
+          "type": "range",
+          "required": true,
+          "quick": true,
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 90
+        },
+        {
+          "id": "priority_stability",
+          "label": "Stability",
+          "type": "range",
+          "required": true,
+          "quick": false,
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 70
+        },
+        {
+          "id": "priority_durability",
+          "label": "Durability",
+          "type": "range",
+          "required": true,
+          "quick": true,
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 85
+        },
+        {
+          "id": "priority_portability",
+          "label": "Portability",
+          "type": "range",
+          "required": true,
+          "quick": false,
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 45
+        },
+        {
+          "id": "priority_cost",
+          "label": "Cost",
+          "type": "range",
+          "required": true,
+          "quick": false,
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 55
+        },
+        {
+          "id": "priority_low_maintenance",
+          "label": "Low maintenance",
+          "type": "range",
+          "required": true,
+          "quick": false,
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 55
+        }
+      ]
+    }
+  ]
+}

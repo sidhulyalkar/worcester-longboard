@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://worcester-x1.local/schemas/board_requirements.schema.json",
+  "title": "Derived BoardRequirements",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "model_class",
+    "loaded_rider_mass_kg",
+    "target_range_mi",
+    "energy_reserve_fraction",
+    "planning_energy_wh_per_mi",
+    "planning_installed_energy_wh",
+    "wheel_strategy",
+    "independent_friction_brake_required",
+    "stance_study",
+    "deck_envelope_preference",
+    "electric_intent",
+    "budget",
+    "priorities",
+    "assumptions",
+    "warnings"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "model_class": {
+      "const": "PLANNING_ESTIMATE"
+    },
+    "loaded_rider_mass_kg": {
+      "type": "number"
+    },
+    "target_range_mi": {
+      "type": "number"
+    },
+    "energy_reserve_fraction": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 0.5
+    },
+    "planning_energy_wh_per_mi": {
+      "type": "number"
+    },
+    "planning_installed_energy_wh": {
+      "type": "number"
+    },
+    "terrain_normalized": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      }
+    },
+    "rough_terrain_fraction": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "wheel_strategy": {
+      "enum": [
+        "eight_inch_pneumatic_reference",
+        "nine_inch_rollover_study",
+        "pavement_efficiency_study"
+      ]
+    },
+    "independent_friction_brake_required": {
+      "type": "boolean"
+    },
+    "stance_study": {
+      "type": "object",
+      "required": [
+        "center_mm",
+        "min_mm",
+        "max_mm",
+        "source"
+      ],
+      "properties": {
+        "center_mm": {
+          "type": "number"
+        },
+        "min_mm": {
+          "type": "number"
+        },
+        "max_mm": {
+          "type": "number"
+        },
+        "source": {
+          "enum": [
+            "user",
+            "height_seed"
+          ]
+        }
+      }
+    },
+    "deck_envelope_preference": {
+      "enum": [
+        "compact",
+        "balanced",
+        "long_stable"
+      ]
+    },
+    "ingress_priority": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "electric_intent": {
+      "enum": [
+        "yes",
+        "eventually",
+        "no"
+      ]
+    },
+    "budget": {
+      "type": "object",
+      "required": [
+        "target_usd",
+        "hard_max_usd"
+      ],
+      "properties": {
+        "target_usd": {
+          "type": "number"
+        },
+        "hard_max_usd": {
+          "type": "number"
+        }
+      }
+    },
+    "priorities": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

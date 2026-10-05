@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "note": "Architecture templates are design hypotheses, not released builds.",
+  "architectures": [
+    {
+      "id": "brake_first_trail_core",
+      "label": "Brake-first Trail Core",
+      "short_label": "Trail Core",
+      "description": "Compact donor-first trail architecture prioritizing independent braking, carve feel, durability and serviceability. Electric propulsion is intentionally deferred until a compatible drive path exists.",
+      "visual_preset": "brake_first_trail",
+      "deck_candidate_id": "comp95",
+      "topology_id": "brake_first_400mm",
+      "traits": {
+        "range": 0.4,
+        "carve": 0.9,
+        "stability": 0.76,
+        "durability": 0.88,
+        "portability": 0.78,
+        "cost": 0.78,
+        "low_maintenance": 0.82,
+        "rough_terrain": 0.78
+      },
+      "capabilities": {
+        "friction_brake_path": "REFERENCE_COMPATIBLE",
+        "drive_path": "NOT_PRESENT",
+        "electric_complete": false,
+        "wheel_class": "8in_pneumatic",
+        "snowdeck": true
+      },
+      "bom": [
+        "DONOR-COMP95",
+        "BRAKE-V5",
+        "SNOWDECK-V01-CUSTOM",
+        "TRAIL-ARMOR-STUDY"
+      ],
+      "known_unknowns": [
+        "Actual received chassis geometry",
+        "Physical V5 interface/stopping performance",
+        "Rider-specific SnowDeck geometry"
+      ],
+      "hard_blockers": []
+    },
+    {
+      "id": "x1_compact_electric_study",
+      "label": "Compact Electric Coexistence Study",
+      "short_label": "X1 Electric Study",
+      "description": "Comp-class deck with 300 mm hanger + 70 mm axle study geometry, preserving the V5 brake question while exposing the G1 drive path. High mission fit for trail electric use, but brake/drive coexistence must be physically resolved.",
+      "visual_preset": "coexistence_question",
+      "deck_candidate_id": "comp95",
+      "topology_id": "brake_hanger_70mm_topology_study",
+      "traits": {
+        "range": 0.76,
+        "carve": 0.84,
+        "stability": 0.82,
+        "durability": 0.68,
+        "portability": 0.62,
+        "cost": 0.5,
+        "low_maintenance": 0.48,
+        "rough_terrain": 0.84
+      },
+      "capabilities": {
+        "friction_brake_path": "MEASURE_FIRST",
+        "drive_path": "REFERENCE_COMPATIBLE",
+        "electric_complete": false,
+        "wheel_class": "8in_pneumatic",
+        "snowdeck": true
+      },
+      "bom": [
+        "DONOR-COMP95",
+        "AXLE-M3-70",
+        "BRAKE-V5",
+        "DRIVE-G1-DUAL",
+        "MOTOR-6374-CLASS",
+        "ESC-DUAL-CLASS",
+        "BATTERY-TRAIL-CLASS",
+        "SNOWDECK-V01-CUSTOM",
+        "TRAIL-ARMOR-STUDY"
+      ],
+      "known_unknowns": [
+        "V5 alignment after 70 mm axle swap",
+        "Brake/drive axial coexistence",
+        "Exact motor/controller/battery selection",
+        "Live enclosure and thermal architecture"
+      ],
+      "hard_blockers": []
+    },
+    {
+      "id": "drive_clearance_range_study",
+      "label": "Range Explorer Drive Study",
+      "short_label": "Range Explorer",
+      "description": "Longer Agent-class envelope with the 420 mm drive-clearance reference and large energy-class planning envelope. It deliberately exposes the missing independent friction-brake architecture as a hard blocker.",
+      "visual_preset": "drive_packaging",
+      "deck_candidate_id": "agent",
+      "topology_id": "drive_clearance_420mm",
+      "traits": {
+        "range": 0.95,
+        "carve": 0.62,
+        "stability": 0.88,
+        "durability": 0.66,
+        "portability": 0.4,
+        "cost": 0.28,
+        "low_maintenance": 0.43,
+        "rough_terrain": 0.84
+      },
+      "capabilities": {
+        "friction_brake_path": "NOT_PRESENT",
+        "drive_path": "REFERENCE_COMPATIBLE",
+        "electric_complete": false,
+        "wheel_class": "8in_pneumatic",
+        "snowdeck": true
+      },
+      "bom": [
+        "DECK-AGENT-REF",
+        "TRUCK-M3-420-REF",
+        "DRIVE-G1-DUAL",
+        "MOTOR-6374-CLASS",
+        "ESC-DUAL-CLASS",
+        "BATTERY-RANGE-CLASS",
+        "SNOWDECK-V01-CUSTOM",
+        "TRAIL-ARMOR-STUDY",
+        "PASSIVE-DOCK-STUDY"
+      ],
+      "known_unknowns": [
+        "Independent front friction-brake architecture",
+        "Exact deck/truck structural interfaces",
+        "Exact electrical architecture"
+      ],
+      "hard_blockers": [
+        "No documented independent friction-brake path in this reference branch."
+      ]
+    },
+    {
+      "id": "snowdeck_fit_bench",
+      "label": "SnowDeck Fit Bench",
+      "short_label": "Fit Bench",
+      "description": "Unpowered fit-first architecture that strips away propulsion complexity and maximizes rider-interface learning before a chassis or power decision.",
+      "visual_preset": "snowdeck_fit",
+      "deck_candidate_id": "comp95",
+      "topology_id": "brake_first_400mm",
+      "traits": {
+        "range": 0,
+        "carve": 0.94,
+        "stability": 0.72,
+        "durability": 0.9,
+        "portability": 0.86,
+        "cost": 0.9,
+        "low_maintenance": 0.92,
+        "rough_terrain": 0.55
+      },
+      "capabilities": {
+        "friction_brake_path": "NOT_REQUIRED_FOR_BENCH",
+        "drive_path": "NOT_PRESENT",
+        "electric_complete": false,
+        "wheel_class": "none_bench",
+        "snowdeck": true
+      },
+      "bom": [
+        "SNOWDECK-V01-CUSTOM"
+      ],
+      "known_unknowns": [
+        "Final rider stance",
+        "Left/right plate geometry",
+        "Compliance cartridge behavior"
+      ],
+      "hard_blockers": []
+    }
+  ]
+}
