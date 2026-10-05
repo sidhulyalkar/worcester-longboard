@@ -23,6 +23,7 @@ function wheelState(wheelId, components) {
       hub_family: null,
       diameter_mm: 0,
       width_mm: 0,
+      visual_geometry_state: null,
       visible: false,
     };
   }
@@ -37,7 +38,7 @@ function wheelState(wheelId, components) {
   ));
   const width = Number(firstInterface(
     interfaces,
-    ["measured_reference_width_mm", "published_width_mm"],
+    ["measured_reference_width_mm", "published_width_mm", "visual_width_mm"],
     0
   ));
   if (!(diameter > 0) || !(width > 0)) {
@@ -55,6 +56,7 @@ function wheelState(wheelId, components) {
     hub_family: hubFamily,
     diameter_mm: diameter,
     width_mm: width,
+    visual_geometry_state: interfaces.visual_geometry_state || null,
     visible: true,
   };
 }
