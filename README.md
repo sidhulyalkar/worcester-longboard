@@ -32,7 +32,7 @@ If an older document conflicts with a current manifest, build gate, or qualified
 
 Worcester X1 now also serves as reference build **#0001** for a generic rider-spec board configurator.
 
-The Board Builder separates rider/mission requirements from available products, compares multiple architecture hypotheses, propagates explicit compatibility states, renders dated source links and partial BOM price bands, and can hand a candidate into the authority-aware 3D twin.
+The Board Builder separates rider/mission requirements from available products, compares multiple architecture hypotheses, propagates explicit compatibility states, renders dated source links and partial BOM price bands, and can hand a candidate into the authority-aware 3D twin. Its Swap Lab then lets a user change individual design slots and immediately see compatibility, measurement, price, and 3D consequences without changing build authority.
 
 Run the product surface from the repository root:
 
