@@ -87,7 +87,7 @@ test("power placeholders never receive invented source links", () => {
 
 
 test("compact electric study scales from trail to range energy class", () => {
-  const longRange = { ...trail, longest_miles: 40 };
+  const longRange = { ...trail, longest_miles: 35 };
   const result = generateCandidates(longRange, bundle);
   const electric = candidate(result, "x1_compact_electric_study");
   assert.ok(electric.personalized_spec.planning_installed_energy_wh > 650);
