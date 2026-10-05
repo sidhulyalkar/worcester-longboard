@@ -883,6 +883,119 @@
       },
       "price": null,
       "hold_reason": "Exact motor size, KV, shaft, sensors, thermal limits and vendor remain unfrozen."
+    },
+    {
+      "id": "DECK-LACROIX-BARREL-REF",
+      "category": "deck",
+      "label": "Lacroix Barrel asymmetric deck reference",
+      "manufacturer": "Lacroix Boards",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "STUDY_ONLY",
+      "interfaces": {
+        "deck_family": "lacroix_barrel",
+        "length_mm": 876.3,
+        "width_mm": 273.05,
+        "wheelbase_mm": 838.2,
+        "foot_platform_length_mm": 660.4,
+        "shape_family": "lacroix_asymmetric_flex",
+        "standalone_part_source": false
+      },
+      "source": {
+        "kind": "vendor_reference",
+        "url": "https://www.lacroixboards.com/products/the-barrel%E2%84%A2",
+        "as_of": "2026-10-04",
+        "seller": "Lacroix Boards",
+        "snapshot_id": "lacroix_barrel"
+      },
+      "price": null,
+      "hold_reason": "Dimensions come from the complete Barrel board reference; no standalone deck purchase or structural authority is implied."
+    },
+    {
+      "id": "TRUCK-LACROIX-HYPERLITE",
+      "category": "truck",
+      "label": "Lacroix Hypertruck Lite 15 in precision truck family",
+      "manufacturer": "Lacroix Boards",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "SOURCE_ONLY",
+      "interfaces": {
+        "truck_family": "lacroix_hypertruck_lite",
+        "steering_family": "precision_bushing_spring",
+        "published_hanger_width_mm": 381,
+        "published_width_basis": "hanger",
+        "material": "7075_aluminum",
+        "steering_elements": [
+          "bushings",
+          "springs"
+        ],
+        "rear_motor_mount_reference": true,
+        "rear_pulley_teeth_reference": 72
+      },
+      "source": {
+        "kind": "vendor",
+        "url": "https://www.lacroixboards.com/products/lacroix-hypertruck%E2%84%A2-lite",
+        "as_of": "2026-10-04",
+        "seller": "Lacroix Boards",
+        "snapshot_id": "lacroix_hypertruck_lite",
+        "native_price_snapshot": "USD 549.99 page headline; variant-dependent"
+      },
+      "price": null,
+      "hold_reason": "Product page price is variant-dependent; exact axle/bearing/mount dimensions remain unresolved for cross-vendor use."
+    },
+    {
+      "id": "WHEEL-LACROIX-KENDA8-RSII",
+      "category": "wheel",
+      "label": "Lacroix Barrel 8 in Kenda + Rockstar II wheel reference",
+      "manufacturer": "Lacroix / MBS",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "STUDY_ONLY",
+      "interfaces": {
+        "wheel_class": "8in_pneumatic",
+        "hub_family": "rockstar_ii",
+        "published_diameter_mm": 203.2,
+        "visual_width_mm": 50.8,
+        "visual_geometry_state": "ASSUMED",
+        "visual_geometry_note": "Vendor publishes 8-inch Kenda tires on Rockstar II hubs but not tire width; 50.8 mm is a visualization proxy only."
+      },
+      "source": {
+        "kind": "vendor_reference",
+        "url": "https://www.lacroixboards.com/products/the-barrel%E2%84%A2",
+        "as_of": "2026-10-04",
+        "seller": "Lacroix Boards",
+        "snapshot_id": "lacroix_barrel"
+      },
+      "price": null,
+      "hold_reason": "Complete-board wheel reference only; exact Kenda tire SKU, width, bearings and spacers are not normalized."
+    },
+    {
+      "id": "DRIVE-LACROIX-BARREL-BELT",
+      "category": "drive",
+      "label": "Lacroix Hypertruck Lite adjustable dual belt-drive reference",
+      "manufacturer": "Lacroix Boards",
+      "sku": null,
+      "evidence_state": "BLOCKED",
+      "procurement_state": "POWER_GATED",
+      "interfaces": {
+        "drive_family": "lacroix_barrel_belt",
+        "drive_type": "belt",
+        "reference_truck_family": "lacroix_hypertruck_lite",
+        "rear_pulley_teeth": 72,
+        "wheel_hub_family": "rockstar_ii",
+        "motor_mount_hole_pattern_mm": 30,
+        "complete_board_belt_reference": "HTD 425-5m",
+        "motor_reference": "dual 6374 190kv"
+      },
+      "source": {
+        "kind": "vendor_reference",
+        "url": "https://www.lacroixboards.com/products/lacroix-hypertruck%E2%84%A2-lite",
+        "as_of": "2026-10-04",
+        "seller": "Lacroix Boards",
+        "snapshot_id": "lacroix_hypertruck_lite"
+      },
+      "price": null,
+      "hold_reason": "Power gated. Complete-board/native drive reference does not qualify cross-vendor motor, ESC, braking, retention or powered operation."
     }
   ]
 }
