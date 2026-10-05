@@ -139,12 +139,15 @@ function baseVisualState({
   }
 
   const wheel = wheelState(wheelId, components);
-  const brake = brakeComponent
-    ? components.get(brakeComponent.component_id || brakeComponent) || null
-    : null;
-  const drive = driveComponent
-    ? components.get(driveComponent.component_id || driveComponent) || null
-    : null;
+  const resolveComponent = value => {
+    if (!value) return null;
+    const id = typeof value === "string"
+      ? value
+      : (value.component_id || value.id || null);
+    return id ? components.get(id) || null : null;
+  };
+  const brake = resolveComponent(brakeComponent);
+  const drive = resolveComponent(driveComponent);
 
   return {
     schema_version: 1,
