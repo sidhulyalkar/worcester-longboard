@@ -107,7 +107,13 @@ python tools/validate_board_builder.py
 ## Browser workflow
 
 ```bash
-python -m http.server 8000 --bind 127.0.0.1
+python tools/serve_board_platform.py
+```
+
+To rebuild the synthetic demonstration twin before serving:
+
+```bash
+python tools/serve_board_platform.py --prepare-showcase --synthetic-snowdeck-demo
 ```
 
 Open `http://127.0.0.1:8000/builder/`. The root landing page is `http://127.0.0.1:8000/` and the twin is `http://127.0.0.1:8000/showcase/`.
