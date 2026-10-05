@@ -115,9 +115,21 @@ def test_visual_exports_are_svg_and_design_exports_include_visual_state():
     assert 'type: "image/svg+xml;charset=utf-8"' in renderer
 
 
-def test_visual_handoff_carries_wheel_study_into_twin():
+def test_visual_handoff_carries_catalog_wheel_study_into_twin():
     assert 'wheel: visual.wheel.study_id' in APP
     assert 'params.get("wheel")' in TWIN
+    assert 'function wheelStudyGeometry(id)' in TWIN
     assert 'function applyWheelStudy(id)' in TWIN
-    assert '"TIRE-T2-9"' in TWIN
-    assert '"none"' in TWIN
+    assert 'visual.componentCatalog.get(id)' in TWIN
+    assert 'category === "wheel"' in TWIN
+    assert 'requestedWheelId === "none"' in TWIN
+
+
+def test_multivendor_gallery_exposes_family_filters_and_generic_geometry():
+    assert 'id="vendor-filters"' in HTML
+    assert 'id="catalog-coverage"' in HTML
+    assert 'state.vendorFilter' in APP
+    assert 'row.vendor_family' in APP
+    assert '../catalog/board_geometry.v1.json' in APP
+    assert '../catalog/board_geometry.v1.json' in TWIN
+    assert '../catalog/board_components.v1.json' in TWIN
