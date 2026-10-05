@@ -382,9 +382,9 @@ def _worsen(readiness: str, candidate: str) -> str:
 
 def _deck_fit_adjustment(requirements: dict[str, Any], deck_candidate_id: str) -> tuple[float, str]:
     mapping = {
-        "compact": {"comp95"},
-        "balanced": {"comp95", "pro_warren_iii"},
-        "long_stable": {"pro_warren_iii", "agent"},
+        "compact": {"comp95", "trampa_short_969"},
+        "balanced": {"comp95", "pro_warren_iii", "trampa_short_969", "trampa_hs11_969"},
+        "long_stable": {"pro_warren_iii", "agent", "trampa_hs11_969"},
     }
     if deck_candidate_id in mapping[requirements["deck_envelope_preference"]]:
         return 0.05, f"Deck envelope matches the {requirements['deck_envelope_preference']} planning preference."
@@ -425,7 +425,7 @@ def score_architecture(
     explanations: list[str] = []
     blockers = list(architecture.get("hard_blockers", []))
     unknowns = list(architecture.get("known_unknowns", []))
-    readiness = "REFERENCE_COMPATIBLE"
+    readiness = "BLOCKED" if blockers else "REFERENCE_COMPATIBLE"
 
     deck_adjustment, deck_explanation = _deck_fit_adjustment(
         requirements, architecture["deck_candidate_id"]
@@ -446,6 +446,15 @@ def score_architecture(
         if drive_path == "REFERENCE_COMPATIBLE":
             score += 0.06
             explanations.append("Drive reference aligns with the electric mission intent.")
+        elif drive_path == "MEASURE_FIRST":
+            score += 0.01
+            readiness = _worsen(readiness, "MEASURE_FIRST")
+            unknowns.append(
+                "Drive path is catalog-plausible but still depends on an unresolved physical interface."
+            )
+            explanations.append(
+                "Drive path is promising for the electric mission, but coexistence still needs measurement."
+            )
         elif drive_path == "NOT_PRESENT":
             score -= 0.14
             readiness = _worsen(readiness, "MEASURE_FIRST")
@@ -468,12 +477,20 @@ def score_architecture(
 
     wheel_strategy = requirements["wheel_strategy"]
     wheel_class = architecture["capabilities"]["wheel_class"]
-    if wheel_strategy == "nine_inch_rollover_study" and wheel_class == "8in_pneumatic":
-        unknowns.append("Rough-terrain profile justifies a separate 9-inch rollover study.")
-        explanations.append(
-            "Eight-inch pneumatics remain the reference baseline; larger wheels should be tested only if rollover is a measured deficiency."
-        )
-        score -= 0.03
+    if wheel_strategy == "nine_inch_rollover_study":
+        if wheel_class == "9in_pneumatic":
+            score += 0.04
+            explanations.append(
+                "Nine-inch pneumatic study directly matches the rough-terrain rollover target."
+            )
+        elif wheel_class == "8in_pneumatic":
+            unknowns.append(
+                "Rough-terrain profile justifies a separate 9-inch rollover study."
+            )
+            explanations.append(
+                "Eight-inch pneumatics remain a lower-rollover baseline for this terrain model."
+            )
+            score -= 0.03
     elif wheel_strategy == "eight_inch_pneumatic_reference" and wheel_class == "8in_pneumatic":
         score += 0.03
         explanations.append("Eight-inch pneumatic reference matches the current terrain model.")
