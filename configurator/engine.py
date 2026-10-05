@@ -383,7 +383,7 @@ def _worsen(readiness: str, candidate: str) -> str:
 
 def _deck_fit_adjustment(requirements: dict[str, Any], deck_candidate_id: str) -> tuple[float, str]:
     mapping = {
-        "compact": {"comp95", "trampa_short_969"},
+        "compact": {"comp95", "trampa_short_969", "lacroix_barrel_876"},
         "balanced": {"comp95", "pro_warren_iii", "trampa_short_969", "trampa_hs11_969"},
         "long_stable": {"pro_warren_iii", "agent", "trampa_hs11_969"},
     }
