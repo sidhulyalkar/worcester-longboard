@@ -80,7 +80,8 @@ It currently normalizes:
 - TRAMPA Short 9/69 and HS11 9/69 envelopes;
 - MBS brake-first, drive-clearance and coexistence topology branches;
 - TRAMPA VERTIGO and INFINITY HS11 truck families;
-- Apex Air parallel-kingpin geometry.
+- Apex Air parallel-kingpin geometry;
+- Lacroix Barrel asymmetric deck and Hypertruck Lite reference geometry.
 
 A geometry record may include `visual_geometry_state: ASSUMED` when a visual comparison needs a proxy that is not published as the exact desired dimension. Those values are visualization-only and may never be used as fabrication dimensions.
 
@@ -126,7 +127,9 @@ The first multi-vendor tranche intentionally spans different mechanical concepts
 - TRAMPA HS11 hydraulic freeride core;
 - TRAMPA + Boardnamics brake/drive coexistence study;
 - TRAMPA 9-inch open-belt-drive study;
-- Apex Air parallel-kingpin + Boardnamics M1-AT study.
+- Apex Air parallel-kingpin + Boardnamics M1-AT study;
+- Lacroix Barrel asymmetric-deck carve reference;
+- Lacroix Barrel + Hypertruck Lite native belt-drive study.
 
 These are design hypotheses. They do not select a winner and they never promote procurement or ride authority.
 
@@ -151,7 +154,7 @@ The deterministic preview renderer distinguishes at least:
 - channel-spring versus parallel-kingpin truck glyphs;
 - MBS versus TRAMPA wheel/hub families;
 - mechanical versus TRAMPA/Magura hydraulic brake cues;
-- gear-drive versus open-belt-drive cues;
+- gear-drive, open-belt-drive and enclosed/native belt-drive cues;
 - 8-inch versus 9-inch pneumatic proportions.
 
 The 3D twin accepts the same generic deck/topology/wheel IDs. External families without generated CAD stay procedural. Missing CAD is never replaced by a fake precision model.
