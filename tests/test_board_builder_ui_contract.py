@@ -51,3 +51,30 @@ def test_builder_can_export_selected_design_with_authority_boundary():
     assert "function exportSelectedDesign()" in APP
     assert "selected_for_inspection" in APP
     assert "winner_selected: false" in APP
+
+
+def test_swap_lab_is_visible_and_uses_explicit_non_authoritative_controls():
+    assert 'id="swap-lab"' in HTML
+    assert 'id="swap-controls"' in HTML
+    assert 'id="reset-swaps"' in HTML
+    assert 'id="export-custom-design"' in HTML
+    assert 'id="open-custom-twin"' in HTML
+    assert "Change one component and see what breaks." in HTML
+    assert "evaluateSwap" in APP
+    assert "seedSwapSelection" in APP
+
+
+def test_swap_lab_deep_link_can_override_twin_geometry_and_layers():
+    assert 'params.set("deck"' not in APP  # deck is included in URLSearchParams constructor
+    assert 'deck: twin.deck_candidate_id' in APP
+    assert 'topology: twin.topology_id' in APP
+    assert 'params.set(layer, visible ? "1" : "0")' in APP
+    assert 'params.get("deck")' in TWIN
+    assert 'params.get("topology")' in TWIN
+    assert 'setLayerVisibility(layerId, visible)' in TWIN
+
+
+def test_custom_design_export_retains_authority_boundary():
+    assert "function exportCustomDesign()" in APP
+    assert "custom_study" in APP
+    assert "does not create procurement, fabrication, charging or powered-operation authority" in APP
