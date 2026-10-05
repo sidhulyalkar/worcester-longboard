@@ -7,6 +7,14 @@ import {
   evaluateSwap,
   seedSwapSelection,
 } from "./swap_engine.mjs";
+import {
+  visualStateFromCandidate,
+  visualStateFromSwap,
+} from "./visual_state.mjs";
+import {
+  downloadBoardPreviewSvg,
+  renderBoardPreviewSvg,
+} from "./preview_renderer.mjs";
 
 const STORAGE_KEY = "worcester-board-builder-profile-v1";
 
@@ -20,6 +28,7 @@ const state = {
   swapBaselineId: null,
   swapSelection: null,
   swapResult: null,
+  galleryView: "hero",
 };
 
 const $ = selector => document.querySelector(selector);
@@ -40,15 +49,16 @@ async function fetchJson(path) {
 }
 
 async function loadBundle() {
-  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots] = await Promise.all([
+  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, twinSeed] = await Promise.all([
     fetchJson("../configurator/questionnaire.v1.json"),
     fetchJson("../configurator/rules.v1.json"),
     fetchJson("../catalog/board_components.v1.json"),
     fetchJson("../configurator/architectures.v1.json"),
     fetchJson("../configurator/compatibility_rules.v1.json"),
     fetchJson("../configurator/swap_slots.v1.json"),
+    fetchJson("../showcase/x1_rev_c.json"),
   ]);
-  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots };
+  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, twinSeed };
 }
 
 function restoreProfile(questionnaire) {
