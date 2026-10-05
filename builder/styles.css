@@ -172,6 +172,7 @@ input[type="range"] { width: 100%; }
 }
 .boolean-field input { width: 18px; height: 18px; }
 .intake-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+#export-design { grid-column: 1 / -1; }
 .privacy-note { margin: 9px 2px 0; font-size: 9px; color: rgba(240,245,255,.38); }
 
 .results-head { margin-bottom: 12px; }
@@ -256,6 +257,18 @@ input[type="range"] { width: 100%; }
 .trait span { color: var(--muted); }
 .bar { height: 4px; border-radius: 99px; background: rgba(255,255,255,.07); overflow: hidden; }
 .bar i { display: block; height: 100%; background: rgba(120,174,252,.68); }
+.candidate-spec {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.candidate-spec span {
+  padding: 5px 7px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.035);
+  font-size: 8px;
+  color: var(--muted);
+}
 .candidate-footer { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
 .cost { font-size: 11px; }
 .cost small { display: block; margin-top: 2px; color: var(--muted); font-size: 8px; }
