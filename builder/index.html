@@ -56,13 +56,20 @@
 
         <div class="section-head">
           <div>
-            <p class="kicker">03 / Trade space</p>
-            <h2>Candidate architectures</h2>
+            <p class="kicker">03 / Visual build gallery</p>
+            <h2>Your generated boards</h2>
           </div>
-          <span class="no-winner">No automatic winner</span>
+          <div class="gallery-head-actions">
+            <div id="gallery-view-controls" class="view-switcher" aria-label="Candidate preview view">
+              <button type="button" data-gallery-view="hero" class="active">Hero</button>
+              <button type="button" data-gallery-view="top">Top</button>
+              <button type="button" data-gallery-view="side">Side</button>
+            </div>
+            <span class="no-winner">No automatic winner</span>
+          </div>
         </div>
-        <p class="section-copy">Candidates are ordered by how closely their declared traits match your priorities. Compatibility blockers and unknowns remain separate from the fit score.</p>
-        <div id="candidates" class="candidate-grid"></div>
+        <p class="section-copy">Every candidate is rendered automatically from the same deck, topology, stance and system state handed to the 3D twin. Switch views to compare every build from the same angle.</p>
+        <div id="candidates" class="candidate-grid visual-candidate-grid"></div>
 
         <section id="bom-section" class="bom-section">
           <div class="section-head">
@@ -108,6 +115,7 @@
           <div class="swap-grid">
             <div id="swap-controls" class="swap-controls"></div>
             <div class="swap-results">
+              <div id="swap-preview" class="swap-preview"></div>
               <div id="swap-summary"></div>
               <div id="swap-delta" class="swap-delta"></div>
               <div id="swap-findings" class="candidate-detail"></div>
