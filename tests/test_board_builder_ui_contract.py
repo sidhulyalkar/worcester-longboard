@@ -78,3 +78,38 @@ def test_custom_design_export_retains_authority_boundary():
     assert "function exportCustomDesign()" in APP
     assert "custom_study" in APP
     assert "does not create procurement, fabrication, charging or powered-operation authority" in APP
+
+
+def test_generated_candidates_are_visual_first_and_share_view_controls():
+    assert "03 / Visual build gallery" in HTML
+    assert 'id="gallery-view-controls"' in HTML
+    assert 'data-gallery-view="hero"' in HTML
+    assert 'data-gallery-view="top"' in HTML
+    assert 'data-gallery-view="side"' in HTML
+    assert "renderCandidateVisual" in APP
+    assert "renderBoardPreviewSvg" in APP
+    assert "visualStateFromCandidate" in APP
+
+
+def test_candidate_preview_and_twin_use_same_layer_state():
+    assert "function candidateVisualState(candidate)" in APP
+    assert "const visual = candidateVisualState(candidate);" in APP
+    assert 'params.set(layer, visible ? "1" : "0")' in APP
+    assert "visual.deck.id" in APP
+    assert "visual.topology.id" in APP
+
+
+def test_swap_lab_preview_regenerates_from_custom_design_state():
+    assert 'id="swap-preview"' in HTML
+    assert "function renderSwapPreview(candidate)" in APP
+    assert "visualStateFromSwap" in APP
+    assert "renderSwapPreview(candidate);" in APP
+
+
+def test_visual_exports_are_svg_and_design_exports_include_visual_state():
+    renderer = (ROOT / "builder" / "preview_renderer.mjs").read_text()
+    assert "downloadBoardPreviewSvg" in APP
+    assert 'data-download-preview="' in APP
+    assert "visual_state: candidateVisualState(selected)" in APP
+    assert "visual_state: visualStateFromSwap(" in APP
+    assert 'type: "image/svg+xml;charset=utf-8"' in renderer
