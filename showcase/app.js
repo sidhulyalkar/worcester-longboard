@@ -874,9 +874,28 @@ function configurationLabUI(manifest) {
   });
   document.getElementById("reframe")?.addEventListener("click", () => frameAssembly(visual.cameraView || "hero"));
 
-  const initial = (lab.presets || [])[0];
-  if (initial) applyConfigurationPreset(initial);
-  else refreshConfigurationUI();
+  const params = new URLSearchParams(window.location.search);
+  const requestedPresetId = params.get("preset");
+  const requestedCandidateId = params.get("candidate");
+  const initial =
+    (lab.presets || []).find(row => row.id === requestedPresetId) ||
+    (lab.presets || [])[0];
+
+  if (initial) {
+    select.value = initial.id;
+    applyConfigurationPreset(initial);
+    if (requestedPresetId && initial.id === requestedPresetId) {
+      const note = document.getElementById("preset-note");
+      if (note) {
+        const suffix = requestedCandidateId
+          ? " Loaded from Board Builder candidate " + requestedCandidateId + "."
+          : " Loaded from Board Builder.";
+        note.textContent = initial.description + suffix + " Visualization only; no authority is created.";
+      }
+    }
+  } else {
+    refreshConfigurationUI();
+  }
 }
 
 function visibleAssemblyBounds() {
