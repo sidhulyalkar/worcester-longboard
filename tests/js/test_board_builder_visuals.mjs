@@ -182,3 +182,49 @@ test("Apex and TRAMPA OBD previews expose different steering and drive families"
   const obdSvg = renderBoardPreviewSvg(obd, "side");
   assert.notEqual(apexSvg, obdSvg);
 });
+
+
+test("Lacroix candidate carries asymmetric deck precision truck and assumed wheel proxy", () => {
+  const generated = generateCandidates(manual, bundle);
+  const visual = visualStateFromCandidate(
+    get(generated, "lacroix_barrel_carve_reference"),
+    geometry,
+    bundle.catalog
+  );
+
+  assert.equal(visual.vendor_family, "Lacroix Boards");
+  assert.equal(visual.deck.id, "lacroix_barrel_876");
+  assert.equal(visual.deck.shape_family, "lacroix_asymmetric_flex");
+  assert.equal(visual.topology.steering_family, "precision_bushing_spring");
+  assert.equal(visual.wheel.study_id, "WHEEL-LACROIX-KENDA8-RSII");
+  assert.equal(visual.wheel.visual_geometry_state, "ASSUMED");
+
+  const top = renderBoardPreviewSvg(visual, "top");
+  const side = renderBoardPreviewSvg(visual, "side");
+  assert.ok(top.includes("VISUAL STUDY"));
+  assert.ok(side.includes("VISUAL STUDY"));
+});
+
+test("Lacroix belt study renders belt drive rather than gear or open-belt family", () => {
+  const generated = generateCandidates(trail, bundle);
+  const visual = visualStateFromCandidate(
+    get(generated, "lacroix_barrel_belt_study"),
+    geometry,
+    bundle.catalog
+  );
+
+  assert.equal(visual.visual_style.drive_type, "belt");
+  assert.equal(visual.layers.drive, true);
+  assert.equal(visual.readiness, "BLOCKED");
+  assert.notEqual(
+    renderBoardPreviewSvg(visual, "side"),
+    renderBoardPreviewSvg(
+      visualStateFromCandidate(
+        get(generated, "trampa_obd_9in_power_study"),
+        geometry,
+        bundle.catalog
+      ),
+      "side"
+    )
+  );
+});
