@@ -323,15 +323,57 @@ def _bom(
     }
 
 
-def _selected_pair_rules(
+def _compatibility_findings(
     selected_ids: set[str],
+    catalog: dict[str, Any],
     compatibility: dict[str, Any],
 ) -> list[dict[str, Any]]:
-    return [
-        rule
-        for rule in compatibility.get("pair_rules", [])
-        if rule["a"] in selected_ids and rule["b"] in selected_ids
-    ]
+    index = {row["id"]: row for row in catalog["components"]}
+    findings: list[dict[str, Any]] = []
+    covered: set[tuple[str, str]] = set()
+
+    def pair_key(a: str, b: str) -> tuple[str, str]:
+        return tuple(sorted((a, b)))
+
+    for rule in compatibility.get("pair_rules", []):
+        if rule["a"] not in selected_ids or rule["b"] not in selected_ids:
+            continue
+        covered.add(pair_key(rule["a"], rule["b"]))
+        findings.append(
+            {
+                "id": rule["id"],
+                "state": rule["state"],
+                "reason": rule["reason"],
+                "a": rule["a"],
+                "b": rule["b"],
+                "source": "explicit_rule",
+            }
+        )
+
+    rows = [index[item] for item in selected_ids if item in index]
+    for fallback in compatibility.get("category_pair_defaults", []):
+        category_a, category_b = fallback["categories"]
+        rows_a = [row for row in rows if row["category"] == category_a]
+        rows_b = [row for row in rows if row["category"] == category_b]
+        for a in rows_a:
+            for b in rows_b:
+                if a["id"] == b["id"]:
+                    continue
+                key = pair_key(a["id"], b["id"])
+                if key in covered:
+                    continue
+                covered.add(key)
+                findings.append(
+                    {
+                        "id": f"default:{category_a}:{category_b}:{a['id']}:{b['id']}",
+                        "state": fallback["state"],
+                        "reason": fallback["reason"],
+                        "a": a["id"],
+                        "b": b["id"],
+                        "source": "category_default",
+                    }
+                )
+    return findings
 
 
 def _worsen(readiness: str, candidate: str) -> str:
