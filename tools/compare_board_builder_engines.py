@@ -26,6 +26,7 @@ REQUIREMENT_KEYS = (
 
 CANDIDATE_KEYS = (
     "fit_score",
+    "vendor_family",
     "readiness",
     "checkout_state",
     "visual_preset",
@@ -35,6 +36,8 @@ CANDIDATE_KEYS = (
     "trade_space_frontier",
     "preference_fit",
     "personalized_spec",
+    "capabilities",
+    "compatibility_findings",
     "blockers",
     "unknowns",
 )
