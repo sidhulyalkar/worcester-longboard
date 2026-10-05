@@ -796,6 +796,7 @@ function comparisonRows(a, b) {
     ["Deck envelope", a.deck_length_mm + "×" + a.deck_width_mm + " mm", b.deck_length_mm + "×" + b.deck_width_mm + " mm"],
     ["Truck width", a.truck_total_width_mm + " mm", b.truck_total_width_mm + " mm"],
     ["Outer wheel width", Math.round(a.outer_wheel_width_mm) + " mm", Math.round(b.outer_wheel_width_mm) + " mm"],
+    ["Wheel study", a.wheel_study_id || "TIRE-T1-8-REF", b.wheel_study_id || "TIRE-T1-8-REF"],
     ["Static clearance ref", a.static_clearance_mm + " mm", b.static_clearance_mm + " mm"],
     ["Compressed clearance ref", a.compressed_clearance_mm + " mm", b.compressed_clearance_mm + " mm"],
     ["Pack visual bottom gap", a.layers.pack ? a.pack_visual_bottom_gap_mm.toFixed(0) + " mm" : "hidden", b.layers.pack ? b.pack_visual_bottom_gap_mm.toFixed(0) + " mm" : "hidden"],
@@ -861,6 +862,7 @@ function applyConfigurationPreset(preset) {
   if (!preset) return;
   selectDeckCandidate(preset.deck_candidate_id);
   selectTopology(preset.topology_id);
+  applyWheelStudy("TIRE-T1-8-REF");
   Object.entries(preset.layers || {}).forEach(([id, visible]) => setLayerVisibility(id, visible));
   setSnowdeckControls(preset.snowdeck || {});
   const note = document.getElementById("preset-note");
