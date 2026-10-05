@@ -56,7 +56,7 @@ test("fit bench hides wheels while keeping rider interface", () => {
   const generated = generateCandidates(manual, bundle);
   const visual = visualStateFromCandidate(
     get(generated, "snowdeck_fit_bench"),
-    twin,
+    geometry,
     bundle.catalog
   );
   assert.equal(visual.wheel.visible, false);
@@ -68,7 +68,7 @@ test("fit bench preview keeps topology while omitting tires", () => {
   const generated = generateCandidates(manual, bundle);
   const visual = visualStateFromCandidate(
     get(generated, "snowdeck_fit_bench"),
-    twin,
+    geometry,
     bundle.catalog
   );
   const svg = renderBoardPreviewSvg(visual, "top");
@@ -100,7 +100,7 @@ test("renderer produces distinct deterministic Hero Top and Side SVGs", () => {
   const generated = generateCandidates(trail, bundle);
   const visual = visualStateFromCandidate(
     get(generated, "x1_compact_electric_study"),
-    twin,
+    geometry,
     bundle.catalog
   );
 
@@ -123,7 +123,7 @@ test("renderer escapes candidate labels", () => {
   const generated = generateCandidates(trail, bundle);
   const visual = visualStateFromCandidate(
     get(generated, "brake_first_trail_core"),
-    twin,
+    geometry,
     bundle.catalog
   );
   visual.label = '<script>alert("x")</script>';
