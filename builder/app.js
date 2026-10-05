@@ -570,9 +570,27 @@ function renderSwapFindings(result) {
     '<div class="detail-box"><h3>Compatibility evidence</h3><ul>' + compatibility + '</ul></div>';
 }
 
+function renderSwapPreview(candidate) {
+  const host = $("#swap-preview");
+  if (!host || !state.swapResult) return;
+  const visual = visualStateFromSwap(
+    candidate,
+    state.swapResult,
+    state.bundle.twinSeed,
+    state.bundle.catalog
+  );
+  host.innerHTML = renderBoardPreviewSvg(
+    visual,
+    state.galleryView,
+    { width: 720, height: 360, compact: false }
+  );
+}
+
 function renderSwapResult(candidate) {
   const result = state.swapResult;
   if (!result) return;
+
+  renderSwapPreview(candidate);
 
   $("#swap-summary").innerHTML =
     '<span class="summary-pill">Edited subtotal: <strong>' +
@@ -680,6 +698,12 @@ function exportCustomDesign() {
     requirements: state.result.requirements,
     baseline_candidate: candidate,
     custom_study: state.swapResult,
+    visual_state: visualStateFromSwap(
+      candidate,
+      state.swapResult,
+      state.bundle.twinSeed,
+      state.bundle.catalog
+    ),
     winner_selected: false,
     source_snapshot_as_of: state.bundle.catalog.as_of,
     note:
@@ -743,6 +767,7 @@ function exportSelectedDesign() {
     profile: state.result.profile,
     requirements: state.result.requirements,
     selected_for_inspection: selected,
+    visual_state: candidateVisualState(selected),
     winner_selected: false,
     authority: state.result.authority,
     source_snapshot_as_of: state.bundle.catalog.as_of,
@@ -776,6 +801,9 @@ async function main() {
     $("#export-design").addEventListener("click", exportSelectedDesign);
     $("#reset-swaps").addEventListener("click", resetSwaps);
     $("#export-custom-design").addEventListener("click", exportCustomDesign);
+    document.querySelectorAll("[data-gallery-view]").forEach(button => {
+      button.addEventListener("click", () => setGalleryView(button.dataset.galleryView));
+    });
   } catch (error) {
     console.error(error);
     $("#questionnaire").innerHTML = '<div class="note warning">Board Builder failed to load: ' + escapeHtml(error.message) + '</div>';
