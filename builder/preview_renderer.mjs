@@ -151,13 +151,13 @@ function topShapes(state, width, height) {
   let wheels = "";
   let trucks = "";
 
-  if (state.wheel.visible) {
-    for (const axle of [-1, 1]) {
-      const x = cx + axle * truckX;
-      trucks +=
-        '<line x1="' + x + '" x2="' + x + '" y1="' + (cy - g.truckWidth / 2) +
-        '" y2="' + (cy + g.truckWidth / 2) + '" stroke="' + PALETTE.truck +
-        '" stroke-width="6" stroke-linecap="round"/>';
+  for (const axle of [-1, 1]) {
+    const x = cx + axle * truckX;
+    trucks +=
+      '<line x1="' + x + '" x2="' + x + '" y1="' + (cy - g.truckWidth / 2) +
+      '" y2="' + (cy + g.truckWidth / 2) + '" stroke="' + PALETTE.truck +
+      '" stroke-width="6" stroke-linecap="round"/>';
+    if (state.wheel.visible) {
       for (const side of [-1, 1]) {
         const y = cy + side * g.wheelLateral;
         wheels +=
@@ -241,20 +241,21 @@ function sideShapes(state, width, height) {
   let wheels = "";
   let trucks = "";
 
-  if (state.wheel.visible) {
-    for (const side of [-1, 1]) {
-      const x = cx + side * truckX;
+  for (const side of [-1, 1]) {
+    const x = cx + side * truckX;
+    const truckLowY = state.wheel.visible ? wheelCenterY - 3 : deckY + 32;
+    trucks +=
+      '<path d="M ' + (x - 20) + ' ' + (deckY + 9) + ' L ' + x + ' ' +
+      truckLowY + ' L ' + (x + 20) + ' ' + (deckY + 9) +
+      '" fill="none" stroke="' + PALETTE.truck +
+      '" stroke-width="5" stroke-linecap="round"/>';
+    if (state.wheel.visible) {
       wheels +=
         '<circle cx="' + x + '" cy="' + wheelCenterY + '" r="' + wheelR +
         '" fill="' + PALETTE.tire + '" stroke="' + PALETTE.tireEdge +
         '" stroke-width="3"/>' +
         '<circle cx="' + x + '" cy="' + wheelCenterY + '" r="' + Math.max(6, wheelR * 0.27) +
         '" fill="' + PALETTE.hub + '"/>';
-      trucks +=
-        '<path d="M ' + (x - 20) + ' ' + (deckY + 9) + ' L ' + x + ' ' +
-        (wheelCenterY - 3) + ' L ' + (x + 20) + ' ' + (deckY + 9) +
-        '" fill="none" stroke="' + PALETTE.truck +
-        '" stroke-width="5" stroke-linecap="round"/>';
     }
   }
 
