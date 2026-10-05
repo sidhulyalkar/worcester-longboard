@@ -292,6 +292,7 @@ function twinUrl(candidate) {
     candidate: candidate.id,
     deck: visual.deck.id,
     topology: visual.topology.id,
+    wheel: visual.wheel.study_id,
   });
   if (Number.isFinite(Number(spec.stance_center_mm))) {
     params.set("stance_mm", String(spec.stance_center_mm));
@@ -501,6 +502,12 @@ function customTwinUrl(candidate, swapResult) {
     candidate: "custom:" + candidate.id,
     deck: twin.deck_candidate_id || candidate.deck_candidate_id,
     topology: twin.topology_id || candidate.topology_id,
+    wheel: visualStateFromSwap(
+      candidate,
+      swapResult,
+      state.bundle.twinSeed,
+      state.bundle.catalog
+    ).wheel.study_id,
   });
   if (Number.isFinite(Number(twin.stance_mm))) {
     params.set("stance_mm", String(twin.stance_mm));
