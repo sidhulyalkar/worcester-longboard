@@ -1,0 +1,241 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://worcester-x1.local/schemas/candidate_visual_state.schema.json",
+  "title": "Board Builder candidate visual state",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "scope",
+    "subject_id",
+    "deck",
+    "topology",
+    "wheel",
+    "stance_mm",
+    "layers",
+    "readiness",
+    "checkout_state",
+    "views",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "scope": {
+      "enum": [
+        "candidate_preview",
+        "custom_swap_preview"
+      ]
+    },
+    "subject_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "label": {
+      "type": "string"
+    },
+    "deck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "length_mm",
+        "width_mm",
+        "evidence_state"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "comp95",
+            "pro_warren_iii",
+            "agent"
+          ]
+        },
+        "length_mm": {
+          "type": "number",
+          "minimum": 800,
+          "maximum": 1200
+        },
+        "width_mm": {
+          "type": "number",
+          "minimum": 180,
+          "maximum": 360
+        },
+        "evidence_state": {
+          "enum": [
+            "REFERENCE",
+            "ASSUMED"
+          ]
+        }
+      }
+    },
+    "topology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "truck_total_width_mm",
+        "wheel_center_lateral_mm",
+        "evidence_state"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "brake_first_400mm",
+            "drive_clearance_420mm",
+            "brake_hanger_70mm_topology_study"
+          ]
+        },
+        "truck_total_width_mm": {
+          "type": "number"
+        },
+        "wheel_center_lateral_mm": {
+          "type": "number"
+        },
+        "evidence_state": {
+          "enum": [
+            "REFERENCE",
+            "ASSUMED"
+          ]
+        }
+      }
+    },
+    "wheel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "study_id",
+        "diameter_mm",
+        "width_mm",
+        "visible"
+      ],
+      "properties": {
+        "study_id": {
+          "enum": [
+            "TIRE-T1-8-REF",
+            "TIRE-T2-9",
+            "none"
+          ]
+        },
+        "diameter_mm": {
+          "type": "number",
+          "minimum": 0
+        },
+        "width_mm": {
+          "type": "number",
+          "minimum": 0
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "stance_mm": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 260,
+      "maximum": 520
+    },
+    "layers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "brake",
+        "drive",
+        "pack",
+        "snowdeck",
+        "armor",
+        "dock"
+      ],
+      "properties": {
+        "brake": {
+          "type": "boolean"
+        },
+        "drive": {
+          "type": "boolean"
+        },
+        "pack": {
+          "type": "boolean"
+        },
+        "snowdeck": {
+          "type": "boolean"
+        },
+        "armor": {
+          "type": "boolean"
+        },
+        "dock": {
+          "type": "boolean"
+        }
+      }
+    },
+    "readiness": {
+      "enum": [
+        "REFERENCE_COMPATIBLE",
+        "MEASURE_FIRST",
+        "BLOCKED",
+        "INCOMPATIBLE"
+      ]
+    },
+    "checkout_state": {
+      "enum": [
+        "SOURCE_LINKS",
+        "HOLD_MEASURE",
+        "BLOCKED"
+      ]
+    },
+    "fit_score": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "cost": {
+      "type": "object"
+    },
+    "views": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        {
+          "const": "hero"
+        },
+        {
+          "const": "top"
+        },
+        {
+          "const": "side"
+        }
+      ]
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "visualization_only",
+        "procurement_authorized",
+        "fabrication_authorized",
+        "powered_operation_authorized"
+      ],
+      "properties": {
+        "visualization_only": {
+          "const": true
+        },
+        "procurement_authorized": {
+          "const": false
+        },
+        "fabrication_authorized": {
+          "const": false
+        },
+        "powered_operation_authorized": {
+          "const": false
+        }
+      }
+    }
+  }
+}
