@@ -129,6 +129,23 @@ function deckPathTop(state, cx, cy, length, width) {
   const y1 = cy + width / 2;
   const family = state.visual_style?.deck_shape || "generic_mountainboard";
 
+  if (family === "lacroix_asymmetric_flex") {
+    const nose = Math.min(42, length * 0.095);
+    const tail = Math.min(30, length * 0.065);
+    const frontTaper = Math.min(13, width * 0.10);
+    const rearTaper = Math.min(24, width * 0.18);
+    return [
+      "M " + (x0 + tail) + " " + (y0 + rearTaper),
+      "Q " + (x0 + 4) + " " + (cy - width * 0.18) + " " + x0 + " " + (cy + width * 0.02),
+      "Q " + (x0 + 7) + " " + (y1 - width * 0.13) + " " + (x0 + tail) + " " + (y1 - rearTaper * 0.55),
+      "Q " + (cx - length * 0.08) + " " + (y1 + 4) + " " + (x1 - nose) + " " + (y1 - frontTaper),
+      "Q " + x1 + " " + (y1 - width * 0.14) + " " + x1 + " " + cy,
+      "Q " + x1 + " " + (y0 + width * 0.14) + " " + (x1 - nose) + " " + (y0 + frontTaper),
+      "Q " + (cx - length * 0.04) + " " + (y0 - 5) + " " + (x0 + tail) + " " + (y0 + rearTaper),
+      "Z",
+    ].join(" ");
+  }
+
   if (family.startsWith("trampa_")) {
     const nose = Math.min(34, length * 0.085);
     const endInset = Math.min(8, width * 0.045);
@@ -170,6 +187,22 @@ function topTruckGlyph(state, x, cy, truckWidth) {
       '<circle cx="' + x + '" cy="' + (cy + 14) + '" r="5" fill="' + PALETTE.truck + '"/>'
     );
   }
+  if (family === "precision_bushing_spring") {
+    return (
+      '<path d="M ' + x + ' ' + y0 + ' L ' + (x - 8) + ' ' + (cy - 26) +
+      ' L ' + x + ' ' + cy + ' L ' + (x + 8) + ' ' + (cy + 26) +
+      ' L ' + x + ' ' + y1 +
+      '" fill="none" stroke="' + PALETTE.truck + '" stroke-width="5.5" stroke-linecap="round"/>' +
+      '<circle cx="' + (x - 8) + '" cy="' + (cy - 25) + '" r="6" fill="' + PALETTE.truck + '" opacity=".72"/>' +
+      '<circle cx="' + (x + 8) + '" cy="' + (cy + 25) + '" r="6" fill="' + PALETTE.truck + '" opacity=".72"/>' +
+      '<path d="M ' + (x - 12) + ' ' + (cy - 7) + ' Q ' + x + ' ' + (cy - 17) +
+      ' ' + (x + 12) + ' ' + (cy - 7) +
+      '" fill="none" stroke="' + PALETTE.truck + '" stroke-width="2" opacity=".72"/>' +
+      '<path d="M ' + (x - 12) + ' ' + (cy + 7) + ' Q ' + x + ' ' + (cy + 17) +
+      ' ' + (x + 12) + ' ' + (cy + 7) +
+      '" fill="none" stroke="' + PALETTE.truck + '" stroke-width="2" opacity=".72"/>'
+    );
+  }
   let glyph =
     '<line x1="' + x + '" x2="' + x + '" y1="' + y0 + '" y2="' + y1 +
     '" stroke="' + PALETTE.truck + '" stroke-width="6" stroke-linecap="round"/>';
@@ -193,6 +226,18 @@ function sideTruckGlyph(state, x, deckY, truckLowY) {
       '<path d="M ' + (x - 13) + ' ' + (deckY + 12) + ' L ' + (x + 5) + ' ' +
       (truckLowY + 2) + ' L ' + (x + 13) + ' ' + (deckY + 12) +
       '" fill="none" stroke="' + PALETTE.truck + '" stroke-width="3" stroke-linecap="round" opacity=".8"/>'
+    );
+  }
+  if (family === "precision_bushing_spring") {
+    return (
+      '<path d="M ' + (x - 24) + ' ' + (deckY + 8) + ' Q ' + (x - 8) + ' ' +
+      (truckLowY - 8) + ' ' + x + ' ' + truckLowY + ' Q ' + (x + 8) + ' ' +
+      (truckLowY - 8) + ' ' + (x + 24) + ' ' + (deckY + 8) +
+      '" fill="none" stroke="' + PALETTE.truck + '" stroke-width="4.5" stroke-linecap="round"/>' +
+      '<circle cx="' + (x - 8) + '" cy="' + (truckLowY - 5) + '" r="5" fill="' +
+      PALETTE.truck + '" opacity=".75"/>' +
+      '<circle cx="' + (x + 8) + '" cy="' + (truckLowY - 5) + '" r="5" fill="' +
+      PALETTE.truck + '" opacity=".75"/>'
     );
   }
   return (
@@ -233,6 +278,20 @@ function brakeGlyphTop(state, x, y) {
 
 function driveGlyphTop(state, x, y) {
   const type = state.visual_style?.drive_type || "drive";
+  if (type === "belt") {
+    return (
+      '<path d="M ' + (x - 24) + ' ' + (y - 9) +
+      ' Q ' + x + ' ' + (y - 17) + ' ' + (x + 24) + ' ' + (y - 9) +
+      ' L ' + (x + 24) + ' ' + (y + 9) +
+      ' Q ' + x + ' ' + (y + 17) + ' ' + (x - 24) + ' ' + (y + 9) +
+      ' Z" fill="' + PALETTE.drive + '" fill-opacity=".16" stroke="' +
+      PALETTE.drive + '" stroke-width="2"/>' +
+      '<circle cx="' + (x - 15) + '" cy="' + y + '" r="6" fill="none" stroke="' +
+      PALETTE.drive + '" stroke-width="2.5"/>' +
+      '<circle cx="' + (x + 15) + '" cy="' + y + '" r="6" fill="none" stroke="' +
+      PALETTE.drive + '" stroke-width="2.5"/>'
+    );
+  }
   if (type === "open_belt") {
     return (
       '<rect x="' + (x - 24) + '" y="' + (y - 8) +
@@ -251,6 +310,20 @@ function driveGlyphTop(state, x, y) {
 
 function driveGlyphSide(state, x, y) {
   const type = state.visual_style?.drive_type || "drive";
+  if (type === "belt") {
+    return (
+      '<path d="M ' + (x - 24) + ' ' + (y - 8) +
+      ' Q ' + x + ' ' + (y - 18) + ' ' + (x + 22) + ' ' + (y - 5) +
+      ' L ' + (x + 18) + ' ' + (y + 8) +
+      ' Q ' + x + ' ' + (y + 15) + ' ' + (x - 24) + ' ' + (y + 6) +
+      ' Z" fill="' + PALETTE.drive + '" fill-opacity=".16" stroke="' +
+      PALETTE.drive + '" stroke-width="2"/>' +
+      '<circle cx="' + (x - 18) + '" cy="' + (y - 1) + '" r="7" fill="none" stroke="' +
+      PALETTE.drive + '" stroke-width="2"/>' +
+      '<circle cx="' + (x + 15) + '" cy="' + (y + 1) + '" r="7" fill="none" stroke="' +
+      PALETTE.drive + '" stroke-width="2"/>'
+    );
+  }
   if (type === "open_belt") {
     return (
       '<path d="M ' + (x - 23) + ' ' + (y - 7) + ' L ' + (x + 19) + ' ' + (y + 7) +
@@ -380,15 +453,26 @@ function sideShapes(state, width, height) {
     }
   }
 
-  const deckPath = [
-    "M " + deckX0 + " " + (deckY + 2),
-    "Q " + (deckX0 + 32) + " " + (deckY - 13) + " " + (deckX0 + 70) + " " + (deckY - 4),
-    "Q " + cx + " " + (deckY + 6) + " " + (deckX1 - 70) + " " + (deckY - 4),
-    "Q " + (deckX1 - 32) + " " + (deckY - 13) + " " + deckX1 + " " + (deckY + 2),
-    "L " + (deckX1 - 9) + " " + (deckY + deckThickness),
-    "Q " + cx + " " + (deckY + deckThickness + 8) + " " + (deckX0 + 9) + " " + (deckY + deckThickness),
-    "Z",
-  ].join(" ");
+  const family = state.visual_style?.deck_shape || "generic_mountainboard";
+  const deckPath = family === "lacroix_asymmetric_flex"
+    ? [
+        "M " + deckX0 + " " + (deckY + 11),
+        "Q " + (deckX0 + 25) + " " + (deckY + 3) + " " + (deckX0 + 68) + " " + (deckY - 3),
+        "Q " + cx + " " + (deckY + 7) + " " + (deckX1 - 72) + " " + (deckY - 5),
+        "Q " + (deckX1 - 28) + " " + (deckY - 15) + " " + deckX1 + " " + (deckY - 2),
+        "L " + (deckX1 - 10) + " " + (deckY + deckThickness),
+        "Q " + cx + " " + (deckY + deckThickness + 8) + " " + (deckX0 + 12) + " " + (deckY + deckThickness + 9),
+        "Z",
+      ].join(" ")
+    : [
+        "M " + deckX0 + " " + (deckY + 2),
+        "Q " + (deckX0 + 32) + " " + (deckY - 13) + " " + (deckX0 + 70) + " " + (deckY - 4),
+        "Q " + cx + " " + (deckY + 6) + " " + (deckX1 - 70) + " " + (deckY - 4),
+        "Q " + (deckX1 - 32) + " " + (deckY - 13) + " " + deckX1 + " " + (deckY + 2),
+        "L " + (deckX1 - 9) + " " + (deckY + deckThickness),
+        "Q " + cx + " " + (deckY + deckThickness + 8) + " " + (deckX0 + 9) + " " + (deckY + deckThickness),
+        "Z",
+      ].join(" ");
 
   const stanceX = Math.min(g.stance / 2, g.deckLength * 0.32);
   let systems = "";
