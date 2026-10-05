@@ -1,0 +1,483 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-01",
+  "currency": "USD",
+  "refresh_before_checkout": true,
+  "note": "Seed catalog assembled from repository source snapshots and explicit planning placeholders. Vendor prices/stock are snapshots, not live checkout quotes.",
+  "components": [
+    {
+      "id": "DONOR-COMP95",
+      "category": "base_board",
+      "label": "MBS Comp 95 donor board",
+      "manufacturer": "MBS",
+      "sku": "10303",
+      "evidence_state": "REFERENCE",
+      "procurement_state": "HOLD_MEASURE",
+      "interfaces": {
+        "truck_family": "matrix_iii",
+        "truck_width_mm": 400,
+        "axle_length_mm": 50,
+        "hub_family": "rockstar_ii",
+        "wheel_class": "8in_pneumatic",
+        "brake_reference": "v5_compatible",
+        "drive_reference": "requires_70mm_axle_upgrade"
+      },
+      "includes": [
+        "deck",
+        "matrix_iii_400_trucks",
+        "rockstar_ii_hubs",
+        "t1_8in_tires_tubes",
+        "f5_bindings"
+      ],
+      "source": {
+        "kind": "vendor",
+        "url": "https://www.mbs.com/shop/p/comp-95-mountainboard-silver-hex",
+        "as_of": "2026-09-11",
+        "seller": "MBS"
+      },
+      "price": {
+        "kind": "unit",
+        "unit_price_usd": 499.95,
+        "qty": 1
+      },
+      "availability_note": "Source snapshot showed Add to Cart plus stock-notification language. Recheck before payment.",
+      "hold_reason": "Rev-C chassis purchase remains evidence-gated."
+    },
+    {
+      "id": "BRAKE-V5",
+      "category": "brake",
+      "label": "MBS V5 mechanical brake system",
+      "manufacturer": "MBS",
+      "sku": "15006",
+      "evidence_state": "REFERENCE",
+      "procurement_state": "HOLD_MEASURE",
+      "interfaces": {
+        "truck_family": "matrix",
+        "hub_families": [
+          "rockstar",
+          "rockstar_ii"
+        ],
+        "friction_brake": true,
+        "braked_wheels": 2
+      },
+      "source": {
+        "kind": "vendor",
+        "url": "https://www.mbs.com/shop/p/15006-mbs-v5-brake-system",
+        "as_of": "2026-09-11",
+        "seller": "MBS"
+      },
+      "price": {
+        "kind": "unit",
+        "unit_price_usd": 89.95,
+        "qty": 1
+      },
+      "hold_reason": "Physical brake-interface and stopping qualification remain required."
+    },
+    {
+      "id": "TRUCK-M3-400",
+      "category": "truck",
+      "label": "Matrix III 400 mm / 50 mm axle reference",
+      "manufacturer": "MBS",
+      "sku": "12302 / 12300 family",
+      "evidence_state": "REFERENCE",
+      "procurement_state": "HOLD_MEASURE",
+      "interfaces": {
+        "truck_family": "matrix_iii",
+        "total_width_mm": 400,
+        "hanger_width_mm": 300,
+        "axle_length_mm": 50,
+        "brake_reference": true,
+        "drive_reference": false
+      },
+      "source": {
+        "kind": "vendor",
+        "url": "https://www.mbs.com/shop/parts/trucks/matrix-iii",
+        "as_of": "2026-09-11",
+        "seller": "MBS"
+      },
+      "price": {
+        "kind": "ceiling",
+        "unit_price_usd": 124.95,
+        "qty": 1
+      },
+      "hold_reason": "Donor-first strategy remains active."
+    },
+    {
+      "id": "TRUCK-M3-420-REF",
+      "category": "truck",
+      "label": "Matrix III 420 mm / 70 mm drive-clearance reference",
+      "manufacturer": "MBS",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "STUDY_ONLY",
+      "interfaces": {
+        "truck_family": "matrix_iii",
+        "total_width_mm": 420,
+        "hanger_width_mm": 280,
+        "axle_length_mm": 70,
+        "brake_reference": false,
+        "drive_reference": true
+      },
+      "source": {
+        "kind": "repository_reference",
+        "url": null,
+        "as_of": "2026-10-01"
+      },
+      "price": null
+    },
+    {
+      "id": "TRUCK-M3-440-STUDY",
+      "category": "truck",
+      "label": "300 mm hanger + 70 mm axle coexistence study",
+      "manufacturer": "MBS",
+      "sku": null,
+      "evidence_state": "ASSUMED",
+      "procurement_state": "STUDY_ONLY",
+      "interfaces": {
+        "truck_family": "matrix_iii",
+        "total_width_mm": 440,
+        "hanger_width_mm": 300,
+        "axle_length_mm": 70,
+        "brake_reference": "UNKNOWN_AFTER_AXLE_SWAP",
+        "drive_reference": true
+      },
+      "source": {
+        "kind": "repository_reference",
+        "url": null,
+        "as_of": "2026-10-01"
+      },
+      "price": null
+    },
+    {
+      "id": "HUB-RSII",
+      "category": "hub",
+      "label": "MBS Rockstar II hub reference",
+      "manufacturer": "MBS",
+      "sku": "13230/13231/13232 family",
+      "evidence_state": "REFERENCE",
+      "procurement_state": "HOLD_MEASURE",
+      "interfaces": {
+        "hub_family": "rockstar_ii",
+        "bearing_id_mm": 12,
+        "brake_reference": "v5_compatible"
+      },
+      "source": {
+        "kind": "vendor",
+        "url": "https://www.mbs.com/shop/parts/wheels/hubs",
+        "as_of": "2026-09-11",
+        "seller": "MBS"
+      },
+      "price": {
+        "kind": "unit",
+        "unit_price_usd": 14.95,
+        "qty": 4
+      },
+      "hold_reason": "Included in preferred donor; piecemeal purchase is not the current path."
+    },
+    {
+      "id": "TIRE-T1-8-REF",
+      "category": "wheel",
+      "label": "MBS T1 8-inch pneumatic reference",
+      "manufacturer": "MBS",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "SOURCE_ONLY",
+      "interfaces": {
+        "wheel_class": "8in_pneumatic",
+        "measured_reference_diameter_mm": 194,
+        "measured_reference_width_mm": 51
+      },
+      "source": {
+        "kind": "repository_reference",
+        "url": null,
+        "as_of": "2026-10-01"
+      },
+      "price": null
+    },
+    {
+      "id": "TIRE-T2-9",
+      "category": "wheel",
+      "label": "MBS T2 9-inch rollover study tire",
+      "manufacturer": "MBS",
+      "sku": "13120",
+      "evidence_state": "REFERENCE",
+      "procurement_state": "HOLD_MEASURE",
+      "interfaces": {
+        "wheel_class": "9in_pneumatic",
+        "published_diameter_mm": 219,
+        "published_width_mm": 67,
+        "listed_hub_families": [
+          "fivestar",
+          "tri_spoke",
+          "rockstar_pro_ii_xl"
+        ]
+      },
+      "source": {
+        "kind": "vendor",
+        "url": "https://www.mbs.com/shop/p/13120-9-mbs-t2-tires-1",
+        "as_of": "2026-09-11",
+        "seller": "MBS"
+      },
+      "price": {
+        "kind": "unit",
+        "unit_price_usd": 29.95,
+        "qty": 4
+      },
+      "hold_reason": "Do not assume standard Rockstar II compatibility."
+    },
+    {
+      "id": "AXLE-M3-70",
+      "category": "axle",
+      "label": "Matrix III 70 mm axle set reference",
+      "manufacturer": "MBS",
+      "sku": "12342",
+      "evidence_state": "REFERENCE",
+      "procurement_state": "HOLD_MEASURE",
+      "interfaces": {
+        "truck_family": "matrix_iii",
+        "axle_length_mm": 70,
+        "drive_reference": "g1_compatible"
+      },
+      "source": {
+        "kind": "vendor",
+        "url": "https://www.mbs.com/shop/parts/trucks/matrix-iii",
+        "as_of": "2026-09-11",
+        "seller": "MBS"
+      },
+      "price": {
+        "kind": "unit",
+        "unit_price_usd": 24.95,
+        "qty": 2
+      },
+      "hold_reason": "Brake-first 50 mm axle geometry must be physically characterized first."
+    },
+    {
+      "id": "DRIVE-G1-DUAL",
+      "category": "drive",
+      "label": "MBS G1 dual gear-drive reference",
+      "manufacturer": "MBS",
+      "sku": "16101",
+      "evidence_state": "BLOCKED",
+      "procurement_state": "POWER_GATED",
+      "interfaces": {
+        "drive_family": "mbs_g1",
+        "required_axle_length_mm": 70,
+        "reference_wheel_gear_teeth": 64
+      },
+      "source": {
+        "kind": "vendor",
+        "url": "https://www.mbs.com/shop/parts/electric-parts/gear-drives",
+        "as_of": "2026-09-11",
+        "seller": "MBS"
+      },
+      "price": {
+        "kind": "unit",
+        "unit_price_usd": 399.95,
+        "qty": 1
+      },
+      "hold_reason": "Power gated; topology and sourced power architecture remain unresolved."
+    },
+    {
+      "id": "MOTOR-6374-CLASS",
+      "category": "motor",
+      "label": "Sensored 6374-class motor placeholder",
+      "manufacturer": null,
+      "sku": null,
+      "evidence_state": "BLOCKED",
+      "procurement_state": "POWER_GATED",
+      "interfaces": {
+        "motor_class": "6374",
+        "selection_status": "TBD"
+      },
+      "source": {
+        "kind": "planning_placeholder",
+        "url": null,
+        "as_of": "2026-10-01"
+      },
+      "price": {
+        "kind": "range",
+        "min_usd": 79,
+        "max_usd": 129,
+        "qty": 2
+      },
+      "hold_reason": "KV, shaft, thermal limits and exact vendor remain unfrozen."
+    },
+    {
+      "id": "ESC-DUAL-CLASS",
+      "category": "esc",
+      "label": "Dual VESC-class controller placeholder",
+      "manufacturer": null,
+      "sku": null,
+      "evidence_state": "BLOCKED",
+      "procurement_state": "POWER_GATED",
+      "interfaces": {
+        "controller_class": "dual_vesc",
+        "selection_status": "TBD"
+      },
+      "source": {
+        "kind": "planning_placeholder",
+        "url": null,
+        "as_of": "2026-10-01"
+      },
+      "price": {
+        "kind": "range",
+        "min_usd": 160,
+        "max_usd": 245,
+        "qty": 1
+      },
+      "hold_reason": "Electrical limits and exact controller remain unfrozen."
+    },
+    {
+      "id": "BATTERY-TRAIL-CLASS",
+      "category": "battery",
+      "label": "500-650 Wh professional trail-pack class",
+      "manufacturer": null,
+      "sku": null,
+      "evidence_state": "BLOCKED",
+      "procurement_state": "POWER_GATED",
+      "interfaces": {
+        "energy_class_wh": [
+          500,
+          650
+        ],
+        "selection_status": "TBD",
+        "professional_pack_required": true
+      },
+      "source": {
+        "kind": "planning_placeholder",
+        "url": null,
+        "as_of": "2026-10-01"
+      },
+      "price": {
+        "kind": "range",
+        "min_usd": 800,
+        "max_usd": 1400,
+        "qty": 1
+      },
+      "hold_reason": "Voltage, cell, BMS, enclosure and charger architecture remain blocked."
+    },
+    {
+      "id": "BATTERY-RANGE-CLASS",
+      "category": "battery",
+      "label": "950-1150 Wh professional range-pack class",
+      "manufacturer": null,
+      "sku": null,
+      "evidence_state": "BLOCKED",
+      "procurement_state": "POWER_GATED",
+      "interfaces": {
+        "energy_class_wh": [
+          950,
+          1150
+        ],
+        "selection_status": "TBD",
+        "professional_pack_required": true
+      },
+      "source": {
+        "kind": "planning_placeholder",
+        "url": null,
+        "as_of": "2026-10-01"
+      },
+      "price": {
+        "kind": "range",
+        "min_usd": 800,
+        "max_usd": 1400,
+        "qty": 1
+      },
+      "hold_reason": "Voltage, cell, BMS, enclosure and charger architecture remain blocked."
+    },
+    {
+      "id": "SNOWDECK-V01-CUSTOM",
+      "category": "rider_interface",
+      "label": "SnowDeck v0.1 adjustable rider-interface study",
+      "manufacturer": "Worcester X1",
+      "sku": null,
+      "evidence_state": "ASSUMED",
+      "procurement_state": "STUDY_ONLY",
+      "interfaces": {
+        "independent_left_right_adjustment": true,
+        "release_friendly": true
+      },
+      "source": {
+        "kind": "repository_reference",
+        "url": null,
+        "as_of": "2026-10-01"
+      },
+      "price": null
+    },
+    {
+      "id": "TRAIL-ARMOR-STUDY",
+      "category": "armor",
+      "label": "Sacrificial trail-armor study",
+      "manufacturer": "Worcester X1",
+      "sku": null,
+      "evidence_state": "ASSUMED",
+      "procurement_state": "STUDY_ONLY",
+      "interfaces": {
+        "replaceable_first_contact": true
+      },
+      "source": {
+        "kind": "repository_reference",
+        "url": null,
+        "as_of": "2026-10-01"
+      },
+      "price": null
+    },
+    {
+      "id": "PASSIVE-DOCK-STUDY",
+      "category": "dock",
+      "label": "Passive charge-cradle alignment study",
+      "manufacturer": "Worcester X1",
+      "sku": null,
+      "evidence_state": "ASSUMED",
+      "procurement_state": "STUDY_ONLY",
+      "interfaces": {
+        "passive_alignment_only": true,
+        "energized_contacts": false
+      },
+      "source": {
+        "kind": "repository_reference",
+        "url": null,
+        "as_of": "2026-10-01"
+      },
+      "price": null
+    },
+    {
+      "id": "DECK-PRO-WARREN-REF",
+      "category": "deck",
+      "label": "Pro Warren III 980 × 244 mm envelope reference",
+      "manufacturer": "MBS",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "SOURCE_ONLY",
+      "interfaces": {
+        "length_mm": 980,
+        "width_mm": 244
+      },
+      "source": {
+        "kind": "repository_reference",
+        "url": null,
+        "as_of": "2026-10-01"
+      },
+      "price": null
+    },
+    {
+      "id": "DECK-AGENT-REF",
+      "category": "deck",
+      "label": "Agent 1020 × 284 mm envelope reference",
+      "manufacturer": "MBS",
+      "sku": null,
+      "evidence_state": "REFERENCE",
+      "procurement_state": "SOURCE_ONLY",
+      "interfaces": {
+        "length_mm": 1020,
+        "width_mm": 284
+      },
+      "source": {
+        "kind": "repository_reference",
+        "url": null,
+        "as_of": "2026-10-01"
+      },
+      "price": null
+    }
+  ]
+}
