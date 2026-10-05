@@ -118,7 +118,7 @@ def test_candidate_set_exposes_trade_space_instead_of_winner():
 
 def test_compact_electric_candidate_selects_energy_class_from_mission():
     profile = dict(TRAIL)
-    profile["longest_miles"] = 40
+    profile["longest_miles"] = 35
     result = generate_candidates(profile)
     electric = candidate(result, "x1_compact_electric_study")
 
