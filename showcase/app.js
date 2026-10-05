@@ -88,6 +88,8 @@ const visual = {
   reframePending: false,
   wheelStudyId: "TIRE-T1-8-REF",
   componentCatalog: new Map(),
+  driveType: "gear",
+  brakeFamily: "mbs_v5_mechanical",
 };
 
 clearanceRoot.visible = false;
@@ -448,6 +450,8 @@ function makeBrakeReference(parent, axleX, g, state) {
   group.position.x = -axleX;
   const rotorOuter = g.wheel_diameter_mm * 0.31;
   const rotorInner = rotorOuter * 0.72;
+  const hydraulic = new THREE.Group();
+  hydraulic.name = "brake-style-hydraulic";
   for (const side of [-1, 1]) {
     const y = side * (g.wheel_center_lateral_mm - g.wheel_width_mm / 2 - 3);
     const rotor = new THREE.Mesh(
@@ -459,22 +463,66 @@ function makeBrakeReference(parent, axleX, g, state) {
     group.add(rotor);
     box(group, "brake-caliper-" + side, [30, 18, 34],
       [18, y, g.wheel_diameter_mm * 0.63], state, 0.72, "brake");
+
+    const slave = new THREE.Mesh(
+      new THREE.CylinderGeometry(6, 6, 28, 24),
+      materialFor(state, 0.86, false, "brake")
+    );
+    slave.rotation.z = Math.PI / 2;
+    slave.position.set(30, y, g.wheel_diameter_mm * 0.66);
+    hydraulic.add(slave);
+
+    const hosePoints = [
+      new THREE.Vector3(30, y, g.wheel_diameter_mm * 0.66),
+      new THREE.Vector3(12, side * 52, g.wheel_diameter_mm * 0.82),
+      new THREE.Vector3(-20, side * 34, g.wheel_diameter_mm * 0.94),
+    ];
+    const hose = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(hosePoints),
+      new THREE.LineBasicMaterial({
+        color: STATE[state] || STATE.ASSUMED,
+        transparent: true,
+        opacity: 0.72,
+      })
+    );
+    hydraulic.add(hose);
   }
+  group.add(hydraulic);
+  group.userData.hydraulicStyle = hydraulic;
+
   const envelope = box(group, "brake-packaging-envelope",
     [40, g.truck_total_width_mm - 34, g.wheel_diameter_mm * 0.78],
     [0, 0, g.wheel_diameter_mm / 2], state, 0.055);
   visual.brakeGhost = envelope;
+  visual.brakeReferenceGroup = group;
   registerMovable(group, [-70, -180, 100]);
   parent.add(group);
   return group;
+}
+
+function applyBrakeVisualFamily(family) {
+  visual.brakeFamily = family || "mbs_v5_mechanical";
+  const hydraulic = visual.brakeReferenceGroup?.userData?.hydraulicStyle;
+  if (hydraulic) {
+    hydraulic.visible = String(visual.brakeFamily).includes("hs11");
+  }
 }
 
 function makeDriveReference(parent, axleX, g, state) {
   const group = new THREE.Group();
   group.name = "drive-packaging-reference";
   group.position.x = -axleX + 28;
+
+  const gearStyle = new THREE.Group();
+  gearStyle.name = "drive-style-gear";
+  const openBeltStyle = new THREE.Group();
+  openBeltStyle.name = "drive-style-open-belt";
+  const beltStyle = new THREE.Group();
+  beltStyle.name = "drive-style-belt";
+
   for (const side of [-1, 1]) {
     const y = side * (g.wheel_center_lateral_mm - 58);
+    const wheelY = side * (g.wheel_center_lateral_mm - g.wheel_width_mm / 2 - 7);
     const motor = new THREE.Mesh(
       new THREE.CylinderGeometry(28, 28, 48, 36),
       materialFor(state, 0.58, state === "BLOCKED", "drive")
@@ -482,19 +530,89 @@ function makeDriveReference(parent, axleX, g, state) {
     motor.position.set(36, y, 78);
     motor.castShadow = true;
     group.add(motor);
+
     const gear = new THREE.Mesh(
       new THREE.CylinderGeometry(34, 34, 7, 40),
       materialFor(state, 0.5, true, "drive")
     );
-    gear.position.set(0, side * (g.wheel_center_lateral_mm - g.wheel_width_mm / 2 - 7), g.wheel_diameter_mm / 2);
-    group.add(gear);
+    gear.position.set(0, wheelY, g.wheel_diameter_mm / 2);
+    gearStyle.add(gear);
+
+    const wheelPulley = new THREE.Mesh(
+      new THREE.CylinderGeometry(29, 29, 6, 40),
+      materialFor(state, 0.54, false, "drive")
+    );
+    wheelPulley.position.set(0, wheelY, g.wheel_diameter_mm / 2);
+    openBeltStyle.add(wheelPulley);
+
+    const motorPulley = new THREE.Mesh(
+      new THREE.CylinderGeometry(10, 10, 8, 28),
+      materialFor(state, 0.68, false, "drive")
+    );
+    motorPulley.position.set(36, y, 78);
+    openBeltStyle.add(motorPulley);
+
+    const beltPoints = [
+      new THREE.Vector3(0, wheelY, g.wheel_diameter_mm / 2),
+      new THREE.Vector3(36, y, 78),
+    ];
+    const belt = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints(beltPoints),
+      new THREE.LineBasicMaterial({
+        color: STATE[state] || STATE.ASSUMED,
+        transparent: true,
+        opacity: 0.9,
+      })
+    );
+    openBeltStyle.add(belt);
+
+    const enclosedWheelPulley = wheelPulley.clone();
+    enclosedWheelPulley.material = materialFor(state, 0.46, false, "drive");
+    beltStyle.add(enclosedWheelPulley);
+    const enclosedMotorPulley = motorPulley.clone();
+    enclosedMotorPulley.material = materialFor(state, 0.52, false, "drive");
+    beltStyle.add(enclosedMotorPulley);
+    const enclosedBelt = belt.clone();
+    enclosedBelt.material = new THREE.LineBasicMaterial({
+      color: STATE[state] || STATE.ASSUMED,
+      transparent: true,
+      opacity: 0.62,
+    });
+    beltStyle.add(enclosedBelt);
+    box(
+      beltStyle,
+      "belt-cover-" + side,
+      [58, 18, 34],
+      [18, (wheelY + y) / 2, (g.wheel_diameter_mm / 2 + 78) / 2],
+      state,
+      0.16,
+      "drive"
+    );
   }
+
+  group.add(gearStyle, openBeltStyle, beltStyle);
+  group.userData.driveStyles = {
+    gear: gearStyle,
+    open_belt: openBeltStyle,
+    belt: beltStyle,
+  };
+
   const envelope = box(group, "drive-packaging-envelope",
     [122, g.truck_total_width_mm - 48, 92], [24, 0, 74], state, 0.055);
   visual.driveGhost = envelope;
+  visual.driveReferenceGroup = group;
   registerMovable(group, [-70, 180, 100]);
   parent.add(group);
   return group;
+}
+
+function applyDriveVisualType(type) {
+  visual.driveType = type || "gear";
+  const styles = visual.driveReferenceGroup?.userData?.driveStyles || {};
+  for (const [id, group] of Object.entries(styles)) {
+    group.visible = id === visual.driveType;
+  }
+  if (!styles[visual.driveType] && styles.gear) styles.gear.visible = true;
 }
 
 function makeDockStudy(g) {
@@ -649,6 +767,7 @@ function wheelStudyGeometry(id) {
   const width = Number(
     interfaces.measured_reference_width_mm ??
     interfaces.published_width_mm ??
+    interfaces.visual_width_mm ??
     visual.geometry.wheel_width_mm
   );
   return {
@@ -872,6 +991,8 @@ function currentConfiguration() {
     topology_id: topology?.id || null,
     topology_label: topology?.label || "Unknown topology",
     wheel_study_id: visual.wheelStudyId,
+    drive_type: visual.driveType,
+    brake_family: visual.brakeFamily,
     wheel_diameter_mm: wheelStudy.diameter_mm,
     wheel_width_mm: wheelStudy.width_mm,
     truck_total_width_mm: topology?.truck_total_width_mm ?? g.truck_total_width_mm ?? null,
@@ -1028,6 +1149,8 @@ function applyConfigurationPreset(preset) {
   selectDeckCandidate(preset.deck_candidate_id);
   selectTopology(preset.topology_id);
   applyWheelStudy("TIRE-T1-8-REF");
+  applyDriveVisualType("gear");
+  applyBrakeVisualFamily("mbs_v5_mechanical");
   Object.entries(preset.layers || {}).forEach(([id, visible]) => setLayerVisibility(id, visible));
   setSnowdeckControls(preset.snowdeck || {});
   const note = document.getElementById("preset-note");
@@ -1088,6 +1211,8 @@ function configurationLabUI(manifest) {
   const requestedDeckId = params.get("deck");
   const requestedTopologyId = params.get("topology");
   const requestedWheelId = params.get("wheel");
+  const requestedDriveType = params.get("drive_type");
+  const requestedBrakeFamily = params.get("brake_family");
   const requestedLayers = {};
   for (const layerId of ["brake", "drive", "pack", "snowdeck", "armor", "dock"]) {
     const raw = params.get(layerId);
@@ -1127,6 +1252,13 @@ function configurationLabUI(manifest) {
       applyWheelStudy(requestedWheelId);
     }
 
+    if (["gear", "open_belt", "belt", "none"].includes(requestedDriveType)) {
+      applyDriveVisualType(requestedDriveType === "none" ? "gear" : requestedDriveType);
+    }
+    if (requestedBrakeFamily) {
+      applyBrakeVisualFamily(requestedBrakeFamily);
+    }
+
     if (
       Number.isFinite(requestedStanceMm) &&
       requestedStanceMm >= 260 &&
@@ -1148,6 +1280,8 @@ function configurationLabUI(manifest) {
           requestedDeckId ||
           requestedTopologyId ||
           requestedWheelId ||
+          requestedDriveType ||
+          requestedBrakeFamily ||
           Object.keys(requestedLayers).length
             ? " URL overrides are visualization-only design-study state."
             : "";
