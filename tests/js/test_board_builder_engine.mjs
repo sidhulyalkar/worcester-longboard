@@ -84,3 +84,32 @@ test("power placeholders never receive invented source links", () => {
     }
   }
 });
+
+
+test("compact electric study scales from trail to range energy class", () => {
+  const longRange = { ...trail, longest_miles: 40 };
+  const result = generateCandidates(longRange, bundle);
+  const electric = candidate(result, "x1_compact_electric_study");
+  assert.ok(electric.personalized_spec.planning_installed_energy_wh > 650);
+  assert.ok(electric.personalized_spec.planning_installed_energy_wh <= 1150);
+  assert.equal(electric.personalized_spec.selected_energy_class, "BATTERY-RANGE-CLASS");
+  assert.ok(electric.bom.some(row => row.component_id === "BATTERY-RANGE-CLASS"));
+  assert.ok(!electric.bom.some(row => row.component_id === "BATTERY-TRAIL-CLASS"));
+});
+
+test("mission beyond seeded range class fails closed", () => {
+  const veryLong = { ...trail, longest_miles: 50 };
+  const result = generateCandidates(veryLong, bundle);
+  const electric = candidate(result, "x1_compact_electric_study");
+  assert.equal(electric.readiness, "BLOCKED");
+  assert.ok(electric.blockers.some(text => text.includes("largest seeded 1150 Wh")));
+});
+
+test("stability fit follows rider preference direction", () => {
+  const playfulResult = generateCandidates({ ...manual, stability_preference: 20 }, bundle);
+  const plantedResult = generateCandidates({ ...manual, stability_preference: 95 }, bundle);
+  assert.ok(
+    candidate(playfulResult, "drive_clearance_range_study").preference_fit.stability <
+    candidate(plantedResult, "drive_clearance_range_study").preference_fit.stability
+  );
+});
