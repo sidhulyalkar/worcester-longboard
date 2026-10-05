@@ -90,25 +90,29 @@ def _slot_options(slots: dict[str, Any]) -> dict[str, dict[Any, dict[str, Any]]]
 
 
 def seed_selection(candidate: dict[str, Any]) -> dict[str, Any]:
-    bom_ids = {row["component_id"] for row in candidate["bom"]}
-    wheel = None
-    if candidate.get("capabilities", {}).get("wheel_class") == "8in_pneumatic":
-        wheel = "TIRE-T1-8-REF"
-    elif "TIRE-T2-9" in bom_ids:
-        wheel = "TIRE-T2-9"
+    if candidate.get("swap_defaults"):
+        return copy.deepcopy(candidate["swap_defaults"])
 
-    battery = next(
-        (item for item in ("BATTERY-TRAIL-CLASS", "BATTERY-RANGE-CLASS") if item in bom_ids),
-        None,
+    bom_ids = {row["component_id"] for row in candidate["bom"]}
+
+    def first_present(ids: tuple[str, ...]) -> str | None:
+        return next((item for item in ids if item in bom_ids), None)
+
+    wheel = first_present(
+        ("WHEEL-TRAMPA-MEGASTAR9", "WHEEL-TRAMPA-ALPHA8", "TIRE-T2-9")
     )
+    if wheel is None and candidate.get("capabilities", {}).get("wheel_class") == "8in_pneumatic":
+        wheel = "TIRE-T1-8-REF"
 
     return {
         "deck": candidate["deck_candidate_id"],
         "topology": candidate["topology_id"],
         "wheel": wheel,
-        "brake": "BRAKE-V5" if "BRAKE-V5" in bom_ids else None,
-        "drive": "DRIVE-G1-DUAL" if "DRIVE-G1-DUAL" in bom_ids else None,
-        "battery": battery,
+        "brake": first_present(("BRAKE-TRAMPA-HS11", "BRAKE-V5")),
+        "drive": first_present(
+            ("DRIVE-BOARDNAMICS-M1-AT", "DRIVE-TRAMPA-OBD-DUAL", "DRIVE-G1-DUAL")
+        ),
+        "battery": first_present(("BATTERY-TRAIL-CLASS", "BATTERY-RANGE-CLASS")),
         "rider_interface": "SNOWDECK-V01-CUSTOM" if "SNOWDECK-V01-CUSTOM" in bom_ids else None,
         "armor": "TRAIL-ARMOR-STUDY" if "TRAIL-ARMOR-STUDY" in bom_ids else None,
         "dock": "PASSIVE-DOCK-STUDY" if "PASSIVE-DOCK-STUDY" in bom_ids else None,
@@ -151,8 +155,9 @@ def resolve_component_ids(
             component_id = options[slot_id][selection[slot_id]].get("component_id")
             if component_id:
                 component_ids.append(component_id)
-        if selection["wheel"] in {"TIRE-T1-8-REF", "TIRE-T2-9"}:
-            component_ids.append("HUB-RSII")
+        component_ids.extend(
+            slots.get("wheel_support_components", {}).get(selection["wheel"], [])
+        )
         component_ids.extend(
             slots.get("topology_support_components", {}).get(selection["topology"], [])
         )
@@ -173,10 +178,17 @@ def resolve_component_ids(
 def _pair_findings(
     component_ids: set[str],
     compatibility: dict[str, Any],
+    catalog: dict[str, Any],
 ) -> list[dict[str, Any]]:
     findings: list[dict[str, Any]] = []
+    explicit_pairs: set[tuple[str, str]] = set()
+
+    def pair_key(a: str, b: str) -> tuple[str, str]:
+        return tuple(sorted((a, b)))
+
     for rule in compatibility.get("pair_rules", []):
         if rule["a"] in component_ids and rule["b"] in component_ids:
+            explicit_pairs.add(pair_key(rule["a"], rule["b"]))
             findings.append(
                 {
                     "id": rule["id"],
@@ -186,6 +198,28 @@ def _pair_findings(
                     "reason": rule["reason"],
                 }
             )
+
+    index = _component_index(catalog)
+    selected = [index[item] for item in component_ids if item in index]
+    for fallback in compatibility.get("category_pair_defaults", []):
+        category_a, category_b = fallback["categories"]
+        rows_a = [row for row in selected if row["category"] == category_a]
+        rows_b = [row for row in selected if row["category"] == category_b]
+        for a in rows_a:
+            for b in rows_b:
+                key = pair_key(a["id"], b["id"])
+                if a["id"] == b["id"] or key in explicit_pairs:
+                    continue
+                explicit_pairs.add(key)
+                findings.append(
+                    {
+                        "id": f"default:{category_a}:{category_b}:{a['id']}:{b['id']}",
+                        "state": fallback["state"],
+                        "a": a["id"],
+                        "b": b["id"],
+                        "reason": fallback["reason"],
+                    }
+                )
     return findings
 
 
@@ -215,7 +249,7 @@ def evaluate_swap(
     component_ids = resolve_component_ids(selection, slot_data)
     bom, cost = _bom_rows(component_ids, data["catalog"])
     selected_ids = set(component_ids)
-    findings = _pair_findings(selected_ids, data["compatibility"])
+    findings = _pair_findings(selected_ids, data["compatibility"], data["catalog"])
 
     readiness = "REFERENCE_COMPATIBLE"
     blockers: list[str] = []
@@ -229,12 +263,6 @@ def evaluate_swap(
         elif finding["state"] in {"MEASURE_FIRST", "UNKNOWN"}:
             readiness = _worsen(readiness, "MEASURE_FIRST")
             unknowns.append(finding["reason"])
-
-    if selection["deck"] != "comp95":
-        readiness = _worsen(readiness, "MEASURE_FIRST")
-        unknowns.append(
-            "Deck-to-truck structural interface is not normalized for this seed catalog; received geometry or a sourced mount pattern is required."
-        )
 
     if requirements["independent_friction_brake_required"] and not selection["brake"]:
         readiness = _worsen(readiness, "BLOCKED")
@@ -271,16 +299,16 @@ def evaluate_swap(
 
     if (
         requirements["wheel_strategy"] == "nine_inch_rollover_study"
-        and selection["wheel"] == "TIRE-T1-8-REF"
+        and selection["wheel"] in {"TIRE-T1-8-REF", "WHEEL-TRAMPA-ALPHA8"}
     ):
         readiness = _worsen(readiness, "MEASURE_FIRST")
         unknowns.append(
             "The terrain model calls for a 9-inch rollover study, but the edited design retains the 8-inch reference."
         )
 
-    if selection["wheel"] == "TIRE-T2-9":
+    if selection["wheel"] in {"TIRE-T2-9", "WHEEL-TRAMPA-MEGASTAR9"}:
         notes.append(
-            "The 9-inch tire is a rollover study only; hub fit, clearance and gearing remain separate checks."
+            "The 9-inch wheel is a rollover study only; hub/axle fit, offset, clearance and gearing remain separate checks."
         )
 
     procurement_states = {row["procurement_state"] for row in bom}
