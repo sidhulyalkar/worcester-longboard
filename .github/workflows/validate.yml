@@ -34,9 +34,11 @@ jobs:
           node --check /tmp/x1-showcase-app.mjs
           node --check /tmp/x1-builder-app.mjs
           node --check builder/engine.mjs
+          node --check builder/swap_engine.mjs
           node --check tools/generate_board_candidates.mjs
-      - name: Test browser Board Builder engine
-        run: node --test tests/js/test_board_builder_engine.mjs
+          node --check tools/evaluate_board_swap.mjs
+      - name: Test browser Board Builder engines
+        run: node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_builder_swap_lab.mjs
       - run: python -m pytest -q tests
       - name: Validate Board Builder catalog and authority boundary
         run: python tools/validate_board_builder.py
@@ -49,6 +51,9 @@ jobs:
           env -u PYTHONPATH python tools/render_board_bom.py             configurator/examples/trail_rider_profile.json             --candidate x1_compact_electric_study             --out /tmp/board-bom.md
           grep -q "Source links are not checkout authorization" /tmp/board-bom.md
           grep -q "POWER_GATED" /tmp/board-bom.md
+          env -u PYTHONPATH python tools/evaluate_board_swap.py             configurator/examples/trail_rider_profile.json             configurator/examples/swap_incompatible_study.json             --candidate x1_compact_electric_study             --out /tmp/board-swap-python.json
+          node tools/evaluate_board_swap.mjs             configurator/examples/trail_rider_profile.json             configurator/examples/swap_incompatible_study.json             --candidate x1_compact_electric_study             > /tmp/board-swap-browser.json
+          python tools/compare_board_swap_engines.py             /tmp/board-swap-python.json             /tmp/board-swap-browser.json
       - name: Smoke-test local showcase without PYTHONPATH
         run: env -u PYTHONPATH python tools/prepare_x1_showcase.py --synthetic-snowdeck-demo
       - name: Validate staged procurement authority
