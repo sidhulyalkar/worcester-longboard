@@ -266,6 +266,38 @@ function partialCost(candidate) {
   return "USD " + c.known_min_usd.toFixed(0) + "–" + c.known_max_usd.toFixed(0);
 }
 
+function twinUrl(candidate) {
+  const spec = candidate.personalized_spec || {};
+  const params = new URLSearchParams({
+    preset: candidate.visual_preset,
+    candidate: candidate.id,
+  });
+  if (Number.isFinite(Number(spec.stance_center_mm))) {
+    params.set("stance_mm", String(spec.stance_center_mm));
+  }
+  return "../showcase/?" + params.toString();
+}
+
+function candidateSpecHtml(candidate) {
+  const spec = candidate.personalized_spec || {};
+  const energy = spec.selected_energy_class
+    ? spec.selected_energy_class
+        .replace("BATTERY-", "")
+        .replace("-CLASS", "")
+        .replaceAll("-", " ")
+        .toLowerCase()
+    : "no pack selected";
+  const wheel = wheelLabel(spec.wheel_strategy || "");
+  return (
+    '<div class="candidate-spec">' +
+      '<span>' + escapeHtml(spec.target_range_mi + " mi target") + '</span>' +
+      '<span>' + escapeHtml("stance " + spec.stance_center_mm + " mm") + '</span>' +
+      '<span>' + escapeHtml(wheel) + '</span>' +
+      '<span>' + escapeHtml(energy) + '</span>' +
+    '</div>'
+  );
+}
+
 function traitsHtml(candidate) {
   const labels = {
     range: "Range",
@@ -306,12 +338,13 @@ function renderCandidates(candidates) {
         '<span class="badge">' + escapeHtml(candidate.checkout_state.replaceAll("_", " ").toLowerCase()) + '</span>' +
       '</div>' +
       '<div class="traits">' + traitsHtml(candidate) + '</div>' +
+      candidateSpecHtml(candidate) +
       issueText +
       '<div class="candidate-footer">' +
         '<div class="cost"><strong>' + partialCost(candidate) + '</strong><small>known-price subtotal · shipping/tax excluded</small></div>' +
         '<div class="candidate-actions">' +
           '<button type="button" data-inspect="' + escapeHtml(candidate.id) + '">Inspect BOM</button>' +
-          '<a href="../showcase/?preset=' + encodeURIComponent(candidate.visual_preset) + '&candidate=' + encodeURIComponent(candidate.id) + '">3D</a>' +
+          '<a href="' + escapeHtml(twinUrl(candidate)) + '">3D</a>' +
         '</div>' +
       '</div>';
 
@@ -331,7 +364,7 @@ function renderBom(candidate) {
   $("#bom-title").textContent = candidate.label;
   const twin = $("#open-twin");
   twin.classList.remove("disabled");
-  twin.href = "../showcase/?preset=" + encodeURIComponent(candidate.visual_preset) + "&candidate=" + encodeURIComponent(candidate.id);
+  twin.href = twinUrl(candidate);
 
   const cost = candidate.cost;
   $("#bom-summary").innerHTML =
@@ -400,21 +433,42 @@ function scheduleRecompute() {
   });
 }
 
+function downloadJson(filename, payload) {
+  const blob = new Blob([JSON.stringify(payload, null, 2) + "\n"], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 function exportProfile() {
-  const payload = {
+  downloadJson("worcester-board-profile.json", {
     schema_version: 1,
     profile: state.result?.profile || state.profile,
     requirements: state.result?.requirements || null,
     winner_selected: false,
     note: "Exported planning profile. This file does not create build authority.",
-  };
-  const blob = new Blob([JSON.stringify(payload, null, 2) + "\n"], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "worcester-board-profile.json";
-  link.click();
-  URL.revokeObjectURL(url);
+  });
+}
+
+function exportSelectedDesign() {
+  const selected = state.result?.candidates.find(row => row.id === state.selectedId);
+  if (!selected) return;
+  downloadJson("worcester-board-design-" + selected.id + ".json", {
+    schema_version: 1,
+    profile: state.result.profile,
+    requirements: state.result.requirements,
+    selected_for_inspection: selected,
+    winner_selected: false,
+    authority: state.result.authority,
+    source_snapshot_as_of: state.bundle.catalog.as_of,
+    note:
+      "Exported planning design. Selection is for inspection only and does not create procurement, fabrication, charging or powered-operation authority.",
+  });
 }
 
 async function main() {
@@ -439,6 +493,7 @@ async function main() {
     });
 
     $("#export-profile").addEventListener("click", exportProfile);
+    $("#export-design").addEventListener("click", exportSelectedDesign);
   } catch (error) {
     console.error(error);
     $("#questionnaire").innerHTML = '<div class="note warning">Board Builder failed to load: ' + escapeHtml(error.message) + '</div>';
