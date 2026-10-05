@@ -863,6 +863,26 @@
       },
       "price": null,
       "hold_reason": "Exact motor KV, shaft length, sensors, thermal limits and vendor remain unfrozen."
+    },
+    {
+      "id": "MOTOR-63XX-CLASS",
+      "category": "motor",
+      "label": "63xx motor planning class",
+      "manufacturer": null,
+      "sku": null,
+      "evidence_state": "BLOCKED",
+      "procurement_state": "POWER_GATED",
+      "interfaces": {
+        "motor_class": "63xx",
+        "selection_status": "TBD"
+      },
+      "source": {
+        "kind": "planning_placeholder",
+        "url": null,
+        "as_of": "2026-10-04"
+      },
+      "price": null,
+      "hold_reason": "Exact motor size, KV, shaft, sensors, thermal limits and vendor remain unfrozen."
     }
   ]
 }
