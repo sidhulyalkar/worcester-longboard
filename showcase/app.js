@@ -128,6 +128,8 @@ function addEvidenceEdges(mesh, state, opacity = 0.72) {
     })
   );
   edges.renderOrder = 4;
+  edges.name = "evidence-edges";
+  edges.userData.evidenceEdge = true;
   mesh.add(edges);
   return mesh;
 }
@@ -153,13 +155,41 @@ function box(parent, name, size, pos, state, opacity = 1, physicalKind = null) {
   return mesh;
 }
 
-function roundedDeck(parent, g, state) {
-  const length = g.deck_length_mm;
-  const width = g.deck_width_mm;
-  const r = Math.min(34, width * 0.14);
+function deckShape2D(length, width, family = "generic_mountainboard") {
   const x = length / 2;
   const y = width / 2;
   const shape = new THREE.Shape();
+
+  if (family === "lacroix_asymmetric_flex") {
+    const nose = Math.min(92, length * 0.105);
+    const tail = Math.min(68, length * 0.078);
+    const frontInset = Math.min(22, width * 0.08);
+    const rearInset = Math.min(42, width * 0.16);
+    shape.moveTo(-x + tail, -y + rearInset);
+    shape.quadraticCurveTo(-x + 4, -y + width * 0.34, -x, 4);
+    shape.quadraticCurveTo(-x + 8, y - width * 0.18, -x + tail, y - rearInset * 0.55);
+    shape.quadraticCurveTo(-length * 0.10, y + 7, x - nose, y - frontInset);
+    shape.quadraticCurveTo(x - 4, y - width * 0.15, x, 0);
+    shape.quadraticCurveTo(x - 4, -y + width * 0.15, x - nose, -y + frontInset);
+    shape.quadraticCurveTo(-length * 0.08, -y - 7, -x + tail, -y + rearInset);
+    return shape;
+  }
+
+  if (family.startsWith("trampa_")) {
+    const r = Math.min(28, width * 0.10);
+    shape.moveTo(-x + r, -y);
+    shape.lineTo(x - r, -y);
+    shape.quadraticCurveTo(x, -y, x, -y + r);
+    shape.lineTo(x, y - r);
+    shape.quadraticCurveTo(x, y, x - r, y);
+    shape.lineTo(-x + r, y);
+    shape.quadraticCurveTo(-x, y, -x, y - r);
+    shape.lineTo(-x, -y + r);
+    shape.quadraticCurveTo(-x, -y, -x + r, -y);
+    return shape;
+  }
+
+  const r = Math.min(34, width * 0.14);
   shape.moveTo(-x + r, -y);
   shape.lineTo(x - r, -y);
   shape.quadraticCurveTo(x, -y, x, -y + r);
@@ -169,14 +199,42 @@ function roundedDeck(parent, g, state) {
   shape.quadraticCurveTo(-x, y, -x, y - r);
   shape.lineTo(-x, -y + r);
   shape.quadraticCurveTo(-x, -y, -x + r, -y);
-  const geometry = new THREE.ExtrudeGeometry(shape, {
-    depth: g.deck_reference_thickness_mm,
-    bevelEnabled: true,
-    bevelSegments: 2,
-    steps: 1,
-    bevelSize: 2.5,
-    bevelThickness: 1.5,
-  });
+  return shape;
+}
+
+function deckGeometry(length, width, thickness, family) {
+  return new THREE.ExtrudeGeometry(
+    deckShape2D(length, width, family),
+    {
+      depth: thickness,
+      bevelEnabled: true,
+      bevelSegments: 2,
+      steps: 1,
+      bevelSize: 2.5,
+      bevelThickness: 1.5,
+    }
+  );
+}
+
+function replaceMeshGeometry(mesh, geometry, state) {
+  if (mesh.geometry) mesh.geometry.dispose();
+  for (const child of [...mesh.children]) {
+    if (!child.userData?.evidenceEdge) continue;
+    mesh.remove(child);
+    child.geometry?.dispose?.();
+    child.material?.dispose?.();
+  }
+  mesh.geometry = geometry;
+  addEvidenceEdges(mesh, state, 0.48);
+}
+
+function roundedDeck(parent, g, state) {
+  const geometry = deckGeometry(
+    g.deck_length_mm,
+    g.deck_width_mm,
+    g.deck_reference_thickness_mm,
+    "mbs_powerlam"
+  );
   const mesh = new THREE.Mesh(geometry, materialFor(state, 1, false, "deck"));
   mesh.name = "deck";
   mesh.position.z = g.static_ground_clearance_mm;
@@ -245,8 +303,75 @@ function makeTruck(parent, name, width, deckBottom, state) {
 
   box(group, name + "-baseplate", [94, 70, 7], [0, 0, deckBottom - 5], state, 1, "trucks");
   box(group, name + "-pivot", [40, 34, 26], [0, 0, deckBottom - 17], state, 1, "trucks");
+
+  const styleGroups = {};
+
+  const channel = new THREE.Group();
+  channel.name = name + "-style-channel-spring";
+  for (const side of [-1, 1]) {
+    box(
+      channel,
+      name + "-channel-spring-" + side,
+      [28, 13, 30],
+      [0, side * 28, deckBottom - 18],
+      state,
+      0.86,
+      "trucks"
+    );
+  }
+  group.add(channel);
+  styleGroups.channel_spring = channel;
+
+  const pkp = new THREE.Group();
+  pkp.name = name + "-style-parallel-kingpin";
+  for (const side of [-1, 1]) {
+    const pin = new THREE.Mesh(
+      new THREE.CylinderGeometry(4.5, 4.5, 48, 24),
+      materialFor(state, 1, false, "trucks")
+    );
+    pin.rotation.x = side * 0.62;
+    pin.position.set(0, side * 17, deckBottom - 17);
+    pkp.add(pin);
+  }
+  group.add(pkp);
+  styleGroups.parallel_kingpin = pkp;
+
+  const precision = new THREE.Group();
+  precision.name = name + "-style-precision-bushing-spring";
+  for (const side of [-1, 1]) {
+    const spring = new THREE.Mesh(
+      new THREE.TorusGeometry(9, 2.2, 10, 28),
+      materialFor(state, 0.9, false, "trucks")
+    );
+    spring.rotation.x = Math.PI / 2;
+    spring.position.set(0, side * 25, deckBottom - 18);
+    precision.add(spring);
+    box(
+      precision,
+      name + "-precision-bushing-" + side,
+      [26, 14, 12],
+      [0, side * 25, deckBottom - 8],
+      state,
+      0.9,
+      "trucks"
+    );
+  }
+  group.add(precision);
+  styleGroups.precision_bushing_spring = precision;
+
+  group.userData.styleGroups = styleGroups;
   parent.add(group);
   return group;
+}
+
+function applyTruckVisualFamily(truck, family) {
+  const groups = truck?.userData?.styleGroups || {};
+  for (const [id, group] of Object.entries(groups)) {
+    group.visible = id === family;
+  }
+  if (!groups[family] && groups.channel_spring) {
+    groups.channel_spring.visible = true;
+  }
 }
 
 function lineRectangle(width, height, z, color) {
@@ -473,6 +598,7 @@ function applyTopology(id) {
   visual.topologyId = branch.id;
   for (const axle of Object.values(visual.axles)) {
     axle.truck.scale.y = branch.truck_total_width_mm / visual.geometry.truck_total_width_mm;
+    applyTruckVisualFamily(axle.truck, branch.steering_family || "channel_spring");
     axle.leftWheel.position.y = -branch.wheel_center_lateral_mm;
     axle.rightWheel.position.y = branch.wheel_center_lateral_mm;
   }
@@ -645,8 +771,17 @@ function deckStudyUI(manifest) {
     btn.addEventListener("click", () => {
       if (!visual.deck || !visual.geometry) return;
       visual.deckCandidateId = candidate.id;
-      visual.deck.scale.x = candidate.length_mm / visual.geometry.deck_length_mm;
-      visual.deck.scale.y = candidate.width_mm / visual.geometry.deck_width_mm;
+      visual.deck.scale.set(1, 1, 1);
+      replaceMeshGeometry(
+        visual.deck,
+        deckGeometry(
+          candidate.length_mm,
+          candidate.width_mm,
+          visual.geometry.deck_reference_thickness_mm,
+          candidate.shape_family || "generic_mountainboard"
+        ),
+        componentState("deck")
+      );
       document.querySelectorAll("#deck-candidates button").forEach(x => x.classList.remove("active"));
       btn.classList.add("active");
       document.getElementById("deck-note").textContent =
