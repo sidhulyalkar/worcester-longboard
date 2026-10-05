@@ -33,6 +33,8 @@ CANDIDATE_KEYS = (
     "topology_id",
     "cost",
     "trade_space_frontier",
+    "preference_fit",
+    "personalized_spec",
     "blockers",
     "unknowns",
 )
