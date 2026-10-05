@@ -241,7 +241,7 @@ function worsen(current, next) {
 
 function deckFit(requirements, deckId) {
   const allowed = {
-    compact: new Set(["comp95", "trampa_short_969"]),
+    compact: new Set(["comp95", "trampa_short_969", "lacroix_barrel_876"]),
     balanced: new Set(["comp95", "pro_warren_iii", "trampa_short_969", "trampa_hs11_969"]),
     long_stable: new Set(["pro_warren_iii", "agent", "trampa_hs11_969"]),
   };
