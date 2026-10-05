@@ -311,6 +311,7 @@ def _bom(
                 "price": component.get("price"),
                 "source_url": source.get("url"),
                 "source_as_of": source.get("as_of"),
+                "source_native_price": source.get("native_price_snapshot"),
                 "hold_reason": component.get("hold_reason"),
             }
         )
