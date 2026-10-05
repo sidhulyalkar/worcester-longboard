@@ -275,6 +275,41 @@
       "b": "DRIVE-TRAMPA-OBD-DUAL",
       "state": "REFERENCE_COMPATIBLE",
       "reason": "TRAMPA currently sells OBD electric configurations with MEGASTAR wheel families; exact pulley/rim option and offset remain configuration details."
+    },
+    {
+      "id": "lacroix_barrel_hyperlite",
+      "a": "DECK-LACROIX-BARREL-REF",
+      "b": "TRUCK-LACROIX-HYPERLITE",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "Lacroix's Barrel complete-board specification pairs the Barrel deck with Hypertruck Lite trucks."
+    },
+    {
+      "id": "lacroix_hyperlite_kenda_rsii",
+      "a": "TRUCK-LACROIX-HYPERLITE",
+      "b": "WHEEL-LACROIX-KENDA8-RSII",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "The Hypertruck Lite package and Barrel complete-board reference use the Kenda 8-inch / MBS hub wheel family."
+    },
+    {
+      "id": "lacroix_hyperlite_belt",
+      "a": "TRUCK-LACROIX-HYPERLITE",
+      "b": "DRIVE-LACROIX-BARREL-BELT",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "The Hypertruck Lite product family includes its dedicated motor mounts and 72T rear pulley belt-drive hardware."
+    },
+    {
+      "id": "lacroix_wheel_belt",
+      "a": "WHEEL-LACROIX-KENDA8-RSII",
+      "b": "DRIVE-LACROIX-BARREL-BELT",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "The native Hypertruck Lite/Barrel drive package is documented around the Kenda tire / MBS hub rear-wheel family."
+    },
+    {
+      "id": "rockstarII_lacroix_belt",
+      "a": "HUB-RSII",
+      "b": "DRIVE-LACROIX-BARREL-BELT",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "Lacroix documents its Barrel wheel pulley around MBS Rockstar II hubs."
     }
   ],
   "category_pair_defaults": [
