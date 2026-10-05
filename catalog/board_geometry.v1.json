@@ -65,6 +65,19 @@
       "evidence_state": "REFERENCE",
       "source_kind": "vendor",
       "source_url": "https://trampaboards.com/35-hs11-original-969-trampa-mountainboard-or-kiteboard-blank-deck-p-27149.html"
+    },
+    {
+      "id": "lacroix_barrel_876",
+      "manufacturer": "Lacroix Boards",
+      "label": "Lacroix Barrel asymmetric deck reference",
+      "length_mm": 876.3,
+      "width_mm": 273.05,
+      "wheelbase_mm": 838.2,
+      "tip_angle_deg": null,
+      "shape_family": "lacroix_asymmetric_flex",
+      "evidence_state": "REFERENCE",
+      "source_kind": "vendor_reference",
+      "source_url": "https://www.lacroixboards.com/products/the-barrel%E2%84%A2"
     }
   ],
   "topologies": [
@@ -152,6 +165,23 @@
       "visual_geometry_state": "ASSUMED",
       "visual_geometry_note": "Source provides 434 mm axle-end width and 300 mm inner-bearing spacing, not wheel-center spacing. Wheel center is a visualization proxy only.",
       "source_url": "https://www.atbshop.co.uk/mountainboard-accessories/apex-boards-air-emtb-truck"
+    },
+    {
+      "id": "lacroix_hyperlite_381",
+      "manufacturer": "Lacroix Boards",
+      "label": "Hypertruck Lite 15 in hanger reference",
+      "short_label": "Lacroix HyperLite",
+      "truck_total_width_mm": 381,
+      "width_basis": "published_hanger_width",
+      "wheel_center_lateral_mm": 177.8,
+      "steering_family": "precision_bushing_spring",
+      "axle_diameter_mm": null,
+      "brake_reference_compatible": "UNKNOWN",
+      "drive_reference_compatible": true,
+      "evidence_state": "REFERENCE",
+      "visual_geometry_state": "ASSUMED",
+      "visual_geometry_note": "381 mm is the published hanger width. Wheel-center lateral is a visualization proxy inferred from the complete Barrel's 16-inch overall width with a generic 2-inch visual tire width; do not use for fit or fabrication.",
+      "source_url": "https://www.lacroixboards.com/products/lacroix-hypertruck%E2%84%A2-lite"
     }
   ]
 }
