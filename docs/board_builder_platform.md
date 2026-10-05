@@ -65,7 +65,7 @@ The catalog is now split into three layers so source text, normalized mechanical
 - `catalog/board_components.v1.json` normalizes stable component IDs, interface facts, evidence/procurement state and source provenance;
 - `catalog/board_geometry.v1.json` normalizes deck/truck geometry used by the 2D renderer and 3D twin, including explicit visualization-only proxy values where an exact dimension is not published.
 
-The first cross-vendor tranche includes MBS/Worcester, TRAMPA, Apex Boards and Boardnamics reference parts. Procurement states remain `SOURCE_ONLY`, `HOLD_MEASURE`, `POWER_GATED`, `STUDY_ONLY`, and `BUY_CANDIDATE`. The catalog intentionally contains no buy-candidate power items. Vendor links are source links, not purchase authorization, and planning placeholders receive no invented vendor link.
+The first cross-vendor tranche includes MBS/Worcester, TRAMPA, Apex Boards, Boardnamics and Lacroix Boards reference parts. Procurement states remain `SOURCE_ONLY`, `HOLD_MEASURE`, `POWER_GATED`, `STUDY_ONLY`, and `BUY_CANDIDATE`. The catalog intentionally contains no buy-candidate power items. Vendor links are source links, not purchase authorization, and planning placeholders receive no invented vendor link.
 
 Native-currency source prices remain source metadata rather than being silently converted into USD. The UI therefore reports a known USD subtotal plus explicit unpriced/source-native items.
 
@@ -73,7 +73,7 @@ See `docs/board_catalog_contract.md` for the ingestion, interface, compatibility
 
 ## Candidate architectures
 
-`configurator/architectures.v1.json` now spans materially different mechanical families rather than only X1 variations. In addition to the MBS/Worcester brake-first, coexistence, range and SnowDeck studies, the current tranche includes a TRAMPA Short carve core, a TRAMPA HS11 hydraulic freeride core, a TRAMPA + Boardnamics coexistence study, a TRAMPA 9-inch open-belt-drive study, and an Apex Air parallel-kingpin + Boardnamics M1-AT study.
+`configurator/architectures.v1.json` now spans materially different mechanical families rather than only X1 variations. In addition to the MBS/Worcester brake-first, coexistence, range and SnowDeck studies, the current tranche includes a TRAMPA Short carve core, a TRAMPA HS11 hydraulic freeride core, a TRAMPA + Boardnamics coexistence study, a TRAMPA 9-inch open-belt-drive study, an Apex Air parallel-kingpin + Boardnamics M1-AT study, a Lacroix Barrel unpowered carve reference, and a Lacroix Hypertruck Lite native belt-drive study.
 
 Their trait vectors are soft trade-space declarations. Hard compatibility findings remain separate. Regression tests require the reference manual-carver and electric-trail profiles to produce different top-ranked architectures and to retain cross-vendor breadth in each top-three set.
 
@@ -138,7 +138,7 @@ The browser renderer in `builder/preview_renderer.mjs` emits deterministic SVG i
 
 One view selector updates the whole candidate gallery so builds are compared from the same perspective.
 
-The current preview renderer is schematic. It distinguishes MBS-style and TRAMPA composite deck silhouettes, channel-spring and parallel-kingpin trucks, wheel/hub families, hydraulic/mechanical brake cues, gear/open-belt drive cues, and 8-inch/9-inch proportions. It intentionally does not claim fabrication-level surface geometry, loaded ground clearance, tire deformation, exact drive/brake packaging or structural strength.
+The current preview renderer is schematic. It distinguishes MBS-style, TRAMPA composite and Lacroix asymmetric deck silhouettes; channel-spring, parallel-kingpin and precision bushing/spring trucks; wheel/hub families; hydraulic/mechanical brake cues; gear/open-belt/native-belt drive cues; and 8-inch/9-inch proportions. It intentionally does not claim fabrication-level surface geometry, loaded ground clearance, tire deformation, exact drive/brake packaging or structural strength.
 
 ### Visual parity and headless export
 
