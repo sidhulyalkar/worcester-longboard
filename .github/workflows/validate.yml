@@ -35,10 +35,14 @@ jobs:
           node --check /tmp/x1-builder-app.mjs
           node --check builder/engine.mjs
           node --check builder/swap_engine.mjs
+          node --check builder/visual_state.mjs
+          node --check builder/preview_renderer.mjs
           node --check tools/generate_board_candidates.mjs
+          node --check tools/build_board_visual_states.mjs
+          node --check tools/render_board_candidate_previews.mjs
           node --check tools/evaluate_board_swap.mjs
-      - name: Test browser Board Builder engines
-        run: node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_builder_swap_lab.mjs
+      - name: Test browser Board Builder engines and visuals
+        run: node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_builder_swap_lab.mjs tests/js/test_board_builder_visuals.mjs
       - run: python -m pytest -q tests
       - name: Validate Board Builder catalog and authority boundary
         run: python tools/validate_board_builder.py
@@ -54,6 +58,15 @@ jobs:
           env -u PYTHONPATH python tools/evaluate_board_swap.py             configurator/examples/trail_rider_profile.json             configurator/examples/swap_incompatible_study.json             --candidate x1_compact_electric_study             --out /tmp/board-swap-python.json
           node tools/evaluate_board_swap.mjs             configurator/examples/trail_rider_profile.json             configurator/examples/swap_incompatible_study.json             --candidate x1_compact_electric_study             > /tmp/board-swap-browser.json
           python tools/compare_board_swap_engines.py             /tmp/board-swap-python.json             /tmp/board-swap-browser.json
+          env -u PYTHONPATH python tools/build_board_visual_states.py             configurator/examples/trail_rider_profile.json             --out /tmp/board-visual-python.json
+          node tools/build_board_visual_states.mjs             configurator/examples/trail_rider_profile.json             > /tmp/board-visual-browser.json
+          python tools/compare_board_visual_states.py             /tmp/board-visual-python.json             /tmp/board-visual-browser.json
+          node tools/render_board_candidate_previews.mjs             configurator/examples/trail_rider_profile.json             --out-dir /tmp/board-previews
+          test -f /tmp/board-previews/x1_compact_electric_study-hero.svg
+          test -f /tmp/board-previews/x1_compact_electric_study-top.svg
+          test -f /tmp/board-previews/x1_compact_electric_study-side.svg
+          grep -q "VISUAL STUDY" /tmp/board-previews/x1_compact_electric_study-hero.svg
+          grep -q '"visualization_only": true' /tmp/board-previews/manifest.json
       - name: Smoke-test local showcase without PYTHONPATH
         run: env -u PYTHONPATH python tools/prepare_x1_showcase.py --synthetic-snowdeck-demo
       - name: Validate staged procurement authority
