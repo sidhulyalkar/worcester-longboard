@@ -178,6 +178,55 @@
           "Bergmeister"
         ]
       }
+    },
+    {
+      "id": "lacroix_barrel",
+      "seller": "Lacroix Boards",
+      "kind": "vendor_reference",
+      "url": "https://www.lacroixboards.com/products/the-barrel%E2%84%A2",
+      "facts": {
+        "complete_board_price_usd": 1899.99,
+        "complete_board_dimensions_in": "41 x 16 x 8",
+        "deck_with_tabs_in": "34.5 x 10.75",
+        "deck_with_tabs_mm": [
+          876.3,
+          273.05
+        ],
+        "foot_platform_in": "26 x 10.75",
+        "foot_platform_mm": [
+          660.4,
+          273.05
+        ],
+        "wheelbase_in": 33,
+        "wheelbase_mm": 838.2,
+        "truck_family": "Hypertruck Lite",
+        "wheel_reference": "8 in Kenda tire on MBS Rockstar II hub",
+        "motor_reference": "dual 6374 190kv",
+        "belt_reference": "HTD 425-5m spare belts included",
+        "battery_reference": "725 Wh 12s4p complete-board reference"
+      }
+    },
+    {
+      "id": "lacroix_hypertruck_lite",
+      "seller": "Lacroix Boards",
+      "kind": "vendor",
+      "url": "https://www.lacroixboards.com/products/lacroix-hypertruck%E2%84%A2-lite",
+      "facts": {
+        "advertised_page_price_usd": 549.99,
+        "variant_dependent_price": true,
+        "availability_note": "page showed sold-out/unavailable variants at refresh",
+        "hanger_width_in": 15,
+        "hanger_width_mm": 381,
+        "material": "7075 aluminum",
+        "truck_pair_weight_lb_approx": 5.5,
+        "steering_elements": [
+          "bushings",
+          "springs"
+        ],
+        "rear_motor_mounts_included_in_pair_variant": true,
+        "rear_wheel_pulley_teeth": 72,
+        "wheel_reference": "MBS hubs + Kenda tires in trucks/mounts/wheels variant"
+      }
     }
   ]
 }
