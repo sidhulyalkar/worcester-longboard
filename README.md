@@ -32,7 +32,7 @@ If an older document conflicts with a current manifest, build gate, or qualified
 
 Worcester X1 now also serves as reference build **#0001** for a generic rider-spec board configurator.
 
-The Board Builder separates rider/mission requirements from available products, compares multiple architecture hypotheses, propagates explicit compatibility states, renders dated source links and partial BOM price bands, and automatically generates synchronized Hero/Top/Side visuals for every candidate. Its Swap Lab lets a user change individual design slots and immediately see visual, compatibility, measurement, price, and 3D consequences without changing build authority.
+The Board Builder separates rider/mission requirements from available products, compares multiple architecture hypotheses, propagates explicit compatibility states, renders dated source links and partial BOM price bands, and automatically generates synchronized Hero/Top/Side visuals for every candidate. The catalog now spans materially different MBS/Worcester, TRAMPA, Apex Boards and Boardnamics mechanical families, with vendor facts isolated from normalized interfaces and recommendation logic. Its Swap Lab lets a user change individual design slots and immediately see visual, compatibility, measurement, price, and 3D consequences without changing build authority.
 
 Run the product surface from the repository root:
 
@@ -54,7 +54,7 @@ Then open:
 
 Machine-readable inputs live under `configurator/` and `catalog/`. The deterministic Python engine is `configurator/engine.py`; the browser counterpart is `builder/engine.mjs`. CI compares both on shared profiles.
 
-See `docs/board_builder_platform.md` for the full product/compatibility model.
+See `docs/board_builder_platform.md` for the full product/compatibility model and `docs/board_catalog_contract.md` for the multi-vendor provenance, compatibility and refresh contract.
 
 > The generic Builder is a planning and sourcing tool. A high profile-fit score, vendor source link, or generated BOM never promotes X1 procurement, fabrication, charging, or powered-operation authority.
 
