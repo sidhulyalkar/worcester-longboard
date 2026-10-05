@@ -120,11 +120,27 @@ function svgShell(state, inner, view, width, height, options) {
   );
 }
 
-function deckPathTop(cx, cy, length, width) {
+function deckPathTop(state, cx, cy, length, width) {
   const x0 = cx - length / 2;
   const x1 = cx + length / 2;
   const y0 = cy - width / 2;
   const y1 = cy + width / 2;
+  const family = state.visual_style?.deck_shape || "generic_mountainboard";
+
+  if (family.startsWith("trampa_")) {
+    const nose = Math.min(34, length * 0.085);
+    const endInset = Math.min(8, width * 0.045);
+    return [
+      "M " + (x0 + nose) + " " + (y0 + endInset),
+      "Q " + x0 + " " + y0 + " " + x0 + " " + cy,
+      "Q " + x0 + " " + y1 + " " + (x0 + nose) + " " + (y1 - endInset),
+      "L " + (x1 - nose) + " " + (y1 - endInset),
+      "Q " + x1 + " " + y1 + " " + x1 + " " + cy,
+      "Q " + x1 + " " + y0 + " " + (x1 - nose) + " " + (y0 + endInset),
+      "Z",
+    ].join(" ");
+  }
+
   const nose = Math.min(28, length * 0.07);
   const taper = Math.min(15, width * 0.12);
   return [
@@ -147,7 +163,7 @@ function topShapes(state, width, height) {
   const truckX = g.wheelbase / 2;
   const wheelH = Math.max(8, g.wheelWidth);
   const wheelW = Math.max(18, g.wheelDiameter * 0.48);
-  const deckPath = deckPathTop(cx, cy, g.deckLength, g.deckWidth);
+  const deckPath = deckPathTop(state, cx, cy, g.deckLength, g.deckWidth);
   let wheels = "";
   let trucks = "";
 
