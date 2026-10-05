@@ -226,6 +226,31 @@
         "AXLE-M3-70"
       ],
       "replace_design_reference_components": true
+    },
+    {
+      "when": {
+        "deck": "comp95",
+        "topology": "brake_first_400mm",
+        "wheel": "TIRE-T2-9"
+      },
+      "use": [
+        "DONOR-COMP95",
+        "TIRE-T2-9"
+      ],
+      "replace_design_reference_components": true
+    },
+    {
+      "when": {
+        "deck": "comp95",
+        "topology": "brake_hanger_70mm_topology_study",
+        "wheel": "TIRE-T2-9"
+      },
+      "use": [
+        "DONOR-COMP95",
+        "AXLE-M3-70",
+        "TIRE-T2-9"
+      ],
+      "replace_design_reference_components": true
     }
   ]
 }
