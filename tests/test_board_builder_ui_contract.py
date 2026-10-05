@@ -113,3 +113,11 @@ def test_visual_exports_are_svg_and_design_exports_include_visual_state():
     assert "visual_state: candidateVisualState(selected)" in APP
     assert "visual_state: visualStateFromSwap(" in APP
     assert 'type: "image/svg+xml;charset=utf-8"' in renderer
+
+
+def test_visual_handoff_carries_wheel_study_into_twin():
+    assert 'wheel: visual.wheel.study_id' in APP
+    assert 'params.get("wheel")' in TWIN
+    assert 'function applyWheelStudy(id)' in TWIN
+    assert '"TIRE-T2-9"' in TWIN
+    assert '"none"' in TWIN
