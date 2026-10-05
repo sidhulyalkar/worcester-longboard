@@ -112,9 +112,45 @@ python tools/evaluate_board_swap.py \
 
 The browser engine counterpart is `builder/swap_engine.mjs`. CI evaluates the same edit through Python and JavaScript and compares the outputs.
 
+## Auto-generated candidate visuals
+
+Every generated candidate also projects into a versioned `candidate_visual_state`.
+
+The visual state contains the candidate's deck envelope, truck/topology branch, wheel study, rider-profile stance center, visible systems, readiness, checkout state, fit score and known-price band. Its authority object is hard-coded to visualization-only with procurement/fabrication/powered-operation authorization false.
+
+The dimensional geometry comes from the same `showcase/x1_rev_c.json` deck/topology references consumed by the digital twin. System visibility comes from the candidate BOM, not merely from a named showcase preset. This matters because a preset may intentionally display a conceptual pack or subsystem that a generated candidate does not actually contain.
+
+The browser renderer in `builder/preview_renderer.mjs` emits deterministic SVG in three comparison views:
+
+- **Hero** for immediate product recognition;
+- **Top** for deck, stance and truck/wheel-width comparison;
+- **Side** for wheel size and under-deck system comparison.
+
+One view selector updates the whole candidate gallery so builds are compared from the same perspective.
+
+The current preview renderer is schematic. It intentionally does not claim fabrication-level surface geometry, loaded ground clearance, tire deformation, exact drive/brake packaging or structural strength.
+
+### Visual parity and headless export
+
+Python and browser visual-state derivation are implemented separately in `configurator/visual_state.py` and `builder/visual_state.mjs`, but consume the same catalog and twin source data. CI compares their full serialized visual states.
+
+Headless SVG generation uses the browser renderer directly:
+
+```bash
+python tools/build_board_visual_states.py \
+  configurator/examples/trail_rider_profile.json \
+  --out /tmp/visual-states.json
+
+node tools/render_board_candidate_previews.mjs \
+  configurator/examples/trail_rider_profile.json \
+  --out-dir /tmp/board-previews
+```
+
+Swap Lab edits project through the same visual contract, so component changes immediately change the custom board preview.
+
 ## Digital-twin handoff
 
-Candidate cards deep-link to the matching visualization preset and rider-profile stance center. Swap Lab studies additionally carry explicit deck, topology, and layer visibility overrides into the twin. URL overrides are visualization-only and do not add evidence to the build-authority graph.
+Candidate cards deep-link to the matching visualization preset while overriding it with the generated candidate's actual deck, topology, wheel study, stance center and system-layer state. Swap Lab studies carry the edited version of those same fields. URL overrides are visualization-only and do not add evidence to the build-authority graph.
 
 ## Deterministic engines
 
