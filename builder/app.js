@@ -1,8 +1,8 @@
 import {
   formatPrice,
-  generateCandidates,
   questionnaireDefaults,
 } from "./engine.mjs";
+import { generateBoardDesignSpace } from "./platform_engine.mjs";
 import {
   evaluateSwap,
   seedSwapSelection,
@@ -50,7 +50,7 @@ async function fetchJson(path) {
 }
 
 async function loadBundle() {
-  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry] = await Promise.all([
+  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer] = await Promise.all([
     fetchJson("../configurator/questionnaire.v1.json"),
     fetchJson("../configurator/rules.v1.json"),
     fetchJson("../catalog/board_components.v1.json"),
@@ -58,8 +58,9 @@ async function loadBundle() {
     fetchJson("../configurator/compatibility_rules.v1.json"),
     fetchJson("../configurator/swap_slots.v1.json"),
     fetchJson("../catalog/board_geometry.v1.json"),
+    fetchJson("../configurator/composer.v1.json"),
   ]);
-  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry };
+  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer };
 }
 
 function restoreProfile(questionnaire) {
@@ -792,7 +793,7 @@ function exportCustomDesign() {
 
 function recompute() {
   if (!state.bundle) return;
-  state.result = generateCandidates(state.profile, state.bundle);
+  state.result = generateBoardDesignSpace(state.profile, state.bundle);
   state.swapBaselineId = null;
   state.swapSelection = null;
   state.swapResult = null;
