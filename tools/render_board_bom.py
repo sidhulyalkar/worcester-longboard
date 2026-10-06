@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from configurator.engine import generate_candidates, render_bom_markdown
+from configurator.platform_engine import generate_board_design_space, render_bom_markdown
 
 
 def main() -> None:
@@ -21,7 +21,7 @@ def main() -> None:
     args = parser.parse_args()
 
     profile = json.loads(args.profile.read_text())
-    result = generate_candidates(profile)
+    result = generate_board_design_space(profile)
     try:
         candidate = next(row for row in result["candidates"] if row["id"] == args.candidate)
     except StopIteration as exc:
