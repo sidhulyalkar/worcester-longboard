@@ -5,7 +5,7 @@ from configurator.platform_engine import (
     generate_board_design_space,
     load_platform_bundle,
 )
-from configurator.swap_lab import evaluate_swap
+from configurator.swap_lab import evaluate_profile_swap, evaluate_swap
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -174,4 +174,26 @@ def test_platform_authority_stays_false_with_composer_enabled():
         "procurement_authorized": False,
         "fabrication_authorized": False,
         "powered_operation_authorized": False,
+    }
+
+
+def test_profile_swap_api_can_reopen_synthesized_candidate():
+    rider = profile("trail_rider_profile.json")
+    generated = generate_board_design_space(rider)
+    candidate = next(
+        row for row in generated["candidates"]
+        if row["origin"] == "SYNTHESIZED"
+    )
+
+    result = evaluate_profile_swap(
+        rider,
+        candidate["id"],
+        candidate["swap_defaults"],
+    )
+
+    assert result["changes"] == []
+    assert result["blockers"] == []
+    assert result["readiness"] in {
+        "REFERENCE_COMPATIBLE",
+        "MEASURE_FIRST",
     }
