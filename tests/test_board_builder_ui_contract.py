@@ -169,3 +169,11 @@ def test_composed_candidate_detail_exposes_selection_and_compatibility_counts():
 def test_builder_loads_bounded_composer_contract():
     assert 'fetchJson("../configurator/composer.v1.json")' in APP
     assert "composer" in APP
+
+
+def test_gallery_can_filter_curated_and_composed_candidates():
+    assert 'id="origin-filters"' in HTML
+    assert 'data-origin-filter="CURATED"' in HTML
+    assert 'data-origin-filter="SYNTHESIZED"' in HTML
+    assert "state.originFilter" in APP
+    assert "row.origin === state.originFilter" in APP
