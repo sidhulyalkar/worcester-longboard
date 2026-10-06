@@ -32,7 +32,7 @@ If an older document conflicts with a current manifest, build gate, or qualified
 
 Worcester X1 now also serves as reference build **#0001** for a generic rider-spec board configurator.
 
-The Board Builder separates rider/mission requirements from available products, compares multiple architecture hypotheses, propagates explicit compatibility states, renders dated source links and partial BOM price bands, and automatically generates synchronized Hero/Top/Side visuals for every candidate. The catalog now spans materially different MBS/Worcester, TRAMPA, Apex Boards, Boardnamics and Lacroix Boards mechanical families, with vendor facts isolated from normalized interfaces and recommendation logic. Its Swap Lab lets a user change individual design slots and immediately see visual, compatibility, measurement, price, and 3D consequences without changing build authority.
+The Board Builder separates rider/mission requirements from available products, retains curated architecture references, and now synthesizes additional boards directly from the normalized multi-vendor catalog through a bounded fail-closed Catalog Composer. It propagates explicit compatibility states, renders dated source links and partial BOM price bands, and automatically generates synchronized Hero/Top/Side visuals for every candidate. The catalog spans materially different MBS/Worcester, TRAMPA, Apex Boards, Boardnamics and Lacroix Boards mechanical families, with vendor facts isolated from normalized interfaces and recommendation logic. Its Swap Lab lets a user change individual design slots and immediately see visual, compatibility, measurement, price, and 3D consequences without changing build authority.
 
 Run the product surface from the repository root:
 
