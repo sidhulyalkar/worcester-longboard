@@ -38,6 +38,9 @@ CANDIDATE_KEYS = (
     "personalized_spec",
     "capabilities",
     "compatibility_findings",
+    "origin",
+    "swap_defaults",
+    "composition",
     "blockers",
     "unknowns",
 )
@@ -54,6 +57,12 @@ def compare(left: dict[str, Any], right: dict[str, Any]) -> list[str]:
         errors.append("winner_selected differs")
     if left.get("authority") != right.get("authority"):
         errors.append("authority differs")
+    if left.get("composition_summary") != right.get("composition_summary"):
+        errors.append(
+            "composition_summary differs: "
+            f"{left.get('composition_summary')!r} != "
+            f"{right.get('composition_summary')!r}"
+        )
 
     lreq = left.get("requirements") or {}
     rreq = right.get("requirements") or {}
