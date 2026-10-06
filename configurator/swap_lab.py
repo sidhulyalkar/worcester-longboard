@@ -382,7 +382,11 @@ def evaluate_profile_swap(
     candidate_id: str,
     selection: dict[str, Any],
 ) -> dict[str, Any]:
-    generated = generate_candidates(profile)
+    # Import lazily because the platform engine itself imports the composer,
+    # which reuses this module's evaluate_swap implementation.
+    from configurator.platform_engine import generate_board_design_space
+
+    generated = generate_board_design_space(profile)
     try:
         candidate = next(row for row in generated["candidates"] if row["id"] == candidate_id)
     except StopIteration as exc:
