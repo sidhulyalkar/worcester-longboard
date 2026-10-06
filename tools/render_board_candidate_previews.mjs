@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { generateCandidates } from "../builder/engine.mjs";
+import { generateBoardDesignSpace } from "../builder/platform_engine.mjs";
 import { renderBoardPreviewSvg } from "../builder/preview_renderer.mjs";
 import { visualStateFromCandidate } from "../builder/visual_state.mjs";
 
@@ -35,9 +35,12 @@ const bundle = {
   catalog: repoJson("catalog/board_components.v1.json"),
   architectures: repoJson("configurator/architectures.v1.json"),
   compatibility: repoJson("configurator/compatibility_rules.v1.json"),
+  swapSlots: repoJson("configurator/swap_slots.v1.json"),
+  geometry: repoJson("catalog/board_geometry.v1.json"),
+  composer: repoJson("configurator/composer.v1.json"),
 };
 const geometry = repoJson("catalog/board_geometry.v1.json");
-const generated = generateCandidates(readJson(profilePath), bundle);
+const generated = generateBoardDesignSpace(readJson(profilePath), bundle);
 const manifest = {
   schema_version: 1,
   visualization_only: true,
