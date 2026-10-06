@@ -100,7 +100,7 @@ def seed_selection(candidate: dict[str, Any]) -> dict[str, Any]:
         return next((item for item in ids if item in bom_ids), None)
 
     wheel = first_present(
-        ("WHEEL-TRAMPA-MEGASTAR9", "WHEEL-TRAMPA-ALPHA8", "TIRE-T2-9")
+        ("WHEEL-TRAMPA-MEGASTAR9", "WHEEL-TRAMPA-ALPHA8", "WHEEL-LACROIX-KENDA8-RSII", "TIRE-T2-9")
     )
     if wheel is None and candidate.get("capabilities", {}).get("wheel_class") == "8in_pneumatic":
         wheel = "TIRE-T1-8-REF"
@@ -111,7 +111,7 @@ def seed_selection(candidate: dict[str, Any]) -> dict[str, Any]:
         "wheel": wheel,
         "brake": first_present(("BRAKE-TRAMPA-HS11", "BRAKE-V5")),
         "drive": first_present(
-            ("DRIVE-BOARDNAMICS-M1-AT", "DRIVE-TRAMPA-OBD-DUAL", "DRIVE-G1-DUAL")
+            ("DRIVE-BOARDNAMICS-M1-AT", "DRIVE-TRAMPA-OBD-DUAL", "DRIVE-LACROIX-BARREL-BELT", "DRIVE-G1-DUAL")
         ),
         "battery": first_present(("BATTERY-TRAIL-CLASS", "BATTERY-RANGE-CLASS")),
         "rider_interface": "SNOWDECK-V01-CUSTOM" if "SNOWDECK-V01-CUSTOM" in bom_ids else None,
@@ -300,7 +300,7 @@ def evaluate_swap(
 
     if (
         requirements["wheel_strategy"] == "nine_inch_rollover_study"
-        and selection["wheel"] in {"TIRE-T1-8-REF", "WHEEL-TRAMPA-ALPHA8"}
+        and selection["wheel"] in {"TIRE-T1-8-REF", "WHEEL-TRAMPA-ALPHA8", "WHEEL-LACROIX-KENDA8-RSII"}
     ):
         readiness = _worsen(readiness, "MEASURE_FIRST")
         unknowns.append(
