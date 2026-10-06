@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { generateCandidates } from "../builder/engine.mjs";
+import { generateBoardDesignSpace } from "../builder/platform_engine.mjs";
 import { evaluateSwap } from "../builder/swap_engine.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -33,9 +33,12 @@ const bundle = {
   catalog: repoJson("catalog/board_components.v1.json"),
   architectures: repoJson("configurator/architectures.v1.json"),
   compatibility: repoJson("configurator/compatibility_rules.v1.json"),
+  swapSlots: repoJson("configurator/swap_slots.v1.json"),
+  geometry: repoJson("catalog/board_geometry.v1.json"),
+  composer: repoJson("configurator/composer.v1.json"),
 };
 const slots = repoJson("configurator/swap_slots.v1.json");
-const generated = generateCandidates(readJson(profilePath), bundle);
+const generated = generateBoardDesignSpace(readJson(profilePath), bundle);
 const candidateId = process.argv[candidateFlag + 1];
 const candidate = generated.candidates.find(row => row.id === candidateId);
 if (!candidate) {
