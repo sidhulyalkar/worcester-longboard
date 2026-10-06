@@ -414,8 +414,12 @@ function renderVendorFilters(candidates) {
   const sourced = state.bundle.catalog.components.filter(
     item => item.source?.url
   ).length;
+  const summary = state.result?.composition_summary;
+  const originText = summary
+    ? summary.curated_count + " curated + " + summary.synthesized_count + " composed"
+    : candidates.length + " generated";
   $("#catalog-coverage").textContent =
-    visible + " shown · " + candidates.length + " generated · " +
+    visible + " shown · " + originText + " · " +
     vendors.size + " named manufacturers · " + sourced +
     " catalog parts with source links";
 }
@@ -460,6 +464,9 @@ function renderCandidates(candidates) {
         '<div class="fit-score"><strong>' + Math.round(candidate.fit_score * 100) + '%</strong><span>profile fit</span></div>' +
       '</div>' +
       '<div class="badges">' +
+        '<span class="badge origin-chip ' + (candidate.origin === "SYNTHESIZED" ? "composed" : "curated") + '">' +
+          escapeHtml(candidate.origin === "SYNTHESIZED" ? "catalog composed" : "curated reference") +
+        '</span>' +
         '<span class="badge vendor-chip">' + escapeHtml(candidate.vendor_family || "Unspecified") + '</span>' +
         '<span class="badge ' + statusClass(candidate.readiness) + '">' + escapeHtml(readinessLabel(candidate.readiness)) + '</span>' +
         (candidate.trade_space_frontier ? '<span class="badge frontier">trade-space frontier</span>' : '') +
@@ -541,13 +548,31 @@ function renderBom(candidate) {
   const why = '<div class="detail-box"><h3>Why it fits</h3><ul>' +
     candidate.explanations.map(x => '<li>' + escapeHtml(x) + '</li>').join("") + '</ul></div>';
 
+  const composition = candidate.origin === "SYNTHESIZED" && candidate.composition
+    ? '<div class="detail-box composition-detail"><h3>How this board was composed</h3>' +
+      '<p>' + escapeHtml(candidate.composition.rationale) + '</p>' +
+      '<ul>' +
+        Object.entries(candidate.composition.selection || {}).map(([slot, value]) =>
+          '<li><strong>' + escapeHtml(slot.replaceAll("_", " ")) + ':</strong> ' +
+          escapeHtml(String(value ?? "none")) + '</li>'
+        ).join("") +
+      '</ul>' +
+      '<p class="composition-states">' +
+        Object.entries(candidate.composition.compatibility_states || {})
+          .filter(([, count]) => Number(count) > 0)
+          .map(([status, count]) =>
+            escapeHtml(status.replaceAll("_", " ").toLowerCase()) + ': ' + Number(count)
+          ).join(' · ') +
+      '</p></div>'
+    : '<div class="detail-box"><h3>Candidate origin</h3><p>Curated reference architecture retained as a stable comparison and regression anchor.</p></div>';
+
   const compatibility = '<div class="detail-box"><h3>Compatibility evidence</h3><ul>' +
     (candidate.compatibility_findings.length
       ? candidate.compatibility_findings.map(x => '<li><strong>' + escapeHtml(x.state.replaceAll("_", " ").toLowerCase()) + ':</strong> ' + escapeHtml(x.reason) + '</li>').join("")
       : '<li>No explicit selected-pair rule fired for this candidate.</li>') +
     '</ul></div>';
 
-  $("#candidate-detail").innerHTML = blocks + unknowns + why + compatibility;
+  $("#candidate-detail").innerHTML = composition + blocks + unknowns + why + compatibility;
   renderSwapLab(candidate, state.swapBaselineId !== candidate.id);
 }
 
@@ -808,6 +833,7 @@ function recompute() {
   renderBom(state.result.candidates.find(x => x.id === state.selectedId));
   $("#recompute-status").textContent =
     "Live · " + state.result.candidates.length + " candidates · " +
+    (state.result.composition_summary?.synthesized_count || 0) + " composed · " +
     new Set(state.result.candidates.map(row => row.vendor_family || "Unspecified")).size +
     " families";
 }
