@@ -34,6 +34,8 @@ jobs:
           node --check /tmp/x1-showcase-app.mjs
           node --check /tmp/x1-builder-app.mjs
           node --check builder/engine.mjs
+          node --check builder/platform_engine.mjs
+          node --check builder/composer.mjs
           node --check builder/swap_engine.mjs
           node --check builder/visual_state.mjs
           node --check builder/preview_renderer.mjs
@@ -41,8 +43,8 @@ jobs:
           node --check tools/build_board_visual_states.mjs
           node --check tools/render_board_candidate_previews.mjs
           node --check tools/evaluate_board_swap.mjs
-      - name: Test browser Board Builder engines and visuals
-        run: node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_builder_swap_lab.mjs tests/js/test_board_builder_visuals.mjs
+      - name: Test browser Board Builder engines, composer and visuals
+        run: node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_catalog_composer.mjs tests/js/test_board_builder_swap_lab.mjs tests/js/test_board_builder_visuals.mjs
       - run: python -m pytest -q tests
       - name: Validate Board Builder catalog and authority boundary
         run: python tools/validate_board_builder.py
