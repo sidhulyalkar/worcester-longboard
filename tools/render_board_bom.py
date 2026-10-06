@@ -10,7 +10,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from configurator.platform_engine import generate_board_design_space, render_bom_markdown
+from configurator.engine import render_bom_markdown
+from configurator.platform_engine import generate_board_design_space
 
 
 def main() -> None:
