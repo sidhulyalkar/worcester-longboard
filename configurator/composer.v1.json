@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "scope": "non_authoritative_catalog_synthesis",
+  "enabled": true,
+  "note": "Composer enumerates normalized catalog selections, reuses Swap Lab compatibility evaluation, scores survivors with the standard rider-fit engine, and never creates procurement/fabrication/powered authority.",
+  "max_raw_combinations": 5000,
+  "max_unknown_findings": 3,
+  "max_synthesized_candidates": 8,
+  "max_per_vendor_family": 3,
+  "allowed_readiness": [
+    "REFERENCE_COMPATIBLE",
+    "MEASURE_FIRST"
+  ],
+  "slots": {
+    "deck": [
+      "comp95",
+      "pro_warren_iii",
+      "agent",
+      "trampa_short_969",
+      "trampa_hs11_969",
+      "lacroix_barrel_876"
+    ],
+    "topology": [
+      "brake_first_400mm",
+      "drive_clearance_420mm",
+      "brake_hanger_70mm_topology_study",
+      "trampa_vertigo_406",
+      "trampa_infinity_hs11_406",
+      "apex_air_434",
+      "lacroix_hyperlite_381"
+    ],
+    "wheel": [
+      "TIRE-T1-8-REF",
+      "TIRE-T2-9",
+      "WHEEL-TRAMPA-ALPHA8",
+      "WHEEL-TRAMPA-MEGASTAR9",
+      "WHEEL-LACROIX-KENDA8-RSII"
+    ],
+    "brake": [
+      "BRAKE-V5",
+      "BRAKE-TRAMPA-HS11"
+    ],
+    "drive": [
+      "DRIVE-G1-DUAL",
+      "DRIVE-TRAMPA-OBD-DUAL",
+      "DRIVE-BOARDNAMICS-M1-AT",
+      "DRIVE-LACROIX-BARREL-BELT"
+    ]
+  },
+  "manual_policy": {
+    "drive": null,
+    "battery": null
+  },
+  "electric_policy": {
+    "battery_classes": [
+      "BATTERY-TRAIL-CLASS",
+      "BATTERY-RANGE-CLASS"
+    ],
+    "require_drive": true
+  },
+  "fixed_selection": {
+    "rider_interface": null,
+    "armor": null,
+    "dock": null
+  },
+  "trait_model": {
+    "model_class": "PLANNING_HEURISTIC",
+    "note": "Soft traits are transparent catalog-comparison proxies, not physical performance predictions.",
+    "deck_length_bounds_mm": [
+      850,
+      1050
+    ],
+    "truck_width_bounds_mm": [
+      380,
+      440
+    ],
+    "wheel_diameter_bounds_mm": [
+      190,
+      235
+    ],
+    "known_cost_reference_usd": 2500
+  },
+  "authority": {
+    "procurement_authorized": false,
+    "fabrication_authorized": false,
+    "powered_operation_authorized": false,
+    "generic_builder_may_promote_x1_authority": false
+  }
+}
