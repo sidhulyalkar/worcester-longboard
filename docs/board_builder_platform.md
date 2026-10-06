@@ -77,6 +77,56 @@ See `docs/board_catalog_contract.md` for the ingestion, interface, compatibility
 
 Their trait vectors are soft trade-space declarations. Hard compatibility findings remain separate. Regression tests require the reference manual-carver and electric-trail profiles to produce different top-ranked architectures and to retain cross-vendor breadth in each top-three set.
 
+## Catalog Composer v1
+
+The platform now has two candidate sources:
+
+- **Curated reference architectures** are stable human-authored hypotheses used as regression anchors and to preserve deliberately blocked educational studies.
+- **Catalog-composed candidates** are generated at runtime from normalized deck, truck/topology, wheel, friction-brake, drive and battery slots.
+
+`configurator/composer.v1.json` is the machine-readable synthesis contract. The composer is deliberately bounded rather than an unrestricted Cartesian-product recommender. It caps raw enumeration, unresolved interface findings, output count and candidates per vendor family.
+
+Every proposed combination follows the same sequence:
+
+```text
+normalized catalog selection
+        ↓
+Swap Lab component resolution
+        ↓
+explicit compatibility rules
+        ↓
+fail-closed UNKNOWN category-pair fallbacks
+        ↓
+mission brake / electric / energy checks
+        ↓
+prune BLOCKED and INCOMPATIBLE
+        ↓
+transparent catalog trait heuristic
+        ↓
+standard rider-fit scorer
+        ↓
+exact-BOM deduplication
+        ↓
+bounded synthesized frontier
+```
+
+The composer currently emits only `REFERENCE_COMPATIBLE` and `MEASURE_FIRST` candidates with no hard blocker and at most the configured number of unresolved findings. Curated reference candidates remain free to show blocked or incompatible concepts when those are useful engineering comparisons.
+
+For an electric mission, a synthesized candidate must contain both a drive and a traction-energy planning class. For an unpowered mission, the composer adds neither. If the rider mission requires an independent friction brake, combinations without one are rejected before they can become synthesized candidates.
+
+Soft traits for a newly composed board use the explicitly labeled `PLANNING_HEURISTIC` model in `composer.v1.json`. That model uses normalized deck length, truck width, wheel diameter, drive type, known-price subtotal and unresolved-interface count to produce comparison traits. These are ranking proxies, not measured physical performance predictions.
+
+Each synthesized candidate carries:
+
+- `origin = SYNTHESIZED`;
+- exact `swap_defaults` so opening Swap Lab reproduces the generated design with zero edits;
+- a `composition` record containing the selected slots, named manufacturers, compatibility-state counts and rationale;
+- the same BOM, visual-state, 3D handoff, readiness and authority-false contracts as curated candidates.
+
+Python and browser implementations are independent (`configurator/composer.py` and `builder/composer.mjs`) and CI requires exact design-space parity. `configurator/platform_engine.py` and `builder/platform_engine.mjs` merge curated and synthesized candidates, remove exact-BOM duplicates, recompute the trade-space frontier and preserve `winner_selected=false`.
+
+The composer can never create procurement, fabrication, charging or powered-operation authority. Its authority object contains only false flags, and the Board Builder validator rejects a composer configuration that permits `BLOCKED`/`INCOMPATIBLE` synthesis or references unknown Swap Lab options.
+
 ## Fit score and trade-space frontier
 
 The fit score is a weighted comparison of architecture traits against normalized rider priorities, plus small transparent mission adjustments for deck envelope, electric intent, braking requirement and budget. It is not a safety score.
