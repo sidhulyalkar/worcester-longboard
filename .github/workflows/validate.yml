@@ -72,6 +72,23 @@ jobs:
           env -u PYTHONPATH python tools/generate_board_candidates.py             configurator/examples/trail_rider_profile.json             --out /tmp/board-python.json
           node tools/generate_board_candidates.mjs             configurator/examples/trail_rider_profile.json             > /tmp/board-browser.json
           python tools/compare_board_builder_engines.py             /tmp/board-python.json             /tmp/board-browser.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('/tmp/board-python.json').read_text())
+          summary = data['composition_summary']
+          assert summary['composer_enabled'] is True
+          assert summary['synthesized_count'] > 0
+          assert summary['synthesized_count'] <= summary['synthesized_candidate_cap']
+          synth = [row for row in data['candidates'] if row.get('origin') == 'SYNTHESIZED']
+          assert len(synth) == summary['synthesized_count']
+          assert all(row['readiness'] in {'REFERENCE_COMPATIBLE', 'MEASURE_FIRST'} for row in synth)
+          assert all(not row['blockers'] for row in synth)
+          assert all(row['authority']['procurement_authorized'] is False for row in synth)
+          assert all(row['authority']['fabrication_authorized'] is False for row in synth)
+          assert all(row['authority']['powered_operation_authorized'] is False for row in synth)
+          assert all(row['composition']['engine'] == 'catalog_composer_v1' for row in synth)
+          PY
           env -u PYTHONPATH python tools/render_board_bom.py             configurator/examples/trail_rider_profile.json             --candidate x1_compact_electric_study             --out /tmp/board-bom.md
           grep -q "Source links are not checkout authorization" /tmp/board-bom.md
           grep -q "POWER_GATED" /tmp/board-bom.md
