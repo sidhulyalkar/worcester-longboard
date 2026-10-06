@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from configurator.engine import generate_candidates
+from configurator.platform_engine import generate_board_design_space
 from configurator.swap_lab import evaluate_swap
 
 
@@ -24,7 +24,7 @@ def main() -> None:
 
     profile = json.loads(args.profile.read_text())
     selection = json.loads(args.selection.read_text())
-    generated = generate_candidates(profile)
+    generated = generate_board_design_space(profile)
     try:
         candidate = next(row for row in generated["candidates"] if row["id"] == args.candidate)
     except StopIteration as exc:
