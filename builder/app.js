@@ -30,6 +30,7 @@ const state = {
   swapResult: null,
   galleryView: "hero",
   vendorFilter: "all",
+  originFilter: "all",
 };
 
 const $ = selector => document.querySelector(selector);
@@ -403,9 +404,10 @@ function renderVendorFilters(candidates) {
     host.appendChild(button);
   }
 
-  const visible = state.vendorFilter === "all"
-    ? candidates.length
-    : candidates.filter(row => row.vendor_family === state.vendorFilter).length;
+  const visible = candidates.filter(row =>
+    (state.vendorFilter === "all" || row.vendor_family === state.vendorFilter) &&
+    (state.originFilter === "all" || row.origin === state.originFilter)
+  ).length;
   const vendors = new Set(
     candidates.flatMap(row =>
       (row.bom || []).map(item => item.manufacturer).filter(Boolean)
@@ -443,9 +445,10 @@ function renderCandidates(candidates) {
   const host = $("#candidates");
   host.innerHTML = "";
 
-  const visibleCandidates = state.vendorFilter === "all"
-    ? candidates
-    : candidates.filter(row => row.vendor_family === state.vendorFilter);
+  const visibleCandidates = candidates.filter(row =>
+    (state.vendorFilter === "all" || row.vendor_family === state.vendorFilter) &&
+    (state.originFilter === "all" || row.origin === state.originFilter)
+  );
 
   for (const candidate of visibleCandidates) {
     const card = document.createElement("article");
@@ -913,6 +916,16 @@ async function main() {
     $("#export-custom-design").addEventListener("click", exportCustomDesign);
     document.querySelectorAll("[data-gallery-view]").forEach(button => {
       button.addEventListener("click", () => setGalleryView(button.dataset.galleryView));
+    });
+    document.querySelectorAll("[data-origin-filter]").forEach(button => {
+      button.addEventListener("click", () => {
+        state.originFilter = button.dataset.originFilter;
+        document.querySelectorAll("[data-origin-filter]").forEach(row => {
+          row.classList.toggle("active", row.dataset.originFilter === state.originFilter);
+        });
+        renderVendorFilters(state.result.candidates);
+        renderCandidates(state.result.candidates);
+      });
     });
   } catch (error) {
     console.error(error);
