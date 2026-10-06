@@ -150,3 +150,22 @@ def test_twin_has_distinct_procedural_deck_and_truck_family_geometry():
     assert 'precision_bushing_spring' in TWIN
     assert 'function applyTruckVisualFamily(truck, family)' in TWIN
     assert 'function replaceMeshGeometry(mesh, geometry, state)' in TWIN
+
+
+def test_catalog_composer_is_visible_as_distinct_candidate_origin():
+    assert "generateBoardDesignSpace" in APP
+    assert '"catalog composed"' in APP
+    assert '"curated reference"' in APP
+    assert "composition_summary" in APP
+    assert "How this board was composed" in APP
+
+
+def test_composed_candidate_detail_exposes_selection_and_compatibility_counts():
+    assert "candidate.composition.selection" in APP
+    assert "candidate.composition.compatibility_states" in APP
+    assert "candidate.composition.rationale" in APP
+
+
+def test_builder_loads_bounded_composer_contract():
+    assert 'fetchJson("../configurator/composer.v1.json")' in APP
+    assert "composer" in APP
