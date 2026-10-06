@@ -10,8 +10,10 @@ def test_board_builder_catalog_contract_is_valid():
     report = validate()
     assert report["valid"] is True, report["errors"]
     assert report["catalog_components"] >= 15
-    assert report["architectures"] >= 4
+    assert report["architectures"] >= 11
     assert report["questionnaire_fields"] >= 30
+    assert report["composer_enabled"] is True
+    assert report["composer_max_candidates"] == 8
     assert report["power_categories_checkout_enabled"] is False
     assert report["generic_builder_may_promote_x1_authority"] is False
 
@@ -43,3 +45,19 @@ def test_builder_deep_links_only_to_known_showcase_presets():
         row["visual_preset"]
         for row in architectures["architectures"]
     }.issubset(presets)
+
+
+def test_composer_contract_is_bounded_and_authority_false():
+    composer = json.loads(
+        (ROOT / "configurator" / "composer.v1.json").read_text()
+    )
+    assert composer["scope"] == "non_authoritative_catalog_synthesis"
+    assert composer["allowed_readiness"] == [
+        "REFERENCE_COMPATIBLE",
+        "MEASURE_FIRST",
+    ]
+    assert composer["max_raw_combinations"] <= 5000
+    assert composer["max_unknown_findings"] <= 3
+    assert composer["max_synthesized_candidates"] <= 8
+    assert composer["trait_model"]["model_class"] == "PLANNING_HEURISTIC"
+    assert all(value is False for value in composer["authority"].values())
