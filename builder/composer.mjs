@@ -128,19 +128,20 @@ function traitsFor(selection, evaluation, bundle) {
     lowMaintenance -= 0.04;
   }
 
+  const r6 = value => Number(clamp(value).toFixed(6));
   return {
-    range: clamp(powered ? (batteryRange ? 0.95 : 0.76) : 0.18),
-    carve: clamp(0.70 + (1 - deckN) * 0.15 + steeringCarve - truckN * 0.03),
-    stability: clamp(0.58 + truckN * 0.17 + deckN * 0.10 + wheelN * 0.06),
-    durability: clamp(0.84 - (powered ? 0.07 : 0) - unknownPenalty),
-    portability: clamp(0.93 - deckN * 0.18 - wheelN * 0.12 - (powered ? 0.16 : 0)),
-    cost: clamp(
+    range: r6(powered ? (batteryRange ? 0.95 : 0.76) : 0.18),
+    carve: r6(0.70 + (1 - deckN) * 0.15 + steeringCarve - truckN * 0.03),
+    stability: r6(0.58 + truckN * 0.17 + deckN * 0.10 + wheelN * 0.06),
+    durability: r6(0.84 - (powered ? 0.07 : 0) - unknownPenalty),
+    portability: r6(0.93 - deckN * 0.18 - wheelN * 0.12 - (powered ? 0.16 : 0)),
+    cost: r6(
       1 -
       knownCost / Number(model.known_cost_reference_usd || 2500) -
       unpricedPenalty
     ),
-    low_maintenance: clamp(lowMaintenance - unknownPenalty * 0.4),
-    rough_terrain: clamp(0.58 + wheelN * 0.30 + truckN * 0.08),
+    low_maintenance: r6(lowMaintenance - unknownPenalty * 0.4),
+    rough_terrain: r6(0.58 + wheelN * 0.30 + truckN * 0.08),
   };
 }
 
