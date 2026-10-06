@@ -82,6 +82,7 @@ export function seedSwapSelection(candidate) {
   let wheel = firstPresent([
     "WHEEL-TRAMPA-MEGASTAR9",
     "WHEEL-TRAMPA-ALPHA8",
+    "WHEEL-LACROIX-KENDA8-RSII",
     "TIRE-T2-9",
   ]);
   if (!wheel && candidate.capabilities?.wheel_class === "8in_pneumatic") {
@@ -96,6 +97,7 @@ export function seedSwapSelection(candidate) {
     drive: firstPresent([
       "DRIVE-BOARDNAMICS-M1-AT",
       "DRIVE-TRAMPA-OBD-DUAL",
+      "DRIVE-LACROIX-BARREL-BELT",
       "DRIVE-G1-DUAL",
     ]),
     battery: firstPresent(["BATTERY-TRAIL-CLASS", "BATTERY-RANGE-CLASS"]),
@@ -266,7 +268,7 @@ export function evaluateSwap(baselineCandidate, requirements, selection, bundle,
 
   if (
     requirements.wheel_strategy === "nine_inch_rollover_study" &&
-    ["TIRE-T1-8-REF", "WHEEL-TRAMPA-ALPHA8"].includes(selection.wheel)
+    ["TIRE-T1-8-REF", "WHEEL-TRAMPA-ALPHA8", "WHEEL-LACROIX-KENDA8-RSII"].includes(selection.wheel)
   ) {
     readiness = worsen(readiness, "MEASURE_FIRST");
     unknowns.push(
