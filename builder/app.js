@@ -655,7 +655,7 @@ function renderSwapPreview(candidate) {
   const visual = visualStateFromSwap(
     candidate,
     state.swapResult,
-    state.bundle.twinSeed,
+    state.bundle.geometry,
     state.bundle.catalog
   );
   host.innerHTML = renderBoardPreviewSvg(
