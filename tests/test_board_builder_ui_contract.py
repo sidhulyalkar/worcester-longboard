@@ -24,7 +24,9 @@ def test_builder_keeps_profile_local_until_explicit_export():
 
 def test_vendor_links_are_source_links_not_generic_buy_buttons():
     assert "Vendor source" in APP
-    assert "source_as_of" in APP
+    assert "sourceEvidenceHtml" in APP
+    assert "verified_as_of" in APP
+    assert "not stock confirmation" in APP
     assert "hold_reason" in APP
     assert "POWER_GATED" in APP
     assert ">Buy<" not in HTML
@@ -150,3 +152,21 @@ def test_twin_has_distinct_procedural_deck_and_truck_family_geometry():
     assert 'precision_bushing_spring' in TWIN
     assert 'function applyTruckVisualFamily(truck, family)' in TWIN
     assert 'function replaceMeshGeometry(mesh, geometry, state)' in TWIN
+
+
+def test_builder_loads_and_surfaces_catalog_source_health_separately():
+    assert '../catalog/catalog_health.v1.json' in APP
+    assert 'function sourceHealth(componentId)' in APP
+    assert 'function sourceEvidenceHtml(componentId)' in APP
+    assert 'not stock confirmation' in APP
+    assert 'source_fresh' in APP
+    assert 'refresh_due' in APP
+
+
+def test_source_health_does_not_replace_compatibility_or_procurement_state():
+    assert 'candidate.readiness' in APP
+    assert 'row.procurement_state' in APP
+    assert 'sourceHealthLabel' in APP
+    assert 'POWER_GATED' in APP
+    assert 'Vendor source' in APP
+    assert '>Buy<' not in HTML

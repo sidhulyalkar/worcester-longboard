@@ -33,7 +33,8 @@
         "kind": "vendor",
         "url": "https://www.mbs.com/shop/p/comp-95-mountainboard-silver-hex",
         "as_of": "2026-09-11",
-        "seller": "MBS"
+        "seller": "MBS",
+        "snapshot_id": "mbs_comp95_2026_09_11"
       },
       "price": {
         "kind": "unit",
@@ -64,7 +65,8 @@
         "kind": "vendor",
         "url": "https://www.mbs.com/shop/p/15006-mbs-v5-brake-system",
         "as_of": "2026-09-11",
-        "seller": "MBS"
+        "seller": "MBS",
+        "snapshot_id": "mbs_v5_2026_09_11"
       },
       "price": {
         "kind": "unit",
@@ -93,7 +95,8 @@
         "kind": "vendor",
         "url": "https://www.mbs.com/shop/parts/trucks/matrix-iii",
         "as_of": "2026-09-11",
-        "seller": "MBS"
+        "seller": "MBS",
+        "snapshot_id": "mbs_matrixiii_2026_09_11"
       },
       "price": {
         "kind": "ceiling",
@@ -165,7 +168,8 @@
         "kind": "vendor",
         "url": "https://www.mbs.com/shop/parts/wheels/hubs",
         "as_of": "2026-09-11",
-        "seller": "MBS"
+        "seller": "MBS",
+        "snapshot_id": "mbs_hubs_2026_09_11"
       },
       "price": {
         "kind": "unit",
@@ -216,7 +220,8 @@
         "kind": "vendor",
         "url": "https://www.mbs.com/shop/p/13120-9-mbs-t2-tires-1",
         "as_of": "2026-09-11",
-        "seller": "MBS"
+        "seller": "MBS",
+        "snapshot_id": "mbs_t2_9_2026_09_11"
       },
       "price": {
         "kind": "unit",
@@ -242,7 +247,8 @@
         "kind": "vendor",
         "url": "https://www.mbs.com/shop/parts/trucks/matrix-iii",
         "as_of": "2026-09-11",
-        "seller": "MBS"
+        "seller": "MBS",
+        "snapshot_id": "mbs_matrixiii_2026_09_11"
       },
       "price": {
         "kind": "unit",
@@ -268,7 +274,8 @@
         "kind": "vendor",
         "url": "https://www.mbs.com/shop/parts/electric-parts/gear-drives",
         "as_of": "2026-09-11",
-        "seller": "MBS"
+        "seller": "MBS",
+        "snapshot_id": "mbs_g1_2026_09_11"
       },
       "price": {
         "kind": "unit",
