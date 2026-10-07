@@ -174,33 +174,53 @@ Shipping, tax, duties and stock remain outside the static catalog.
 
 ## Freshness and audit
 
-Run:
+Catalog integrity and source freshness are deliberately separate checks.
 
-```bash
-python tools/audit_board_catalog.py
-```
-
-The audit reports:
-
-- snapshot age;
-- stale component-source dates;
-- orphaned snapshot references;
-- source URL mismatches;
-- silent native-currency/price conversion errors;
-- power-category gating regressions;
-- vendor/category coverage;
-- deck-shape, steering, wheel, brake and drive-family breadth.
-
-To fail closed on stale data:
+The coarse structural audit remains:
 
 ```bash
 python tools/audit_board_catalog.py \
-  --as-of 2026-10-04 \
-  --max-source-age-days 30 \
-  --strict-freshness
+  --as-of 2026-10-07 \
+  --max-source-age-days 30
 ```
 
-The audit itself performs no web requests and grants no authority. Refreshing a source requires a deliberate new dated snapshot after the relevant pages have been checked.
+It checks provenance links, URL consistency, mechanical-family breadth, power gating, native-price handling and the overall dated snapshot layer.
+
+The per-component health builder is:
+
+```bash
+python tools/build_catalog_source_health.py \
+  --as-of 2026-10-07 \
+  --out /tmp/catalog-health.json \
+  --worklist /tmp/catalog-refresh-worklist.md \
+  --fail-on-integrity
+```
+
+It classifies every component independently:
+
+- `SOURCE_FRESH`: source verification is at most 14 days old;
+- `REFRESH_DUE`: source verification is 15–30 days old;
+- `STALE`: source verification is older than 30 days;
+- `MISSING_PROVENANCE`: a sourced component cannot be reconciled to a dated source snapshot;
+- `PLANNING_ONLY`: the record is intentionally a planning/internal reference rather than a storefront claim.
+
+Those thresholds are maintenance policy, not compatibility or procurement states.
+
+Freshness alone does **not** fail CI. A source becoming refresh-due or stale creates a maintenance task. CI fails only when catalog integrity or a safety boundary breaks, such as:
+
+- missing or orphaned source provenance;
+- source URL drift against the recorded snapshot;
+- a native/source price being silently normalized without explicit currency provenance;
+- drive, motor, ESC, battery or charger hardware escaping `POWER_GATED`;
+- a catalog-health record claiming stock, procurement, fabrication or powered-operation authority.
+
+The committed current report is `catalog/catalog_health.v1.json`. The date-stamped 2026-10-07 copy is retained for auditability, and `docs/catalog_refresh_worklist_2026-10-07.md` is the human refresh queue.
+
+The 2026-10-07 report intentionally marks the older 2026-09-11 MBS records as `REFRESH_DUE`; the 2026-10-04 TRAMPA, Apex, Boardnamics and Lacroix records are `SOURCE_FRESH`. This does **not** mean any item is currently in stock. The report's authority contract always keeps `stock_currently_verified=false`.
+
+Geometry freshness is also separate from geometry authority. Entries with `visual_geometry_state: ASSUMED` are surfaced in the health report as visualization-only proxies and remain `fabrication_authority=false`.
+
+The auditors perform no web requests. Refreshing a source is a deliberate evidence update: reopen the official vendor or named retailer page, verify the exact interface facts consumed by the catalog, update the dated source snapshot and component source date, then regenerate source health. A refresh never promotes purchase, fabrication, charging or powered-operation authority.
 
 ## Adding a new component family
 
