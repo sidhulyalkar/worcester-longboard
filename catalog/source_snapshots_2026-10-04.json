@@ -15,7 +15,8 @@
         "tip_angle_deg": 35,
         "advertised_price_native": "GBP 140+",
         "availability_note": "12-ply selectable at crawl; other plys showed out-of-stock states"
-      }
+      },
+      "verified_as_of": "2026-10-04"
     },
     {
       "id": "trampa_hs11_969",
@@ -29,7 +30,8 @@
         "tip_angle_deg": 35,
         "advertised_price_native": "GBP 165+",
         "brake_clearance_deck": true
-      }
+      },
+      "verified_as_of": "2026-10-04"
     },
     {
       "id": "trampa_vertigo_12",
@@ -43,7 +45,8 @@
         "axle_type": "hollow",
         "truck_weight_g": 659,
         "deck_tip_angle_deg": 35
-      }
+      },
+      "verified_as_of": "2026-10-04"
     },
     {
       "id": "trampa_infinity_hs11",
@@ -59,7 +62,8 @@
         "axle_type": "solid",
         "brake_mount": "Magura HS11",
         "advertised_price_native": "GBP 62.50 hanger"
-      }
+      },
+      "verified_as_of": "2026-10-04"
     },
     {
       "id": "trampa_superstar_alpha8",
@@ -79,7 +83,8 @@
         ],
         "wheel_weight_g": 473,
         "advertised_price_native": "GBP 45+"
-      }
+      },
+      "verified_as_of": "2026-10-04"
     },
     {
       "id": "trampa_megastar9",
@@ -95,7 +100,8 @@
           10
         ],
         "advertised_price_native": "GBP 75+ per wheel"
-      }
+      },
+      "verified_as_of": "2026-10-04"
     },
     {
       "id": "trampa_hs11_brake_truck",
@@ -111,7 +117,8 @@
         ],
         "wheel_requirement": "TRAMPA 5-spoke disk-compatible wheels",
         "advertised_price_native": "GBP 150+"
-      }
+      },
+      "verified_as_of": "2026-10-04"
     },
     {
       "id": "trampa_obd",
@@ -131,7 +138,8 @@
         ],
         "belt_width_mm": 20,
         "reference_truck": "VERTIGO 12 mm hollow axle"
-      }
+      },
+      "verified_as_of": "2026-10-04"
     },
     {
       "id": "apex_air",
@@ -145,7 +153,8 @@
         "weight_g_per_truck": 820,
         "steering_family": "parallel_kingpin",
         "advertised_price_native": "GBP 219 each"
-      }
+      },
+      "verified_as_of": "2026-10-04"
     },
     {
       "id": "boardnamics_m1_at",
@@ -177,7 +186,8 @@
           "TRAMPA Superstar",
           "Bergmeister"
         ]
-      }
+      },
+      "verified_as_of": "2026-10-04"
     },
     {
       "id": "lacroix_barrel",
@@ -204,7 +214,8 @@
         "motor_reference": "dual 6374 190kv",
         "belt_reference": "HTD 425-5m spare belts included",
         "battery_reference": "725 Wh 12s4p complete-board reference"
-      }
+      },
+      "verified_as_of": "2026-10-04"
     },
     {
       "id": "lacroix_hypertruck_lite",
@@ -226,6 +237,98 @@
         "rear_motor_mounts_included_in_pair_variant": true,
         "rear_wheel_pulley_teeth": 72,
         "wheel_reference": "MBS hubs + Kenda tires in trucks/mounts/wheels variant"
+      },
+      "verified_as_of": "2026-10-04"
+    },
+    {
+      "id": "mbs_comp95_2026_09_11",
+      "seller": "MBS",
+      "kind": "vendor",
+      "url": "https://www.mbs.com/shop/p/comp-95-mountainboard-silver-hex",
+      "verified_as_of": "2026-09-11",
+      "facts": {
+        "advertised_price_usd": 499.95,
+        "truck_family": "Matrix III",
+        "truck_width_mm": 400,
+        "axle_length_mm": 50,
+        "hub_family": "Rockstar II",
+        "wheel_class": "8in pneumatic",
+        "brake_reference": "V5 compatible",
+        "drive_reference": "requires 70 mm axle upgrade"
+      }
+    },
+    {
+      "id": "mbs_v5_2026_09_11",
+      "seller": "MBS",
+      "kind": "vendor",
+      "url": "https://www.mbs.com/shop/p/15006-mbs-v5-brake-system",
+      "verified_as_of": "2026-09-11",
+      "facts": {
+        "advertised_price_usd": 89.95,
+        "friction_brake": true,
+        "braked_wheels": 2,
+        "truck_family": "Matrix",
+        "hub_families": [
+          "Rockstar",
+          "Rockstar II"
+        ]
+      }
+    },
+    {
+      "id": "mbs_matrixiii_2026_09_11",
+      "seller": "MBS",
+      "kind": "vendor",
+      "url": "https://www.mbs.com/shop/parts/trucks/matrix-iii",
+      "verified_as_of": "2026-09-11",
+      "facts": {
+        "truck_reference_total_width_mm": 400,
+        "hanger_width_mm": 300,
+        "stock_axle_length_mm": 50,
+        "alternate_axle_length_mm": 70,
+        "brake_reference": true,
+        "drive_reference_after_axle_upgrade": true
+      }
+    },
+    {
+      "id": "mbs_hubs_2026_09_11",
+      "seller": "MBS",
+      "kind": "vendor",
+      "url": "https://www.mbs.com/shop/parts/wheels/hubs",
+      "verified_as_of": "2026-09-11",
+      "facts": {
+        "rockstar_ii_bearing_id_mm": 12,
+        "brake_reference": "V5 compatible",
+        "advertised_unit_price_usd": 14.95
+      }
+    },
+    {
+      "id": "mbs_t2_9_2026_09_11",
+      "seller": "MBS",
+      "kind": "vendor",
+      "url": "https://www.mbs.com/shop/p/13120-9-mbs-t2-tires-1",
+      "verified_as_of": "2026-09-11",
+      "facts": {
+        "published_diameter_mm": 219,
+        "published_width_mm": 67,
+        "listed_hub_families": [
+          "Fivestar",
+          "Tri-spoke",
+          "Rockstar Pro II XL"
+        ],
+        "advertised_unit_price_usd": 29.95
+      }
+    },
+    {
+      "id": "mbs_g1_2026_09_11",
+      "seller": "MBS",
+      "kind": "vendor",
+      "url": "https://www.mbs.com/shop/parts/electric-parts/gear-drives",
+      "verified_as_of": "2026-09-11",
+      "facts": {
+        "required_axle_length_mm": 70,
+        "reference_wheel_gear_teeth": 64,
+        "advertised_price_usd": 399.95,
+        "power_hardware": true
       }
     }
   ]
