@@ -24,7 +24,9 @@ def test_builder_keeps_profile_local_until_explicit_export():
 
 def test_vendor_links_are_source_links_not_generic_buy_buttons():
     assert "Vendor source" in APP
-    assert "source_as_of" in APP
+    assert "sourceEvidenceHtml" in APP
+    assert "verified_as_of" in APP
+    assert "not stock confirmation" in APP
     assert "hold_reason" in APP
     assert "POWER_GATED" in APP
     assert ">Buy<" not in HTML
