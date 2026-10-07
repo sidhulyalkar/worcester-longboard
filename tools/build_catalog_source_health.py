@@ -339,7 +339,7 @@ def render_worklist(report: dict[str, Any]) -> str:
             "",
         ]
     )
-    return "\\n".join(lines)
+    return "\n".join(lines)
 
 
 def main() -> None:
@@ -365,7 +365,7 @@ def main() -> None:
         refresh_due_days=args.refresh_due_days,
         snapshot_path=snapshot,
     )
-    payload = json.dumps(report, indent=2) + "\\n"
+    payload = json.dumps(report, indent=2) + "\n"
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(payload, encoding="utf-8")
