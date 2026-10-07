@@ -46,23 +46,46 @@ jobs:
       - run: python -m pytest -q tests
       - name: Validate Board Builder catalog and authority boundary
         run: python tools/validate_board_builder.py
-      - name: Audit multi-vendor catalog provenance and snapshot freshness
+      - name: Audit multi-vendor catalog provenance and source health
         run: |
           python tools/audit_board_catalog.py \
-            --as-of 2026-10-04 \
+            --as-of 2026-10-07 \
             --max-source-age-days 30 \
-            --strict-freshness \
             --out /tmp/board-catalog-audit.json
+          python tools/build_catalog_source_health.py \
+            --as-of 2026-10-07 \
+            --out /tmp/catalog-health.json \
+            --worklist /tmp/catalog-refresh-worklist.md \
+            --fail-on-integrity
           python - <<'PY'
           import json
           from pathlib import Path
-          report = json.loads(Path('/tmp/board-catalog-audit.json').read_text())
-          assert report['valid'] is True
-          assert report['stale'] is False
-          assert len(report['coverage']['vendor_families']) >= 3
-          assert len(report['coverage']['steering_families']) >= 2
-          assert len(report['coverage']['drive_types']) >= 2
-          assert all(value is False for value in report['authority'].values())
+
+          audit = json.loads(Path('/tmp/board-catalog-audit.json').read_text())
+          assert audit['valid'] is True
+          assert len(audit['coverage']['vendor_families']) >= 3
+          assert len(audit['coverage']['steering_families']) >= 2
+          assert len(audit['coverage']['drive_types']) >= 2
+          assert all(value is False for value in audit['authority'].values())
+
+          generated = json.loads(Path('/tmp/catalog-health.json').read_text())
+          canonical = json.loads(Path('catalog/catalog_health.v1.json').read_text())
+          dated = json.loads(Path('catalog/catalog_health_2026-10-07.json').read_text())
+          assert generated == canonical == dated
+          assert generated['valid'] is True
+          assert generated['summary']['source_fresh'] == 15
+          assert generated['summary']['refresh_due'] == 7
+          assert generated['summary']['stale'] == 0
+          assert generated['summary']['missing_provenance'] == 0
+          assert generated['authority']['stock_currently_verified'] is False
+          assert generated['authority']['procurement_authorized'] is False
+          assert generated['authority']['fabrication_authorized'] is False
+          assert generated['authority']['powered_operation_authorized'] is False
+
+          worklist = Path('/tmp/catalog-refresh-worklist.md').read_text()
+          assert '### MBS' in worklist
+          assert 'mbs_matrixiii_2026_09_11' in worklist
+          assert 'not stock confirmation' in worklist
           PY
       - name: Cross-check Python and browser Board Builder engines
         run: |
