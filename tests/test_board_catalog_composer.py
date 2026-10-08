@@ -197,3 +197,90 @@ def test_profile_swap_api_can_reopen_synthesized_candidate():
         "REFERENCE_COMPATIBLE",
         "MEASURE_FIRST",
     }
+
+
+# Shared adversarial fixtures exercise exact mechanical identities, not only counts.
+def test_composer_critical_interface_fixtures():
+    fixtures = json.loads((ROOT / "configurator/examples/composer_compatibility_cases.v1.json").read_text())["cases"]
+    bundle = load_platform_bundle()
+    profiles = {
+        name: generate_board_design_space(profile(name), bundle=bundle)
+        for name in sorted({row["profile"] for row in fixtures})
+    }
+    for case in fixtures:
+        selection = {key: case.get(key) for key in (
+            "deck", "topology", "wheel", "brake", "drive", "battery"
+        )}
+        selection.update({"rider_interface": None, "armor": None, "dock": None})
+        source = profiles[case["profile"]]
+        result = evaluate_swap(
+            source["candidates"][0], source["requirements"], selection,
+            bundle=bundle, slots=bundle["swapSlots"],
+        )
+        assert result["readiness"] in case["expected_readiness"], case["id"]
+        assert result["friction_brake_path_state"] == case["expected_brake_path"], case["id"]
+        assert case["expected_rule"] in {f["id"] for f in result["compatibility_findings"]}, case["id"]
+        assert all(value is False for value in result["authority"].values()), case["id"]
+        assert result["compatibility_interface_ids"], case["id"]
+        if case["drive"]:
+            assert result["checkout_state"] == "BLOCKED", case["id"]
+            assert all(row["procurement_state"] == "POWER_GATED" for row in result["bom"]
+                if row["category"] in {"drive", "motor", "esc", "battery", "charger"}), case["id"]
+        if case["id"] == "mbs_donor_400_g1":
+            assert "DONOR-COMP95" in {r["component_id"] for r in result["bom"]}
+            assert "TRUCK-M3-400" not in {r["component_id"] for r in result["bom"]}
+            assert "TRUCK-M3-400" in result["compatibility_interface_ids"]
+        if case["id"] == "missing_friction_brake":
+            assert any("independent friction brake" in reason for reason in result["blockers"])
+
+
+def test_missing_brake_evidence_degrades_readiness_without_rule_fallback():
+    import copy
+    bundle = load_platform_bundle()
+    result = generate_board_design_space(profile("manual_carver_profile.json"), bundle=bundle)
+    selection = {
+        "deck": "trampa_hs11_969", "topology": "trampa_infinity_hs11_406",
+        "wheel": "WHEEL-TRAMPA-ALPHA8", "brake": "BRAKE-TRAMPA-HS11",
+        "drive": None, "battery": None, "rider_interface": None, "armor": None, "dock": None,
+    }
+    degraded = copy.deepcopy(bundle)
+    degraded["compatibility"]["pair_rules"] = [r for r in degraded["compatibility"]["pair_rules"]
+        if r["id"] != "trampa_infinity_hs11_brake"]
+    degraded["compatibility"]["category_pair_defaults"] = [r for r in degraded["compatibility"]["category_pair_defaults"]
+        if set(r["categories"]) != {"truck", "brake"}]
+    evaluated = evaluate_swap(result["candidates"][0], result["requirements"], selection,
+        bundle=degraded, slots=degraded["swapSlots"])
+    assert evaluated["friction_brake_path_state"] == "MEASURE_FIRST"
+    assert evaluated["readiness"] == "MEASURE_FIRST"
+    assert any("Unresolved truck/brake" in reason for reason in evaluated["unknowns"])
+    assert all(value is False for value in evaluated["authority"].values())
+
+
+def test_constrained_composer_produces_distinct_vendor_studies_without_authority():
+    import copy
+    from configurator.composer import compose_candidates
+    bundle = load_platform_bundle()
+    selected = (
+        ("manual_carver_profile.json", "comp95", "brake_first_400mm", "TIRE-T1-8-REF", "BRAKE-V5", "DRIVE-G1-DUAL"),
+        ("manual_carver_profile.json", "trampa_hs11_969", "trampa_infinity_hs11_406", "WHEEL-TRAMPA-ALPHA8", "BRAKE-TRAMPA-HS11", "DRIVE-TRAMPA-OBD-DUAL"),
+        ("trail_rider_profile.json", "trampa_hs11_969", "trampa_infinity_hs11_406", "WHEEL-TRAMPA-MEGASTAR9", "BRAKE-TRAMPA-HS11", "DRIVE-BOARDNAMICS-M1-AT"),
+    )
+    families = []
+    for name, deck, topology, wheel, brake, drive in selected:
+        reduced = copy.deepcopy(bundle)
+        reduced["composer"]["slots"] = {
+            "deck": [deck], "topology": [topology], "wheel": [wheel],
+            "brake": [brake], "drive": [drive],
+        }
+        generated = generate_board_design_space(profile(name), bundle=bundle)
+        candidates = compose_candidates(generated["profile"], generated["requirements"], reduced)
+        assert candidates, (name, deck, topology, wheel)
+        candidate = candidates[0]
+        assert candidate["origin"] == "SYNTHESIZED"
+        assert candidate["composition"]["physical_interface_ids"]
+        assert candidate["compatibility_findings"]
+        assert candidate["blockers"] == []
+        assert all(value is False for value in candidate["authority"].values())
+        families.append(candidate["vendor_family"])
+    assert any("Cross-vendor" in family for family in families)
+    assert len(set(families)) >= 2

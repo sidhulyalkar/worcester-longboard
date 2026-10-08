@@ -130,3 +130,57 @@ test("composer never promotes platform authority", () => {
     powered_operation_authorized: false,
   });
 });
+
+
+const mechanicalCases = read("configurator/examples/composer_compatibility_cases.v1.json").cases;
+test("shared adversarial fixtures preserve physical compatibility and all-false authority", () => {
+  const profiles = {
+    "trail_rider_profile.json": generateBoardDesignSpace(trail, bundle),
+    "manual_carver_profile.json": generateBoardDesignSpace(manual, bundle),
+  };
+  for (const item of mechanicalCases) {
+    const selection = Object.fromEntries(
+      ["deck", "topology", "wheel", "brake", "drive", "battery"].map(k => [k, item[k]])
+    );
+    Object.assign(selection, {rider_interface: null, armor: null, dock: null});
+    const generated = profiles[item.profile];
+    const result = evaluateSwap(generated.candidates[0], generated.requirements, selection, bundle, bundle.swapSlots);
+    assert.ok(item.expected_readiness.includes(result.readiness), item.id + ": " + result.readiness);
+    assert.equal(result.friction_brake_path_state, item.expected_brake_path, item.id);
+    assert.ok(result.compatibility_findings.some(f => f.id === item.expected_rule), item.id);
+    assert.ok(Object.values(result.authority).every(value => value === false), item.id);
+    assert.ok(result.compatibility_interface_ids.length, item.id);
+    if (item.drive) {
+      assert.equal(result.checkout_state, "BLOCKED", item.id);
+      assert.ok(result.bom.filter(r => ["drive", "motor", "esc", "battery", "charger"].includes(r.category))
+        .every(r => r.procurement_state === "POWER_GATED"), item.id);
+    }
+    if (item.id === "mbs_donor_400_g1") {
+      assert.ok(result.bom.some(r => r.component_id === "DONOR-COMP95"));
+      assert.ok(!result.bom.some(r => r.component_id === "TRUCK-M3-400"));
+      assert.ok(result.compatibility_interface_ids.includes("TRUCK-M3-400"));
+    }
+    if (item.id === "missing_friction_brake") {
+      assert.ok(result.blockers.some(reason => reason.includes("independent friction brake")));
+    }
+  }
+});
+
+test("missing mechanical brake witness can never be inferred compatible", () => {
+  const altered = structuredClone(bundle);
+  altered.compatibility.pair_rules = altered.compatibility.pair_rules.filter(r => r.id !== "trampa_infinity_hs11_brake");
+  altered.compatibility.category_pair_defaults = altered.compatibility.category_pair_defaults.filter(
+    r => !["brake:truck", "truck:brake"].includes(r.categories.join(":"))
+  );
+  const base = generateBoardDesignSpace(manual, bundle);
+  const selection = {
+    deck: "trampa_hs11_969", topology: "trampa_infinity_hs11_406",
+    wheel: "WHEEL-TRAMPA-ALPHA8", brake: "BRAKE-TRAMPA-HS11",
+    drive: null, battery: null, rider_interface: null, armor: null, dock: null,
+  };
+  const result = evaluateSwap(base.candidates[0], base.requirements, selection, altered, altered.swapSlots);
+  assert.equal(result.friction_brake_path_state, "MEASURE_FIRST");
+  assert.equal(result.readiness, "MEASURE_FIRST");
+  assert.ok(result.unknowns.some(reason => reason.includes("Unresolved truck/brake")));
+  assert.ok(Object.values(result.authority).every(value => value === false));
+});

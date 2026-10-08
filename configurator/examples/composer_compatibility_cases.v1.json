@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "scope": "composer_adversarial_fixtures",
+  "cases": [
+    {
+      "id": "mbs_donor_400_g1",
+      "profile": "trail_rider_profile.json",
+      "deck": "comp95",
+      "topology": "brake_first_400mm",
+      "wheel": "TIRE-T1-8-REF",
+      "brake": "BRAKE-V5",
+      "drive": "DRIVE-G1-DUAL",
+      "battery": "BATTERY-TRAIL-CLASS",
+      "expected_readiness": [
+        "INCOMPATIBLE"
+      ],
+      "expected_rule": "matrix400_g1_as_shipped",
+      "expected_brake_path": "REFERENCE_COMPATIBLE"
+    },
+    {
+      "id": "mbs_420_v5",
+      "profile": "trail_rider_profile.json",
+      "deck": "comp95",
+      "topology": "drive_clearance_420mm",
+      "wheel": "TIRE-T1-8-REF",
+      "brake": "BRAKE-V5",
+      "drive": "DRIVE-G1-DUAL",
+      "battery": "BATTERY-TRAIL-CLASS",
+      "expected_readiness": [
+        "INCOMPATIBLE"
+      ],
+      "expected_rule": "matrix420_v5",
+      "expected_brake_path": "INCOMPATIBLE"
+    },
+    {
+      "id": "mbs_440_axle70_v5",
+      "profile": "trail_rider_profile.json",
+      "deck": "comp95",
+      "topology": "brake_hanger_70mm_topology_study",
+      "wheel": "TIRE-T1-8-REF",
+      "brake": "BRAKE-V5",
+      "drive": "DRIVE-G1-DUAL",
+      "battery": "BATTERY-TRAIL-CLASS",
+      "expected_readiness": [
+        "MEASURE_FIRST"
+      ],
+      "expected_rule": "matrix440_v5",
+      "expected_brake_path": "MEASURE_FIRST"
+    },
+    {
+      "id": "mbs_rsii_t2_nine",
+      "profile": "manual_carver_profile.json",
+      "deck": "comp95",
+      "topology": "brake_first_400mm",
+      "wheel": "TIRE-T2-9",
+      "brake": "BRAKE-V5",
+      "drive": null,
+      "battery": null,
+      "expected_readiness": [
+        "MEASURE_FIRST"
+      ],
+      "expected_rule": "rockstarII_t2_9",
+      "expected_brake_path": "REFERENCE_COMPATIBLE"
+    },
+    {
+      "id": "trampa_short_manual",
+      "profile": "manual_carver_profile.json",
+      "deck": "trampa_short_969",
+      "topology": "trampa_vertigo_406",
+      "wheel": "WHEEL-TRAMPA-ALPHA8",
+      "brake": null,
+      "drive": null,
+      "battery": null,
+      "expected_readiness": [
+        "REFERENCE_COMPATIBLE",
+        "MEASURE_FIRST"
+      ],
+      "expected_rule": "trampa_short_vertigo",
+      "expected_brake_path": "NOT_PRESENT"
+    },
+    {
+      "id": "trampa_hs11_hydraulic",
+      "profile": "manual_carver_profile.json",
+      "deck": "trampa_hs11_969",
+      "topology": "trampa_infinity_hs11_406",
+      "wheel": "WHEEL-TRAMPA-ALPHA8",
+      "brake": "BRAKE-TRAMPA-HS11",
+      "drive": null,
+      "battery": null,
+      "expected_readiness": [
+        "REFERENCE_COMPATIBLE",
+        "MEASURE_FIRST"
+      ],
+      "expected_rule": "trampa_infinity_hs11_brake",
+      "expected_brake_path": "REFERENCE_COMPATIBLE"
+    },
+    {
+      "id": "cross_trampa_boardnamics",
+      "profile": "trail_rider_profile.json",
+      "deck": "trampa_hs11_969",
+      "topology": "trampa_infinity_hs11_406",
+      "wheel": "WHEEL-TRAMPA-MEGASTAR9",
+      "brake": "BRAKE-TRAMPA-HS11",
+      "drive": "DRIVE-BOARDNAMICS-M1-AT",
+      "battery": "BATTERY-TRAIL-CLASS",
+      "expected_readiness": [
+        "MEASURE_FIRST"
+      ],
+      "expected_rule": "default:truck:drive:TRUCK-TRAMPA-INFINITY-HS11:DRIVE-BOARDNAMICS-M1-AT",
+      "expected_brake_path": "REFERENCE_COMPATIBLE"
+    },
+    {
+      "id": "apex_v5_unknown",
+      "profile": "trail_rider_profile.json",
+      "deck": "agent",
+      "topology": "apex_air_434",
+      "wheel": "TIRE-T1-8-REF",
+      "brake": "BRAKE-V5",
+      "drive": "DRIVE-BOARDNAMICS-M1-AT",
+      "battery": "BATTERY-TRAIL-CLASS",
+      "expected_readiness": [
+        "MEASURE_FIRST"
+      ],
+      "expected_rule": "apex_air_v5_unknown",
+      "expected_brake_path": "MEASURE_FIRST"
+    },
+    {
+      "id": "missing_friction_brake",
+      "profile": "trail_rider_profile.json",
+      "deck": "trampa_hs11_969",
+      "topology": "trampa_infinity_hs11_406",
+      "wheel": "WHEEL-TRAMPA-ALPHA8",
+      "brake": null,
+      "drive": "DRIVE-BOARDNAMICS-M1-AT",
+      "battery": "BATTERY-TRAIL-CLASS",
+      "expected_readiness": [
+        "BLOCKED"
+      ],
+      "expected_rule": "trampa_hs11_infinity",
+      "expected_brake_path": "NOT_PRESENT"
+    }
+  ]
+}
