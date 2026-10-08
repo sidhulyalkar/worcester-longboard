@@ -15,7 +15,7 @@
         "INCOMPATIBLE"
       ],
       "expected_rule": "matrix400_g1_as_shipped",
-      "expected_brake_path": "REFERENCE_COMPATIBLE"
+      "expected_brake_path": "MEASURE_FIRST"
     },
     {
       "id": "mbs_420_v5",
@@ -60,7 +60,7 @@
         "MEASURE_FIRST"
       ],
       "expected_rule": "rockstarII_t2_9",
-      "expected_brake_path": "REFERENCE_COMPATIBLE"
+      "expected_brake_path": "MEASURE_FIRST"
     },
     {
       "id": "trampa_short_manual",
