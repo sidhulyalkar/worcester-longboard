@@ -100,7 +100,7 @@ def seed_selection(candidate: dict[str, Any]) -> dict[str, Any]:
         return next((item for item in ids if item in bom_ids), None)
 
     wheel = first_present(
-        ("WHEEL-TRAMPA-MEGASTAR9", "WHEEL-TRAMPA-ALPHA8", "TIRE-T2-9")
+        ("WHEEL-TRAMPA-MEGASTAR9", "WHEEL-TRAMPA-ALPHA8", "WHEEL-LACROIX-KENDA8-RSII", "TIRE-T2-9")
     )
     if wheel is None and candidate.get("capabilities", {}).get("wheel_class") == "8in_pneumatic":
         wheel = "TIRE-T1-8-REF"
@@ -111,7 +111,7 @@ def seed_selection(candidate: dict[str, Any]) -> dict[str, Any]:
         "wheel": wheel,
         "brake": first_present(("BRAKE-TRAMPA-HS11", "BRAKE-V5")),
         "drive": first_present(
-            ("DRIVE-BOARDNAMICS-M1-AT", "DRIVE-TRAMPA-OBD-DUAL", "DRIVE-G1-DUAL")
+            ("DRIVE-BOARDNAMICS-M1-AT", "DRIVE-TRAMPA-OBD-DUAL", "DRIVE-LACROIX-BARREL-BELT", "DRIVE-G1-DUAL")
         ),
         "battery": first_present(("BATTERY-TRAIL-CLASS", "BATTERY-RANGE-CLASS")),
         "rider_interface": "SNOWDECK-V01-CUSTOM" if "SNOWDECK-V01-CUSTOM" in bom_ids else None,
@@ -176,6 +176,19 @@ def resolve_component_ids(
     return _dedupe(component_ids)
 
 
+def resolve_compatibility_component_ids(selection: dict[str, Any], slots: dict[str, Any]) -> list[str]:
+    """Expand packaged donor assemblies for safety checks, never for checkout or pricing."""
+    ids = resolve_component_ids(selection, slots)
+    options = _slot_options(slots)
+    for slot_id in ("deck", "topology", "wheel"):
+        component_id = options[slot_id][selection[slot_id]].get("component_id")
+        if component_id:
+            ids.append(component_id)
+    ids.extend(slots.get("wheel_support_components", {}).get(selection["wheel"], []))
+    ids.extend(slots.get("topology_support_components", {}).get(selection["topology"], []))
+    return _dedupe(ids)
+
+
 def _pair_findings(
     component_ids: set[str],
     compatibility: dict[str, Any],
@@ -221,7 +234,29 @@ def _pair_findings(
                         "reason": fallback["reason"],
                     }
                 )
-    return findings
+    # Hash iteration must not reorder uncertainty explanations or break JS parity.
+    return sorted(findings, key=lambda row: row["id"])
+
+
+def _friction_brake_evidence(
+    selection: dict[str, Any], physical_ids: list[str], findings: list[dict[str, Any]],
+    catalog: dict[str, Any], slots: dict[str, Any],
+) -> tuple[str, list[str]]:
+    if not selection["brake"]:
+        return "NOT_PRESENT", []
+    brake_id = _slot_options(slots)["brake"][selection["brake"]]["component_id"]
+    index = _component_index(catalog)
+    relevant = [f for f in findings if brake_id in (f["a"], f["b"])]
+    if any(f["state"] == "INCOMPATIBLE" for f in relevant):
+        return "INCOMPATIBLE", []
+    missing = []
+    for family, categories in (("truck/brake", {"truck"}), ("wheel-or-hub/brake", {"wheel", "hub"})):
+        partners = {cid for cid in physical_ids if cid in index and index[cid]["category"] in categories}
+        if not any((f["a"] == brake_id and f["b"] in partners) or (f["b"] == brake_id and f["a"] in partners) for f in relevant):
+            missing.append(f"Unresolved {family} interface: no documented or conservative fallback finding for the selected brake.")
+    if missing or any(f["state"] in {"UNKNOWN", "MEASURE_FIRST"} for f in relevant):
+        return "MEASURE_FIRST", missing
+    return "REFERENCE_COMPATIBLE", []
 
 
 def _battery_max_wh(selection: dict[str, Any], catalog: dict[str, Any]) -> float | None:
@@ -250,12 +285,19 @@ def evaluate_swap(
     component_ids = resolve_component_ids(selection, slot_data)
     bom, cost = _bom_rows(component_ids, data["catalog"])
     selected_ids = set(component_ids)
-    findings = _pair_findings(selected_ids, data["compatibility"], data["catalog"])
+    physical_ids = resolve_compatibility_component_ids(selection, slot_data)
+    findings = _pair_findings(set(physical_ids), data["compatibility"], data["catalog"])
+    brake_path, missing_brake_evidence = _friction_brake_evidence(
+        selection, physical_ids, findings, data["catalog"], slot_data
+    )
 
     readiness = "REFERENCE_COMPATIBLE"
     blockers: list[str] = []
     unknowns: list[str] = []
     notes: list[str] = []
+    if missing_brake_evidence:
+        readiness = _worsen(readiness, "MEASURE_FIRST")
+        unknowns.extend(missing_brake_evidence)
 
     for finding in findings:
         if finding["state"] == "INCOMPATIBLE":
@@ -300,7 +342,7 @@ def evaluate_swap(
 
     if (
         requirements["wheel_strategy"] == "nine_inch_rollover_study"
-        and selection["wheel"] in {"TIRE-T1-8-REF", "WHEEL-TRAMPA-ALPHA8"}
+        and selection["wheel"] in {"TIRE-T1-8-REF", "WHEEL-TRAMPA-ALPHA8", "WHEEL-LACROIX-KENDA8-RSII"}
     ):
         readiness = _worsen(readiness, "MEASURE_FIRST")
         unknowns.append(
@@ -359,6 +401,8 @@ def evaluate_swap(
             "known_max_usd": delta_max,
         },
         "compatibility_findings": findings,
+        "compatibility_interface_ids": physical_ids,
+        "friction_brake_path_state": brake_path,
         "blockers": list(dict.fromkeys(blockers)),
         "unknowns": list(dict.fromkeys(unknowns)),
         "notes": list(dict.fromkeys(notes)),
@@ -382,7 +426,11 @@ def evaluate_profile_swap(
     candidate_id: str,
     selection: dict[str, Any],
 ) -> dict[str, Any]:
-    generated = generate_candidates(profile)
+    # Import lazily because the platform engine itself imports the composer,
+    # which reuses this module's evaluate_swap implementation.
+    from configurator.platform_engine import generate_board_design_space
+
+    generated = generate_board_design_space(profile)
     try:
         candidate = next(row for row in generated["candidates"] if row["id"] == candidate_id)
     except StopIteration as exc:

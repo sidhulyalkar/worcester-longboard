@@ -2,7 +2,7 @@
 
 `builder/` is the browser product surface for the generic Worcester Board Builder.
 
-It consumes the versioned data under `configurator/` and `catalog/`. `builder/engine.mjs` derives requirements and candidate architectures, `builder/swap_engine.mjs` powers the component Swap Lab, and `builder/visual_state.mjs` + `builder/preview_renderer.mjs` generate deterministic Hero/Top/Side board visuals from the same deck/topology geometry used by the 3D twin.
+It consumes the versioned data under `configurator/` and `catalog/`. `builder/engine.mjs` keeps the curated reference scorer, `builder/composer.mjs` synthesizes bounded catalog combinations, and `builder/platform_engine.mjs` merges both into one deterministic design space. `builder/swap_engine.mjs` powers component evaluation, while `builder/visual_state.mjs` + `builder/preview_renderer.mjs` generate deterministic Hero/Top/Side visuals.
 
 ## Run
 
@@ -27,7 +27,7 @@ No separate build step is required.
 ```bash
 python tools/validate_board_builder.py
 python -m pytest -q tests/test_board_builder_engine.py tests/test_board_builder_contract.py tests/test_board_builder_ui_contract.py
-node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_builder_swap_lab.mjs tests/js/test_board_builder_visuals.mjs
+node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_catalog_composer.mjs tests/js/test_board_builder_swap_lab.mjs tests/js/test_board_builder_visuals.mjs
 ```
 
 The full repository validator also checks Python/browser parity.
@@ -110,3 +110,17 @@ python tools/build_catalog_source_health.py \
 The Builder loads `catalog/catalog_health.v1.json` and shows evidence freshness next to vendor source links. `SOURCE_FRESH` means the recorded source evidence is recent under the maintenance policy; it is **not** live stock confirmation or checkout permission.
 
 Native-currency source prices are displayed as source metadata and excluded from the USD subtotal until an explicit dated USD/FX layer exists.
+
+
+## Catalog Composer
+
+`configurator/composer.v1.json` controls runtime synthesis from the normalized deck, truck, wheel, brake, drive and battery catalog.
+
+The product keeps curated references and synthesized boards separate:
+
+- curated candidates remain stable engineering anchors;
+- synthesized candidates are marked **catalog composed**;
+- each composed candidate exposes its exact slot selection and compatibility-state counts;
+- opening Swap Lab reproduces the composed board exactly before the user edits anything.
+
+The composer reuses Swap Lab compatibility evaluation and the standard rider-fit scorer. It prunes hard blockers and incompatible combinations, caps unresolved interfaces and candidate count, removes exact-BOM duplicates, and never promotes authority.

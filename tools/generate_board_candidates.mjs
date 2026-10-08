@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { generateCandidates } from "../builder/engine.mjs";
+import { generateBoardDesignSpace } from "../builder/platform_engine.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "..");
@@ -25,6 +25,9 @@ const bundle = {
   catalog: readJson("catalog/board_components.v1.json"),
   architectures: readJson("configurator/architectures.v1.json"),
   compatibility: readJson("configurator/compatibility_rules.v1.json"),
+  swapSlots: readJson("configurator/swap_slots.v1.json"),
+  geometry: readJson("catalog/board_geometry.v1.json"),
+  composer: readJson("configurator/composer.v1.json"),
 };
 
-process.stdout.write(JSON.stringify(generateCandidates(profile, bundle), null, 2) + "\n");
+process.stdout.write(JSON.stringify(generateBoardDesignSpace(profile, bundle), null, 2) + "\n");

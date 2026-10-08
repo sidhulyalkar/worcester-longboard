@@ -70,9 +70,19 @@
         </div>
         <p class="section-copy">Every candidate is rendered automatically from normalized deck, topology, wheel and system data. Switch views to compare every build from the same angle, or filter by vendor family without changing the underlying ranking.</p>
         <div class="catalog-toolbar">
-          <div>
-            <span class="toolbar-label">Vendor family</span>
-            <div id="vendor-filters" class="vendor-filters" aria-label="Filter generated boards by vendor family"></div>
+          <div class="catalog-filter-groups">
+            <div>
+              <span class="toolbar-label">Candidate source</span>
+              <div id="origin-filters" class="vendor-filters" aria-label="Filter generated boards by candidate source">
+                <button type="button" data-origin-filter="all" class="active">All</button>
+                <button type="button" data-origin-filter="CURATED">Curated</button>
+                <button type="button" data-origin-filter="SYNTHESIZED">Composed</button>
+              </div>
+            </div>
+            <div>
+              <span class="toolbar-label">Vendor family</span>
+              <div id="vendor-filters" class="vendor-filters" aria-label="Filter generated boards by vendor family"></div>
+            </div>
           </div>
           <div id="catalog-coverage" class="catalog-coverage"></div>
         </div>

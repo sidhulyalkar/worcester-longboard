@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from configurator.engine import generate_candidates
+from configurator.platform_engine import generate_board_design_space
 
 
 def main() -> None:
@@ -20,7 +20,7 @@ def main() -> None:
     args = parser.parse_args()
 
     profile = json.loads(args.profile.read_text())
-    result = generate_candidates(profile)
+    result = generate_board_design_space(profile)
     text = json.dumps(result, indent=2) + "\n"
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)

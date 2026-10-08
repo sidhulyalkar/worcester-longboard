@@ -22,6 +22,7 @@ def validate() -> dict[str, Any]:
     architectures = load("configurator/architectures.v1.json")
     compatibility = load("configurator/compatibility_rules.v1.json")
     swap_slots = load("configurator/swap_slots.v1.json")
+    composer = load("configurator/composer.v1.json")
     refs = load("configurator/reference_builds.v1.json")
     visual_schema = load("configurator/schemas/candidate_visual_state.schema.json")
     twin = load("showcase/x1_rev_c.json")
@@ -300,6 +301,110 @@ def validate() -> dict[str, Any]:
             if support_id not in component_index:
                 errors.append(f"swap topology component unknown: {support_id!r}")
 
+    if composer.get("scope") != "non_authoritative_catalog_synthesis":
+        errors.append("composer scope must remain non-authoritative catalog synthesis")
+    if not isinstance(composer.get("enabled"), bool):
+        errors.append("composer enabled must be boolean")
+
+    max_raw = composer.get("max_raw_combinations")
+    if not isinstance(max_raw, int) or not 1 <= max_raw <= 100000:
+        errors.append("composer max_raw_combinations must be integer 1..100000")
+    max_unknown = composer.get("max_unknown_findings")
+    if not isinstance(max_unknown, int) or max_unknown < 0:
+        errors.append("composer max_unknown_findings must be integer >= 0")
+    max_candidates = composer.get("max_synthesized_candidates")
+    if not isinstance(max_candidates, int) or not 1 <= max_candidates <= 50:
+        errors.append("composer max_synthesized_candidates must be integer 1..50")
+    max_per_family = composer.get("max_per_vendor_family")
+    if not isinstance(max_per_family, int) or not 1 <= max_per_family <= 20:
+        errors.append("composer max_per_vendor_family must be integer 1..20")
+
+    allowed_readiness = set(composer.get("allowed_readiness", []))
+    safe_synth_readiness = {"REFERENCE_COMPATIBLE", "MEASURE_FIRST"}
+    if not allowed_readiness or not allowed_readiness.issubset(safe_synth_readiness):
+        errors.append(
+            "composer allowed_readiness may contain only REFERENCE_COMPATIBLE or MEASURE_FIRST"
+        )
+
+    composer_slots = composer.get("slots") or {}
+    expected_composer_slots = {"deck", "topology", "wheel", "brake", "drive"}
+    if set(composer_slots) != expected_composer_slots:
+        errors.append("composer slots must exactly match the supported synthesis core")
+    for slot_id, values in composer_slots.items():
+        known = slot_options.get(slot_id, set())
+        if not isinstance(values, list) or not values:
+            errors.append(f"composer {slot_id} must contain at least one option")
+            continue
+        if len(values) != len(set(values)):
+            errors.append(f"composer {slot_id} contains duplicate options")
+        for value in values:
+            if value not in known:
+                errors.append(
+                    f"composer {slot_id} references unknown swap option {value!r}"
+                )
+
+    manual_policy = composer.get("manual_policy") or {}
+    for slot_id in ("drive", "battery"):
+        value = manual_policy.get(slot_id)
+        if value not in slot_options.get(slot_id, set()):
+            errors.append(
+                f"composer manual_policy {slot_id} references unknown option {value!r}"
+            )
+
+    electric_policy = composer.get("electric_policy") or {}
+    if electric_policy.get("require_drive") is not True:
+        errors.append("composer electric policy must require a drive")
+    battery_options = slot_options.get("battery", set())
+    battery_classes = electric_policy.get("battery_classes") or []
+    if not battery_classes:
+        errors.append("composer electric policy requires at least one battery class")
+    for value in battery_classes:
+        if value not in battery_options:
+            errors.append(
+                f"composer electric battery class references unknown option {value!r}"
+            )
+
+    fixed_selection = composer.get("fixed_selection") or {}
+    expected_fixed = {"rider_interface", "armor", "dock"}
+    if set(fixed_selection) != expected_fixed:
+        errors.append("composer fixed_selection must exactly cover rider_interface/armor/dock")
+    for slot_id, value in fixed_selection.items():
+        if value not in slot_options.get(slot_id, set()):
+            errors.append(
+                f"composer fixed selection {slot_id} references unknown option {value!r}"
+            )
+
+    trait_model = composer.get("trait_model") or {}
+    if trait_model.get("model_class") != "PLANNING_HEURISTIC":
+        errors.append("composer trait model must remain PLANNING_HEURISTIC")
+    for key in (
+        "deck_length_bounds_mm",
+        "truck_width_bounds_mm",
+        "wheel_diameter_bounds_mm",
+    ):
+        bounds = trait_model.get(key)
+        if (
+            not isinstance(bounds, list)
+            or len(bounds) != 2
+            or not all(isinstance(x, (int, float)) and not isinstance(x, bool) for x in bounds)
+            or bounds[1] <= bounds[0]
+        ):
+            errors.append(f"composer trait model {key} must be ascending numeric [min,max]")
+    if not isinstance(trait_model.get("known_cost_reference_usd"), (int, float)):
+        errors.append("composer known_cost_reference_usd must be numeric")
+
+    composer_authority = composer.get("authority") or {}
+    required_false = {
+        "procurement_authorized",
+        "fabrication_authorized",
+        "powered_operation_authorized",
+        "generic_builder_may_promote_x1_authority",
+    }
+    if set(composer_authority) != required_false or any(
+        composer_authority.get(key) is not False for key in required_false
+    ):
+        errors.append("composer authority contract must contain exactly four false flags")
+
     for packaged in swap_slots.get("packaged_foundation_rules", []):
         when = packaged.get("when") or {}
         for slot_id, value in when.items():
@@ -356,6 +461,8 @@ def validate() -> dict[str, Any]:
         "geometry_topologies": len(topology_ids),
         "architectures": len(architecture_ids),
         "swap_slots": len(swap_slot_ids),
+        "composer_enabled": composer.get("enabled") is True,
+        "composer_max_candidates": composer.get("max_synthesized_candidates"),
         "candidate_visual_views": 3,
         "power_categories_checkout_enabled": False,
         "generic_builder_may_promote_x1_authority": False,

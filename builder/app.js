@@ -1,8 +1,8 @@
 import {
   formatPrice,
-  generateCandidates,
   questionnaireDefaults,
 } from "./engine.mjs";
+import { generateBoardDesignSpace } from "./platform_engine.mjs";
 import {
   evaluateSwap,
   seedSwapSelection,
@@ -30,6 +30,7 @@ const state = {
   swapResult: null,
   galleryView: "hero",
   vendorFilter: "all",
+  originFilter: "all",
 };
 
 const $ = selector => document.querySelector(selector);
@@ -50,7 +51,7 @@ async function fetchJson(path) {
 }
 
 async function loadBundle() {
-  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, catalogHealth] = await Promise.all([
+  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth] = await Promise.all([
     fetchJson("../configurator/questionnaire.v1.json"),
     fetchJson("../configurator/rules.v1.json"),
     fetchJson("../catalog/board_components.v1.json"),
@@ -58,18 +59,10 @@ async function loadBundle() {
     fetchJson("../configurator/compatibility_rules.v1.json"),
     fetchJson("../configurator/swap_slots.v1.json"),
     fetchJson("../catalog/board_geometry.v1.json"),
+    fetchJson("../configurator/composer.v1.json"),
     fetchJson("../catalog/catalog_health.v1.json"),
   ]);
-  return {
-    questionnaire,
-    rules,
-    catalog,
-    architectures,
-    compatibility,
-    swapSlots,
-    geometry,
-    catalogHealth,
-  };
+  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth };
 }
 
 function restoreProfile(questionnaire) {
@@ -434,9 +427,10 @@ function renderVendorFilters(candidates) {
     host.appendChild(button);
   }
 
-  const visible = state.vendorFilter === "all"
-    ? candidates.length
-    : candidates.filter(row => row.vendor_family === state.vendorFilter).length;
+  const visible = candidates.filter(row =>
+    (state.vendorFilter === "all" || row.vendor_family === state.vendorFilter) &&
+    (state.originFilter === "all" || row.origin === state.originFilter)
+  ).length;
   const vendors = new Set(
     candidates.flatMap(row =>
       (row.bom || []).map(item => item.manufacturer).filter(Boolean)
@@ -447,8 +441,12 @@ function renderVendorFilters(candidates) {
   ).length;
   const health = state.bundle.catalogHealth;
   const healthSummary = health?.summary || {};
+  const summary = state.result?.composition_summary;
+  const originText = summary
+    ? summary.curated_count + " curated + " + summary.synthesized_count + " composed"
+    : candidates.length + " generated";
   $("#catalog-coverage").textContent =
-    visible + " shown · " + candidates.length + " generated · " +
+    visible + " shown · " + originText + " · " +
     vendors.size + " named manufacturers · " + sourced +
     " source-linked parts · evidence " +
     (healthSummary.source_fresh ?? "?") + " fresh / " +
@@ -475,9 +473,10 @@ function renderCandidates(candidates) {
   const host = $("#candidates");
   host.innerHTML = "";
 
-  const visibleCandidates = state.vendorFilter === "all"
-    ? candidates
-    : candidates.filter(row => row.vendor_family === state.vendorFilter);
+  const visibleCandidates = candidates.filter(row =>
+    (state.vendorFilter === "all" || row.vendor_family === state.vendorFilter) &&
+    (state.originFilter === "all" || row.origin === state.originFilter)
+  );
 
   for (const candidate of visibleCandidates) {
     const card = document.createElement("article");
@@ -496,6 +495,9 @@ function renderCandidates(candidates) {
         '<div class="fit-score"><strong>' + Math.round(candidate.fit_score * 100) + '%</strong><span>profile fit</span></div>' +
       '</div>' +
       '<div class="badges">' +
+        '<span class="badge origin-chip ' + (candidate.origin === "SYNTHESIZED" ? "composed" : "curated") + '">' +
+          escapeHtml(candidate.origin === "SYNTHESIZED" ? "catalog composed" : "curated reference") +
+        '</span>' +
         '<span class="badge vendor-chip">' + escapeHtml(candidate.vendor_family || "Unspecified") + '</span>' +
         '<span class="badge ' + statusClass(candidate.readiness) + '">' + escapeHtml(readinessLabel(candidate.readiness)) + '</span>' +
         (candidate.trade_space_frontier ? '<span class="badge frontier">trade-space frontier</span>' : '') +
@@ -577,13 +579,31 @@ function renderBom(candidate) {
   const why = '<div class="detail-box"><h3>Why it fits</h3><ul>' +
     candidate.explanations.map(x => '<li>' + escapeHtml(x) + '</li>').join("") + '</ul></div>';
 
+  const composition = candidate.origin === "SYNTHESIZED" && candidate.composition
+    ? '<div class="detail-box composition-detail"><h3>How this board was composed</h3>' +
+      '<p>' + escapeHtml(candidate.composition.rationale) + '</p>' +
+      '<ul>' +
+        Object.entries(candidate.composition.selection || {}).map(([slot, value]) =>
+          '<li><strong>' + escapeHtml(slot.replaceAll("_", " ")) + ':</strong> ' +
+          escapeHtml(String(value ?? "none")) + '</li>'
+        ).join("") +
+      '</ul>' +
+      '<p class="composition-states">' +
+        Object.entries(candidate.composition.compatibility_states || {})
+          .filter(([, count]) => Number(count) > 0)
+          .map(([status, count]) =>
+            escapeHtml(status.replaceAll("_", " ").toLowerCase()) + ': ' + Number(count)
+          ).join(' · ') +
+      '</p></div>'
+    : '<div class="detail-box"><h3>Candidate origin</h3><p>Curated reference architecture retained as a stable comparison and regression anchor.</p></div>';
+
   const compatibility = '<div class="detail-box"><h3>Compatibility evidence</h3><ul>' +
     (candidate.compatibility_findings.length
       ? candidate.compatibility_findings.map(x => '<li><strong>' + escapeHtml(x.state.replaceAll("_", " ").toLowerCase()) + ':</strong> ' + escapeHtml(x.reason) + '</li>').join("")
       : '<li>No explicit selected-pair rule fired for this candidate.</li>') +
     '</ul></div>';
 
-  $("#candidate-detail").innerHTML = blocks + unknowns + why + compatibility;
+  $("#candidate-detail").innerHTML = composition + blocks + unknowns + why + compatibility;
   renderSwapLab(candidate, state.swapBaselineId !== candidate.id);
 }
 
@@ -692,7 +712,7 @@ function renderSwapPreview(candidate) {
   const visual = visualStateFromSwap(
     candidate,
     state.swapResult,
-    state.bundle.twinSeed,
+    state.bundle.geometry,
     state.bundle.catalog
   );
   host.innerHTML = renderBoardPreviewSvg(
@@ -829,7 +849,7 @@ function exportCustomDesign() {
 
 function recompute() {
   if (!state.bundle) return;
-  state.result = generateCandidates(state.profile, state.bundle);
+  state.result = generateBoardDesignSpace(state.profile, state.bundle);
   state.swapBaselineId = null;
   state.swapSelection = null;
   state.swapResult = null;
@@ -844,6 +864,7 @@ function recompute() {
   renderBom(state.result.candidates.find(x => x.id === state.selectedId));
   $("#recompute-status").textContent =
     "Live · " + state.result.candidates.length + " candidates · " +
+    (state.result.composition_summary?.synthesized_count || 0) + " composed · " +
     new Set(state.result.candidates.map(row => row.vendor_family || "Unspecified")).size +
     " families";
 }
@@ -923,6 +944,16 @@ async function main() {
     $("#export-custom-design").addEventListener("click", exportCustomDesign);
     document.querySelectorAll("[data-gallery-view]").forEach(button => {
       button.addEventListener("click", () => setGalleryView(button.dataset.galleryView));
+    });
+    document.querySelectorAll("[data-origin-filter]").forEach(button => {
+      button.addEventListener("click", () => {
+        state.originFilter = button.dataset.originFilter;
+        document.querySelectorAll("[data-origin-filter]").forEach(row => {
+          row.classList.toggle("active", row.dataset.originFilter === state.originFilter);
+        });
+        renderVendorFilters(state.result.candidates);
+        renderCandidates(state.result.candidates);
+      });
     });
   } catch (error) {
     console.error(error);
