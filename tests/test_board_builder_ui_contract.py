@@ -197,3 +197,17 @@ def test_source_health_does_not_replace_compatibility_or_procurement_state():
     assert 'POWER_GATED' in APP
     assert 'Vendor source' in APP
     assert '>Buy<' not in HTML
+
+
+def test_evidence_explorer_ui_exposes_measurement_traceability_not_checkout():
+    assert 'id="evidence-explorer"' in HTML
+    assert 'id="swap-evidence-explorer"' in HTML
+    assert 'function evidencePanelHtml(report' in APP
+    assert 'function exportEvidenceWorklist()' in APP
+    assert 'function swapEvidence(candidate, result)' in APP
+    assert 'measurement_worklist' in APP
+    assert 'source_maintenance' in APP
+    assert 'Fit score is a planning preference' in APP
+    assert 'Export worklist' in APP
+    assert 'authority: e.authority' in APP
+    assert '>Buy<' not in HTML

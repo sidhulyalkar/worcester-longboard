@@ -3,6 +3,7 @@ import {
   questionnaireDefaults,
 } from "./engine.mjs";
 import { generateBoardDesignSpace } from "./platform_engine.mjs";
+import { buildEvidenceExplorer } from "./evidence_explorer.mjs";
 import {
   evaluateSwap,
   seedSwapSelection,
@@ -304,6 +305,95 @@ function sourceEvidenceHtml(componentId) {
     ' · not stock confirmation</small>';
 }
 
+// Evidence is an inspection view, not an independent qualification verdict.
+function evidencePanelHtml(report, allowExport = false) {
+  const tasks = new Map(report.measurement_worklist.map(t => [t.id, t]));
+  const open = report.interfaces.filter(f => ["UNKNOWN", "MEASURE_FIRST"].includes(f.state));
+  const conflict = report.interfaces.filter(f => f.state === "INCOMPATIBLE");
+  const reference = report.interfaces.filter(f => !["UNKNOWN", "MEASURE_FIRST", "INCOMPATIBLE"].includes(f.state));
+  const safeLink = row => row.source_url && /^https?:\/\//i.test(row.source_url)
+    ? '<a href="' + escapeHtml(row.source_url) + '" rel="noopener noreferrer" target="_blank">Source</a>'
+    : "No vendor link";
+  const source = row => '<span>' + escapeHtml(row.label) + ' · ' +
+    escapeHtml(row.health_status.replaceAll("_", " ").toLowerCase()) +
+    (row.verified_as_of ? ' · checked ' + escapeHtml(row.verified_as_of) : '') +
+    ' · ' + safeLink(row) + '</span>';
+  const findingHtml = f => {
+    const task = tasks.get(f.id);
+    return '<article class="evidence-row"><div class="evidence-row-top"><strong>' +
+      escapeHtml(f.a_label) + ' ↔ ' + escapeHtml(f.b_label) + '</strong>' +
+      '<span class="badge ' + statusClass(f.state === "UNKNOWN" ? "MEASURE_FIRST" : f.state) + '">' +
+      escapeHtml(f.state.replaceAll("_", " ").toLowerCase()) + '</span></div>' +
+      '<p>' + escapeHtml(f.reason) + '</p>' +
+      '<small>' + escapeHtml(f.id) + ' · ' +
+      escapeHtml(f.evidence_kind === "CONSERVATIVE_CATEGORY_FALLBACK"
+        ? "No explicit pair rule; conservative fallback" : "Explicit catalog reference rule") +
+      '</small>' +
+      (task ? '<p class="evidence-task"><strong>Measure next:</strong> ' +
+        escapeHtml(task.question) + '<small>' + escapeHtml(task.evidence_required) + '</small></p>' : '') +
+      '<div class="evidence-sources">' + f.sources.map(source).join('') + '</div></article>';
+  };
+  const group = (label, rows, expanded) => '<details class="evidence-group"' +
+    (expanded ? ' open' : '') + '><summary>' + escapeHtml(label) +
+    ' <span>' + rows.length + '</span></summary><div class="evidence-rows">' +
+    (rows.length ? rows.map(findingHtml).join('') :
+      '<p>No recorded findings in this category. This is not a mechanical qualification.</p>') +
+    '</div></details>';
+  const list = (items, fn) => items.length
+    ? '<ul>' + items.map(x => '<li>' + fn(x) + '</li>').join('') + '</ul>'
+    : '<p>No entries recorded in this category.</p>';
+  const s = report.summary;
+  return '<header class="evidence-header"><div><h3>Compatibility evidence</h3>' +
+    '<p>Interface-by-interface explanations and exact-revision measurement work.</p></div>' +
+    (allowExport ? '<button type="button" id="export-evidence">Export worklist</button>' : '') +
+    '</header><div class="evidence-metrics">' +
+      '<span><strong>' + s.open_interfaces + '</strong> open interfaces</span>' +
+      '<span><strong>' + s.incompatible_interfaces + '</strong> known conflicts</span>' +
+      '<span><strong>' + s.source_refresh_or_integrity_issues + '</strong> source follow-ups</span>' +
+      '<span><strong>' + s.unpriced_items + '</strong> unpriced items</span></div>' +
+    '<p class="evidence-boundary">' +
+      escapeHtml(s.physical_basis === "EXPANDED_COMPONENT_GRAPH"
+        ? "Expanded physical interface graph, not assembly qualification."
+        : "Curated reference BOM only: absent pair findings never establish complete compatibility.") +
+      ' Fit score is a planning preference, never a safety rating.</p>' +
+    (report.hard_blockers.length ? '<div class="evidence-blocker"><strong>Hard blockers</strong>' +
+      list(report.hard_blockers, escapeHtml) + '</div>' : '') +
+    group("Unresolved: exact measurements or revision evidence required", open, true) +
+    (conflict.length ? group("Incompatible: do not substitute or fabricate", conflict, true) : '') +
+    group("Reference-rule findings", reference, false) +
+    '<details class="evidence-group"><summary>Source health, cost gaps and other uncertainties <span>' +
+    (report.source_maintenance.length + report.other_uncertainties.length) +
+    '</span></summary><div class="evidence-supplement">' +
+    '<h4>Refresh / missing provenance</h4>' + list(report.source_maintenance, source) +
+    '<h4>Additional planning uncertainties</h4>' + list(report.other_uncertainties, escapeHtml) +
+    '<p>Unpriced IDs: ' + escapeHtml(report.unpriced_component_ids.join(", ") || "none") +
+    '. USD values are known-price subtotals only; stock, tax and shipping are excluded.</p>' +
+    '</div></details><p class="evidence-boundary">' +
+    escapeHtml(report.qualification_note) + '</p>';
+}
+
+function swapEvidence(candidate, result) {
+  return buildEvidenceExplorer({
+    ...result, id: candidate.id + ":edited", origin: "SWAP_STUDY",
+    composition: {physical_interface_ids: result.compatibility_interface_ids},
+  }, state.bundle.catalog, state.bundle.catalogHealth);
+}
+
+function exportEvidenceWorklist() {
+  const candidate = state.result?.candidates.find(x => x.id === state.selectedId);
+  if (!candidate?.evidence) return;
+  const e = candidate.evidence;
+  downloadJson("worcester-worklist-" + candidate.id + ".json", {
+    schema_version: 1, scope: e.scope, candidate_id: e.candidate_id,
+    measurement_worklist: e.measurement_worklist,
+    source_maintenance: e.source_maintenance,
+    other_uncertainties: e.other_uncertainties,
+    hard_blockers: e.hard_blockers,
+    unpriced_component_ids: e.unpriced_component_ids,
+    price_basis: e.price_basis, authority: e.authority, note: e.qualification_note,
+  });
+}
+
 function partialCost(candidate) {
   const c = candidate.cost;
   const unpriced = (c.unpriced_component_ids || []).length;
@@ -506,13 +596,14 @@ function renderCandidates(candidates) {
       '<div class="traits">' + traitsHtml(candidate) + '</div>' +
       candidateSpecHtml(candidate) +
       issueText +
+      '<p class="evidence-preview">' + escapeHtml(candidate.evidence.summary.open_interfaces + " interfaces to resolve · " + candidate.evidence.summary.source_refresh_or_integrity_issues + " source follow-ups") + '</p>' +
       '<div class="candidate-footer">' +
         '<div class="cost"><strong>' + partialCost(candidate) + '</strong><small>known USD subtotal · ' +
           candidate.cost.unpriced_component_ids.length + ' unpriced/source-native item' +
           (candidate.cost.unpriced_component_ids.length === 1 ? '' : 's') +
           ' · shipping/tax excluded</small></div>' +
         '<div class="candidate-actions">' +
-          '<button type="button" data-inspect="' + escapeHtml(candidate.id) + '">Inspect BOM</button>' +
+          '<button type="button" data-inspect="' + escapeHtml(candidate.id) + '">Inspect evidence + BOM</button>' +
           '<a href="' + escapeHtml(twinUrl(candidate)) + '">3D</a>' +
         '</div>' +
       '</div>';
@@ -603,7 +694,10 @@ function renderBom(candidate) {
       : '<li>No explicit selected-pair rule fired for this candidate.</li>') +
     '</ul></div>';
 
-  $("#candidate-detail").innerHTML = composition + blocks + unknowns + why + compatibility;
+  $("#candidate-detail").innerHTML = composition + blocks + unknowns + why;
+  const explorer = $("#evidence-explorer");
+  explorer.innerHTML = evidencePanelHtml(candidate.evidence, true);
+  explorer.querySelector("#export-evidence").addEventListener("click", exportEvidenceWorklist);
   renderSwapLab(candidate, state.swapBaselineId !== candidate.id);
 }
 
@@ -748,6 +842,7 @@ function renderSwapResult(candidate) {
       result.cost.unpriced_component_ids.length + '</strong></div>';
 
   renderSwapFindings(result);
+  $("#swap-evidence-explorer").innerHTML = evidencePanelHtml(swapEvidence(candidate, result));
   renderSwapBom(result.bom);
 
   const twin = $("#open-custom-twin");
@@ -834,6 +929,7 @@ function exportCustomDesign() {
     requirements: state.result.requirements,
     baseline_candidate: candidate,
     custom_study: state.swapResult,
+    evidence: swapEvidence(candidate, state.swapResult),
     visual_state: visualStateFromSwap(
       candidate,
       state.swapResult,
