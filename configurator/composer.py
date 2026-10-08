@@ -352,7 +352,13 @@ def _architecture_from_selection(
     scored["origin"] = "SYNTHESIZED"
     # Keep the evaluated physical graph's findings; the commercial BOM can hide donor parts.
     scored["compatibility_findings"] = copy.deepcopy(evaluation["compatibility_findings"])
-    scored["checkout_state"] = "BLOCKED" if scored["checkout_state"] == "BLOCKED" else evaluation["checkout_state"]
+    if READINESS_RANK[evaluation["readiness"]] > READINESS_RANK[scored["readiness"]]:
+        scored["readiness"] = evaluation["readiness"]
+    checkout_rank = {"SOURCE_LINKS": 0, "HOLD_MEASURE": 1, "BLOCKED": 2}
+    scored["checkout_state"] = max(
+        (scored["checkout_state"], evaluation["checkout_state"]),
+        key=lambda state: checkout_rank[state],
+    )
     scored["swap_defaults"] = copy.deepcopy(selection)
     states = (
         "REFERENCE_COMPATIBLE",

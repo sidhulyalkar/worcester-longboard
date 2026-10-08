@@ -250,7 +250,12 @@ function architectureFromSelection(profile, requirements, selection, evaluation,
   scored.origin = "SYNTHESIZED";
   // Preserve physical interface evidence even when a commercial donor SKU collapses parts.
   scored.compatibility_findings = structuredClone(evaluation.compatibility_findings);
-  scored.checkout_state = scored.checkout_state === "BLOCKED" ? "BLOCKED" : evaluation.checkout_state;
+  if (READINESS_RANK[evaluation.readiness] > READINESS_RANK[scored.readiness]) {
+    scored.readiness = evaluation.readiness;
+  }
+  const checkoutRank = {SOURCE_LINKS: 0, HOLD_MEASURE: 1, BLOCKED: 2};
+  scored.checkout_state = checkoutRank[evaluation.checkout_state] > checkoutRank[scored.checkout_state]
+    ? evaluation.checkout_state : scored.checkout_state;
   scored.swap_defaults = structuredClone(selection);
   scored.composition = {
     schema_version: 1,
