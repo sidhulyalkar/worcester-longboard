@@ -232,7 +232,8 @@ function pairFindings(ids, compatibility, catalog) {
       }
     }
   }
-  return findings;
+  // Stable rules and explanations, independent of source enumeration order.
+  return findings.sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
 }
 
 function batteryMaxWh(selection, catalog) {

@@ -234,7 +234,8 @@ def _pair_findings(
                         "reason": fallback["reason"],
                     }
                 )
-    return findings
+    # Hash iteration must not reorder uncertainty explanations or break JS parity.
+    return sorted(findings, key=lambda row: row["id"])
 
 
 def _friction_brake_evidence(
