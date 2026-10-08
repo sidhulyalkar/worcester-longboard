@@ -45,15 +45,10 @@ export function generateBoardDesignSpace(profile, bundle) {
     candidate.origin = "CURATED";
   }
 
-  const synthesized = composeCandidates(
-    curated.profile,
-    curated.requirements,
-    bundle
-  );
-
   const curatedSignatures = new Set(curated.candidates.map(bomSignature));
-  const uniqueSynthesized = synthesized.filter(
-    candidate => !curatedSignatures.has(bomSignature(candidate))
+  // Curated references are excluded before synthesized selection and its cap.
+  const uniqueSynthesized = composeCandidates(
+    curated.profile, curated.requirements, bundle, curatedSignatures
   );
 
   const candidates = [...curated.candidates, ...uniqueSynthesized];

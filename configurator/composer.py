@@ -307,7 +307,7 @@ def _architecture_from_selection(
     wheel_class = (wheel_component.get("interfaces") or {}).get(
         "wheel_class", "unknown"
     )
-    brake_path = _path_state(selection["brake"], "brake", evaluation)
+    brake_path = evaluation["friction_brake_path_state"]
     drive_path = _path_state(selection["drive"], "drive", evaluation)
     family = _vendor_family(evaluation)
     candidate_id = _selection_id(selection)
@@ -350,6 +350,9 @@ def _architecture_from_selection(
         bundle["compatibility"],
     )
     scored["origin"] = "SYNTHESIZED"
+    # Keep the evaluated physical graph's findings; the commercial BOM can hide donor parts.
+    scored["compatibility_findings"] = copy.deepcopy(evaluation["compatibility_findings"])
+    scored["checkout_state"] = "BLOCKED" if scored["checkout_state"] == "BLOCKED" else evaluation["checkout_state"]
     scored["swap_defaults"] = copy.deepcopy(selection)
     states = (
         "REFERENCE_COMPATIBLE",
@@ -361,6 +364,7 @@ def _architecture_from_selection(
         "schema_version": 1,
         "engine": "catalog_composer_v1",
         "selection": copy.deepcopy(selection),
+        "physical_interface_ids": list(evaluation["compatibility_interface_ids"]),
         "manufacturers": sorted(
             {
                 str(row["manufacturer"])
@@ -385,15 +389,16 @@ def _architecture_from_selection(
 
 
 def _bom_signature(candidate: dict[str, Any]) -> str:
-    return "|".join(
-        sorted(row["component_id"] for row in candidate.get("bom", []))
-    )
+    commercial = "|".join(sorted(row["component_id"] for row in candidate.get("bom", [])))
+    physical = "|".join(sorted(candidate.get("composition", {}).get("physical_interface_ids", [])))
+    return commercial + "::" + physical
 
 
 def compose_candidates(
     profile: dict[str, Any],
     requirements: dict[str, Any],
     bundle: dict[str, Any],
+    excluded_commercial_boms: set[str] | None = None,
 ) -> list[dict[str, Any]]:
     composer = bundle.get("composer") or {}
     if not composer.get("enabled"):
@@ -507,6 +512,9 @@ def compose_candidates(
         if candidate["blockers"]:
             continue
 
+        commercial = "|".join(sorted(row["component_id"] for row in candidate["bom"]))
+        if commercial in (excluded_commercial_boms or set()):
+            continue
         signature = _bom_signature(candidate)
         if signature in seen_bom:
             continue

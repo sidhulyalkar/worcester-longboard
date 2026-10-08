@@ -85,21 +85,15 @@ def generate_board_design_space(
     for candidate in curated["candidates"]:
         candidate["origin"] = "CURATED"
 
-    synthesized = compose_candidates(
-        curated["profile"],
-        curated["requirements"],
-        data,
-    )
-
     curated_signatures = {
         _bom_signature(candidate)
         for candidate in curated["candidates"]
     }
-    unique_synthesized = [
-        candidate
-        for candidate in synthesized
-        if _bom_signature(candidate) not in curated_signatures
-    ]
+    # Exclude curated BOMs before synthesized ranking/capping to avoid wasting slots.
+    unique_synthesized = compose_candidates(
+        curated["profile"], curated["requirements"], data,
+        excluded_commercial_boms=curated_signatures,
+    )
 
     candidates = [
         *curated["candidates"],

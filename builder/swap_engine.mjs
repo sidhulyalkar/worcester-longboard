@@ -158,6 +158,41 @@ export function resolveSwapComponentIds(selection, slots) {
   return uniq(ids);
 }
 
+export function resolveCompatibilityComponentIds(selection, slots) {
+  const ids = resolveSwapComponentIds(selection, slots);
+  const options = slotOptionIndex(slots);
+  for (const slot of ["deck", "topology", "wheel"]) {
+    const id = options[slot].get(selection[slot])?.component_id;
+    if (id) ids.push(id);
+  }
+  ids.push(...(slots.wheel_support_components?.[selection.wheel] || []));
+  ids.push(...(slots.topology_support_components?.[selection.topology] || []));
+  return uniq(ids);
+}
+
+function frictionBrakeEvidence(selection, physicalIds, findings, catalog, slots) {
+  if (!selection.brake) return {state: "NOT_PRESENT", missing: []};
+  const brakeId = slotOptionIndex(slots).brake.get(selection.brake).component_id;
+  const index = componentIndex(catalog);
+  const relevant = findings.filter(f => f.a === brakeId || f.b === brakeId);
+  if (relevant.some(f => f.state === "INCOMPATIBLE")) return {state: "INCOMPATIBLE", missing: []};
+  const missing = [];
+  for (const [family, categories] of [
+    ["truck/brake", new Set(["truck"])],
+    ["wheel-or-hub/brake", new Set(["wheel", "hub"])],
+  ]) {
+    const partners = new Set(physicalIds.filter(id => categories.has(index.get(id)?.category)));
+    if (!relevant.some(f => (f.a === brakeId && partners.has(f.b)) || (f.b === brakeId && partners.has(f.a)))) {
+      missing.push(`Unresolved ${family} interface: no documented or conservative fallback finding for the selected brake.`);
+    }
+  }
+  return {
+    state: missing.length || relevant.some(f => f.state === "UNKNOWN" || f.state === "MEASURE_FIRST")
+      ? "MEASURE_FIRST" : "REFERENCE_COMPATIBLE",
+    missing,
+  };
+}
+
 function pairFindings(ids, compatibility, catalog) {
   const selected = new Set(ids);
   const findings = [];
@@ -214,12 +249,18 @@ export function evaluateSwap(baselineCandidate, requirements, selection, bundle,
   const packed = bomRows(ids, bundle.catalog);
   const bom = packed.rows;
   const cost = packed.cost;
-  const findings = pairFindings(ids, bundle.compatibility, bundle.catalog);
+  const physicalIds = resolveCompatibilityComponentIds(selection, slots);
+  const findings = pairFindings(physicalIds, bundle.compatibility, bundle.catalog);
+  const brakeEvidence = frictionBrakeEvidence(selection, physicalIds, findings, bundle.catalog, slots);
 
   let readiness = "REFERENCE_COMPATIBLE";
   const blockers = [];
   const unknowns = [];
   const notes = [];
+  if (brakeEvidence.missing.length) {
+    readiness = worsen(readiness, "MEASURE_FIRST");
+    unknowns.push(...brakeEvidence.missing);
+  }
 
   for (const finding of findings) {
     if (finding.state === "INCOMPATIBLE") {
@@ -320,6 +361,8 @@ export function evaluateSwap(baselineCandidate, requirements, selection, bundle,
       known_max_usd: Number((cost.known_max_usd - baselineCost.known_max_usd).toFixed(2)),
     },
     compatibility_findings: findings,
+    compatibility_interface_ids: physicalIds,
+    friction_brake_path_state: brakeEvidence.state,
     blockers: uniq(blockers),
     unknowns: uniq(unknowns),
     notes: uniq(notes),

@@ -176,6 +176,19 @@ def resolve_component_ids(
     return _dedupe(component_ids)
 
 
+def resolve_compatibility_component_ids(selection: dict[str, Any], slots: dict[str, Any]) -> list[str]:
+    """Expand packaged donor assemblies for safety checks, never for checkout or pricing."""
+    ids = resolve_component_ids(selection, slots)
+    options = _slot_options(slots)
+    for slot_id in ("deck", "topology", "wheel"):
+        component_id = options[slot_id][selection[slot_id]].get("component_id")
+        if component_id:
+            ids.append(component_id)
+    ids.extend(slots.get("wheel_support_components", {}).get(selection["wheel"], []))
+    ids.extend(slots.get("topology_support_components", {}).get(selection["topology"], []))
+    return _dedupe(ids)
+
+
 def _pair_findings(
     component_ids: set[str],
     compatibility: dict[str, Any],
@@ -224,6 +237,27 @@ def _pair_findings(
     return findings
 
 
+def _friction_brake_evidence(
+    selection: dict[str, Any], physical_ids: list[str], findings: list[dict[str, Any]],
+    catalog: dict[str, Any], slots: dict[str, Any],
+) -> tuple[str, list[str]]:
+    if not selection["brake"]:
+        return "NOT_PRESENT", []
+    brake_id = _slot_options(slots)["brake"][selection["brake"]]["component_id"]
+    index = _component_index(catalog)
+    relevant = [f for f in findings if brake_id in (f["a"], f["b"])]
+    if any(f["state"] == "INCOMPATIBLE" for f in relevant):
+        return "INCOMPATIBLE", []
+    missing = []
+    for family, categories in (("truck/brake", {"truck"}), ("wheel-or-hub/brake", {"wheel", "hub"})):
+        partners = {cid for cid in physical_ids if cid in index and index[cid]["category"] in categories}
+        if not any((f["a"] == brake_id and f["b"] in partners) or (f["b"] == brake_id and f["a"] in partners) for f in relevant):
+            missing.append(f"Unresolved {family} interface: no documented or conservative fallback finding for the selected brake.")
+    if missing or any(f["state"] in {"UNKNOWN", "MEASURE_FIRST"} for f in relevant):
+        return "MEASURE_FIRST", missing
+    return "REFERENCE_COMPATIBLE", []
+
+
 def _battery_max_wh(selection: dict[str, Any], catalog: dict[str, Any]) -> float | None:
     battery_id = selection.get("battery")
     if not battery_id:
@@ -250,12 +284,19 @@ def evaluate_swap(
     component_ids = resolve_component_ids(selection, slot_data)
     bom, cost = _bom_rows(component_ids, data["catalog"])
     selected_ids = set(component_ids)
-    findings = _pair_findings(selected_ids, data["compatibility"], data["catalog"])
+    physical_ids = resolve_compatibility_component_ids(selection, slot_data)
+    findings = _pair_findings(set(physical_ids), data["compatibility"], data["catalog"])
+    brake_path, missing_brake_evidence = _friction_brake_evidence(
+        selection, physical_ids, findings, data["catalog"], slot_data
+    )
 
     readiness = "REFERENCE_COMPATIBLE"
     blockers: list[str] = []
     unknowns: list[str] = []
     notes: list[str] = []
+    if missing_brake_evidence:
+        readiness = _worsen(readiness, "MEASURE_FIRST")
+        unknowns.extend(missing_brake_evidence)
 
     for finding in findings:
         if finding["state"] == "INCOMPATIBLE":
@@ -359,6 +400,8 @@ def evaluate_swap(
             "known_max_usd": delta_max,
         },
         "compatibility_findings": findings,
+        "compatibility_interface_ids": physical_ids,
+        "friction_brake_path_state": brake_path,
         "blockers": list(dict.fromkeys(blockers)),
         "unknowns": list(dict.fromkeys(unknowns)),
         "notes": list(dict.fromkeys(notes)),

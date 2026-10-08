@@ -211,7 +211,7 @@ function architectureFromSelection(profile, requirements, selection, evaluation,
   const components = componentIndex(bundle.catalog);
   const wheelComponent = components.get(selection.wheel);
   const wheelClass = wheelComponent?.interfaces?.wheel_class || "unknown";
-  const brakePath = pathState(selection.brake, "brake", evaluation);
+  const brakePath = evaluation.friction_brake_path_state;
   const drivePath = pathState(selection.drive, "drive", evaluation);
   const family = vendorFamily(evaluation);
   const id = selectionId(selection);
@@ -248,11 +248,15 @@ function architectureFromSelection(profile, requirements, selection, evaluation,
     bundle.compatibility
   );
   scored.origin = "SYNTHESIZED";
+  // Preserve physical interface evidence even when a commercial donor SKU collapses parts.
+  scored.compatibility_findings = structuredClone(evaluation.compatibility_findings);
+  scored.checkout_state = scored.checkout_state === "BLOCKED" ? "BLOCKED" : evaluation.checkout_state;
   scored.swap_defaults = structuredClone(selection);
   scored.composition = {
     schema_version: 1,
     engine: "catalog_composer_v1",
     selection: structuredClone(selection),
+    physical_interface_ids: [...evaluation.compatibility_interface_ids],
     manufacturers: uniq(
       evaluation.bom.map(row => row.manufacturer).filter(Boolean).map(String)
     ).sort(),
@@ -272,13 +276,12 @@ function architectureFromSelection(profile, requirements, selection, evaluation,
 }
 
 function bomSignature(candidate) {
-  return (candidate.bom || [])
-    .map(row => row.component_id)
-    .sort()
-    .join("|");
+  const commercial = (candidate.bom || []).map(row => row.component_id).sort().join("|");
+  const physical = (candidate.composition?.physical_interface_ids || []).slice().sort().join("|");
+  return commercial + "::" + physical;
 }
 
-export function composeCandidates(profile, requirements, bundle) {
+export function composeCandidates(profile, requirements, bundle, excludedCommercialBoms = new Set()) {
   const composer = bundle.composer;
   if (!composer?.enabled) return [];
 
@@ -366,6 +369,8 @@ export function composeCandidates(profile, requirements, bundle) {
     if (!allowed.includes(candidate.readiness)) continue;
     if (candidate.blockers.length) continue;
 
+    const commercial = candidate.bom.map(row => row.component_id).sort().join("|");
+    if (excludedCommercialBoms.has(commercial)) continue;
     const signature = bomSignature(candidate);
     if (seenBom.has(signature)) continue;
     seenBom.add(signature);

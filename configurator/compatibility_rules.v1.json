@@ -310,6 +310,13 @@
       "b": "DRIVE-LACROIX-BARREL-BELT",
       "state": "REFERENCE_COMPATIBLE",
       "reason": "Lacroix documents its Barrel wheel pulley around MBS Rockstar II hubs."
+    },
+    {
+      "id": "comp95_deck_matrix400",
+      "a": "DECK-COMP95-REF",
+      "b": "TRUCK-M3-400",
+      "state": "REFERENCE_COMPATIBLE",
+      "reason": "The complete Comp 95 donor reference includes the Matrix III brake-first truck mounting; this is published assembly-level evidence, not a fabrication qualification."
     }
   ],
   "category_pair_defaults": [
