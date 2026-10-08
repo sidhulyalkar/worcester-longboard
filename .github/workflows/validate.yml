@@ -36,6 +36,7 @@ jobs:
           node --check builder/engine.mjs
           node --check builder/platform_engine.mjs
           node --check builder/composer.mjs
+          node --check builder/evidence_explorer.mjs
           node --check builder/swap_engine.mjs
           node --check builder/visual_state.mjs
           node --check builder/preview_renderer.mjs
@@ -44,7 +45,7 @@ jobs:
           node --check tools/render_board_candidate_previews.mjs
           node --check tools/evaluate_board_swap.mjs
       - name: Test browser Board Builder engines, composer and visuals
-        run: node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_catalog_composer.mjs tests/js/test_board_builder_swap_lab.mjs tests/js/test_board_builder_visuals.mjs
+        run: node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_catalog_composer.mjs tests/js/test_board_evidence_explorer.mjs tests/js/test_board_builder_swap_lab.mjs tests/js/test_board_builder_visuals.mjs
       - run: python -m pytest -q tests
       - name: Validate Board Builder catalog and authority boundary
         run: python tools/validate_board_builder.py
@@ -95,6 +96,9 @@ jobs:
           env -u PYTHONPATH python tools/generate_board_candidates.py             configurator/examples/trail_rider_profile.json             --out /tmp/board-python.json
           node tools/generate_board_candidates.mjs             configurator/examples/trail_rider_profile.json             > /tmp/board-browser.json
           python tools/compare_board_builder_engines.py             /tmp/board-python.json             /tmp/board-browser.json
+          env -u PYTHONPATH python tools/generate_board_candidates.py configurator/examples/manual_carver_profile.json --out /tmp/board-manual-python.json
+          node tools/generate_board_candidates.mjs configurator/examples/manual_carver_profile.json > /tmp/board-manual-browser.json
+          python tools/compare_board_builder_engines.py /tmp/board-manual-python.json /tmp/board-manual-browser.json
           python - <<'PY'
           import json
           from pathlib import Path

@@ -262,3 +262,16 @@ Open `http://127.0.0.1:8000/builder/`. The root landing page is `http://127.0.0.
 The platform now has real cross-vendor mechanical breadth, but it still does not claim exhaustive coverage, live stock/prices, automated checkout, arbitrary third-party compatibility, validated structural loads/braking, exact electric range/thermal behavior, battery/charger qualification, legal operating eligibility, fabrication authority, or powered-operation authority.
 
 The next catalog phase should continue expanding interface quality before raw item count: more deck/truck/hub/wheel/brake families, stronger mixed-vendor interface evidence, explicit mounting-pattern schemas, more complete visual geometry, a separate live price/stock refresh service, and electrical schemas mature enough to compare controllers/packs without pretending they are released hardware.
+
+
+## Catalog Composer v1.1: evidence-driven compatibility exploration
+
+Generated curated and synthesized candidates expose an identical read-only `evidence` record in Python and the browser. Swap Lab produces the same view from the edited design's **expanded physical component graph**, not its commercial donor BOM. All output is non-authoritative.
+
+- **Mechanical evidence:** every applicable pair rule is shown by component ID, state, reason, and evidence kind. An explicit catalog rule is a sourced/reference planning relationship, **not** completed physical qualification. A category fallback is an unknown interface, not implicit compatibility. Incompatible pairs remain forbidden rather than converted into an adapter suggestion.
+- **Actionable measurement worklist:** `UNKNOWN` and `MEASURE_FIRST` pairs have deterministic interface-specific measurement questions and an explicit exact-revision evidence requirement. Unresolved work is exported as JSON to inform future private physical experiments, **not** as a new qualification authority.
+- **Provenance:** source URLs, snapshot IDs, observed dates and source-health states are tied to selected component IDs (including donor internals). A missing health record reports `HEALTH_UNAVAILABLE`, not fresh. Refresh-due or stale evidence is maintenance work; even fresh evidence is not live inventory or physical compatibility proof.
+- **Separate unknown dimensions:** catalog interfaces, physical blockers, other planning uncertainty, missing prices, and source-health issues remain independent. A profile-fit score is never a safety, feasibility, or procurement score. Prices are known USD subtotals only, without implicit FX, tax, shipping or stock guarantees.
+- **Curated limitation:** curated BOM-only references report `REFERENCE_BOM_ONLY` because not every internal component is decomposed. A reference with zero reported interface gaps is *not* treated as a fully mechanically qualified design.
+
+The data contract lives in `configurator/evidence_explorer.py` and `builder/evidence_explorer.mjs`; exact Python/browser output parity is checked in CI for both manual and electric profiles. All evidence authority fields (procurement, fabrication, charging, powered operation and generic X1 promotion) are `false`. No Issue #25 purchase gate, brake interface gate, drivetrain gate, power freeze, or powered commissioning authority is changed.
