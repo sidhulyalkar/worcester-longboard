@@ -20,6 +20,7 @@ const bundle = {
   swapSlots: read("configurator/swap_slots.v1.json"),
   geometry: read("catalog/board_geometry.v1.json"),
   composer: read("configurator/composer.v1.json"),
+  catalogHealth: read("catalog/catalog_health.v1.json"),
 };
 
 const trail = read("configurator/examples/trail_rider_profile.json");

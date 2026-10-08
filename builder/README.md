@@ -124,3 +124,8 @@ The product keeps curated references and synthesized boards separate:
 - opening Swap Lab reproduces the composed board exactly before the user edits anything.
 
 The composer reuses Swap Lab compatibility evaluation and the standard rider-fit scorer. It prunes hard blockers and incompatible combinations, caps unresolved interfaces and candidate count, removes exact-BOM duplicates, and never promotes authority.
+
+
+### Evidence-driven explorer (v1.1)
+
+Select **Inspect evidence + BOM** for an interface-by-interface rule matrix, underlying component/source links and dates, and exact-revision measurement questions for every unresolved interface. The **Export worklist** JSON is a non-authoritative study artifact. Swap Lab recalculates the same evidence for edited configurations. Source freshness, unknown prices and hard mechanical holds are deliberately separate; a high profile-fit score never grants safety or checkout permission.

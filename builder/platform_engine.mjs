@@ -1,5 +1,6 @@
 import { READINESS_RANK, generateCandidates } from "./engine.mjs";
 import { composeCandidates } from "./composer.mjs";
+import { buildEvidenceExplorer } from "./evidence_explorer.mjs";
 
 function bomSignature(candidate) {
   return (candidate.bom || [])
@@ -62,6 +63,7 @@ export function generateBoardDesignSpace(profile, bundle) {
   const frontier = nonDominated(candidates);
   for (const candidate of candidates) {
     candidate.trade_space_frontier = frontier.has(candidate.id);
+    candidate.evidence = buildEvidenceExplorer(candidate, bundle.catalog, bundle.catalogHealth);
   }
 
   return {

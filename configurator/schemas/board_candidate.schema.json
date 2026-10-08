@@ -163,6 +163,88 @@
           "type": "string"
         }
       }
+    },
+    "evidence": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "scope",
+        "candidate_id",
+        "summary",
+        "interfaces",
+        "measurement_worklist",
+        "source_evidence",
+        "source_maintenance",
+        "price_basis",
+        "score_basis",
+        "authority"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "scope": {
+          "const": "non_authoritative_catalog_evidence_explorer"
+        },
+        "candidate_id": {
+          "type": "string"
+        },
+        "interfaces": {
+          "type": "array"
+        },
+        "measurement_worklist": {
+          "type": "array"
+        },
+        "source_evidence": {
+          "type": "array"
+        },
+        "source_maintenance": {
+          "type": "array"
+        },
+        "price_basis": {
+          "const": "KNOWN_USD_SUBTOTAL_ONLY"
+        },
+        "score_basis": {
+          "const": "PLANNING_PREFERENCE_NOT_SAFETY"
+        },
+        "summary": {
+          "type": "object",
+          "required": [
+            "open_interfaces",
+            "incompatible_interfaces",
+            "source_refresh_or_integrity_issues",
+            "unpriced_items",
+            "physical_basis"
+          ]
+        },
+        "authority": {
+          "type": "object",
+          "required": [
+            "procurement_authorized",
+            "fabrication_authorized",
+            "charging_authorized",
+            "powered_operation_authorized",
+            "generic_builder_may_promote_x1_authority"
+          ],
+          "properties": {
+            "procurement_authorized": {
+              "const": false
+            },
+            "fabrication_authorized": {
+              "const": false
+            },
+            "charging_authorized": {
+              "const": false
+            },
+            "powered_operation_authorized": {
+              "const": false
+            },
+            "generic_builder_may_promote_x1_authority": {
+              "const": false
+            }
+          }
+        }
+      }
     }
   }
 }
