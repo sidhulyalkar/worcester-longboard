@@ -9,6 +9,16 @@ python -m pip check
 python -m compileall -q tools cad fit simulation configurator
 python -m pytest -q tests
 python tools/validate_board_builder.py
+CATALOG_AUDIT_DATE="$(date +%F)"
+python tools/audit_board_catalog.py \
+  --as-of "$CATALOG_AUDIT_DATE" \
+  --max-source-age-days 30 \
+  --out /tmp/x1-board-catalog-audit.json
+python tools/build_catalog_source_health.py \
+  --as-of "$CATALOG_AUDIT_DATE" \
+  --out /tmp/x1-board-catalog-health.json \
+  --worklist /tmp/x1-board-catalog-refresh-worklist.md \
+  --fail-on-integrity
 
 if command -v node >/dev/null 2>&1; then
   cp showcase/app.js /tmp/x1-showcase-app.mjs

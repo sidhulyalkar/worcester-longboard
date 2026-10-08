@@ -69,6 +69,8 @@ The first cross-vendor tranche includes MBS/Worcester, TRAMPA, Apex Boards, Boar
 
 Native-currency source prices remain source metadata rather than being silently converted into USD. The UI therefore reports a known USD subtotal plus explicit unpriced/source-native items.
 
+The Builder also loads `catalog/catalog_health.v1.json`, a deterministic source-evidence health snapshot. The UI keeps this fifth question separate from fit, compatibility, procurement readiness and physical authority: **how recent is the recorded source evidence?** Fresh source evidence never means current stock or purchase authorization.
+
 See `docs/board_catalog_contract.md` for the ingestion, interface, compatibility, visual-substitution and freshness rules.
 
 ## Candidate architectures
@@ -232,7 +234,13 @@ python tools/render_board_bom.py \
 
 python tools/validate_board_builder.py
 
-python tools/audit_board_catalog.py
+python tools/audit_board_catalog.py --as-of 2026-10-07
+
+python tools/build_catalog_source_health.py \
+  --as-of 2026-10-07 \
+  --out /tmp/catalog-health.json \
+  --worklist /tmp/catalog-refresh-worklist.md \
+  --fail-on-integrity
 ```
 
 ## Browser workflow

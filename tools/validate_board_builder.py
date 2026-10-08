@@ -18,6 +18,7 @@ def validate() -> dict[str, Any]:
     catalog = load("catalog/board_components.v1.json")
     geometry = load("catalog/board_geometry.v1.json")
     source_snapshots = load("catalog/source_snapshots_2026-10-04.json")
+    catalog_health = load("catalog/catalog_health.v1.json")
     architectures = load("configurator/architectures.v1.json")
     compatibility = load("configurator/compatibility_rules.v1.json")
     swap_slots = load("configurator/swap_slots.v1.json")
@@ -89,6 +90,35 @@ def validate() -> dict[str, Any]:
                 errors.append(
                     f"{row['id']}: component source URL differs from dated snapshot"
                 )
+
+    health_rows = catalog_health.get("component_health", [])
+    health_ids = [row.get("component_id") for row in health_rows]
+    if len(health_ids) != len(set(health_ids)):
+        errors.append("catalog health component ids must be unique")
+    if set(health_ids) != set(component_index):
+        errors.append("catalog health must contain exactly one row for every catalog component")
+    health_summary = catalog_health.get("summary") or {}
+    if catalog_health.get("valid") is not True:
+        errors.append("canonical catalog health report must be integrity-valid")
+    if catalog_health.get("integrity_errors"):
+        errors.append("canonical catalog health report may not carry integrity errors")
+    if health_summary.get("catalog_components") != len(component_index):
+        errors.append("catalog health component count does not match catalog")
+    if health_summary.get("source_linked_components") != sum(
+        1 for row in components if (row.get("source") or {}).get("url")
+    ):
+        errors.append("catalog health sourced-component count does not match catalog")
+    if health_summary.get("missing_provenance") != 0:
+        errors.append("canonical catalog health may not contain missing provenance")
+    health_authority = catalog_health.get("authority") or {}
+    if (
+        health_authority.get("stock_currently_verified") is not False
+        or health_authority.get("procurement_authorized") is not False
+        or health_authority.get("fabrication_authorized") is not False
+        or health_authority.get("powered_operation_authorized") is not False
+        or health_authority.get("source_health_may_promote_x1_authority") is not False
+    ):
+        errors.append("catalog health must remain non-authoritative")
 
     deck_rows = geometry.get("decks", [])
     topology_rows = geometry.get("topologies", [])
@@ -423,6 +453,10 @@ def validate() -> dict[str, Any]:
         "questionnaire_fields": len(field_ids),
         "catalog_components": len(component_index),
         "catalog_sources": len(source_index),
+        "catalog_health_as_of": catalog_health.get("as_of"),
+        "catalog_source_fresh": health_summary.get("source_fresh"),
+        "catalog_refresh_due": health_summary.get("refresh_due"),
+        "catalog_stale": health_summary.get("stale"),
         "geometry_decks": len(deck_ids),
         "geometry_topologies": len(topology_ids),
         "architectures": len(architecture_ids),
