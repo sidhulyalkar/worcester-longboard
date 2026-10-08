@@ -385,12 +385,13 @@ function exportEvidenceWorklist() {
   const e = candidate.evidence;
   downloadJson("worcester-worklist-" + candidate.id + ".json", {
     schema_version: 1, scope: e.scope, candidate_id: e.candidate_id,
-    measurement_worklist: e.measurement_worklist,
-    source_maintenance: e.source_maintenance,
-    other_uncertainties: e.other_uncertainties,
-    hard_blockers: e.hard_blockers,
+    readiness: e.readiness, checkout_state: e.checkout_state,
+    interfaces: e.interfaces, measurement_worklist: e.measurement_worklist,
+    source_evidence: e.source_evidence, source_maintenance: e.source_maintenance,
+    other_uncertainties: e.other_uncertainties, hard_blockers: e.hard_blockers,
     unpriced_component_ids: e.unpriced_component_ids,
-    price_basis: e.price_basis, authority: e.authority, note: e.qualification_note,
+    price_basis: e.price_basis, score_basis: e.score_basis,
+    authority: e.authority, note: e.qualification_note,
   });
 }
 
