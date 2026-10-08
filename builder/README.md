@@ -91,11 +91,23 @@ The first real cross-vendor tranche includes MBS/Worcester, TRAMPA, Apex Boards,
 
 Catalog growth follows `docs/board_catalog_contract.md`. Critical cross-category interfaces default to `UNKNOWN` unless an explicit sourced rule exists.
 
-Audit the current dated source layer with:
+Audit structural catalog integrity with:
 
 ```bash
-python tools/audit_board_catalog.py
+python tools/audit_board_catalog.py --as-of 2026-10-07
 ```
+
+Build the per-component source-health report and refresh queue with:
+
+```bash
+python tools/build_catalog_source_health.py \
+  --as-of 2026-10-07 \
+  --out /tmp/catalog-health.json \
+  --worklist /tmp/catalog-refresh-worklist.md \
+  --fail-on-integrity
+```
+
+The Builder loads `catalog/catalog_health.v1.json` and shows evidence freshness next to vendor source links. `SOURCE_FRESH` means the recorded source evidence is recent under the maintenance policy; it is **not** live stock confirmation or checkout permission.
 
 Native-currency source prices are displayed as source metadata and excluded from the USD subtotal until an explicit dated USD/FX layer exists.
 

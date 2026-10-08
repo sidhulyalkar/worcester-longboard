@@ -51,7 +51,7 @@ async function fetchJson(path) {
 }
 
 async function loadBundle() {
-  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer] = await Promise.all([
+  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth] = await Promise.all([
     fetchJson("../configurator/questionnaire.v1.json"),
     fetchJson("../configurator/rules.v1.json"),
     fetchJson("../catalog/board_components.v1.json"),
@@ -60,8 +60,9 @@ async function loadBundle() {
     fetchJson("../configurator/swap_slots.v1.json"),
     fetchJson("../catalog/board_geometry.v1.json"),
     fetchJson("../configurator/composer.v1.json"),
+    fetchJson("../catalog/catalog_health.v1.json"),
   ]);
-  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer };
+  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth };
 }
 
 function restoreProfile(questionnaire) {
@@ -281,6 +282,28 @@ function readinessLabel(readiness) {
   return readiness.replaceAll("_", " ").toLowerCase();
 }
 
+function sourceHealth(componentId) {
+  return (state.bundle?.catalogHealth?.component_health || [])
+    .find(row => row.component_id === componentId) || null;
+}
+
+function sourceHealthLabel(row) {
+  if (!row) return "health unavailable";
+  return row.status.replaceAll("_", " ").toLowerCase();
+}
+
+function sourceEvidenceHtml(componentId) {
+  const health = sourceHealth(componentId);
+  if (!health) return '<small>source health unavailable</small>';
+  const verified = health.verified_as_of
+    ? " · verified " + health.verified_as_of
+    : "";
+  return '<small>evidence ' +
+    escapeHtml(sourceHealthLabel(health)) +
+    escapeHtml(verified) +
+    ' · not stock confirmation</small>';
+}
+
 function partialCost(candidate) {
   const c = candidate.cost;
   const unpriced = (c.unpriced_component_ids || []).length;
@@ -416,6 +439,8 @@ function renderVendorFilters(candidates) {
   const sourced = state.bundle.catalog.components.filter(
     item => item.source?.url
   ).length;
+  const health = state.bundle.catalogHealth;
+  const healthSummary = health?.summary || {};
   const summary = state.result?.composition_summary;
   const originText = summary
     ? summary.curated_count + " curated + " + summary.synthesized_count + " composed"
@@ -423,7 +448,10 @@ function renderVendorFilters(candidates) {
   $("#catalog-coverage").textContent =
     visible + " shown · " + originText + " · " +
     vendors.size + " named manufacturers · " + sourced +
-    " catalog parts with source links";
+    " source-linked parts · evidence " +
+    (healthSummary.source_fresh ?? "?") + " fresh / " +
+    (healthSummary.refresh_due ?? "?") + " refresh due · audited " +
+    (health?.as_of || "unknown") + " · not stock status";
 }
 
 function traitsHtml(candidate) {
@@ -525,8 +553,8 @@ function renderBom(candidate) {
   $("#bom-body").innerHTML = candidate.bom.map(row => {
     const source = row.source_url
       ? '<a class="source-link" href="' + escapeHtml(row.source_url) + '" target="_blank" rel="noreferrer">Vendor source</a>' +
-        '<small>snapshot ' + escapeHtml(row.source_as_of || "unknown") + '</small>'
-      : '<span>Reference / TBD</span><small>No checkout link is asserted.</small>';
+        sourceEvidenceHtml(row.component_id)
+      : '<span>Reference / TBD</span>' + sourceEvidenceHtml(row.component_id);
 
     const hold = row.hold_reason ? '<small>' + escapeHtml(row.hold_reason) + '</small>' : "";
     return '<tr>' +
@@ -618,8 +646,8 @@ function renderSwapBom(rows) {
   body.innerHTML = rows.map(row => {
     const source = row.source_url
       ? '<a class="source-link" href="' + escapeHtml(row.source_url) + '" target="_blank" rel="noreferrer">Vendor source</a>' +
-        '<small>snapshot ' + escapeHtml(row.source_as_of || "unknown") + '</small>'
-      : '<span>Reference / TBD</span><small>No checkout link is asserted.</small>';
+        sourceEvidenceHtml(row.component_id)
+      : '<span>Reference / TBD</span>' + sourceEvidenceHtml(row.component_id);
     const hold = row.hold_reason
       ? '<small>' + escapeHtml(row.hold_reason) + '</small>'
       : "";

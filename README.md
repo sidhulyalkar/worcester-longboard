@@ -52,7 +52,7 @@ Then open:
 - `http://127.0.0.1:8000/builder/` for the rider/mission configurator;
 - `http://127.0.0.1:8000/showcase/` for the 3D engineering twin.
 
-Machine-readable inputs live under `configurator/` and `catalog/`. The deterministic Python engine is `configurator/engine.py`; the browser counterpart is `builder/engine.mjs`. CI compares both on shared profiles.
+Machine-readable inputs live under `configurator/` and `catalog/`. The deterministic Python engine is `configurator/engine.py`; the browser counterpart is `builder/engine.mjs`. CI compares both on shared profiles. The multi-vendor source layer is separately audited through `catalog/catalog_health.v1.json`, so source freshness is visible without being confused with compatibility, stock, or purchase authority.
 
 See `docs/board_builder_platform.md` for the full product/compatibility model and `docs/board_catalog_contract.md` for the multi-vendor provenance, compatibility and refresh contract.
 
