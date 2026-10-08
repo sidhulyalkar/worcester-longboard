@@ -11,12 +11,14 @@ from pathlib import Path
 from typing import Any
 
 from configurator.composer import compose_candidates
+from configurator.evidence_explorer import build_evidence_explorer
 from configurator.engine import READINESS_RANK, generate_candidates, load_bundle
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPOSER_PATH = ROOT / "configurator" / "composer.v1.json"
 SWAP_SLOTS_PATH = ROOT / "configurator" / "swap_slots.v1.json"
 GEOMETRY_PATH = ROOT / "catalog" / "board_geometry.v1.json"
+CATALOG_HEALTH_PATH = ROOT / "catalog" / "catalog_health.v1.json"
 
 
 def _load(path: Path) -> dict[str, Any]:
@@ -30,6 +32,7 @@ def load_platform_bundle() -> dict[str, Any]:
             "composer": _load(COMPOSER_PATH),
             "swapSlots": _load(SWAP_SLOTS_PATH),
             "geometry": _load(GEOMETRY_PATH),
+            "catalogHealth": _load(CATALOG_HEALTH_PATH),
         }
     )
     return bundle
@@ -110,6 +113,9 @@ def generate_board_design_space(
     frontier = _non_dominated(candidates)
     for candidate in candidates:
         candidate["trade_space_frontier"] = candidate["id"] in frontier
+        candidate["evidence"] = build_evidence_explorer(
+            candidate, data["catalog"], data.get("catalogHealth")
+        )
 
     return {
         **curated,

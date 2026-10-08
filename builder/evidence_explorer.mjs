@@ -54,9 +54,9 @@ export function buildEvidenceExplorer(candidate, catalog, health = null) {
   const findings = [], worklist = [];
   for (const f of [...(candidate.compatibility_findings || [])].sort((a,b) => alphabetic(a.id,b.id))) {
     const a = f.a, b = f.b;
-    const categoryPair = uniqueSorted([
+    const categoryPair = [
       components.get(a)?.category || "unknown", components.get(b)?.category || "unknown",
-    ]).join(":");
+    ].sort(alphabetic).join(":");
     const fallback = f.source === "category_default" || String(f.id).startsWith("default:");
     const finding = {
       id: f.id,

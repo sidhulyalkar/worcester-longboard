@@ -41,6 +41,7 @@ CANDIDATE_KEYS = (
     "origin",
     "swap_defaults",
     "composition",
+    "evidence",
     "blockers",
     "unknowns",
 )

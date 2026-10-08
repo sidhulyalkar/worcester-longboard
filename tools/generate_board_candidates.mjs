@@ -28,6 +28,7 @@ const bundle = {
   swapSlots: readJson("configurator/swap_slots.v1.json"),
   geometry: readJson("catalog/board_geometry.v1.json"),
   composer: readJson("configurator/composer.v1.json"),
+  catalogHealth: readJson("catalog/catalog_health.v1.json"),
 };
 
 process.stdout.write(JSON.stringify(generateBoardDesignSpace(profile, bundle), null, 2) + "\n");
