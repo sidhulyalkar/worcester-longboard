@@ -20,7 +20,7 @@ export function validateExampleRides(manifest, questionnaire, architectures) {
       if (typeof value === "number" && (value < (field.min ?? -Infinity) || value > (field.max ?? Infinity))) {
         throw new Error("Out-of-bounds example input: " + scenario.id + "." + key);
       }
-      if (field.type === "select" && !(field.options || []).some(o => (o.value ?? o.id) === value)) {
+      if (field.type === "select" && !(field.options || []).some(o => (Array.isArray(o) ? o[0] : (o.value ?? o.id)) === value)) {
         throw new Error("Unsupported example selection: " + scenario.id + "." + key);
       }
     }
