@@ -211,3 +211,23 @@ def test_evidence_explorer_ui_exposes_measurement_traceability_not_checkout():
     assert 'Export worklist' in APP
     assert 'authority: e.authority' in APP
     assert '>Buy<' not in HTML
+
+def test_example_rides_comparison_and_assembly_onboarding():
+    assert 'id="example-rides"' in HTML
+    assert 'id="restore-personal-profile"' in HTML
+    assert 'Start with a terrain' in HTML
+    assert 'configurator/example_rides.v1.json' in APP
+    assert 'function loadExampleRide(id)' in APP
+    assert 'function restorePersonalProfile()' in APP
+    assert 'id="compare-section"' in HTML
+    assert 'id="compare-a"' in HTML and 'id="compare-b"' in HTML
+    assert 'id="compare-export"' in HTML
+    assert 'data-compare="' in APP and 'aria-pressed="' in APP
+    assert 'compareCandidates' in APP
+    assert 'renderBoardPreviewSvg(x.visual,state.galleryView' in APP
+    assert 'id="assembly-guide"' in HTML
+    assert 'id="export-assembly-guide"' in HTML
+    assert 'assemblyGuide(candidate)' in APP
+    assert 'No live electrical commissioning steps are provided' in APP
+    assert 'CPSC battery/charger safety' in HTML
+    assert '>Buy<' not in HTML
