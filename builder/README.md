@@ -129,3 +129,13 @@ The composer reuses Swap Lab compatibility evaluation and the standard rider-fit
 ### Evidence-driven explorer (v1.1)
 
 Select **Inspect evidence + BOM** for an interface-by-interface rule matrix, underlying component/source links and dates, and exact-revision measurement questions for every unresolved interface. The **Export worklist** JSON is a non-authoritative study artifact. Swap Lab recalculates the same evidence for edited configurations. Source freshness, unknown prices and hard mechanical holds are deliberately separate; a high profile-fit score never grants safety or checkout permission.
+
+### Example rides, comparison, and assembly onboarding
+
+Six default ride briefs in `configurator/example_rides.v1.json` provide a sensible first screen: manual dirt carving, brake-first mixed trail, manual city carving, mixed-terrain electric concept, nine-inch rollover study, and a cross-vendor coexistence lab. The **budget amounts are questionnaire goals, not catalog quotes**. Each brief uses an existing curated reference for its visual preview. Loading one regenerates candidates using the normal model; it never asserts that the reference is the best, purchasable, or mechanically approved.
+
+The comparison workbench displays two selectable candidates from the same rider profile in matched views. It distinguishes actual physical configurations, normalized geometry (including reference/visual-only status), known USD subtotal, unpriced items, source-maintenance findings, explicit compatibility blockers, and unresolved interface measurement tasks. The export remains planning-only with all authority fields false.
+
+The Assembly Readiness area translates a selected design into a learning/handoff roadmap. Deck/truck/wheel integration requires exact revision and manufacturer torque/fastener instructions. Drive/brake coexistence requires dimensional evidence. High-energy battery, BMS, charger, controller, enclosure and power commissioning require appropriately qualified specialists and independent validation; the generic Builder cannot authorize them. Do not assemble a loose-cell pack using catalog placeholders. Assembly labor, tools, shipping, tax, protective equipment and tests are outside known subtotals.
+
+Sources for safety context: CPSC micromobility charging guidance (https://www.cpsc.gov/Safety-Education/Safety-Education-Centers/Micromobility-Information-Center) and UL personal e-mobility electrical systems testing (https://www.ul.com/services/personal-e-mobility-evaluation-testing-and-certification). These do not confer certification or mechanical qualification upon generated candidates.
