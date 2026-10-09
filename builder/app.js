@@ -3,6 +3,9 @@ import {
   questionnaireDefaults,
 } from "./engine.mjs";
 import { generateBoardDesignSpace } from "./platform_engine.mjs";
+import {validateExampleRides,profileForExample} from "./example_rides.mjs";
+import {defaultComparisonIds,compareCandidates} from "./comparison.mjs";
+import {assemblyGuide} from "./assembly_guide.mjs";
 import { buildEvidenceExplorer } from "./evidence_explorer.mjs";
 import {
   evaluateSwap,
@@ -32,6 +35,10 @@ const state = {
   galleryView: "hero",
   vendorFilter: "all",
   originFilter: "all",
+  activeExampleId: null,
+  originalProfileBeforeExamples: null,
+  comparisonIds: [],
+  comparisonInitialized: false,
 };
 
 const $ = selector => document.querySelector(selector);
@@ -52,7 +59,7 @@ async function fetchJson(path) {
 }
 
 async function loadBundle() {
-  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth] = await Promise.all([
+  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides] = await Promise.all([
     fetchJson("../configurator/questionnaire.v1.json"),
     fetchJson("../configurator/rules.v1.json"),
     fetchJson("../catalog/board_components.v1.json"),
@@ -62,8 +69,9 @@ async function loadBundle() {
     fetchJson("../catalog/board_geometry.v1.json"),
     fetchJson("../configurator/composer.v1.json"),
     fetchJson("../catalog/catalog_health.v1.json"),
+    fetchJson("../configurator/example_rides.v1.json"),
   ]);
-  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth };
+  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides };
 }
 
 function restoreProfile(questionnaire) {
@@ -485,6 +493,7 @@ function setGalleryView(view) {
   });
   if (state.result) {
     renderCandidates(state.result.candidates);
+    renderComparison();
     const candidate = state.result.candidates.find(row => row.id === state.selectedId);
     if (candidate && state.swapResult) renderSwapPreview(candidate);
   }
@@ -560,6 +569,58 @@ function traitsHtml(candidate) {
   ).join("");
 }
 
+function renderExampleRides() {
+  const host = $("#example-rides");
+  host.innerHTML = "";
+  for (const scenario of state.bundle.exampleRides.scenarios) {
+    const reference = state.result.candidates.find(c => c.id === scenario.reference_candidate_id);
+    const card = document.createElement("article");
+    card.className = "example-card" + (scenario.id === state.activeExampleId ? " active" : "");
+    const art = reference ? renderBoardPreviewSvg(candidateVisualState(reference),
+      "hero", {width:480,height:230,compact:true}) :
+      '<p class="example-status">Reference preview unavailable</p>';
+    card.innerHTML = '<span class="example-tag">' + escapeHtml(scenario.eyebrow) + '</span>' +
+      art + '<h3>' + escapeHtml(scenario.title) + '</h3>' +
+      '<p>' + escapeHtml(scenario.terrain) + ' · ' + escapeHtml(scenario.rider) + '</p>' +
+      '<p class="example-status">Illustrated catalog reference: ' +
+      escapeHtml(reference?.label || scenario.reference_candidate_id) +
+      '. Not a priced kit or qualified assembly.</p>' +
+      '<div class="example-footer"><strong>Budget goal USD ' +
+      Number(scenario.budget_usd).toLocaleString("en-US") +
+      '</strong><button type="button" data-load-example="' + escapeHtml(scenario.id) +
+      '">Load ride brief</button></div>';
+    card.querySelector("[data-load-example]").addEventListener("click",()=>loadExampleRide(scenario.id));
+    host.appendChild(card);
+  }
+  $("#restore-personal-profile").hidden = !state.originalProfileBeforeExamples;
+  $("#example-status").textContent = state.activeExampleId ?
+    "Example loaded into the local questionnaire. Refine it below; this is a planning study." :
+    "Load a ride brief to explore budget, rider skill and terrain trade-offs."; 
+}
+function loadExampleRide(id) {
+  const scenario=state.bundle.exampleRides.scenarios.find(x=>x.id===id);
+  if(!scenario)return;
+  if(!state.originalProfileBeforeExamples)state.originalProfileBeforeExamples=structuredClone(state.profile);
+  state.profile=profileForExample(scenario,questionnaireDefaults(state.bundle.questionnaire));
+  state.activeExampleId=id;
+  state.selectedId=scenario.reference_candidate_id;
+  state.comparisonIds=[scenario.reference_candidate_id,
+    scenario.reference_candidate_id==="brake_first_trail_core"?"trampa_hydraulic_freeride":"brake_first_trail_core"];
+  state.comparisonInitialized=true;
+  state.vendorFilter="all";state.originFilter="all";
+  document.querySelectorAll("[data-origin-filter]").forEach(el=>{
+    el.classList.toggle("active",el.dataset.originFilter==="all");
+  });
+  renderQuestionnaire();recompute();
+  $(".results-head").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function restorePersonalProfile() {
+  if(!state.originalProfileBeforeExamples)return;
+  state.profile=state.originalProfileBeforeExamples;
+  state.originalProfileBeforeExamples=null;state.activeExampleId=null;
+  state.selectedId=null;state.comparisonIds=[];state.comparisonInitialized=false;
+  renderQuestionnaire();recompute();
+}
 function renderCandidates(candidates) {
   const host = $("#candidates");
   host.innerHTML = "";
@@ -604,6 +665,9 @@ function renderCandidates(candidates) {
           (candidate.cost.unpriced_component_ids.length === 1 ? '' : 's') +
           ' · shipping/tax excluded</small></div>' +
         '<div class="candidate-actions">' +
+          '<button type="button" data-compare="' + escapeHtml(candidate.id) +
+             '" aria-pressed="' + state.comparisonIds.includes(candidate.id) + '">' +
+             (state.comparisonIds.includes(candidate.id) ? "✓ Comparing" : "Compare") + '</button>' +
           '<button type="button" data-inspect="' + escapeHtml(candidate.id) + '">Inspect evidence + BOM</button>' +
           '<a href="' + escapeHtml(twinUrl(candidate)) + '">3D</a>' +
         '</div>' +
@@ -614,6 +678,9 @@ function renderCandidates(candidates) {
       downloadBoardPreviewSvg(candidateVisualState(candidate), state.galleryView);
     });
 
+    card.querySelector("[data-compare]").addEventListener("click", () => {
+      toggleComparison(candidate.id);
+    });
     card.querySelector("[data-inspect]").addEventListener("click", () => {
       state.selectedId = candidate.id;
       state.swapBaselineId = null;
@@ -625,6 +692,139 @@ function renderCandidates(candidates) {
     });
     host.appendChild(card);
   }
+}
+
+function toggleComparison(id) {
+  const ids = [...state.comparisonIds];
+  if (ids.includes(id)) {
+    state.comparisonIds = ids.filter(x => x !== id);
+  } else {
+    state.comparisonIds = ids.length < 2 ? [...ids,id] : [ids[1],id];
+  }
+  state.comparisonInitialized = true;
+  renderCandidates(state.result.candidates);
+  renderComparison();
+}
+
+function comparisonReport() {
+  const ids = state.comparisonIds;
+  if (ids.length !== 2 || ids[0] === ids[1]) return null;
+  const left = state.result.candidates.find(c=>c.id === ids[0]);
+  const right = state.result.candidates.find(c=>c.id === ids[1]);
+  return left && right ? compareCandidates(
+    left,right,state.bundle.geometry,state.bundle.catalog) : null;
+}
+function renderComparison() {
+  const candidates = state.result.candidates;
+  for (const [i,key] of ["compare-a","compare-b"].entries()) {
+    const select = $("#" + key);
+    select.replaceChildren();
+    const empty = document.createElement("option");
+    empty.value = ""; empty.textContent = "Choose design " + (i ? "B" : "A");
+    select.appendChild(empty);
+    for (const c of candidates) {
+      const opt=document.createElement("option");
+      opt.value=c.id; opt.textContent=c.label + " · " + c.vendor_family;
+      select.appendChild(opt);
+    }
+    select.value=state.comparisonIds[i] || "";
+  }
+  const host=$("#compare-results"),report=comparisonReport();
+  if (!report) {
+    host.innerHTML='<p class="compare-warning">Choose two distinct designs from the gallery or selectors. Neither candidate receives purchase, build or ride permission.</p>';
+    $("#compare-export").disabled=true; return;
+  }
+  $("#compare-export").disabled=false;
+  const n=v=>v == null ? "unknown" : String(v);
+  const fmt=v=>v==null ? "not recorded" : String(v) + " mm";
+  const usd=v=>"$" + Number(v).toLocaleString("en-US",{maximumFractionDigits:0});
+  const line=(k,v)=>'<dt>'+escapeHtml(k)+'</dt><dd>'+escapeHtml(v)+'</dd>';
+  const image=x=>renderBoardPreviewSvg(x.visual,state.galleryView,{width:640,height:320,compact:true});
+  const card=(x,index)=>{
+    const g=x.geometry,c=x.cost,e=x.evidence;
+    const issues=e.worklist.slice(0,5);
+    const sourceIssues=(e.sources||[]).filter(s=>["REFRESH_DUE","STALE","MISSING_PROVENANCE","HEALTH_UNAVAILABLE"].includes(s.health_status)).slice(0,3);
+    return '<article class="compare-card"><span class="example-tag">DESIGN '+(index===0?"A":"B")+' · '+
+      escapeHtml(x.origin)+'</span><h3>'+escapeHtml(x.label)+'</h3>' +
+      '<div class="compare-viz">'+image(x)+'</div>' +
+      '<p class="compare-sub">'+escapeHtml(x.vendor_family)+' · '+
+      Math.round(x.fit_score*100)+'% profile preference fit, not a safety score</p>' +
+      '<dl>'+line('Readiness',x.readiness)+line('Checkout',x.checkout_state)+
+      line('Deck / length',g.deck_id+' · '+fmt(g.deck_length_mm))+
+      line('Truck width',g.truck_id+' · '+fmt(g.truck_width_mm))+
+      line('Wheels',g.wheel_id+' · '+fmt(g.wheel_diameter_mm))+
+      line('Brake / drive',g.brake+' / '+g.drive)+
+      line('Geometry basis',g.visual_geometry_state||g.topology_evidence_state||"reference")+
+      line('Known USD subtotal',usd(c.known_min_usd)+'–'+usd(c.known_max_usd))+
+      line('Unpriced components',c.unpriced_component_ids.length+'; total cost unknown')+
+      line('Unresolved / incompatible',e.open_interfaces+' / '+e.incompatible_interfaces)+
+      line('Source follow-ups',e.source_followups)+
+      line('Assembly pathway',x.assembly.complexity.replaceAll('_',' ').toLowerCase())+
+      '</dl><div class="compare-evidence"><strong>Measurement tasks</strong>' +
+      (issues.length?'<ul>'+issues.map(t=>'<li>'+escapeHtml(t.question)+'</li>').join('')+'</ul>':
+        '<p>No listed measurement tasks. Missing documentation may still exist.</p>')+
+      (e.worklist.length>issues.length?'<small>+'+(e.worklist.length-issues.length)+' more in the evidence explorer</small>':'')+
+      '<strong>Source maintenance</strong>' +
+      (sourceIssues.length?'<ul>'+sourceIssues.map(s=>'<li>'+escapeHtml(s.component_id+' · '+s.health_status.replaceAll('_',' ').toLowerCase())+'</li>').join('')+'</ul>':
+        '<p>No flagged source-maintenance items in the dated snapshot; not stock confirmation.</p>')+
+      '</div></article>';
+  };
+  host.innerHTML=(report.mechanically_distinct?'':'<p class="compare-warning">These have the same recorded deck, truck, wheel, brake and drive geometry; choose a mechanically different alternative for a useful comparison.</p>')+
+    '<div class="compare-grid">'+report.candidates.map(card).join('')+'</div>' +
+    '<p class="compare-legend">'+escapeHtml(report.comparison_note)+
+    ' Costs omit shipping, tax, tools, professional work and tests. Different geometry is not proven compatible.</p>';
+}
+
+function setComparisonSlot(index,id) {
+  const ids=[state.comparisonIds[0]||null,state.comparisonIds[1]||null];
+  ids[index]=id||null;
+  if (ids[0] && ids[0]===ids[1]) ids[1-index]=null;
+  state.comparisonIds=ids.filter(Boolean);
+  // Keep A/B positions stable when only one side is selected.
+  if (ids[0] && !ids[1]) state.comparisonIds=[ids[0]];
+  else if (!ids[0] && ids[1]) state.comparisonIds=[null,ids[1]];
+  else if(ids[0]&&ids[1])state.comparisonIds=ids;
+  state.comparisonInitialized=true;
+  renderCandidates(state.result.candidates);
+  renderComparison();
+}
+function exportComparison() {
+  const report=comparisonReport();
+  if (!report)return;
+  downloadJson("worcester-board-comparison.json",{
+    ...report,source_snapshot_as_of:state.bundle.catalog.as_of,
+    note:"Two design studies only. Neither is purchase, assembly, charging or powered-operation authorized."
+  });
+}
+
+function renderAssemblyGuide(candidate) {
+  const host=$("#assembly-guide");
+  if(!candidate) {host.innerHTML='<p>Select a design to inspect assembly effort.</p>';return;}
+  const guide=assemblyGuide(candidate);
+  host.innerHTML='<div class="assembly-overview"><span>Selected: '+escapeHtml(candidate.label)+'</span>'+
+    '<span>'+escapeHtml(guide.complexity.replaceAll("_"," ").toLowerCase())+'</span>'+
+    '<span>'+guide.unresolved_interfaces+' open mechanical interfaces</span>'+
+    '<span>'+guide.unpriced_components+' unpriced study parts</span></div>'+
+    '<p class="compare-legend">This is a planning roadmap, not a self-assembly permit. All generated candidates remain unreleased. No live electrical commissioning steps are provided.</p>'+
+    '<div class="assembly-steps">'+guide.stages.map((s,i)=>
+      '<article class="assembly-step"><div><h3>'+(i+1)+'. '+escapeHtml(s.label)+'</h3>'+
+      '<p>'+escapeHtml(s.description)+'</p>'+
+      '<small>Skills: '+escapeHtml(s.skill)+'</small>'+
+      '<small>Evidence needed: '+escapeHtml(s.deliverable)+'</small></div>'+
+      '<strong class="assembly-status">'+escapeHtml(s.status.replaceAll('_',' '))+'</strong></article>'
+    ).join('')+'</div>'+
+    '<p class="compare-legend">Additional budget categories: '+escapeHtml(guide.budget_exclusions.join(' · '))+
+    '. An independent safety reviewer must use the separately qualified physical design, not this UI export.</p>';
+}
+function exportAssemblyGuide() {
+  const candidate=state.result?.candidates.find(c=>c.id===state.selectedId);
+  if(!candidate)return;
+  downloadJson("worcester-assembly-planning-"+candidate.id+".json",{
+    schema_version:1,candidate_id:candidate.id,assembly:assemblyGuide(candidate),
+    measurement_worklist:candidate.evidence.measurement_worklist,
+    authority:candidate.evidence.authority,
+    note:"Inspection and learning only; no purchasing, fabrication, charging, commissioning or ride authority."
+  });
 }
 
 function renderBom(candidate) {
@@ -700,6 +900,7 @@ function renderBom(candidate) {
   explorer.innerHTML = evidencePanelHtml(candidate.evidence, true);
   explorer.querySelector("#export-evidence").addEventListener("click", exportEvidenceWorklist);
   renderSwapLab(candidate, state.swapBaselineId !== candidate.id);
+  renderAssemblyGuide(candidate);
 }
 
 
@@ -955,9 +1156,17 @@ function recompute() {
     state.selectedId = state.result.candidates[0]?.id || null;
   }
 
+  const candidateIds=new Set(state.result.candidates.map(x=>x.id));
+  state.comparisonIds=state.comparisonIds.filter(id=>!id||candidateIds.has(id));
+  if (!state.comparisonInitialized) {
+    state.comparisonIds=defaultComparisonIds(state.result.candidates);
+    state.comparisonInitialized=true;
+  }
   renderRequirements(state.result.requirements);
   renderVendorFilters(state.result.candidates);
+  renderExampleRides();
   renderCandidates(state.result.candidates);
+  renderComparison();
   renderBom(state.result.candidates.find(x => x.id === state.selectedId));
   $("#recompute-status").textContent =
     "Live · " + state.result.candidates.length + " candidates · " +
@@ -1017,6 +1226,7 @@ function exportSelectedDesign() {
 async function main() {
   try {
     state.bundle = await loadBundle();
+    validateExampleRides(state.bundle.exampleRides,state.bundle.questionnaire,state.bundle.architectures);
     state.profile = restoreProfile(state.bundle.questionnaire);
     renderQuestionnaire();
     recompute();
@@ -1039,6 +1249,16 @@ async function main() {
     $("#export-design").addEventListener("click", exportSelectedDesign);
     $("#reset-swaps").addEventListener("click", resetSwaps);
     $("#export-custom-design").addEventListener("click", exportCustomDesign);
+    $("#restore-personal-profile").addEventListener("click",restorePersonalProfile);
+    $("#compare-reset").addEventListener("click",()=>{
+      state.comparisonIds=defaultComparisonIds(state.result.candidates);
+      state.comparisonInitialized=true;
+      renderCandidates(state.result.candidates);renderComparison();
+    });
+    $("#compare-export").addEventListener("click",exportComparison);
+    $("#export-assembly-guide").addEventListener("click",exportAssemblyGuide);
+    $("#compare-a").addEventListener("change",e=>setComparisonSlot(0,e.target.value));
+    $("#compare-b").addEventListener("change",e=>setComparisonSlot(1,e.target.value));
     document.querySelectorAll("[data-gallery-view]").forEach(button => {
       button.addEventListener("click", () => setGalleryView(button.dataset.galleryView));
     });
