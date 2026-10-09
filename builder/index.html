@@ -25,6 +25,16 @@
       <span>Questionnaire answers can shape a design study. They cannot qualify structure, braking, batteries, charging or powered operation. Unknown interfaces fail closed.</span>
     </section>
 
+    <section class="example-start" aria-labelledby="example-rides-title">
+      <header class="section-head">
+        <div><p class="kicker">EXPLORE / Illustrated rider missions</p><h2 id="example-rides-title">Start with a terrain, then make it yours.</h2></div>
+        <button type="button" id="restore-personal-profile" hidden>Restore my previous profile</button>
+      </header>
+      <p class="section-copy">These are example briefs with real catalog architecture previews, not complete priced kits or qualified builds. Load one to regenerate the ranked design studies for its rider, terrain and budget. No orders are enabled.</p>
+      <div id="example-rides" class="example-grid"></div>
+      <p id="example-status" class="example-status" aria-live="polite"></p>
+    </section>
+
     <section class="builder-grid">
       <aside class="intake-panel">
         <div class="panel-head">
@@ -88,10 +98,23 @@
         </div>
         <div id="candidates" class="candidate-grid visual-candidate-grid"></div>
 
+        <section id="compare-section" class="compare-section" aria-labelledby="compare-title">
+          <div class="section-head">
+            <div><p class="kicker">04 / Mechanical trade-space</p><h2 id="compare-title">Compare two builds, not two marketing claims.</h2></div>
+            <div class="compare-actions"><button type="button" id="compare-reset">Suggested pair</button><button type="button" id="compare-export">Export comparison</button></div>
+          </div>
+          <p class="section-copy">Choose two gallery builds or use the selectors. Both share the active rider profile and viewing angle. Dimensions and visible geometry are references, not verified manufacturing measurements.</p>
+          <div class="compare-selectors">
+            <label>Design A<select id="compare-a" aria-label="Comparison design A"></select></label>
+            <label>Design B<select id="compare-b" aria-label="Comparison design B"></select></label>
+          </div>
+          <div id="compare-results" class="compare-results" aria-live="polite"></div>
+        </section>
+
         <section id="bom-section" class="bom-section">
           <div class="section-head">
             <div>
-              <p class="kicker">04 / Source-aware BOM</p>
+              <p class="kicker">05 / Source-aware BOM</p>
               <h2 id="bom-title">Select a candidate</h2>
             </div>
             <a id="open-twin" class="primary-link disabled" href="../showcase/">Open in 3D twin</a>
@@ -120,7 +143,7 @@
         <section id="swap-lab" class="swap-lab">
           <div class="section-head">
             <div>
-              <p class="kicker">05 / Swap Lab</p>
+              <p class="kicker">06 / Swap Lab</p>
               <h2>Change one component and see what breaks.</h2>
             </div>
             <div class="swap-actions">
@@ -154,6 +177,16 @@
               <tbody id="swap-bom-body"></tbody>
             </table>
           </div>
+        </section>
+
+        <section id="assembly-section" class="assembly-section" aria-labelledby="assembly-title">
+          <div class="section-head">
+            <div><p class="kicker">07 / Build-readiness learning path</p><h2 id="assembly-title">What would assembly actually involve?</h2></div>
+            <button id="export-assembly-guide" type="button">Export planning handoff</button>
+          </div>
+          <p class="section-copy">Think of this as a skill and evidence map, not an IKEA instruction sheet. For electric builds the pack, charger, control electronics and commissioned safety behavior require competent electrical integration and separate release gates. Catalog combinations do not unlock any step.</p>
+          <div id="assembly-guide"></div>
+          <p class="assembly-source-note">Safety references: <a href="https://www.cpsc.gov/Safety-Education/Safety-Education-Centers/Micromobility-Information-Center" target="_blank" rel="noopener noreferrer">CPSC battery/charger safety</a> · <a href="https://www.ul.com/services/personal-e-mobility-evaluation-testing-and-certification" target="_blank" rel="noopener noreferrer">UL 2272 personal e-mobility electrical systems</a>. These references do not certify a Worcester build.</p>
         </section>
       </section>
     </section>
