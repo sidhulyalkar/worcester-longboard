@@ -50,6 +50,7 @@ export function compareCandidates(left,right,geometry,catalog) {
           id:t.id,category_pair:t.category_pair,question:t.question,state:t.state,component_ids:t.component_ids
         })),
         blockers:uniq(candidate.evidence.hard_blockers||[]),
+        sources:candidate.evidence.source_evidence.map(s=>({component_id:s.component_id,health_status:s.health_status,source_url:s.source_url,snapshot_id:s.snapshot_id,verified_as_of:s.verified_as_of})),
       },
       assembly,
       visual,
