@@ -65,6 +65,9 @@ def compare(left: dict[str, Any], right: dict[str, Any]) -> list[str]:
             f"{right.get('composition_summary')!r}"
         )
 
+    if left.get("diverse_shortlist") != right.get("diverse_shortlist"):
+        errors.append("diverse_shortlist differs between Python and browser")
+
     lreq = left.get("requirements") or {}
     rreq = right.get("requirements") or {}
     for key in REQUIREMENT_KEYS:
