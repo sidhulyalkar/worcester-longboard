@@ -55,6 +55,7 @@ const state = {
   passportRevisionReceipt: null,
   evidenceBooks: {},
   evidenceStatus: "",
+  evidenceExpanded: false,
   comparisonIds: [],
   comparisonInitialized: false,
 };
@@ -1245,7 +1246,7 @@ function renderEvidenceNotebook(candidate){
   });
   const initialInterfaces=passport.interface_claims.filter(claim=>
     claim.component_ids.includes(passport.parts[0]?.component_id));
-  host.innerHTML='<details class="passport-evidence-details" open>'+
+  host.innerHTML='<details class="passport-evidence-details"'+(state.evidenceExpanded?' open':'')+'>'+
     '<summary>Evidence notebook · '+review.evidence_count+' observations · '+review.invalidated_interface_ids.length+' claims needing recheck</summary>'+
     '<p class="section-copy">Record exactly what you observed or found, including supplier references or actual receiving counts. Links and notes are <strong>not independently verified</strong>. Records are kept locally and exported only when you choose.</p>'+
     '<form id="passport-evidence-form" class="passport-evidence-form">'+
@@ -1270,6 +1271,9 @@ function renderEvidenceNotebook(candidate){
       'Manufacturer manuals independently verified: 0. Stock confirmed: 0.</div>'+
     '<ol class="passport-evidence-history">'+(rows.join("")||'<li>No evidence recorded yet.</li>')+'</ol>'+
     '</details>';
+  host.querySelector(".passport-evidence-details").addEventListener("toggle",event=>{
+    state.evidenceExpanded=event.target.open;
+  });
   const form=$("#passport-evidence-form");
   const kindInput=$("#passport-evidence-kind"),partInput=$("#passport-evidence-component");
   const iface=$("#passport-evidence-interface");
@@ -1301,6 +1305,7 @@ function renderEvidenceNotebook(candidate){
       const next=recordEvidence(notebook,passport,entry);
       state.evidenceBooks[notebookKey(passport)]=next;
       state.evidenceStatus="Unverified observation recorded. Physical qualification unchanged.";
+      state.evidenceExpanded=true;
       persistEvidenceNotebooks();
       renderEvidenceNotebook(candidate);
     }catch(error){$("#passport-evidence-status").textContent=error.message;}
