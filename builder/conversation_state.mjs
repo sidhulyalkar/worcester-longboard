@@ -103,7 +103,7 @@ export function proposeRideConversationTurn(state,raw,questionnaire) {
     schema_version:1,scope:REVIEW_SCOPE,turn_number:state.turns.length+1,
     based_on_revision:state.revision,raw_text:text,
     proposals,warnings,questions:base.questions,
-    next_question:base.questions[0] || null,authority:{...AUTHORITY}
+    next_question:base.questions.find(q=>q.includes("typical ride") || q.includes("longest desired ride")) || base.questions[0] || null,authority:{...AUTHORITY}
   };
   const next=clone(state);
   next.pending=review;
