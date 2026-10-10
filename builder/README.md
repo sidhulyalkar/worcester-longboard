@@ -225,3 +225,20 @@ python tools/generate_build_passport.py configurator/examples/trail_rider_profil
 ```
 
 This is the first auditable learning/sourcing tranche for [Issue #96](https://github.com/sidhulyalkar/worcester-longboard/issues/96), **not** a qualified ordering guide, self-assembly instruction sheet, electrical design, current quote or live checkout.
+
+
+## v1.4: Evidence notebook for exact Build Passport snapshots
+
+Under a selected Build Passport, expand the **Evidence notebook** to record a dated supplier reference, received part identity/count, candidate manufacturer instructions or an unresolved interface measurement note. The notebook is bound to the passport's source/variant identity and saved locally; it does **not** upload notes. Export **evidence + passport** to retain a user-controlled JSON snapshot including the review queue. Previous evidence is not silently applied after a source, part or design revision change.
+
+A received count is not a verified BOM quantity; candidate manual links and shop listings are not independent manufacturer-document verification; measurement notes do not clear interface states. Record content remains self-reported and unverified, and donor revision changes conservatively invalidate all catalog pair claims. No buying, mechanical assembly, battery integration, charging or powered operation is released.
+
+The [evidence notebook contract](../docs/evidence_notebook_contract.md) describes the trust boundaries, storage, required fields and remaining source/physical measurements. Tests and cross-runtime parity:
+
+```bash
+node --test tests/js/test_board_evidence_notebook.mjs
+python -m pytest -q tests/test_board_evidence_notebook.py
+python tools/compare_evidence_notebooks.py
+```
+
+This is a useful research and receiving handoff, but not a verified digital twin of received hardware.

@@ -311,3 +311,18 @@ def test_build_passport_is_revision_aware_not_an_unqualified_checkout():
     assert "UNKNOWN_NOT_LIVE" in (ROOT / "builder" / "build_passport.mjs").read_text()
     assert "INVALIDATED_BY_REVISION_CHANGE" in (ROOT / "builder" / "build_passport.mjs").read_text()
     assert ">Buy<" not in HTML
+
+
+def test_evidence_notebook_is_bounded_and_not_a_buy_or_release_flow():
+    assert 'id="export-evidence-notebook"' in HTML
+    assert "function renderEvidenceNotebook(candidate)" in APP
+    assert 'id="passport-evidence-kind"' in APP
+    assert 'id="passport-evidence-component"' in APP
+    assert 'id="passport-evidence-interface"' in APP
+    assert 'id="passport-evidence-status"' in APP
+    assert "persistEvidenceNotebooks()" in APP
+    assert "restoreEvidenceNotebook(passport,state.evidenceBooks[key])" in APP
+    assert "Evidence inputs" not in HTML or "checkout" not in HTML.lower().split('id="export-evidence-notebook"')[1][:300]
+    assert "Not order quantity or assembly clearance." in APP
+    assert "usable_for_qualification:false" in (ROOT / "builder" / "evidence_notebook.mjs").read_text()
+    assert "stock_confirmed:0" in (ROOT / "builder" / "evidence_notebook.mjs").read_text()

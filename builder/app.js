@@ -7,6 +7,7 @@ import {validateExampleRides,profileForExample} from "./example_rides.mjs";
 import {defaultComparisonIds,compareCandidates} from "./comparison.mjs";
 import {assemblyGuide} from "./assembly_guide.mjs";
 import {buildBuildPassport,proposePassportRevisionChange} from "./build_passport.mjs";
+import {emptyEvidenceNotebook,recordEvidence,restoreEvidenceNotebook,evaluateEvidenceNotebook,EVIDENCE_KINDS} from "./evidence_notebook.mjs";
 import {
   createRideConversation,restoreRideConversation,reconcileManualRideProfile,
   proposeRideConversationTurn,acceptRideConversationTurn,rejectRideConversationTurn,
@@ -28,6 +29,7 @@ import {
 
 const STORAGE_KEY = "worcester-board-builder-profile-v1";
 const SESSION_KEY = "worcester-board-builder-conversation-v1";
+const EVIDENCE_STORAGE_KEY = "worcester-board-builder-evidence-notebooks-v1";
 
 const state = {
   bundle: null,
@@ -51,6 +53,9 @@ const state = {
   originalProfileBeforeExamples: null,
   passportCandidateId: null,
   passportRevisionReceipt: null,
+  evidenceBooks: {},
+  evidenceStatus: "",
+  evidenceExpanded: false,
   comparisonIds: [],
   comparisonInitialized: false,
 };
@@ -1192,6 +1197,121 @@ function exportAssemblyGuide() {
   });
 }
 
+function baselineBuildPassport(candidate=null){
+  const chosen=candidate || state.result?.candidates.find(c=>c.id===state.selectedId);
+  return chosen?buildBuildPassport(chosen,state.bundle):null;
+}
+function notebookKey(passport){
+  return passport.candidate_id+"::"+passport.study_identity_key;
+}
+function currentEvidenceNotebook(passport){
+  const key=notebookKey(passport);
+  const restored=restoreEvidenceNotebook(passport,state.evidenceBooks[key]);
+  state.evidenceBooks[key]=restored;
+  return restored;
+}
+function persistEvidenceNotebooks(){
+  // This browser-only cache is convenience, never approval or a durable source registry.
+  try{
+    const entries=Object.entries(state.evidenceBooks).slice(-12);
+    localStorage.setItem(EVIDENCE_STORAGE_KEY,JSON.stringify(Object.fromEntries(entries)));
+  }catch{
+    state.evidenceStatus="Could not save locally. Export the evidence JSON to keep these observations.";
+  }
+}
+function renderEvidenceNotebook(candidate){
+  const passport=baselineBuildPassport(candidate),host=$("#passport-evidence-notebook");
+  if(!passport||!host)return;
+  const notebook=currentEvidenceNotebook(passport),review=evaluateEvidenceNotebook(passport,notebook);
+  const kinds=[
+    ["SOURCE_REFERENCE","Dated supplier source"],
+    ["RECEIVING_OBSERVATION","Received part / revision"],
+    ["MANUFACTURER_INSTRUCTIONS_CANDIDATE","Candidate maker instructions"],
+    ["INTERFACE_MEASUREMENT_NOTE","Interface measurement note"]
+  ];
+  const options=(items,selected)=>items.map(([value,label])=>
+    '<option value="'+escapeHtml(value)+'"'+(value===selected?' selected':'')+'>'+escapeHtml(label)+'</option>').join("");
+  const rows=notebook.records.slice().reverse().map(rec=>{
+    const short=rec.kind.replaceAll("_"," ").toLowerCase();
+    const source=rec.evidence_url?'<a href="'+escapeHtml(rec.evidence_url)+
+      '" target="_blank" rel="noopener noreferrer">Evidence link</a>':'No link';
+    return '<li><strong>#'+rec.seq+' · '+escapeHtml(short)+' · '+escapeHtml(rec.component_id)+'</strong>'+
+      '<small>'+escapeHtml(rec.observed_revision||"Revision not recorded")+
+      ' · '+escapeHtml(rec.as_of||"Date not provided")+
+      ' · '+(rec.quantity_received===null?"Quantity not recorded":rec.quantity_received+" received")+
+      ' · '+source+'</small>'+
+      (rec.interface_id?'<small>Claim: '+escapeHtml(rec.interface_id)+'</small>':'')+
+      (rec.note?'<p>'+escapeHtml(rec.note)+'</p>':'')+
+      '<small>Self-reported and unverified. Not order quantity or assembly clearance.</small></li>';
+  });
+  const initialInterfaces=passport.interface_claims.filter(claim=>
+    claim.component_ids.includes(passport.parts[0]?.component_id));
+  host.innerHTML='<details class="passport-evidence-details"'+(state.evidenceExpanded?' open':'')+'>'+
+    '<summary>Evidence notebook · '+review.evidence_count+' observations · '+review.invalidated_interface_ids.length+' claims needing recheck</summary>'+
+    '<p class="section-copy">Record exactly what you observed or found, including supplier references or actual receiving counts. Links and notes are <strong>not independently verified</strong>. Records are kept locally and exported only when you choose.</p>'+
+    '<form id="passport-evidence-form" class="passport-evidence-form">'+
+    '<label>Evidence type<select id="passport-evidence-kind">'+options(kinds,"SOURCE_REFERENCE")+'</select></label>'+
+    '<label>Catalog component<select id="passport-evidence-component">'+
+      options(passport.parts.map(p=>[p.component_id,p.label]),passport.parts[0]?.component_id)+'</select></label>'+
+    '<label>Related interface<select id="passport-evidence-interface"><option value="">No interface selected</option>'+
+      options(initialInterfaces.map(i=>[i.id,i.id]),null)+'</select></label>'+
+    '<label>Observed exact revision<input id="passport-evidence-revision" type="text" maxlength="120" placeholder="As printed on part, if known"></label>'+
+    '<label>Received count<input id="passport-evidence-quantity" type="number" min="1" max="500" step="1" placeholder="Only if physically received"></label>'+
+    '<label>Date observed<input id="passport-evidence-date" type="date"></label>'+
+    '<label class="passport-evidence-wide">Evidence link (HTTPS)<input id="passport-evidence-url" type="url" maxlength="600" placeholder="https://manufacturer.example/manual.pdf"></label>'+
+    '<label class="passport-evidence-wide">Observation / measurement question<textarea id="passport-evidence-note" maxlength="500" rows="2" placeholder="Describe what the record establishes and what is still unknown"></textarea></label>'+
+    '<button type="submit">Record unverified evidence</button>'+
+    '</form>'+
+    '<p id="passport-evidence-status" role="status" aria-live="polite">'+
+      escapeHtml(state.evidenceStatus||"Choose a type, supply its required evidence, then record.")+'</p>'+
+    '<div class="passport-evidence-review"><strong>Review queue</strong> · '+
+      review.still_unverified_part_ids.length+' parts without receiving observations · '+
+      review.unresolved_interface_ids.length+' unresolved catalog interfaces · '+
+      review.invalidated_interface_ids.length+' revision-dependent claims need recheck. '+
+      'Manufacturer manuals independently verified: 0. Stock confirmed: 0.</div>'+
+    '<ol class="passport-evidence-history">'+(rows.join("")||'<li>No evidence recorded yet.</li>')+'</ol>'+
+    '</details>';
+  host.querySelector(".passport-evidence-details").addEventListener("toggle",event=>{
+    state.evidenceExpanded=event.target.open;
+  });
+  const form=$("#passport-evidence-form");
+  const kindInput=$("#passport-evidence-kind"),partInput=$("#passport-evidence-component");
+  const iface=$("#passport-evidence-interface");
+  function refreshInterface(){
+    const matching=passport.interface_claims.filter(c=>c.component_ids.includes(partInput.value));
+    const old=iface.value;
+    iface.innerHTML='<option value="">No interface selected</option>'+
+      options(matching.map(i=>[i.id,i.id]),old);
+  }
+  partInput.addEventListener("change",refreshInterface);
+  kindInput.addEventListener("change",()=>{
+    iface.disabled=kindInput.value!=="INTERFACE_MEASUREMENT_NOTE";
+    $("#passport-evidence-quantity").disabled=kindInput.value!=="RECEIVING_OBSERVATION";
+  });
+  kindInput.dispatchEvent(new Event("change"));
+  form.addEventListener("submit",event=>{
+    event.preventDefault();
+    const q=$("#passport-evidence-quantity").value;
+    try{
+      const entry={
+        kind:kindInput.value,component_id:partInput.value,
+        interface_id:kindInput.value==="INTERFACE_MEASUREMENT_NOTE"?iface.value:null,
+        observed_revision:$("#passport-evidence-revision").value,
+        quantity_received:q?Number(q):null,
+        evidence_url:$("#passport-evidence-url").value,
+        as_of:$("#passport-evidence-date").value,
+        note:$("#passport-evidence-note").value
+      };
+      const next=recordEvidence(notebook,passport,entry);
+      state.evidenceBooks[notebookKey(passport)]=next;
+      state.evidenceStatus="Unverified observation recorded. Physical qualification unchanged.";
+      state.evidenceExpanded=true;
+      persistEvidenceNotebooks();
+      renderEvidenceNotebook(candidate);
+    }catch(error){$("#passport-evidence-status").textContent=error.message;}
+  });
+}
+
 function currentBuildPassport(candidate=null) {
   const selected=candidate || state.result?.candidates.find(x=>x.id===state.selectedId);
   if(!selected)return null;
@@ -1278,6 +1398,7 @@ function renderBuildPassport(candidate){
       escapeHtml(printed.component_id)+' invalidates '+printed.invalidated_interface_ids.length+
       ' catalog interface claims. Revalidate before any physical use.':
       'Changing a part revision invalidates relevant catalog interface evidence.')+'</p></div>'+
+    '<div id="passport-evidence-notebook"></div>'+ 
     '<p class="passport-footer">Planning handoff only. No procurement, fabrication, charging or powered-operation authority. '+
     'Manufacturer documentation and actual receiving inspection must govern any separately qualified build.</p>';
   $("#passport-check-revision").addEventListener("click",()=>{
@@ -1295,6 +1416,7 @@ function renderBuildPassport(candidate){
     state.passportRevisionReceipt=null;
     renderBuildPassport(candidate);
   });
+  renderEvidenceNotebook(candidate);
 }
 
 function renderBom(candidate) {
@@ -1718,6 +1840,10 @@ function exportSelectedDesign() {
 async function main() {
   try {
     state.bundle = await loadBundle();
+    try{state.evidenceBooks=JSON.parse(localStorage.getItem(EVIDENCE_STORAGE_KEY)||"{}");}
+    catch{state.evidenceBooks={};}
+    if(!state.evidenceBooks || typeof state.evidenceBooks!=="object" ||
+      Array.isArray(state.evidenceBooks))state.evidenceBooks={};
     validateExampleRides(state.bundle.exampleRides,state.bundle.questionnaire,state.bundle.architectures);
     state.profile = restoreProfile(state.bundle.questionnaire);
     state.conversation = restoreRideConversation(
@@ -1767,12 +1893,29 @@ async function main() {
       const passport=currentBuildPassport();
       if(passport)downloadJson("worcester-build-passport-"+passport.candidate_id+".json",passport);
     });
+    $("#export-evidence-notebook").addEventListener("click",()=>{
+      const p=baselineBuildPassport();
+      if(!p)return;
+      const book=currentEvidenceNotebook(p);
+      downloadJson("worcester-evidence-notebook-"+p.candidate_id+".json",{
+        schema_version:1,passport:p,evidence_notebook:book,
+        review:evaluateEvidenceNotebook(p,book),
+        note:"Self-reported evidence only. No stock, manual, parts quantity or physical qualification granted."
+      });
+    });
     $("#print-build-passport").addEventListener("click",()=>{
       if(!currentBuildPassport())return;
+      const ledger=document.querySelector(".passport-evidence-details");
+      state.evidenceWasOpenForPrint=ledger?.open??false;
+      if(ledger)ledger.open=true;
       document.body.classList.add("printing-build-passport");
       window.print();
     });
-    window.addEventListener("afterprint",()=>document.body.classList.remove("printing-build-passport"));
+    window.addEventListener("afterprint",()=>{
+      document.body.classList.remove("printing-build-passport");
+      const ledger=document.querySelector(".passport-evidence-details");
+      if(ledger)ledger.open=Boolean(state.evidenceWasOpenForPrint);
+    });
     $("#export-profile").addEventListener("click", exportProfile);
     $("#export-design").addEventListener("click", exportSelectedDesign);
     $("#reset-swaps").addEventListener("click", resetSwaps);
