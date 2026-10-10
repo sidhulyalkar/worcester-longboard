@@ -929,6 +929,60 @@ function renderDiverseShortlist() {
   });
 }
 
+function renderFeasibilityPanel(){
+  const host=$("#feasibility-records");
+  const report=state.result?.feasibility_report;
+  if(!host || !report)return;
+  const byId=new Map(state.result.candidates.map(row=>[row.id,row]));
+  const label={
+    BLOCKED:"Blocked design study",
+    UNRESOLVED_STUDY:"Evidence required",
+    PLANNING_STUDY:"Planning study only"
+  };
+  const formatUsd=value=>typeof value==="number" && Number.isFinite(value)
+    ? "$"+value.toLocaleString("en-US",{maximumFractionDigits:0}) : "unknown";
+  host.innerHTML=report.records.map(record=>{
+    const candidate=byId.get(record.candidate_id);
+    if(!candidate)return "";
+    const money=record.cost;
+    const unknown=record.mechanical.unresolved_interfaces;
+    const blockers=record.mechanical.explicit_blockers.length;
+    const status=label[record.result] || record.result;
+    const actions=record.next_steps.map(step=>"<li>"+escapeHtml(step)+"</li>").join("");
+    const reasons=record.mechanical.explicit_blockers.map(step=>"<li>"+escapeHtml(step)+"</li>").join("");
+    const costText="Known parts min: "+formatUsd(money.known_minimum_parts_usd)+
+      " · hard budget: "+formatUsd(money.stated_hard_budget_usd)+
+      " · "+money.unpriced_component_count+" unpriced items · all-in total unknown";
+    return '<details class="feasibility-record">'+
+      '<summary><strong>'+escapeHtml(candidate.label)+'</strong>'+
+      '<span>'+escapeHtml(status)+'</span>'+
+      '<small>'+unknown+' open interfaces · '+blockers+' explicit blockers</small></summary>'+
+      '<p class="feasibility-cost">'+escapeHtml(costText)+'</p>'+
+      (record.shortlist_exclusion_explanation?
+        '<p>Shortlist status: '+escapeHtml(record.shortlist_exclusion_explanation)+'.</p>' : "")+
+      (reasons?'<strong>Documented blockers</strong><ul>'+reasons+'</ul>' : "")+
+      '<strong>Next evidence and integration tasks</strong><ul>'+actions+'</ul>'+
+      '<p class="privacy-note">NOT QUALIFIED · No checkout, fabrication, charging or powered operation authorized.</p>'+
+      '<button type="button" data-feasibility-inspect="'+escapeHtml(record.candidate_id)+'">Inspect detailed evidence and BOM</button>'+
+      '</details>';
+  }).join("");
+  host.querySelectorAll("[data-feasibility-inspect]").forEach(button=>{
+    button.addEventListener("click",()=>{
+      const candidate=byId.get(button.dataset.feasibilityInspect);
+      if(!candidate)return;
+      state.selectedId=candidate.id;
+      state.vendorFilter="all";state.originFilter="all";
+      document.querySelectorAll("[data-origin-filter]").forEach(el=>
+        el.classList.toggle("active",el.dataset.originFilter==="all"));
+      state.swapBaselineId=null;state.swapSelection=null;state.swapResult=null;
+      renderVendorFilters(state.result.candidates);
+      renderCandidates(state.result.candidates);
+      renderBom(candidate);
+      $("#bom-section").scrollIntoView({behavior:"smooth",block:"start"});
+    });
+  });
+}
+
 function renderCandidates(candidates) {
   const host = $("#candidates");
   host.innerHTML = "";
@@ -1484,6 +1538,7 @@ function recompute() {
   }
   renderRequirements(state.result.requirements);
   renderDiverseShortlist();
+  renderFeasibilityPanel();
   renderVendorFilters(state.result.candidates);
   renderExampleRides();
   renderCandidates(state.result.candidates);
@@ -1593,6 +1648,10 @@ async function main() {
       recompute();
     });
 
+    $("#export-feasibility").addEventListener("click",()=>{
+      if(state.result?.feasibility_report)
+        downloadJson("worcester-feasibility-receipts.json",state.result.feasibility_report);
+    });
     $("#export-profile").addEventListener("click", exportProfile);
     $("#export-design").addEventListener("click", exportSelectedDesign);
     $("#reset-swaps").addEventListener("click", resetSwaps);
