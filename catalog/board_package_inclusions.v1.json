@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "scope": "CATALOG_INCLUSION_HYPOTHESES_NOT_PACKAGE_CERTIFICATION",
+  "note": "Included tokens come from reference catalog and are not verified exact-part, exact-revision or quantity claims. Equivalence mapping is a conservative research hypothesis, never a fulfillment decision.",
+  "packages": [
+    {
+      "component_id": "DONOR-COMP95",
+      "catalog_snapshot_id": "mbs_comp95_2026_09_11",
+      "catalog_sku_text": "10303",
+      "inclusions": [
+        {
+          "token": "deck",
+          "possible_catalog_reference_ids": [
+            "DECK-COMP95-REF"
+          ],
+          "review_question": "Does the received donor include the exact reference deck revision and mounting interface?"
+        },
+        {
+          "token": "matrix_iii_400_trucks",
+          "possible_catalog_reference_ids": [
+            "TRUCK-M3-400"
+          ],
+          "review_question": "Confirm received truck variant, hanger dimensions, axle stack and whether replacements are needed."
+        },
+        {
+          "token": "rockstar_ii_hubs",
+          "possible_catalog_reference_ids": [
+            "HUB-RSII"
+          ],
+          "review_question": "Count the exact received hub variants, spacers, bearings and retention hardware."
+        },
+        {
+          "token": "t1_8in_tires_tubes",
+          "possible_catalog_reference_ids": [
+            "TIRE-T1-8-REF"
+          ],
+          "review_question": "Count actual tire/tube/wheel assemblies and identify exact rim compatibility."
+        },
+        {
+          "token": "f5_bindings",
+          "possible_catalog_reference_ids": [],
+          "review_question": "No standalone binding revision in the current catalog. Record exact received hardware, sizing and attachment instructions."
+        }
+      ],
+      "retrofit_warnings": [
+        {
+          "when_component_id": "AXLE-M3-70",
+          "included_token": "matrix_iii_400_trucks",
+          "question": "Donor trucks are a 50 mm axle reference. A 70 mm replacement study is not drop-in: confirm exact hanger/axle/retention and brake/drive coexistence independently."
+        },
+        {
+          "when_component_id": "DRIVE-G1-DUAL",
+          "included_token": "matrix_iii_400_trucks",
+          "question": "The donor truck/axle assembly is a brake-first reference. Confirm drive mount, 70 mm axle, brake, wheel offset and guard clearance; vendor references alone are insufficient."
+        }
+      ]
+    }
+  ],
+  "authority": {
+    "procurement_authorized": false,
+    "fabrication_authorized": false,
+    "charging_authorized": false,
+    "powered_operation_authorized": false,
+    "generic_builder_may_promote_x1_authority": false
+  }
+}
