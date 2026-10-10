@@ -50,7 +50,12 @@ def mechanical_signature(candidate: dict[str, Any]) -> dict[str, str]:
 
 
 def _difference(a: dict[str, str], b: dict[str, str]) -> list[str]:
-    return [axis for axis in AXES if a[axis] != b[axis]]
+    return [
+        axis for axis in AXES
+        if a[axis] not in ("UNKNOWN", "NOT_SPECIFIED")
+        and b[axis] not in ("UNKNOWN", "NOT_SPECIFIED")
+        and a[axis] != b[axis]
+    ]
 
 
 def _materially_distinct(a: dict[str, str], b: dict[str, str]) -> bool:
@@ -129,7 +134,12 @@ def build_diverse_shortlist(
             return sum(
                 (2 if key in ("deck", "truck") else 1)
                 for key in AXES
-                if not any(previous[1][key] == row[1][key] for previous in chosen)
+                if row[1][key] not in ("UNKNOWN", "NOT_SPECIFIED")
+                and not any(
+                    previous[1][key] in ("UNKNOWN", "NOT_SPECIFIED")
+                    or previous[1][key] == row[1][key]
+                    for previous in chosen
+                )
             )
 
         chosen.append(max(eligible, key=novelty))
