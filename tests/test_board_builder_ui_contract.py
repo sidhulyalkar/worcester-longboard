@@ -272,3 +272,13 @@ def test_user_actions_retain_prior_profile_when_switching_example_rides():
     assert 'state.conversation=state.originalConversationBeforeExamples' in APP
     assert 'state.conversation=createRideConversation(state.profile,state.bundle.questionnaire)' in APP
     assert 'state.originalProfileBeforeExamples=null' in APP
+
+
+def test_diversity_shortlist_does_not_imply_authorized_build():
+    assert 'id="shortlist-cards"' in HTML
+    assert 'id="shortlist-status"' in HTML
+    assert "buildDiverseShortlist" in (ROOT / "builder" / "platform_engine.mjs").read_text()
+    assert "function renderDiverseShortlist()" in APP
+    assert 'data-shortlist-inspect=' in APP
+    assert "Studies, not approved builds" in HTML
+    assert "not mechanical qualification or purchasing approval" in APP
