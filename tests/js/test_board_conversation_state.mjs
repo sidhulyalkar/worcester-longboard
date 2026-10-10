@@ -6,7 +6,8 @@ import {fileURLToPath} from "node:url";
 import {
   createRideConversation,proposeRideConversationTurn,
   acceptRideConversationTurn,rejectRideConversationTurn,
-  undoRideConversationTurn,recordManualRideField,exportRideConversation
+  undoRideConversationTurn,recordManualRideField,exportRideConversation,
+  reconcileManualRideProfile,restoreRideConversation
 } from "../../builder/conversation_state.mjs";
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"../..");
@@ -121,4 +122,71 @@ test("manual patch and baseline validation reject type confusion",()=>{
   assert.throws(()=>recordManualRideField(init(),"maintenance_tolerance","automatic",questionnaire),/Invalid selection/);
   assert.throws(()=>createRideConversation({...defaults,weight_lb:"175"},questionnaire),/Invalid numeric/);
   assert.throws(()=>createRideConversation({...defaults,fit_notes:5},questionnaire),/Invalid text/);
+});
+
+
+test("complete manual edits reconcile in one revision, preserving other provenance",()=>{
+  let initial=init();
+  initial=acceptRideConversationTurn(
+    proposeRideConversationTurn(initial,"I weigh 175 lb",questionnaire),
+    ["weight"],questionnaire);
+  const manual={...initial.profile,stance:"goofy",shoe_left_us:4,shoe_right_us:5};
+  const reconciled=reconcileManualRideProfile(initial,manual,questionnaire);
+  assert.deepEqual(reconciled.turns.at(-1).changed_fields,
+    ["stance","shoe_left_us","shoe_right_us"]);
+  assert.equal(reconciled.provenance.weight_lb.source,"USER_ACCEPTED");
+  assert.equal(reconciled.provenance.shoe_right_us.source,"MANUAL");
+  assert.equal(reconciled.profile.weight_lb,175);
+  assert.deepEqual(initial.profile.weight_lb,175);
+  assert.deepEqual(undoRideConversationTurn(reconciled).profile,initial.profile);
+  locked(reconciled);
+});
+
+test("multi-slider terrain edit must be valid as a complete profile before commit",()=>{
+  const initial=init();
+  const temporary={...defaults,terrain_pavement:30};
+  assert.throws(()=>reconcileManualRideProfile(initial,temporary,questionnaire),
+    /Terrain percentages/);
+  const valid={...temporary,terrain_packed_dirt:25};
+  const result=reconcileManualRideProfile(initial,valid,questionnaire);
+  assert.equal(result.profile.terrain_pavement,30);
+  assert.equal(result.profile.terrain_packed_dirt,25);
+  assert.equal(result.turns.length,1);
+  assert.deepEqual(initial.profile,defaults);
+});
+
+test("a pending review cannot be overwritten by a manual sync",()=>{
+  const pending=proposeRideConversationTurn(init(),"I weigh 185 lb",questionnaire);
+  assert.throws(()=>reconcileManualRideProfile(pending,{...defaults,weight_lb:155},questionnaire),
+    /Resolve pending review/);
+  const rejected=rejectRideConversationTurn(pending);
+  const manual=reconcileManualRideProfile(rejected,{...defaults,weight_lb:155},questionnaire);
+  assert.equal(manual.profile.weight_lb,155);
+  assert.equal(manual.turns[0].action,"REJECT");
+  assert.equal(manual.turns[1].action,"MANUAL");
+});
+
+test("session restoration rejects mismatched, corrupt and hostile local snapshots",()=>{
+  let state=acceptRideConversationTurn(
+    proposeRideConversationTurn(init(),"I weigh 175 lb",questionnaire),
+    ["weight"],questionnaire);
+  const saved=JSON.stringify(exportRideConversation(state));
+  const restored=restoreRideConversation(saved,state.profile,questionnaire);
+  assert.deepEqual(restored.profile,state.profile);
+  assert.equal(restored.revision,1);
+  assert.equal(restored.turns.length,1);
+  assert.deepEqual(restoreRideConversation(saved,defaults,questionnaire).profile,defaults);
+  const corrupt={...state,scope:"physical_authority"};
+  assert.equal(restoreRideConversation(corrupt,defaults,questionnaire).revision,0);
+  const hostile={...state,profile:{...state.profile,charging_authorized:true}};
+  assert.equal(restoreRideConversation(hostile,defaults,questionnaire).revision,0);
+  locked(restored);
+});
+
+test("saved pending proposals are not executable after page reload",()=>{
+  const pending=proposeRideConversationTurn(init(),"I weigh 175 lb",questionnaire);
+  const restored=restoreRideConversation(exportRideConversation(pending),defaults,questionnaire);
+  assert.equal(restored.pending,null);
+  assert.throws(()=>acceptRideConversationTurn(restored,["weight"],questionnaire),
+    /Missing or stale review/);
 });
