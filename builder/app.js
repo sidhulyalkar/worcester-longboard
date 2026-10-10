@@ -297,6 +297,11 @@ function renderRideBriefReview() {
   });
 }
 function reviewRideBrief() {
+  if (state.conversation?.pending) {
+    state.conversationStatus = "Accept or discard the current review before proposing another change.";
+    renderRideConversation();
+    return;
+  }
   if (!reconcileQuestionnaire()) return;
   try {
     state.conversation = proposeRideConversationTurn(
