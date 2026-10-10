@@ -1403,6 +1403,11 @@ function scheduleRecompute() {
   state.renderQueued = true;
   requestAnimationFrame(() => {
     state.renderQueued = false;
+    if (state.sessionOutOfSync) {
+      $("#recompute-status").textContent =
+        "Editing · designs update after specification validation";
+      return;
+    }
     recompute();
   });
 }
