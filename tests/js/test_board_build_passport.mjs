@@ -117,3 +117,14 @@ test("source price ceiling does not become an exact quote or free component",()=
   assert.equal(p.sourcing.all_in_total_usd,null);
   locked(p);
 });
+
+
+test("changing bundled donor revision invalidates even implicit wheel/truck claims",()=>{
+  const before=get("brake_first_trail_core");
+  const altered=proposePassportRevisionChange(before,"DONOR-COMP95","donor-new-variant");
+  assert.deepEqual(altered.change_receipt.invalidated_interface_ids,
+    before.interface_claims.map(rule=>rule.id).sort());
+  assert.ok(altered.interface_claims.every(rule=>
+    rule.revision_evidence_state==="INVALIDATED_BY_REVISION_CHANGE"));
+  assert.ok(Object.values(altered.authority).every(value=>value===false));
+});
