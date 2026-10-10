@@ -130,10 +130,13 @@ export function restoreEvidenceNotebook(passport,raw){
 }
 export function evaluateEvidenceNotebook(passport,notebook){
   assertNotebook(passport,notebook);
+  // A notebook object may be directly supplied by a caller, not just browser
+  // storage. Reconstruct each record to strip forged status and reject staleness.
+  const reviewed=restoreEvidenceNotebook(passport,notebook);
   const observed=new Set(),instructionCandidates=new Set(),sourceReferences=new Set();
   const invalidated=new Set(),measurementNotes=new Set();
   const partIndex=new Map(passport.parts.map(p=>[p.component_id,p]));
-  for(const rec of notebook.records){
+  for(const rec of reviewed.records){
     if(rec.kind==="RECEIVING_OBSERVATION"){
       observed.add(rec.component_id);
       const part=partIndex.get(rec.component_id);
@@ -150,7 +153,7 @@ export function evaluateEvidenceNotebook(passport,notebook){
   return {
     schema_version:1,scope:"USER_EVIDENCE_REVIEW_QUEUE",
     candidate_id:passport.candidate_id,
-    evidence_count:notebook.records.length,
+    evidence_count:reviewed.records.length,
     receiving_observed_part_ids:sorted(observed),
     source_reference_part_ids:sorted(sourceReferences),
     instruction_candidates_part_ids:sorted(instructionCandidates),
