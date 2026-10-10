@@ -75,3 +75,15 @@ test("repeated IDs and invalid shortlist sizes fail predictably",()=>{
   assert.equal(report.excluded[0].reason,"DUPLICATE_ID");
   assert.throws(()=>buildDiverseShortlist([a],null,0),/Invalid shortlist size/);
 });
+
+
+test("malformed numeric scores never pass selection or grant authority",()=>{
+  const report=buildDiverseShortlist([
+    {...a,id:"bad-null",fit_score:null},
+    {...a,id:"bad-nan",fit_score:Number.NaN},
+    a
+  ]);
+  assert.deepEqual(report.selected_ids,["a"]);
+  assert.equal(report.excluded.filter(e=>e.reason==="INVALID_PLANNING_CANDIDATE").length,2);
+  assert.equal(report.authority.fabrication_authorized,false);
+});
