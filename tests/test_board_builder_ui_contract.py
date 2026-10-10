@@ -340,3 +340,16 @@ def test_build_passport_surfaces_donor_inclusions_without_order_claims():
     assert "existing_bom_subtotal_has_possible_double_count" in audit
     assert "mechanical_interfaces_qualified:false" in audit
     assert "procurement_authorized:false" in audit
+
+
+def test_builder_receiving_to_bom_review_is_unverified_and_accessible():
+    assert 'id="passport-receiving-reconciliation"' in APP
+    assert 'class="passport-receiving-review"' in APP
+    assert "function renderReceivingReconciliation(candidate)" in APP
+    assert 'manufacturer_document_references.v1.json' in APP
+    assert "receiving_reconciliation:receivingReconciliationPacket()" in APP
+    assert "renderReceivingReconciliation(candidate);" in APP
+    assert "No order line, received revision, source instruction" in APP
+    assert "Actual order/assembly quantities: unknown" in APP
+    assert "rel=\\"noopener noreferrer\\"" in APP
+    assert (ROOT/"builder"/"receiving_reconciliation.mjs").exists()
