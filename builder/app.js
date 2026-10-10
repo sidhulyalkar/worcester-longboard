@@ -8,6 +8,7 @@ import {defaultComparisonIds,compareCandidates} from "./comparison.mjs";
 import {assemblyGuide} from "./assembly_guide.mjs";
 import {buildBuildPassport,proposePassportRevisionChange} from "./build_passport.mjs";
 import {emptyEvidenceNotebook,recordEvidence,restoreEvidenceNotebook,evaluateEvidenceNotebook,EVIDENCE_KINDS} from "./evidence_notebook.mjs";
+import {buildReceivingReconciliation} from "./receiving_reconciliation.mjs";
 import {
   createRideConversation,restoreRideConversation,reconcileManualRideProfile,
   proposeRideConversationTurn,acceptRideConversationTurn,rejectRideConversationTurn,
@@ -56,6 +57,7 @@ const state = {
   evidenceBooks: {},
   evidenceStatus: "",
   evidenceExpanded: false,
+  receivingExpanded: false,
   comparisonIds: [],
   comparisonInitialized: false,
 };
@@ -78,7 +80,7 @@ async function fetchJson(path) {
 }
 
 async function loadBundle() {
-  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides, packageInclusions] = await Promise.all([
+  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides, packageInclusions, documentReferences] = await Promise.all([
     fetchJson("../configurator/questionnaire.v1.json"),
     fetchJson("../configurator/rules.v1.json"),
     fetchJson("../catalog/board_components.v1.json"),
@@ -90,8 +92,9 @@ async function loadBundle() {
     fetchJson("../catalog/catalog_health.v1.json"),
     fetchJson("../configurator/example_rides.v1.json"),
     fetchJson("../catalog/board_package_inclusions.v1.json"),
+    fetchJson("../catalog/manufacturer_document_references.v1.json"),
   ]);
-  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides, packageInclusions };
+  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides, packageInclusions, documentReferences };
 }
 
 function restoreProfile(questionnaire) {
@@ -1220,6 +1223,58 @@ function persistEvidenceNotebooks(){
     state.evidenceStatus="Could not save locally. Export the evidence JSON to keep these observations.";
   }
 }
+function receivingReconciliationPacket(candidate){
+  const passport=baselineBuildPassport(candidate);
+  if(!passport || !state.bundle?.documentReferences)return null;
+  return buildReceivingReconciliation(
+    passport,currentEvidenceNotebook(passport),state.bundle.documentReferences);
+}
+function renderReceivingReconciliation(candidate){
+  const host=$("#passport-receiving-reconciliation");
+  const report=receivingReconciliationPacket(candidate);
+  if(!host||!report)return;
+  const q=report.review_queue;
+  const table=report.rows.map(row=>{
+    const rec=row.last_observation;
+    const evidence=rec?
+      'Self-reported '+escapeHtml(rec.quantity_received)+' received, marked '+
+      escapeHtml(rec.observed_revision)+' on '+escapeHtml(rec.observed_as_of):
+      'No receiving observation recorded';
+    const docs=row.manufacturer_reference_documents.map(doc=>{
+      const href=doc.url;
+      return '<li><a href="'+escapeHtml(href)+
+        '" rel="noopener noreferrer" target="_blank">'+escapeHtml(doc.title)+'</a>'+
+        '<small>'+escapeHtml(doc.role.replaceAll("_"," ").toLowerCase())+
+        ': '+escapeHtml(doc.scope_note)+'</small></li>';
+    }).join("");
+    return '<li><strong>'+escapeHtml(row.label)+'</strong>'+
+      '<small>'+escapeHtml(row.component_id)+' · '+escapeHtml(evidence)+
+      ' · '+escapeHtml(row.receipt_history_status.replaceAll("_"," ").toLowerCase())+'</small>'+
+      (row.potential_overlap_package_ids.length?
+        '<small>Possible donor overlap: '+escapeHtml(row.potential_overlap_package_ids.join(", "))+'</small>':'')+
+      (row.donor_content_evidence_status==="UNVERIFIED_DONOR_CONTENTS"?
+        '<small>Contents inside donor must be inspected independently.</small>':'')+
+      (row.user_manual_candidate_count?
+        '<small>'+row.user_manual_candidate_count+' user-provided manual candidate(s), not independently verified</small>':'')+
+      '<small>Assembly quantity: unknown · Supplier order quantity: unknown</small>'+
+      '<details><summary>Manufacturer reference links ('+row.manufacturer_reference_documents.length+')</summary>'+
+      (docs?'<ul>'+docs+'</ul>':'<p>No manufacturer reference indexed for this component.</p>')+
+      '<p>These links are not approved revision-specific installation instructions.</p></details></li>';
+  }).join("");
+  host.innerHTML='<details class="passport-receiving-review"'+(state.receivingExpanded?' open':'')+'>'+
+    '<summary>Receiving reconciliation · '+q.no_receiving_observation_ids.length+' parts not observed · '+
+    q.conflicting_receipt_history_ids.length+' receipt conflicts</summary>'+
+    '<p class="section-copy">A part is not considered verified or available simply because a user recorded it. Compare exact received hardware to vendor contents; never sum repeated receiving notes into stock counts.</p>'+
+    '<p><strong>'+q.donor_contents_uninspected_ids.length+'</strong> donor packages need their included contents checked. '+
+    '<strong>'+q.donor_overlap_questions.length+'</strong> potential double-count overlaps still require independent review.</p>'+
+    '<ol class="passport-receiving-parts">'+table+'</ol>'+
+    '<p class="passport-warning">No order line, received revision, source instruction, interface or quote has been independently qualified. '+escapeHtml(report.disclaimer)+'</p>'+
+    '</details>';
+  host.querySelector(".passport-receiving-review").addEventListener("toggle",e=>{
+    state.receivingExpanded=e.target.open;
+  });
+}
+
 function renderEvidenceNotebook(candidate){
   const passport=baselineBuildPassport(candidate),host=$("#passport-evidence-notebook");
   if(!passport||!host)return;
@@ -1309,6 +1364,7 @@ function renderEvidenceNotebook(candidate){
       state.evidenceExpanded=true;
       persistEvidenceNotebooks();
       renderEvidenceNotebook(candidate);
+      renderReceivingReconciliation(candidate);
     }catch(error){$("#passport-evidence-status").textContent=error.message;}
   });
 }
@@ -1433,7 +1489,8 @@ function renderBuildPassport(candidate){
       escapeHtml(printed.component_id)+' invalidates '+printed.invalidated_interface_ids.length+
       ' catalog interface claims. Revalidate before any physical use.':
       'Changing a part revision invalidates relevant catalog interface evidence.')+'</p></div>'+
-    '<div id="passport-evidence-notebook"></div>'+ 
+    '<div id="passport-evidence-notebook"></div>'+
+    '<div id="passport-receiving-reconciliation"></div>'+ 
     '<p class="passport-footer">Planning handoff only. No procurement, fabrication, charging or powered-operation authority. '+
     'Manufacturer documentation and actual receiving inspection must govern any separately qualified build.</p>';
   $("#passport-check-revision").addEventListener("click",()=>{
@@ -1452,6 +1509,7 @@ function renderBuildPassport(candidate){
     renderBuildPassport(candidate);
   });
   renderEvidenceNotebook(candidate);
+  renderReceivingReconciliation(candidate);
 }
 
 function renderBom(candidate) {
@@ -1935,6 +1993,7 @@ async function main() {
       downloadJson("worcester-evidence-notebook-"+p.candidate_id+".json",{
         schema_version:1,passport:p,evidence_notebook:book,
         review:evaluateEvidenceNotebook(p,book),
+        receiving_reconciliation:receivingReconciliationPacket(),
         note:"Self-reported evidence only. No stock, manual, parts quantity or physical qualification granted."
       });
     });
@@ -1943,6 +2002,9 @@ async function main() {
       const ledger=document.querySelector(".passport-evidence-details");
       state.evidenceWasOpenForPrint=ledger?.open??false;
       if(ledger)ledger.open=true;
+      const receiving=document.querySelector(".passport-receiving-review");
+      state.receivingWasOpenForPrint=receiving?.open??false;
+      if(receiving)receiving.open=true;
       document.body.classList.add("printing-build-passport");
       window.print();
     });
@@ -1950,6 +2012,8 @@ async function main() {
       document.body.classList.remove("printing-build-passport");
       const ledger=document.querySelector(".passport-evidence-details");
       if(ledger)ledger.open=Boolean(state.evidenceWasOpenForPrint);
+      const receiving=document.querySelector(".passport-receiving-review");
+      if(receiving)receiving.open=Boolean(state.receivingWasOpenForPrint);
     });
     $("#export-profile").addEventListener("click", exportProfile);
     $("#export-design").addEventListener("click", exportSelectedDesign);

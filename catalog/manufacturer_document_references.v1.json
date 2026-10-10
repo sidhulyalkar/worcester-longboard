@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "scope": "PUBLIC_MANUFACTURER_REFERENCES_NOT_EXACT_VARIANT_INSTRUCTIONS",
+  "reviewed_as_of": "2026-10-10",
+  "description": "Live public official manufacturer pages reviewed 2026-10-10. A source being on a manufacturer's site does not prove it applies to a selected or received physical revision. A catalog vendor link is never promoted to a qualified installation manual.",
+  "entries": [
+    {
+      "id": "mbs-mountainboard-manual-index",
+      "component_ids": [
+        "DONOR-COMP95",
+        "HUB-RSII",
+        "TIRE-T1-8-REF",
+        "TIRE-T2-9",
+        "DECK-COMP95-REF"
+      ],
+      "manufacturer": "MBS",
+      "title": "MBS official mountainboard manuals index",
+      "url": "https://www.mbs.com/manuals",
+      "document_role": "OFFICIAL_MANUAL_INDEX",
+      "scope_note": "The official site links to a general mountainboard owner's manual. It does not identify the exact revision of the received Comp 95 or wheels.",
+      "exact_revision_verified": false
+    },
+    {
+      "id": "mbs-comp95-product",
+      "component_ids": [
+        "DONOR-COMP95"
+      ],
+      "manufacturer": "MBS",
+      "title": "Comp 95 Silver Hex 10303 product specifications",
+      "url": "https://www.mbs.com/shop/p/comp-95-mountainboard-silver-hex",
+      "document_role": "MANUFACTURER_PRODUCT_REFERENCE_NOT_MANUAL",
+      "scope_note": "Public product description identifies Matrix III, Rockstar II, T1 tires and F5 bindings, and says wheels ship off. No received revision or included count is established.",
+      "exact_revision_verified": false
+    },
+    {
+      "id": "mbs-matrix-iii-adjustment",
+      "component_ids": [
+        "TRUCK-M3-400",
+        "DONOR-COMP95"
+      ],
+      "manufacturer": "MBS",
+      "title": "MBS Matrix III turning resistance chart page",
+      "url": "https://www.mbs.com/manuals/020",
+      "document_role": "OFFICIAL_GENERAL_ADJUSTMENT_REFERENCE",
+      "scope_note": "General reference for Matrix III setup, not mechanical clearance validation or exact truck revision mounting authority.",
+      "exact_revision_verified": false
+    },
+    {
+      "id": "mbs-f5-bindings",
+      "component_ids": [
+        "DONOR-COMP95"
+      ],
+      "manufacturer": "MBS",
+      "title": "MBS official F5/F5X binding manual page",
+      "url": "https://www.mbs.com/manuals/040",
+      "document_role": "OFFICIAL_GENERAL_BINDING_REFERENCE",
+      "scope_note": "Binding family instructions. Exact received F5 binding revision and fit remain unverified.",
+      "exact_revision_verified": false
+    },
+    {
+      "id": "mbs-v5-brake-index",
+      "component_ids": [
+        "BRAKE-V5"
+      ],
+      "manufacturer": "MBS",
+      "title": "MBS official V5 brake manual listing",
+      "url": "https://www.mbs.com/manuals",
+      "document_role": "OFFICIAL_MANUAL_INDEX",
+      "scope_note": "Manufacturer's manual index lists V5 Brake Manual; the exact applicability to a received brake revision must be checked.",
+      "exact_revision_verified": false
+    },
+    {
+      "id": "trampa-hs11-parts",
+      "component_ids": [
+        "BRAKE-TRAMPA-HS11"
+      ],
+      "manufacturer": "TRAMPA",
+      "title": "TRAMPA HS11 hanger mounting-hardware product reference",
+      "url": "https://trampaboards.com/special-parts-to-assemble-the-hs11-brake-kit-to-the-trampa-hanger-p-35968.html",
+      "document_role": "MANUFACTURER_PRODUCT_REFERENCE_NOT_MANUAL",
+      "scope_note": "Product hardware description names caliper mounting pieces; this is not a complete, exact-revision brake installation or hydraulic safety procedure.",
+      "exact_revision_verified": false
+    }
+  ],
+  "authority": {
+    "procurement_authorized": false,
+    "fabrication_authorized": false,
+    "charging_authorized": false,
+    "powered_operation_authorized": false,
+    "generic_builder_may_promote_x1_authority": false
+  }
+}
