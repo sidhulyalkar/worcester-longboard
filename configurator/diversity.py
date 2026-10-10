@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from typing import Any
+import math
 
 AXES = ("deck", "truck", "wheel", "brake", "drive")
 AUTHORITY = {
@@ -60,7 +61,7 @@ def _materially_distinct(a: dict[str, str], b: dict[str, str]) -> bool:
 def _exclusion(candidate: dict[str, Any], hard_budget: float | None) -> str | None:
     if not isinstance(candidate, dict) or not candidate.get("id") or not isinstance(
         candidate.get("fit_score"), (int, float)
-    ):
+    ) or isinstance(candidate.get("fit_score"), bool) or not math.isfinite(candidate.get("fit_score")):
         return "INVALID_PLANNING_CANDIDATE"
     if candidate.get("blockers"):
         return "HARD_MECHANICAL_OR_MISSION_BLOCKER"
