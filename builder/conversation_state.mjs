@@ -216,3 +216,56 @@ export function exportRideConversation(state) {
   requireState(state);
   return clone(state);
 }
+
+
+// Reconcile a completed manual questionnaire edit as one replayable revision.
+// Editing a terrain mix can be temporarily invalid; callers must withhold
+// conversational proposals until the full profile satisfies questionnaire rules.
+export function reconcileManualRideProfile(state,profile,questionnaire){
+  requireState(state);
+  if(state.pending)throw new Error("Resolve pending review before manual edits");
+  if(!profile || typeof profile!=="object" || Array.isArray(profile))
+    throw new Error("Invalid manual profile");
+  const known=fieldsFor(questionnaire),previous=state.profile;
+  for(const key of Object.keys(profile))validateFieldValue(key,profile[key],questionnaire);
+  for(const key of Object.keys(previous))
+    if(!known.has(key) || !own(profile,key))
+      throw new Error("Manual profile is missing a known field: "+key);
+  const changed=Object.keys(profile).filter(key=>!Object.is(profile[key],previous[key]));
+  if(!changed.length)return clone(state);
+  const patch=Object.fromEntries(changed.map(key=>[key,profile[key]]));
+  const review={schema_version:1,scope:REVIEW_SCOPE,proposals:[{id:"manual-sync",patch}]};
+  const nextProfile=applyRideBriefReview(previous,review,["manual-sync"],questionnaire);
+  const next=clone(state);
+  next.history.push({profile:clone(next.profile),provenance:clone(next.provenance),revision:next.revision});
+  next.revision+=1;
+  next.profile=nextProfile;
+  for(const key of changed)next.provenance[key]={source:"MANUAL",revision:next.revision};
+  next.turns.push({action:"MANUAL",revision:next.revision,changed_fields:changed});
+  return next;
+}
+
+// Restores a local-only session when it matches the separately saved rider
+// profile. A corrupt/stale session is discarded, not replayed into the UI.
+export function restoreRideConversation(saved,profile,questionnaire){
+  const fallback=()=>createRideConversation(profile,questionnaire);
+  if(!saved)return fallback();
+  try{
+    const candidate=typeof saved==="string"?JSON.parse(saved):clone(saved);
+    requireState(candidate);
+    if(!Number.isSafeInteger(candidate.revision) || candidate.revision<0 ||
+      candidate.turns.length>500 || candidate.history.length>250 ||
+      !candidate.provenance || typeof candidate.provenance!=="object")
+      return fallback();
+    for(const [key,value] of Object.entries(candidate.profile))
+      validateFieldValue(key,value,questionnaire);
+    const sameKeys=Object.keys(profile).length===Object.keys(candidate.profile).length;
+    if(!sameKeys || Object.keys(profile).some(key=>!Object.is(profile[key],candidate.profile[key])))
+      return fallback();
+    // Pending review becomes stale after a reload; re-review from the brief.
+    candidate.pending=null;
+    return candidate;
+  }catch{
+    return fallback();
+  }
+}
