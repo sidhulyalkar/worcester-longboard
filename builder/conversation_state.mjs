@@ -17,6 +17,25 @@ const fieldsFor = questionnaire => new Map(
   (questionnaire?.sections || []).flatMap(s=>s.fields || []).map(f=>[f.id,f])
 );
 
+
+function validateFieldValue(key,value,questionnaire){
+  const field=fieldsFor(questionnaire).get(key);
+  if(!field)throw new Error("Unknown questionnaire field "+key);
+  if(value===null && !field.required)return;
+  if(field.type==="number" || field.type==="range"){
+    if(typeof value!=="number" || !Number.isFinite(value) ||
+      value<(field.min ?? -Infinity) || value>(field.max ?? Infinity))
+      throw new Error("Invalid numeric value for "+key);
+  }else if(field.type==="select"){
+    if(!(field.options || []).some(o=>o[0]===value))
+      throw new Error("Invalid selection for "+key);
+  }else if(field.type==="boolean"){
+    if(typeof value!=="boolean")throw new Error("Invalid boolean for "+key);
+  }else if(field.type==="text"){
+    if(typeof value!=="string")throw new Error("Invalid text for "+key);
+  }else throw new Error("Unsupported field type for "+key);
+}
+
 function requireState(state) {
   if (!state || state.schema_version!==1 || state.scope!==SCOPE ||
       !Array.isArray(state.turns) || !Array.isArray(state.history) ||
@@ -32,6 +51,7 @@ export function createRideConversation(profile,questionnaire) {
     throw new Error("Invalid questionnaire or rider profile");
   for(const key of Object.keys(profile)) {
     if(!fields.has(key))throw new Error("Unknown initial profile key "+key);
+    validateFieldValue(key,profile[key],questionnaire);
   }
   const values=clone(profile),provenance={};
   for(const key of Object.keys(values))
@@ -87,7 +107,11 @@ export function proposeRideConversationTurn(state,raw,questionnaire) {
   const text=String(raw || "").trim();
   if(text.length>2400)throw new Error("Ride turn exceeds 2400 characters");
   const base=parseRideBrief(text,questionnaire);
-  const proposals=[...base.proposals],taken=new Set(proposals.flatMap(p=>Object.keys(p.patch)));
+  // A comparative carve request should not be flattened by the parser's
+  // absolute 90/90 suggestion. Use the reviewed incremental delta instead.
+  const wantsMoreCarve=/\b(?:more snowboard[-\s]?like|more carving|carve more|stronger carve)\b/i.test(text);
+  const proposals=base.proposals.filter(p=>!(wantsMoreCarve && p.id==="carving"));
+  const taken=new Set(proposals.flatMap(p=>Object.keys(p.patch)));
   const warnings=[...base.warnings];
   for(const suggestion of relativeReview(text.toLowerCase(),state.profile,questionnaire)){
     const colliding=Object.keys(suggestion.patch).some(key=>taken.has(key));
@@ -173,6 +197,7 @@ export function recordManualRideField(state,key,value,questionnaire) {
   requireState(state);
   if(state.pending)throw new Error("Resolve pending review before manual edits");
   if(!fieldsFor(questionnaire).has(key))throw new Error("Unknown manual field "+key);
+  validateFieldValue(key,value,questionnaire);
   const review={schema_version:1,scope:REVIEW_SCOPE,
     proposals:[{id:"manual",patch:{[key]:value}}]};
   const updated=applyRideBriefReview(state.profile,review,["manual"],questionnaire);
