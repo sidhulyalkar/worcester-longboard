@@ -78,7 +78,7 @@ async function fetchJson(path) {
 }
 
 async function loadBundle() {
-  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides] = await Promise.all([
+  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides, packageInclusions] = await Promise.all([
     fetchJson("../configurator/questionnaire.v1.json"),
     fetchJson("../configurator/rules.v1.json"),
     fetchJson("../catalog/board_components.v1.json"),
@@ -89,8 +89,9 @@ async function loadBundle() {
     fetchJson("../configurator/composer.v1.json"),
     fetchJson("../catalog/catalog_health.v1.json"),
     fetchJson("../configurator/example_rides.v1.json"),
+    fetchJson("../catalog/board_package_inclusions.v1.json"),
   ]);
-  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides };
+  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides, packageInclusions };
 }
 
 function restoreProfile(questionnaire) {
