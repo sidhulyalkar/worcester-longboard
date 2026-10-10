@@ -57,7 +57,8 @@ test("unsupported budgets are warnings and cannot be applied",()=>{
   const report=parseRideBrief("I weigh 170 lb and have a $9000 parts budget",questionnaire);
   assert.equal(get(report,"budget"),undefined);
   assert.ok(report.warnings.some(w=>w.includes("budget_usd")));
-  assert.equal(applyRideBriefReview(defaults,report,["budget","weight"],questionnaire).weight_lb,170);
+  assert.throws(()=>applyRideBriefReview(defaults,report,["budget","weight"],questionnaire),/unknown or duplicate/);
+  assert.equal(applyRideBriefReview(defaults,report,["weight"],questionnaire).weight_lb,170);
   assertLocked(report);
 });
 
