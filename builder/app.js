@@ -156,7 +156,9 @@ function renderRideBriefReview() {
   if (!report) { host.replaceChildren(); return; }
   const labels = new Map(state.bundle.questionnaire.sections.flatMap(s => s.fields.map(f => [f.id, f.label])));
   const describe = proposal => Object.entries(proposal.patch).map(([key,value]) =>
-    escapeHtml(labels.get(key) || key) + ": <strong>" + escapeHtml(String(value)) + "</strong>"
+    escapeHtml(labels.get(key) || key) + ": " +
+    '<span class="ride-brief-certainty">' + escapeHtml(String(state.profile[key] ?? "unspecified")) + '</span> → ' +
+    "<strong>" + escapeHtml(String(value)) + "</strong>"
   ).join(" · ");
   const proposals = report.proposals.map(p =>
     '<label class="ride-brief-proposal">' +
@@ -194,6 +196,9 @@ function renderRideBriefReview() {
     try {
       const next = applyRideBriefReview(state.profile,report,ids,state.bundle.questionnaire);
       state.profile = next;
+      state.selectedId = null;
+      state.comparisonIds = [];
+      state.comparisonInitialized = false;
       state.activeExampleId = null;
       state.originalProfileBeforeExamples = null;
       saveProfile();
