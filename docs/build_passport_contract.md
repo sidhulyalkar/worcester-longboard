@@ -25,7 +25,7 @@ A deterministic `study_identity_key` contains the exact catalog IDs and their so
 4. Updates the study identity and records the affected rule IDs and exact revalidation task.
 5. Maintains `physical_qualification:NOT_QUALIFIED` and all false authority fields.
 
-The change **does not** write to the source catalog, re-run physical tests, invent adapters, refresh vendor inventory, or grant new procurement authority. Indirect dependencies through bundled donor contents still require a later explicit dependency model and receiving inspection. That is a follow-up engineering task, not implicit clearance.
+The change **does not** write to the source catalog, re-run physical tests, invent adapters, refresh vendor inventory, or grant new procurement authority. For a bundled donor board with included contents (deck, trucks, hubs, bearings, tires or bindings), a revision change **conservatively invalidates every interface claim** because indirect dependencies cannot yet be enumerated reliably. More selective donor-to-subcomponent dependency mapping and receiving inspection remain future work; nothing is implicitly cleared.
 
 ## Assembly learning path
 
