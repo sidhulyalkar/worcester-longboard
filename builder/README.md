@@ -145,3 +145,19 @@ Sources for safety context: CPSC micromobility charging guidance (https://www.cp
 Above the sample rides, the Builder now accepts a short free-text ride description. A deterministic **local** parser proposes questionnaire edits, displaying current and proposed values. Explicit measurements and budgets are preselected for review; inferred terrain percentages or carving priorities are off until checked. Users must click **Apply checked changes + regenerate**. The normal candidate synthesis, previews, BOM, compatibility explorer and assembly-learning roadmap then update together.
 
 This is intentionally a narrow parser, not a general-purpose LLM chat agent. Unsupported and contradictory inputs surface questions, never fabrication instructions or purchase permission. See [customization roadmap](../docs/ride_brief_customization_roadmap.md).
+
+
+## Multi-turn state core (v1.1, staged)
+
+\`builder/conversation_state.mjs\` now provides a versioned, deterministic and non-authoritative session model around the existing review-first parser. It records explicit accepted field changes, reviewed relative preference changes, rejections, question suggestions, per-field provenance, revision history, exact undo and JSON export. This tranche is **an engine contract, not yet a connected chat interface**; \`builder/app.js\` still exposes the single-brief review workflow. UI integration and profile/manual-edit reconciliation are the next stage.
+
+A request such as "make it lighter" or "less expensive" creates only a suggested constraint delta. It does not assert a matching board exists, silently update the profile, alter source BOM authority or qualify a vehicle.
+
+Run the state regression suite:
+
+\`\`\`bash
+node --check builder/conversation_state.mjs
+node --test tests/js/test_board_conversation_state.mjs
+\`\`\`
+
+See [October development roadmap](../docs/board_builder_development_plan_2026-10-10.md) for the staged UI, mechanical search, Build Passport and physical qualification roadmap.
