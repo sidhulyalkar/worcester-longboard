@@ -194,3 +194,19 @@ Run:
 node --test tests/js/test_board_diversity.mjs
 python -m pytest -q tests/test_board_diversity.py
 ```
+
+
+## v1.2 feasibility receipt explorer
+
+The Builder now exposes an expandable per-candidate feasibility receipt and JSON export. The Python and browser engines independently derive a deterministic `feasibility_report` containing:
+
+- recorded mission/mechanical blockers and catalog `INCOMPATIBLE` interfaces (hard stops);
+- `UNKNOWN` / `MEASURE_FIRST` interface work remaining (never silently compatible);
+- component source-refresh work and unpriced entries (separate uncertainty);
+- a known parts minimum against the rider's hard budget. Passing this screen **cannot** establish an all-in budget because tax, shipping, tools, professional integration, validation and missing quotes are not captured;
+- the reason a candidate did not appear in the three-direction shortlist, without falsely treating diversity omission as an engineering failure;
+- next measurement/supplier-document tasks and `NOT_QUALIFIED` physical status.
+
+`PLANNING_STUDY`, `UNRESOLVED_STUDY` and `BLOCKED` are explanatory software states only. None permits procurement, fabrication, charging or powered use. For every candidate, the receipt carries an all-false authority object.
+
+Run `node --test tests/js/test_board_feasibility.mjs` and `python -m pytest -q tests/test_board_feasibility.py`; the full CI also tests Python/browser exact parity.
