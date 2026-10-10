@@ -91,8 +91,31 @@ function restoreProfile(questionnaire) {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaults;
     const stored = JSON.parse(raw);
-    return { ...defaults, ...stored };
+    if (!stored || typeof stored !== "object" || Array.isArray(stored))
+      throw new Error("Invalid saved profile object");
+    const result = {...defaults}, rejected = [];
+    for (const section of questionnaire.sections) {
+      for (const field of section.fields) {
+        if (!Object.prototype.hasOwnProperty.call(stored,field.id)) continue;
+        const value = stored[field.id];
+        const valid = value===null && !field.required ||
+          (["number","range"].includes(field.type) && typeof value==="number" &&
+            Number.isFinite(value) && value >= (field.min ?? -Infinity) &&
+            value <= (field.max ?? Infinity)) ||
+          (field.type==="select" && (field.options || []).some(row=>row[0]===value)) ||
+          (field.type==="boolean" && typeof value==="boolean") ||
+          (field.type==="text" && typeof value==="string");
+        if (valid) result[field.id]=value;
+        else rejected.push(field.label);
+      }
+    }
+    if (rejected.length)
+      state.conversationStatus = "Some invalid saved values were reset to defaults: " +
+        rejected.join(", ") + ". Review them before proceeding.";
+    return result;
   } catch {
+    state.conversationStatus =
+      "The saved questionnaire could not be read. Default planning values were loaded.";
     return defaults;
   }
 }
