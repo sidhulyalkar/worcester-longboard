@@ -6,6 +6,7 @@ import { generateBoardDesignSpace } from "./platform_engine.mjs";
 import {validateExampleRides,profileForExample} from "./example_rides.mjs";
 import {defaultComparisonIds,compareCandidates} from "./comparison.mjs";
 import {assemblyGuide} from "./assembly_guide.mjs";
+import {parseRideBrief,applyRideBriefReview} from "./ride_brief.mjs";
 import { buildEvidenceExplorer } from "./evidence_explorer.mjs";
 import {
   evaluateSwap,
@@ -36,6 +37,7 @@ const state = {
   vendorFilter: "all",
   originFilter: "all",
   activeExampleId: null,
+  rideBriefReview: null,
   originalProfileBeforeExamples: null,
   comparisonIds: [],
   comparisonInitialized: false,
@@ -145,6 +147,72 @@ function typedValue(input) {
     return input.value === "" ? null : Number(input.value);
   }
   return input.value;
+}
+
+
+function renderRideBriefReview() {
+  const host = $("#ride-brief-review");
+  const report = state.rideBriefReview;
+  if (!report) { host.replaceChildren(); return; }
+  const labels = new Map(state.bundle.questionnaire.sections.flatMap(s => s.fields.map(f => [f.id, f.label])));
+  const describe = proposal => Object.entries(proposal.patch).map(([key,value]) =>
+    escapeHtml(labels.get(key) || key) + ": <strong>" + escapeHtml(String(value)) + "</strong>"
+  ).join(" · ");
+  const proposals = report.proposals.map(p =>
+    '<label class="ride-brief-proposal">' +
+    '<input type="checkbox" data-ride-group="' + escapeHtml(p.id) + '"' +
+    (p.certainty === "EXPLICIT" ? " checked" : "") + '>' +
+    '<span><strong>' + escapeHtml(p.label) + '</strong>' +
+    '<small class="ride-brief-certainty">' + escapeHtml(p.certainty) +
+    ' · ' + escapeHtml(p.evidence) + '</small>' +
+    '<span class="ride-brief-values">' + describe(p) + '</span>' +
+    '<small>' + escapeHtml(p.explanation) + '</small></span></label>'
+  ).join("");
+  const list = (rows,heading) => rows.length
+    ? '<div class="ride-brief-followups"><strong>' + escapeHtml(heading) + '</strong><ul>' +
+      rows.map(row => '<li>' + escapeHtml(row) + '</li>').join("") + '</ul></div>' : "";
+  host.innerHTML = '<div class="ride-brief-review-head"><h3>Proposed profile changes (' +
+    report.proposals.length + ')</h3><span>Explicit details preselected; inferred preferences off</span></div>' +
+    proposals +
+    list(report.warnings,"Needs attention") + list(report.questions,"Useful follow-ups") +
+    '<div class="ride-brief-actions">' +
+    '<button type="button" id="ride-brief-apply"' +
+    (report.proposals.length ? '' : ' disabled') + '>Apply checked changes + regenerate</button>' +
+    '<button type="button" id="ride-brief-discard">Discard suggestions</button></div>' +
+    '<p class="privacy-note">No preview is a fabrication drawing, purchase release, battery instruction or ride permit.</p>';
+  $("#ride-brief-discard").addEventListener("click", () => {
+    state.rideBriefReview = null;
+    renderRideBriefReview();
+  });
+  const apply = $("#ride-brief-apply");
+  if (apply) apply.addEventListener("click", () => {
+    const ids = [...host.querySelectorAll("[data-ride-group]:checked")].map(el => el.dataset.rideGroup);
+    if (!ids.length) {
+      host.querySelector(".ride-brief-review-head span").textContent = "Select a suggestion first.";
+      return;
+    }
+    try {
+      const next = applyRideBriefReview(state.profile,report,ids,state.bundle.questionnaire);
+      state.profile = next;
+      state.activeExampleId = null;
+      state.originalProfileBeforeExamples = null;
+      saveProfile();
+      renderQuestionnaire();
+      state.rideBriefReview = null;
+      renderRideBriefReview();
+      recompute();
+      host.innerHTML = '<p class="ride-brief-success" role="status">Applied ' + ids.length +
+        ' reviewed group(s). Your design gallery, compatibility study and BOM were regenerated. ' +
+        'Review any unanswered questions in the specification panel.</p>';
+      $("#ride-brief-input").value = "";
+    } catch(error) {
+      host.querySelector(".ride-brief-review-head span").textContent = error.message;
+    }
+  });
+}
+function reviewRideBrief() {
+  state.rideBriefReview = parseRideBrief($("#ride-brief-input").value,state.bundle.questionnaire);
+  renderRideBriefReview();
 }
 
 function renderQuestionnaire() {
@@ -1230,6 +1298,16 @@ async function main() {
     state.profile = restoreProfile(state.bundle.questionnaire);
     renderQuestionnaire();
     recompute();
+
+    $("#ride-brief-review-button").addEventListener("click", reviewRideBrief);
+    $("#ride-brief-clear-button").addEventListener("click", () => {
+      $("#ride-brief-input").value = "";
+      state.rideBriefReview = null;
+      renderRideBriefReview();
+    });
+    $("#ride-brief-input").addEventListener("keydown", event => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") reviewRideBrief();
+    });
 
     $("#detail-mode").addEventListener("click", () => {
       state.advanced = !state.advanced;
