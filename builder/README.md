@@ -179,3 +179,18 @@ and:
 `python -m pytest -q tests/test_board_builder_ui_contract.py`
 
 The next stage is conflict-directed feasibility and mechanically diverse candidate selection (Issue #95).
+
+## v1.2: physically diverse candidate directions (first slice)
+
+Board Builder now computes a **three-direction planning shortlist** from the full catalog/curated result. The implementation lives in `builder/diversity.mjs` and `configurator/diversity.py`, with deterministic Python/browser parity added to the comparator. A shortlist candidate must not have an explicit hard blocker, incompatible interface, or a known minimum parts subtotal already exceeding the rider's hard budget.
+
+The first design is the highest-scoring eligible study. Later designs must each differ from every previously selected design on at least two physical axes and must change either deck or truck topology. Novelty is calculated from exact deck, truck, wheel, brake and drive selections, not paint or vendor names. If there are fewer than three such studies, the UI says so; the tool does not invent another. Candidates with unresolved `UNKNOWN`/`MEASURE_FIRST` interfaces can remain **planning hypotheses only**, with their interface counts visible.
+
+No shortlist entry is a build, fabrication release, compatible kit, complete price or ride permit. Known-price values exclude labor, tools, validation, tax, shipping and unknown component costs. The full gallery and detailed evidence remain available beneath the shortlist. This is the first tranche of [Issue #95](https://github.com/sidhulyalkar/worcester-longboard/issues/95), not physical qualification.
+
+Run:
+
+```bash
+node --test tests/js/test_board_diversity.mjs
+python -m pytest -q tests/test_board_diversity.py
+```

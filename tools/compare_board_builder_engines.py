@@ -65,6 +65,16 @@ def compare(left: dict[str, Any], right: dict[str, Any]) -> list[str]:
             f"{right.get('composition_summary')!r}"
         )
 
+    if left.get("diverse_shortlist") != right.get("diverse_shortlist"):
+        lp = left.get("diverse_shortlist") or {}
+        rp = right.get("diverse_shortlist") or {}
+        errors.append(
+            "diverse_shortlist differs between Python and browser: "
+            f"selected IDs {lp.get('selected_ids')!r} vs {rp.get('selected_ids')!r}; "
+            f"studies {lp.get('studies')!r} vs {rp.get('studies')!r}; "
+            f"excluded {lp.get('excluded')!r} vs {rp.get('excluded')!r}"
+        )
+
     lreq = left.get("requirements") or {}
     rreq = right.get("requirements") or {}
     for key in REQUIREMENT_KEYS:
