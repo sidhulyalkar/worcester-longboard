@@ -1209,8 +1209,9 @@ function renderBuildPassport(candidate){
   if(!passport){host.textContent="Select a board to inspect its sourcing and assembly evidence.";return;}
   const cost=passport.sourcing;
   const usd=v=>typeof v==="number" ? "$"+v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}) : "Unknown";
-  const quote=(part)=>part.price.min_usd===null ? "Unpriced" :
-    usd(part.price.min_usd)+(part.price.max_usd!==part.price.min_usd
+  const quote=(part)=>part.price.min_usd===null
+    ? (part.price.max_usd===null?"Unpriced":"Up to "+usd(part.price.max_usd)+" (ceiling)")
+    : usd(part.price.min_usd)+(part.price.max_usd!==part.price.min_usd
       ? " to "+usd(part.price.max_usd):"");
   const seller=(part)=>{
     const src=part.supplier;
@@ -1249,7 +1250,7 @@ function renderBuildPassport(candidate){
     '<div><small>Unsourced planning estimates</small><strong>'+usd(cost.unsourced_planning_usd_estimate.min)+
     ' to '+usd(cost.unsourced_planning_usd_estimate.max)+'</strong></div>'+
     '<div><small>Unknowns</small><strong>'+cost.unpriced_ids.length+
-    ' unpriced · '+open.length+' interface checks</strong></div></div>'+
+    ' unpriced · '+cost.ceiling_only_ids.length+' ceiling-only prices · '+open.length+' interface checks</strong></div></div>'+
     '<p class="passport-warning">All-in price UNKNOWN. Quote quantities, exact revisions, vendor stock, '+
     'manufacturer manuals and independent physical qualification are not confirmed. '+escapeHtml(passport.disclaimer)+'</p>'+
     '<div class="table-wrap"><table class="passport-table"><thead><tr>'+
