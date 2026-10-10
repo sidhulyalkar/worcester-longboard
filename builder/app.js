@@ -709,6 +709,7 @@ function setGalleryView(view) {
   });
   if (state.result) {
     renderCandidates(state.result.candidates);
+    renderDiverseShortlist();
     renderComparison();
     const candidate = state.result.candidates.find(row => row.id === state.selectedId);
     if (candidate && state.swapResult) renderSwapPreview(candidate);
@@ -855,6 +856,58 @@ function restorePersonalProfile() {
   state.selectedId=null;state.comparisonIds=[];state.comparisonInitialized=false;
   renderQuestionnaire();recompute();
 }
+function renderDiverseShortlist() {
+  const host = $("#shortlist-cards");
+  const status = $("#shortlist-status");
+  if (!host || !status) return;
+  const shortlist=state.result?.diverse_shortlist;
+  if (!shortlist) {host.replaceChildren();status.textContent="No shortlist computed.";return;}
+  const byId=new Map(state.result.candidates.map(candidate=>[candidate.id,candidate]));
+  const labels={deck:"deck",truck:"truck geometry",wheel:"wheels",brake:"braking",drive:"drive"};
+  host.innerHTML=shortlist.studies.map((study,index)=>{
+    const candidate=byId.get(study.id);
+    if(!candidate)return "";
+    const svg=renderBoardPreviewSvg(candidateVisualState(candidate),
+      state.galleryView,{width:460,height:224,compact:true});
+    const physical=study.differing_axes_from_first.map(axis=>labels[axis] || axis);
+    const difference=index===0?"Baseline concept":
+      "Different "+physical.join(", ");
+    const unresolved=study.open_interfaces+" open interface"+
+      (study.open_interfaces===1?"":"s");
+    return '<article class="shortlist-card">' +
+      '<div class="shortlist-visual">'+svg+'</div>'+
+      '<div class="shortlist-card-body">'+
+      '<span class="shortlist-number">Design direction '+(index+1)+'</span>'+
+      '<h3>'+escapeHtml(candidate.label)+'</h3>'+
+      '<p>'+escapeHtml(difference)+'</p>'+
+      '<div class="shortlist-facts"><span>'+escapeHtml(candidate.readiness.replaceAll("_"," ").toLowerCase())+'</span>'+
+      '<span>'+escapeHtml(unresolved)+'</span>'+
+      '<span>'+study.unpriced_component_count+' unpriced items</span></div>'+
+      '<button type="button" data-shortlist-inspect="'+escapeHtml(candidate.id)+'">Inspect design and BOM</button>'+
+      '</div></article>';
+  }).join("");
+  status.textContent=shortlist.studies.length+" of "+shortlist.target_count+
+    " mechanically different planning studies selected from "+shortlist.considered_count+
+    " concepts. "+(shortlist.shortage_reason || "")+
+    " Fit rankings, source evidence and visuals are not mechanical qualification or purchasing approval.";
+  host.querySelectorAll("[data-shortlist-inspect]").forEach(button=>{
+    button.addEventListener("click",()=>{
+      const id=button.dataset.shortlistInspect;
+      const candidate=byId.get(id);
+      if(!candidate)return;
+      state.selectedId=id;
+      state.vendorFilter="all";state.originFilter="all";
+      document.querySelectorAll("[data-origin-filter]").forEach(el=>
+        el.classList.toggle("active",el.dataset.originFilter==="all"));
+      state.swapBaselineId=null;state.swapSelection=null;state.swapResult=null;
+      renderVendorFilters(state.result.candidates);
+      renderCandidates(state.result.candidates);
+      renderBom(candidate);
+      $("#bom-section").scrollIntoView({behavior:"smooth",block:"start"});
+    });
+  });
+}
+
 function renderCandidates(candidates) {
   const host = $("#candidates");
   host.innerHTML = "";
@@ -1409,6 +1462,7 @@ function recompute() {
     state.comparisonInitialized=true;
   }
   renderRequirements(state.result.requirements);
+  renderDiverseShortlist();
   renderVendorFilters(state.result.candidates);
   renderExampleRides();
   renderCandidates(state.result.candidates);
