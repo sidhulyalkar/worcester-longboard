@@ -5,6 +5,8 @@ import json
 import math
 from typing import Any
 
+from configurator.assembly_inventory import audit_assembly_inventory
+
 AUTHORITY = {
     "procurement_authorized": False, "fabrication_authorized": False,
     "charging_authorized": False, "powered_operation_authorized": False,
@@ -155,7 +157,7 @@ def build_build_passport(candidate: dict[str, Any], bundle: dict[str, Any]) -> d
         }[stage_id]
         stages.append({"id": stage_id, "label": label, "status": resolved_status,
                        "skills_and_work": skill, "required_evidence": required_evidence})
-    return {
+    passport = {
         "schema_version": 1, "scope": "NON_AUTHORITATIVE_BUILD_PASSPORT",
         "candidate_id": candidate["id"], "candidate_label": candidate.get("label"),
         "origin": candidate.get("origin") or "CURATED",
@@ -197,6 +199,9 @@ def build_build_passport(candidate: dict[str, Any], bundle: dict[str, Any]) -> d
         "physical_qualification": "NOT_QUALIFIED", "authority": dict(AUTHORITY),
         "disclaimer": "Catalog reference, SKU text, vendor listing and source price do not specify a revision-qualified, compatible or buyable kit.",
     }
+    if bundle.get("packageInclusions"):
+        passport["assembly_inventory_audit"] = audit_assembly_inventory(passport, bundle["packageInclusions"])
+    return passport
 
 
 def propose_passport_revision_change(passport: dict[str, Any], component_id: str, new_revision: str) -> dict[str, Any]:
@@ -229,4 +234,8 @@ def propose_passport_revision_change(passport: dict[str, Any], component_id: str
         "required_action": "Refresh vendor variant evidence, repeat affected dimensional interface checks and independently requalify physical system.",
     }
     result["physical_qualification"] = "NOT_QUALIFIED"
+    if "assembly_inventory_audit" in result:
+        # Revision what-if invalidates the old inclusion audit; recompute via an
+        # explicit catalog registry after a separately reviewed source update.
+        result["assembly_inventory_audit"] = None
     return result

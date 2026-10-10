@@ -1,3 +1,4 @@
+import {auditAssemblyInventory} from "./assembly_inventory.mjs";
 // Auditable, revision-aware planning packet. This is not an assembly, purchase,
 // charging or powered-operation release. Do not infer a revision from a SKU.
 const AUTHORITY=Object.freeze({
@@ -123,7 +124,7 @@ export function buildBuildPassport(candidate,bundle){
       id==="electrical"?"Professional electrical/battery/charger review":
       "Independent qualification artifacts and formal authority"
   }));
-  return {
+  const passport={
     schema_version:1,scope:"NON_AUTHORITATIVE_BUILD_PASSPORT",
     candidate_id:candidate.id,candidate_label:candidate.label,
     origin:candidate.origin || "CURATED",
@@ -168,6 +169,8 @@ export function buildBuildPassport(candidate,bundle){
     authority:{...AUTHORITY},
     disclaimer:"Catalog reference, SKU text, vendor listing and source price do not specify a revision-qualified, compatible or buyable kit."
   };
+  if(bundle.packageInclusions)passport.assembly_inventory_audit=auditAssemblyInventory(passport,bundle.packageInclusions);
+  return passport;
 }
 export function proposePassportRevisionChange(passport,componentId,newRevision){
   if(passport?.scope!=="NON_AUTHORITATIVE_BUILD_PASSPORT" ||
@@ -202,5 +205,10 @@ export function proposePassportRevisionChange(passport,componentId,newRevision){
     required_action:"Refresh vendor variant evidence, repeat affected dimensional interface checks and independently requalify physical system."
   };
   result.physical_qualification="NOT_QUALIFIED";
+  if(result.assembly_inventory_audit){
+    // Never retain source-bound package claims after a proposed variant change.
+    // A new package registry must be applied deliberately to a new snapshot.
+    result.assembly_inventory_audit=null;
+  }
   return result;
 }

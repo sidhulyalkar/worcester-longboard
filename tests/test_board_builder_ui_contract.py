@@ -326,3 +326,17 @@ def test_evidence_notebook_is_bounded_and_not_a_buy_or_release_flow():
     assert "Not order quantity or assembly clearance." in APP
     assert "usable_for_qualification:false" in (ROOT / "builder" / "evidence_notebook.mjs").read_text()
     assert "stock_confirmed:0" in (ROOT / "builder" / "evidence_notebook.mjs").read_text()
+
+
+def test_build_passport_surfaces_donor_inclusions_without_order_claims():
+    assert "function inclusionAuditHtml(passport)" in APP
+    assert 'id="passport-inclusion-audit"' in APP
+    assert "Never subtract potential overlaps" in APP
+    assert "possible overlaps" in APP
+    assert "Actual order/assembly quantities: unknown" in APP
+    assert 'board_package_inclusions.v1.json' in APP
+    audit = (ROOT / "builder" / "assembly_inventory.mjs").read_text()
+    assert "actual_supplier_order_quantity:null" in audit
+    assert "existing_bom_subtotal_has_possible_double_count" in audit
+    assert "mechanical_interfaces_qualified:false" in audit
+    assert "procurement_authorized:false" in audit
