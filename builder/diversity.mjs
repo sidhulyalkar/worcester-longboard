@@ -50,7 +50,14 @@ export function buildDiverseShortlist(candidates,hardBudgetUsd=null,limit=3){
   const budget=typeof hardBudgetUsd==="number" && Number.isFinite(hardBudgetUsd)
     ? hardBudgetUsd : null;
   const viable=[],excluded=[],seen=new Set();
-  for(const candidate of candidates){
+  // Candidate labels are locale-sorted by the UI. Normalize comparison order
+  // independently so Python and JavaScript choose the same physical shortlist.
+  const score=c=>typeof c?.fit_score==="number" && Number.isFinite(c.fit_score)
+    ? c.fit_score : -1;
+  const ordered=[...candidates].sort((a,b)=>score(b)-score(a) ||
+    (String(a?.id || "")<String(b?.id || "")?-1:
+      String(a?.id || "")>String(b?.id || "")?1:0));
+  for(const candidate of ordered){
     if(candidate?.id && seen.has(candidate.id)) {
       excluded.push({id:candidate.id,reason:"DUPLICATE_ID"});
       continue;
