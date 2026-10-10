@@ -39,6 +39,7 @@ jobs:
           node --check builder/comparison.mjs
           node --check builder/assembly_guide.mjs
           node --check builder/example_rides.mjs
+          node --check builder/ride_brief.mjs
           node --check builder/evidence_explorer.mjs
           node --check builder/swap_engine.mjs
           node --check builder/visual_state.mjs
@@ -48,7 +49,7 @@ jobs:
           node --check tools/render_board_candidate_previews.mjs
           node --check tools/evaluate_board_swap.mjs
       - name: Test browser Board Builder engines, composer and visuals
-        run: node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_catalog_composer.mjs tests/js/test_board_evidence_explorer.mjs tests/js/test_board_comparison.mjs tests/js/test_board_builder_swap_lab.mjs tests/js/test_board_builder_visuals.mjs
+        run: node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_catalog_composer.mjs tests/js/test_board_evidence_explorer.mjs tests/js/test_board_comparison.mjs tests/js/test_board_builder_swap_lab.mjs tests/js/test_board_builder_visuals.mjs tests/js/test_board_ride_brief.mjs
       - run: python -m pytest -q tests
       - name: Validate Board Builder catalog and authority boundary
         run: python tools/validate_board_builder.py
