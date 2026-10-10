@@ -25,6 +25,22 @@
       <span>Questionnaire answers can shape a design study. They cannot qualify structure, braking, batteries, charging or powered operation. Unknown interfaces fail closed.</span>
     </section>
 
+    <section class="ride-brief" aria-labelledby="ride-brief-title">
+      <div class="section-head">
+        <div><p class="kicker">START HERE / Describe the ride</p><h2 id="ride-brief-title">Tell us what you want to ride.</h2></div>
+        <span class="example-tag">Review before applying</span>
+      </div>
+      <p class="section-copy">Try: “I'm 175 lb, snowboard a lot, ride dirt and gravel trails, want an electric board with 20 miles of range, and have a $1,200 parts budget.” The local interpreter proposes questionnaire edits. It does not silently change your profile or invent compatible parts.</p>
+      <label for="ride-brief-input" class="ride-brief-label">Your ride brief</label>
+      <textarea id="ride-brief-input" rows="3" maxlength="2400" placeholder="Describe your size, riding style, surfaces, range, budget, and constraints…"></textarea>
+      <div class="ride-brief-actions">
+        <button type="button" id="ride-brief-review-button">Review suggested specification</button>
+        <button type="button" id="ride-brief-clear-button">Clear draft</button>
+      </div>
+      <div id="ride-brief-review" aria-live="polite"></div>
+      <p class="privacy-note">This interpreter runs entirely in your browser. Unknowns stay unknown. Inferred preferences require an explicit opt-in, and every design remains planning-only.</p>
+    </section>
+
     <section class="example-start" aria-labelledby="example-rides-title">
       <header class="section-head">
         <div><p class="kicker">EXPLORE / Illustrated rider missions</p><h2 id="example-rides-title">Start with a terrain, then make it yours.</h2></div>
