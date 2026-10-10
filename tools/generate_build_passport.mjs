@@ -19,7 +19,8 @@ const bundle={
   swapSlots:rel("configurator/swap_slots.v1.json"),
   geometry:rel("catalog/board_geometry.v1.json"),
   composer:rel("configurator/composer.v1.json"),
-  catalogHealth:rel("catalog/catalog_health.v1.json")
+  catalogHealth:rel("catalog/catalog_health.v1.json"),
+  packageInclusions:rel("catalog/board_package_inclusions.v1.json")
 };
 const result=generateBoardDesignSpace(read(path.resolve(args[0])),bundle);
 const selected=result.candidates.find(c=>c.id===args[1]);
