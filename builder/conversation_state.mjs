@@ -257,10 +257,26 @@ export function restoreRideConversation(saved,profile,questionnaire){
       candidate.turns.length>500 || candidate.history.length>250 ||
       !candidate.provenance || typeof candidate.provenance!=="object")
       return fallback();
+    const matchShape=values=>values && typeof values==="object" &&
+      !Array.isArray(values) &&
+      Object.keys(values).length===Object.keys(profile).length &&
+      Object.keys(profile).every(key=>own(values,key));
+    if(!matchShape(candidate.profile))return fallback();
     for(const [key,value] of Object.entries(candidate.profile))
       validateFieldValue(key,value,questionnaire);
-    const sameKeys=Object.keys(profile).length===Object.keys(candidate.profile).length;
-    if(!sameKeys || Object.keys(profile).some(key=>!Object.is(profile[key],candidate.profile[key])))
+    if(Object.keys(profile).some(key=>!Object.is(profile[key],candidate.profile[key])))
+      return fallback();
+    // Undo snapshots are executable state. Reject malformed or foreign keys.
+    for(const entry of candidate.history){
+      if(!entry || !Number.isSafeInteger(entry.revision) || entry.revision<0 ||
+        !matchShape(entry.profile) || !entry.provenance ||
+        typeof entry.provenance!=="object")return fallback();
+      for(const [key,value] of Object.entries(entry.profile))
+        validateFieldValue(key,value,questionnaire);
+      if(Object.keys(entry.provenance).some(key=>!own(profile,key)))
+        return fallback();
+    }
+    if(Object.keys(candidate.provenance).some(key=>!own(profile,key)))
       return fallback();
     // Pending review becomes stale after a reload; re-review from the brief.
     candidate.pending=null;
