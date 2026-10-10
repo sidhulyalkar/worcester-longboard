@@ -75,3 +75,19 @@ def test_catalog_slot_identity_and_no_qualification():
     assert signature["drive"] == "catalog-drive"
     assert signature["deck"] == "deck-a"
     assert not any(build_diverse_shortlist([composed])["authority"].values())
+
+
+
+def test_invalid_scores_are_fail_closed():
+    report = build_diverse_shortlist([
+        {**a, "id": "bad-null", "fit_score": None},
+        {**a, "id": "bad-nan", "fit_score": float("nan")},
+        {**a, "id": "bad-bool", "fit_score": True},
+        a,
+    ])
+    assert report["selected_ids"] == ["a"]
+    assert len([
+        row for row in report["excluded"]
+        if row["reason"] == "INVALID_PLANNING_CANDIDATE"
+    ]) == 3
+    assert not any(report["authority"].values())
