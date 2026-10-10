@@ -2,6 +2,7 @@ import { READINESS_RANK, generateCandidates } from "./engine.mjs";
 import { composeCandidates } from "./composer.mjs";
 import { buildEvidenceExplorer } from "./evidence_explorer.mjs";
 import { buildDiverseShortlist } from "./diversity.mjs";
+import { buildFeasibilityReport } from "./feasibility.mjs";
 
 function bomSignature(candidate) {
   return (candidate.bom || [])
@@ -67,10 +68,12 @@ export function generateBoardDesignSpace(profile, bundle) {
     candidate.evidence = buildEvidenceExplorer(candidate, bundle.catalog, bundle.catalogHealth);
   }
 
+  const diverseShortlist=buildDiverseShortlist(candidates, curated.profile.hard_budget_usd);
   return {
     ...curated,
     candidates,
-    diverse_shortlist: buildDiverseShortlist(candidates, curated.profile.hard_budget_usd),
+    diverse_shortlist: diverseShortlist,
+    feasibility_report: buildFeasibilityReport(candidates,diverseShortlist,curated.profile.hard_budget_usd),
     composition_summary: {
       schema_version: 1,
       curated_count: curated.candidates.length,
