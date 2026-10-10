@@ -38,6 +38,20 @@
         <button type="button" id="ride-brief-clear-button">Clear draft</button>
       </div>
       <div id="ride-brief-review" aria-live="polite"></div>
+      <div class="conversation-panel" aria-labelledby="ride-conversation-heading">
+        <div class="conversation-header">
+          <div>
+            <h3 id="ride-conversation-heading">Design conversation</h3>
+            <p>Every change is reviewed and reversible. Your current specification stays in control.</p>
+          </div>
+          <div class="ride-brief-actions conversation-actions">
+            <button type="button" id="ride-conversation-undo" disabled>Undo last change</button>
+            <button type="button" id="ride-conversation-export">Export conversation JSON</button>
+          </div>
+        </div>
+        <p id="ride-conversation-status" role="status" aria-live="polite">Review proposed edits before applying.</p>
+        <ol id="ride-conversation-history" class="conversation-history" aria-label="Recent specification changes"></ol>
+      </div>
       <p class="privacy-note">This interpreter runs entirely in your browser. Unknowns stay unknown. Inferred preferences require an explicit opt-in, and every design remains planning-only.</p>
     </section>
 

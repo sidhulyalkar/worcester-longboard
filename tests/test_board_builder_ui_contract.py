@@ -237,12 +237,38 @@ def test_ride_brief_is_review_first_and_has_explicit_apply_discard_controls():
     assert 'id="ride-brief-input"' in HTML
     assert 'id="ride-brief-review-button"' in HTML
     assert 'id="ride-brief-review"' in HTML
-    assert "parseRideBrief" in APP
-    assert "applyRideBriefReview" in APP
+    assert "proposeRideConversationTurn" in APP
+    assert "acceptRideConversationTurn" in APP
+    assert "rejectRideConversationTurn" in APP
     assert "data-ride-group" in APP
     assert 'p.certainty === "EXPLICIT" ? " checked" : ""' in APP
     assert 'id="ride-brief-discard"' in APP
-    assert "state.profile = next" in APP
+    assert "state.profile = {...state.conversation.profile}" in APP
     assert 'state.selectedId = null' in APP
     assert "No preview is a fabrication drawing" in APP
     assert ">Buy<" not in HTML
+
+
+def test_reviewed_multiturn_ux_reconciles_manual_edits_and_keeps_authority_outside_chat():
+    assert 'id="ride-conversation-history"' in HTML
+    assert 'id="ride-conversation-status"' in HTML
+    assert 'id="ride-conversation-undo"' in HTML
+    assert 'id="ride-conversation-export"' in HTML
+    assert 'role="status"' in HTML
+    assert 'import {' in APP and 'from "./conversation_state.mjs"' in APP
+    assert 'function reconcileQuestionnaire()' in APP
+    assert 'reconcileManualRideProfile(' in APP
+    assert 'onQuestionnaireInput()' in APP
+    assert 'function clearPendingRideReview(' in APP
+    assert 'function undoLastConversationChange()' in APP
+    assert 'restoreRideConversation(' in APP
+    assert 'exportRideConversation(' in APP
+    assert 'if (state.sessionOutOfSync) throw new Error' in APP
+    assert 'No preview is a fabrication drawing' in APP
+    assert '>Buy<' not in HTML
+
+def test_user_actions_retain_prior_profile_when_switching_example_rides():
+    assert 'state.originalConversationBeforeExamples=exportRideConversation(state.conversation)' in APP
+    assert 'state.conversation=state.originalConversationBeforeExamples' in APP
+    assert 'state.conversation=createRideConversation(state.profile,state.bundle.questionnaire)' in APP
+    assert 'state.originalProfileBeforeExamples=null' in APP

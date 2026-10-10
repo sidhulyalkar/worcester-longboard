@@ -6,7 +6,11 @@ import { generateBoardDesignSpace } from "./platform_engine.mjs";
 import {validateExampleRides,profileForExample} from "./example_rides.mjs";
 import {defaultComparisonIds,compareCandidates} from "./comparison.mjs";
 import {assemblyGuide} from "./assembly_guide.mjs";
-import {parseRideBrief,applyRideBriefReview} from "./ride_brief.mjs";
+import {
+  createRideConversation,restoreRideConversation,reconcileManualRideProfile,
+  proposeRideConversationTurn,acceptRideConversationTurn,rejectRideConversationTurn,
+  undoRideConversationTurn,exportRideConversation
+} from "./conversation_state.mjs";
 import { buildEvidenceExplorer } from "./evidence_explorer.mjs";
 import {
   evaluateSwap,
@@ -22,6 +26,7 @@ import {
 } from "./preview_renderer.mjs";
 
 const STORAGE_KEY = "worcester-board-builder-profile-v1";
+const SESSION_KEY = "worcester-board-builder-conversation-v1";
 
 const state = {
   bundle: null,
@@ -38,6 +43,10 @@ const state = {
   originFilter: "all",
   activeExampleId: null,
   rideBriefReview: null,
+  conversation: null,
+  conversationStatus: "",
+  sessionOutOfSync: false,
+  originalConversationBeforeExamples: null,
   originalProfileBeforeExamples: null,
   comparisonIds: [],
   comparisonInitialized: false,
@@ -82,8 +91,31 @@ function restoreProfile(questionnaire) {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaults;
     const stored = JSON.parse(raw);
-    return { ...defaults, ...stored };
+    if (!stored || typeof stored !== "object" || Array.isArray(stored))
+      throw new Error("Invalid saved profile object");
+    const result = {...defaults}, rejected = [];
+    for (const section of questionnaire.sections) {
+      for (const field of section.fields) {
+        if (!Object.prototype.hasOwnProperty.call(stored,field.id)) continue;
+        const value = stored[field.id];
+        const valid = value===null && !field.required ||
+          (["number","range"].includes(field.type) && typeof value==="number" &&
+            Number.isFinite(value) && value >= (field.min ?? -Infinity) &&
+            value <= (field.max ?? Infinity)) ||
+          (field.type==="select" && (field.options || []).some(row=>row[0]===value)) ||
+          (field.type==="boolean" && typeof value==="boolean") ||
+          (field.type==="text" && typeof value==="string");
+        if (valid) result[field.id]=value;
+        else rejected.push(field.label);
+      }
+    }
+    if (rejected.length)
+      state.conversationStatus = "Some invalid saved values were reset to defaults: " +
+        rejected.join(", ") + ". Review them before proceeding.";
+    return result;
   } catch {
+    state.conversationStatus =
+      "The saved questionnaire could not be read. Default planning values were loaded.";
     return defaults;
   }
 }
@@ -150,6 +182,75 @@ function typedValue(input) {
 }
 
 
+function saveConversation() {
+  if (!state.conversation || state.sessionOutOfSync) return;
+  localStorage.setItem(SESSION_KEY, JSON.stringify(exportRideConversation(state.conversation)));
+}
+
+function renderRideConversation() {
+  const host = $("#ride-conversation-history");
+  if (!host || !state.conversation) return;
+  const labels = new Map(state.bundle.questionnaire.sections.flatMap(section =>
+    section.fields.map(field => [field.id, field.label])));
+  const latest = state.conversation.turns.slice(-6).reverse();
+  host.innerHTML = latest.length ? latest.map(turn => {
+    const changes = (turn.changed_fields || []).map(key=>labels.get(key) || key).join(", ");
+    const title = turn.action === "ACCEPT" ? "Applied reviewed changes" :
+      turn.action === "REJECT" ? "Discarded suggestions" :
+      turn.action === "UNDO" ? "Restored earlier specifications" :
+      "Edited questionnaire";
+    return '<li class="conversation-turn"><strong>' + escapeHtml(title) +
+      '</strong><span>' + escapeHtml(changes || turn.raw_text || "") +
+      '</span><small>Revision ' + escapeHtml(turn.revision) + '</small></li>';
+  }).join("") : '<li class="conversation-empty">No changes yet. Describe your ride or edit a specification.</li>';
+  $("#ride-conversation-undo").disabled = !!state.conversation.pending ||
+    !state.conversation.history.length || state.sessionOutOfSync;
+  $("#ride-conversation-status").textContent = state.conversationStatus ||
+    (state.sessionOutOfSync
+      ? "Finish correcting questionnaire values before reviewing a new design change."
+      : "Review proposed edits before they change your design.");
+}
+
+function clearPendingRideReview(reason = "") {
+  if (state.conversation?.pending)
+    state.conversation = rejectRideConversationTurn(state.conversation);
+  state.rideBriefReview = null;
+  state.conversationStatus = reason;
+  renderRideBriefReview();
+  saveConversation();
+  renderRideConversation();
+}
+
+function reconcileQuestionnaire() {
+  if (!state.conversation) return false;
+  if (state.conversation.pending)
+    clearPendingRideReview("Questionnaire edited. The earlier proposal was discarded.");
+  try {
+    state.conversation = reconcileManualRideProfile(
+      state.conversation, state.profile, state.bundle.questionnaire);
+    state.sessionOutOfSync = false;
+    state.conversationStatus = "Manual specification changes recorded. You can undo them.";
+    saveConversation();
+    renderRideConversation();
+    return true;
+  } catch (error) {
+    state.sessionOutOfSync = true;
+    state.conversationStatus = "Finish correcting manual values before conversational review: " + error.message;
+    renderRideConversation();
+    return false;
+  }
+}
+
+function onQuestionnaireInput() {
+  state.sessionOutOfSync = true;
+  if (state.conversation?.pending)
+    clearPendingRideReview("Questionnaire edited; previous suggestions discarded.");
+  else {
+    state.conversationStatus = "Manual edit pending validation. Complete the field to continue.";
+    renderRideConversation();
+  }
+}
+
 function renderRideBriefReview() {
   const host = $("#ride-brief-review");
   const report = state.rideBriefReview;
@@ -173,19 +274,18 @@ function renderRideBriefReview() {
   const list = (rows,heading) => rows.length
     ? '<div class="ride-brief-followups"><strong>' + escapeHtml(heading) + '</strong><ul>' +
       rows.map(row => '<li>' + escapeHtml(row) + '</li>').join("") + '</ul></div>' : "";
+  const question = report.next_question ? list([report.next_question],"Next useful question") : "";
   host.innerHTML = '<div class="ride-brief-review-head"><h3>Proposed profile changes (' +
     report.proposals.length + ')</h3><span>Explicit details preselected; inferred preferences off</span></div>' +
     proposals +
-    list(report.warnings,"Needs attention") + list(report.questions,"Useful follow-ups") +
+    list(report.warnings,"Needs attention") + question +
     '<div class="ride-brief-actions">' +
     '<button type="button" id="ride-brief-apply"' +
     (report.proposals.length ? '' : ' disabled') + '>Apply checked changes + regenerate</button>' +
     '<button type="button" id="ride-brief-discard">Discard suggestions</button></div>' +
     '<p class="privacy-note">No preview is a fabrication drawing, purchase release, battery instruction or ride permit.</p>';
-  $("#ride-brief-discard").addEventListener("click", () => {
-    state.rideBriefReview = null;
-    renderRideBriefReview();
-  });
+  $("#ride-brief-discard").addEventListener("click", () =>
+    clearPendingRideReview("Suggestions discarded. No specifications were changed."));
   const apply = $("#ride-brief-apply");
   if (apply) apply.addEventListener("click", () => {
     const ids = [...host.querySelectorAll("[data-ride-group]:checked")].map(el => el.dataset.rideGroup);
@@ -194,21 +294,25 @@ function renderRideBriefReview() {
       return;
     }
     try {
-      const next = applyRideBriefReview(state.profile,report,ids,state.bundle.questionnaire);
-      state.profile = next;
+      if (state.sessionOutOfSync) throw new Error("Finish your manual questionnaire edits first.");
+      state.conversation = acceptRideConversationTurn(
+        state.conversation,ids,state.bundle.questionnaire);
+      state.profile = {...state.conversation.profile};
       state.selectedId = null;
       state.comparisonIds = [];
       state.comparisonInitialized = false;
       state.activeExampleId = null;
       state.originalProfileBeforeExamples = null;
+      state.originalConversationBeforeExamples = null;
       saveProfile();
+      saveConversation();
       renderQuestionnaire();
       state.rideBriefReview = null;
       renderRideBriefReview();
       recompute();
-      host.innerHTML = '<p class="ride-brief-success" role="status">Applied ' + ids.length +
-        ' reviewed group(s). Your design gallery, compatibility study and BOM were regenerated. ' +
-        'Review any unanswered questions in the specification panel.</p>';
+      state.conversationStatus = "Applied " + ids.length +
+        " reviewed group(s); the design space and BOM have regenerated.";
+      renderRideConversation();
       $("#ride-brief-input").value = "";
     } catch(error) {
       host.querySelector(".ride-brief-review-head span").textContent = error.message;
@@ -216,8 +320,45 @@ function renderRideBriefReview() {
   });
 }
 function reviewRideBrief() {
-  state.rideBriefReview = parseRideBrief($("#ride-brief-input").value,state.bundle.questionnaire);
-  renderRideBriefReview();
+  if (state.conversation?.pending) {
+    state.conversationStatus = "Accept or discard the current review before proposing another change.";
+    renderRideConversation();
+    return;
+  }
+  if (!reconcileQuestionnaire()) return;
+  try {
+    state.conversation = proposeRideConversationTurn(
+      state.conversation,$("#ride-brief-input").value,state.bundle.questionnaire);
+    state.rideBriefReview = state.conversation.pending;
+    state.conversationStatus = "Proposal awaiting review; existing specifications unchanged.";
+    renderRideBriefReview();
+    renderRideConversation();
+  } catch(error) {
+    state.conversationStatus = error.message;
+    renderRideConversation();
+  }
+}
+
+function undoLastConversationChange() {
+  if (!reconcileQuestionnaire() || state.conversation.pending) return;
+  try {
+    state.conversation = undoRideConversationTurn(state.conversation);
+    state.profile = {...state.conversation.profile};
+    state.rideBriefReview = null;
+    state.activeExampleId = null;
+    state.originalProfileBeforeExamples = null;
+    state.originalConversationBeforeExamples = null;
+    state.selectedId = null;
+    state.comparisonIds = [];
+    state.comparisonInitialized = false;
+    state.conversationStatus = "Restored previous specifications and regenerated candidate designs.";
+    saveProfile(); saveConversation();
+    renderQuestionnaire(); renderRideBriefReview(); renderRideConversation();
+    recompute();
+  } catch(error) {
+    state.conversationStatus = error.message;
+    renderRideConversation();
+  }
 }
 
 function renderQuestionnaire() {
@@ -272,11 +413,13 @@ function renderQuestionnaire() {
           output.textContent = input.value + suffix;
         }
         saveProfile();
+        onQuestionnaireInput();
         scheduleRecompute();
       });
       input.addEventListener("change", () => {
         state.profile[field.id] = typedValue(input);
         saveProfile();
+        reconcileQuestionnaire();
         scheduleRecompute();
       });
 
@@ -673,8 +816,20 @@ function renderExampleRides() {
 function loadExampleRide(id) {
   const scenario=state.bundle.exampleRides.scenarios.find(x=>x.id===id);
   if(!scenario)return;
-  if(!state.originalProfileBeforeExamples)state.originalProfileBeforeExamples=structuredClone(state.profile);
+  if (!reconcileQuestionnaire()) {
+    $("#example-status").textContent =
+      "Complete or correct the current questionnaire before switching examples.";
+    return;
+  }
+  if(!state.originalProfileBeforeExamples) {
+    state.originalProfileBeforeExamples=structuredClone(state.profile);
+    state.originalConversationBeforeExamples=exportRideConversation(state.conversation);
+  }
   state.profile=profileForExample(scenario,questionnaireDefaults(state.bundle.questionnaire));
+  state.conversation=createRideConversation(state.profile,state.bundle.questionnaire);
+  state.rideBriefReview=null;state.sessionOutOfSync=false;
+  state.conversationStatus="Example loaded. Previous personal conversation saved for restoration.";
+  renderRideBriefReview();renderRideConversation();
   state.activeExampleId=id;
   state.selectedId=scenario.reference_candidate_id;
   state.comparisonIds=[scenario.reference_candidate_id,
@@ -690,7 +845,13 @@ function loadExampleRide(id) {
 function restorePersonalProfile() {
   if(!state.originalProfileBeforeExamples)return;
   state.profile=state.originalProfileBeforeExamples;
+  state.conversation=state.originalConversationBeforeExamples ||
+    createRideConversation(state.profile,state.bundle.questionnaire);
+  state.originalConversationBeforeExamples=null;
+  state.rideBriefReview=null;state.sessionOutOfSync=false;
+  state.conversationStatus="Restored your prior personal specification and conversation.";
   state.originalProfileBeforeExamples=null;state.activeExampleId=null;
+  renderRideBriefReview();renderRideConversation();
   state.selectedId=null;state.comparisonIds=[];state.comparisonInitialized=false;
   renderQuestionnaire();recompute();
 }
@@ -1220,7 +1381,19 @@ function exportCustomDesign() {
 
 function recompute() {
   if (!state.bundle) return;
-  state.result = generateBoardDesignSpace(state.profile, state.bundle);
+  let nextResult;
+  try {
+    nextResult = generateBoardDesignSpace(state.profile, state.bundle);
+  } catch (error) {
+    // During number/terrain editing the profile may be temporarily incomplete.
+    // Never present a stale design gallery as newly computed or imply a release.
+    $("#recompute-status").textContent =
+      "Check inputs · last successful design preview remains unchanged";
+    state.conversationStatus = "Complete or correct the rider specifications: " + error.message;
+    renderRideConversation();
+    return;
+  }
+  state.result = nextResult;
   state.swapBaselineId = null;
   state.swapSelection = null;
   state.swapResult = null;
@@ -1253,6 +1426,11 @@ function scheduleRecompute() {
   state.renderQueued = true;
   requestAnimationFrame(() => {
     state.renderQueued = false;
+    if (state.sessionOutOfSync) {
+      $("#recompute-status").textContent =
+        "Editing · designs update after specification validation";
+      return;
+    }
     recompute();
   });
 }
@@ -1301,15 +1479,20 @@ async function main() {
     state.bundle = await loadBundle();
     validateExampleRides(state.bundle.exampleRides,state.bundle.questionnaire,state.bundle.architectures);
     state.profile = restoreProfile(state.bundle.questionnaire);
+    state.conversation = restoreRideConversation(
+      localStorage.getItem(SESSION_KEY),state.profile,state.bundle.questionnaire);
+    renderRideConversation();
     renderQuestionnaire();
     recompute();
 
     $("#ride-brief-review-button").addEventListener("click", reviewRideBrief);
     $("#ride-brief-clear-button").addEventListener("click", () => {
       $("#ride-brief-input").value = "";
-      state.rideBriefReview = null;
-      renderRideBriefReview();
+      clearPendingRideReview("Draft cleared. Any pending suggestion was discarded.");
     });
+    $("#ride-conversation-undo").addEventListener("click",undoLastConversationChange);
+    $("#ride-conversation-export").addEventListener("click",() =>
+      downloadJson("worcester-ride-conversation.json",exportRideConversation(state.conversation)));
     $("#ride-brief-input").addEventListener("keydown", event => {
       if ((event.ctrlKey || event.metaKey) && event.key === "Enter") reviewRideBrief();
     });
@@ -1322,7 +1505,14 @@ async function main() {
 
     $("#reset-profile").addEventListener("click", () => {
       state.profile = questionnaireDefaults(state.bundle.questionnaire);
+      state.conversation = createRideConversation(state.profile,state.bundle.questionnaire);
+      state.rideBriefReview=null;state.sessionOutOfSync=false;
+      state.originalProfileBeforeExamples=null;state.originalConversationBeforeExamples=null;
+      state.activeExampleId=null;
+      state.conversationStatus="Specifications and conversation reset.";
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(SESSION_KEY);
+      renderRideBriefReview();renderRideConversation();
       state.selectedId = null;
       renderQuestionnaire();
       recompute();
