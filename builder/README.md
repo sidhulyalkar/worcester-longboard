@@ -242,3 +242,18 @@ python tools/compare_evidence_notebooks.py
 ```
 
 This is a useful research and receiving handoff, but not a verified digital twin of received hardware.
+
+
+## v1.5: donor parts-inclusion and supplier-order-unit audit
+
+The selected **Build Passport** now contains a compact, expandable **Parts-inclusion audit**. It distinguishes historical donor package claims from independently priced catalog references so riders can identify possible double-counted truck, hub, tire and deck references without deleting lines or inventing savings.
+
+A dated source-bound inclusion registry identifies possible duplicates and specific donor retrofit measurement questions. Every actual assembly count, vendor order unit, current stock, confirmed quote and adjusted all-in total stays **unknown**. The full audit is embedded in Build Passport JSON and covered by Python/browser parity. A proposed variant revision invalidates the old inclusion audit.
+
+See [the package inclusion contract](../docs/assembly_inclusion_audit_contract.md). All electrical, brake, structure and order authority remain false.
+
+```bash
+python tools/validate_board_package_inclusions.py
+node --test tests/js/test_board_assembly_inventory.mjs
+python -m pytest -q tests/test_board_assembly_inventory.py
+```
