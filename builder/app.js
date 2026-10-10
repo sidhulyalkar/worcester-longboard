@@ -1905,10 +1905,17 @@ async function main() {
     });
     $("#print-build-passport").addEventListener("click",()=>{
       if(!currentBuildPassport())return;
+      const ledger=document.querySelector(".passport-evidence-details");
+      state.evidenceWasOpenForPrint=ledger?.open??false;
+      if(ledger)ledger.open=true;
       document.body.classList.add("printing-build-passport");
       window.print();
     });
-    window.addEventListener("afterprint",()=>document.body.classList.remove("printing-build-passport"));
+    window.addEventListener("afterprint",()=>{
+      document.body.classList.remove("printing-build-passport");
+      const ledger=document.querySelector(".passport-evidence-details");
+      if(ledger)ledger.open=Boolean(state.evidenceWasOpenForPrint);
+    });
     $("#export-profile").addEventListener("click", exportProfile);
     $("#export-design").addEventListener("click", exportSelectedDesign);
     $("#reset-swaps").addEventListener("click", resetSwaps);
