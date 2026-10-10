@@ -1358,7 +1358,19 @@ function exportCustomDesign() {
 
 function recompute() {
   if (!state.bundle) return;
-  state.result = generateBoardDesignSpace(state.profile, state.bundle);
+  let nextResult;
+  try {
+    nextResult = generateBoardDesignSpace(state.profile, state.bundle);
+  } catch (error) {
+    // During number/terrain editing the profile may be temporarily incomplete.
+    // Never present a stale design gallery as newly computed or imply a release.
+    $("#recompute-status").textContent =
+      "Check inputs · last successful design preview remains unchanged";
+    state.conversationStatus = "Complete or correct the rider specifications: " + error.message;
+    renderRideConversation();
+    return;
+  }
+  state.result = nextResult;
   state.swapBaselineId = null;
   state.swapSelection = null;
   state.swapResult = null;
