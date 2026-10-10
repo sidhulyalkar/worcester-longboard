@@ -831,3 +831,60 @@ button[data-compare][aria-pressed="true"] {border-color:var(--green);color:var(-
 .feasibility-record button, #export-feasibility { border:1px solid rgba(120,174,252,.35); border-radius:8px; background: rgba(120,174,252,.12); color: var(--text); padding: 9px 11px; cursor:pointer; font-size:12px; }
 .feasibility-record button:focus-visible, #export-feasibility:focus-visible { outline:3px solid var(--blue); outline-offset:3px; }
 @media(max-width:760px) { .feasibility-records { grid-template-columns:1fr; } .feasibility-panel {padding:10px;} }
+
+
+/* Build Passport: traceable study, not a shopping cart or assembly permit. */
+.build-passport-section {margin:26px 0; padding:18px; border:1px solid var(--line); border-radius:16px; background:rgba(155,175,220,.035)}
+.passport-actions {display:flex; flex-wrap:wrap; gap:8px}
+.passport-actions button,.passport-revision-tool button {
+  border:1px solid rgba(120,174,252,.35); border-radius:8px;
+  background:rgba(120,174,252,.11);color:var(--text);font:inherit;font-size:12px;
+  padding:9px 12px;cursor:pointer
+}
+.passport-actions button:disabled {opacity:.4;cursor:default}
+.passport-actions button:focus-visible,.passport-revision-tool button:focus-visible,
+.passport-revision-tool select:focus-visible,.passport-revision-tool input:focus-visible {
+  outline:3px solid var(--blue);outline-offset:3px
+}
+.passport-overview {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
+.passport-overview > div {min-width:0;display:grid;gap:8px;padding:14px;border:1px solid var(--line);border-radius:10px}
+.passport-overview small {font-size:11px;color:var(--muted)}
+.passport-overview strong {font-size:14px;overflow-wrap:anywhere}
+.passport-warning {padding:12px 15px;border-left:3px solid var(--yellow);background:rgba(239,200,111,.04);font-size:12px;line-height:1.65}
+.passport-table {min-width:720px;width:100%}
+.passport-table td {vertical-align:top;overflow-wrap:anywhere;font-size:12px}
+.passport-table small {display:block;color:var(--muted);font-size:10px;line-height:1.5;margin-top:5px}
+.passport-dual {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:16px 0}
+.passport-dual > div {padding:12px;border:1px solid var(--line);border-radius:10px;min-width:0}
+.passport-dual h3,.passport-revision-tool h3 {font-size:14px;margin:0 0 10px}
+.passport-dual p,.passport-dual li {font-size:12px;line-height:1.6}
+.passport-dual li {margin-bottom:8px}
+.passport-dual li span,.passport-dual li small {display:block;color:var(--muted)}
+.passport-revision-tool {padding:14px;border:1px solid rgba(120,174,252,.23);border-radius:12px}
+.passport-revision-tool p {font-size:12px;line-height:1.5;color:var(--muted)}
+.passport-revision-row {display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.passport-revision-row label {display:grid;gap:5px;min-width:140px;flex:1 1 150px;font-size:11px}
+.passport-revision-row input,.passport-revision-row select {min-width:0;max-width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text)}
+.passport-footer {color:var(--muted);font-size:11px;line-height:1.65}
+@media(max-width:780px){.passport-overview {grid-template-columns:1fr}.passport-dual{grid-template-columns:1fr}.build-passport-section{padding:12px}.passport-revision-row{align-items:stretch}}
+@media print {
+  body.printing-build-passport {background:white!important;color:black!important}
+  body.printing-build-passport main > *:not(.builder-grid) {display:none!important}
+  body.printing-build-passport .builder-grid {display:block!important}
+  body.printing-build-passport .builder-grid > *:not(.results-panel) {display:none!important}
+  body.printing-build-passport .results-panel {display:block!important}
+  body.printing-build-passport .results-panel > *:not(#build-passport-section) {display:none!important}
+  body.printing-build-passport #build-passport-section {display:block!important;background:white!important;border:none!important;padding:0!important}
+  body.printing-build-passport #build-passport-section button,
+  body.printing-build-passport #build-passport-section .passport-revision-tool {display:none!important}
+  body.printing-build-passport #build-passport-section .table-wrap {overflow:visible!important}
+  body.printing-build-passport #build-passport-section .passport-table {min-width:0!important;table-layout:auto;width:100%;font-size:9px}
+  body.printing-build-passport #build-passport-section th,
+  body.printing-build-passport #build-passport-section td {border:1px solid #bbb!important;padding:4px!important}
+  body.printing-build-passport #build-passport-section .passport-table small {font-size:8px;color:#444!important}
+  body.printing-build-passport #build-passport-section * {color:black!important;box-shadow:none!important}
+  body.printing-build-passport .passport-dual {grid-template-columns:1fr 1fr}
+  body.printing-build-passport .passport-overview {grid-template-columns:repeat(3,minmax(0,1fr))}
+  body.printing-build-passport .passport-dual > div,
+  body.printing-build-passport .passport-overview > div {break-inside:avoid}
+}

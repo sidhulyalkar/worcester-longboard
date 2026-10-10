@@ -39,6 +39,8 @@ jobs:
           node --check builder/comparison.mjs
           node --check builder/diversity.mjs
           node --check builder/feasibility.mjs
+          node --check builder/build_passport.mjs
+          node --check tools/generate_build_passport.mjs
           node --check builder/assembly_guide.mjs
           node --check builder/example_rides.mjs
           node --check builder/ride_brief.mjs
@@ -52,7 +54,7 @@ jobs:
           node --check tools/render_board_candidate_previews.mjs
           node --check tools/evaluate_board_swap.mjs
       - name: Test browser Board Builder engines, composer and visuals
-        run: node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_catalog_composer.mjs tests/js/test_board_evidence_explorer.mjs tests/js/test_board_comparison.mjs tests/js/test_board_diversity.mjs tests/js/test_board_feasibility.mjs tests/js/test_board_builder_swap_lab.mjs tests/js/test_board_builder_visuals.mjs tests/js/test_board_ride_brief.mjs tests/js/test_board_conversation_state.mjs
+        run: node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_catalog_composer.mjs tests/js/test_board_evidence_explorer.mjs tests/js/test_board_comparison.mjs tests/js/test_board_diversity.mjs tests/js/test_board_feasibility.mjs tests/js/test_board_build_passport.mjs tests/js/test_board_builder_swap_lab.mjs tests/js/test_board_builder_visuals.mjs tests/js/test_board_ride_brief.mjs tests/js/test_board_conversation_state.mjs
       - run: python -m pytest -q tests
       - name: Validate Board Builder catalog and authority boundary
         run: python tools/validate_board_builder.py
@@ -106,6 +108,12 @@ jobs:
           env -u PYTHONPATH python tools/generate_board_candidates.py configurator/examples/manual_carver_profile.json --out /tmp/board-manual-python.json
           node tools/generate_board_candidates.mjs configurator/examples/manual_carver_profile.json > /tmp/board-manual-browser.json
           python tools/compare_board_builder_engines.py /tmp/board-manual-python.json /tmp/board-manual-browser.json
+          env -u PYTHONPATH python tools/generate_build_passport.py configurator/examples/trail_rider_profile.json brake_first_trail_core > /tmp/board-passport-python.json
+          node tools/generate_build_passport.mjs configurator/examples/trail_rider_profile.json brake_first_trail_core > /tmp/board-passport-browser.json
+          python tools/compare_build_passports.py /tmp/board-passport-python.json /tmp/board-passport-browser.json
+          env -u PYTHONPATH python tools/generate_build_passport.py configurator/examples/trail_rider_profile.json x1_compact_electric_study > /tmp/electric-passport-python.json
+          node tools/generate_build_passport.mjs configurator/examples/trail_rider_profile.json x1_compact_electric_study > /tmp/electric-passport-browser.json
+          python tools/compare_build_passports.py /tmp/electric-passport-python.json /tmp/electric-passport-browser.json
           python - <<'PY'
           import json
           from pathlib import Path
