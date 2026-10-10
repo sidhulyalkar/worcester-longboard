@@ -87,3 +87,13 @@ test("malformed numeric scores never pass selection or grant authority",()=>{
   assert.equal(report.excluded.filter(e=>e.reason==="INVALID_PLANNING_CANDIDATE").length,2);
   assert.equal(report.authority.fabrication_authorized,false);
 });
+
+
+test("unknown or unspecified axes cannot manufacture mechanically diverse board families",()=>{
+  const first=candidate("known","deck-a","truck-x","wheel-8",null,null,0.9);
+  const vague=candidate("vague","deck-b","UNKNOWN","UNKNOWN",null,null,0.8);
+  const report=buildDiverseShortlist([first,vague],1500);
+  assert.deepEqual(report.selected_ids,["known"]);
+  assert.ok(report.shortage_reason);
+  assert.deepEqual(report.studies[0].differing_axes_from_first,[]);
+});
