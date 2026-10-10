@@ -912,3 +912,23 @@ button[data-compare][aria-pressed="true"] {border-color:var(--green);color:var(-
 @media(max-width:850px){.passport-evidence-form{grid-template-columns:1fr 1fr}.passport-evidence-form .passport-evidence-wide,.passport-evidence-form button{grid-column:span 2}}
 @media(max-width:520px){.passport-evidence-form{grid-template-columns:1fr}.passport-evidence-form .passport-evidence-wide,.passport-evidence-form button{grid-column:span 1}}
 @media print{body.printing-build-passport .passport-evidence-form{display:none!important}body.printing-build-passport .passport-evidence-history{max-height:none!important;overflow:visible!important}}
+
+
+/* Source-bound receiving review, deliberately informational and not a checkout. */
+.passport-receiving-review{margin:16px 0;border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+.passport-receiving-review>summary{font-size:14px;font-weight:650;cursor:pointer}
+.passport-receiving-review summary:focus-visible{outline:3px solid #7eb0ff;outline-offset:4px}
+.passport-receiving-review .section-copy{line-height:1.65}
+.passport-receiving-parts{padding-left:22px;display:grid;gap:8px;margin:14px 0}
+.passport-receiving-parts>li{padding:10px 4px;border-bottom:1px solid var(--line);font-size:12px;overflow-wrap:anywhere}
+.passport-receiving-parts>li>small{display:block;margin:6px 0;color:var(--muted);line-height:1.55}
+.passport-receiving-parts details{margin:10px 0;padding:8px;border:1px solid var(--line);border-radius:8px;max-width:100%}
+.passport-receiving-parts details summary{cursor:pointer}
+.passport-receiving-parts details ul{margin:10px 0 0;padding-left:18px}
+.passport-receiving-parts details li{margin-bottom:10px;overflow-wrap:anywhere}
+.passport-receiving-parts details li a{overflow-wrap:anywhere}
+.passport-receiving-parts details li small{display:block;color:var(--muted);line-height:1.6}
+@media print{
+ body.printing-build-passport .passport-receiving-parts>li{break-inside:avoid}
+ body.printing-build-passport .passport-receiving-parts details{display:block}
+}
