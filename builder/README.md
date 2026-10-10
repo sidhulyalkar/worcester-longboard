@@ -257,3 +257,21 @@ python tools/validate_board_package_inclusions.py
 node --test tests/js/test_board_assembly_inventory.mjs
 python -m pytest -q tests/test_board_assembly_inventory.py
 ```
+
+
+## v1.6: receiving-to-BOM discrepancies and manufacturer document leads
+
+Within **Build Passport**, expand **Receiving reconciliation** to see which exact catalog components have no user-recorded receipt, any contradictory counts/revisions across notes, donor contents that have not been individually inspected, and which official manufacturer reference pages may be worth consulting. These reference links are **not** exact-revision-approved manufacturer installation manuals.
+
+This view updates as users record observations in the Evidence notebook. Repeated notes are **not summed** into stock. The combined evidence JSON export includes the reconciliation review queue. The browser stores these observations locally until the user chooses to export.
+
+Documentation and reproducible safety tests: [receiving reconciliation contract](../docs/receiving_reconciliation_contract.md).
+
+```bash
+node --test tests/js/test_board_receiving_reconciliation.mjs
+python -m pytest -q tests/test_board_receiving_reconciliation.py
+python tools/compare_receiving_reconciliations.py
+python tools/validate_manufacturer_document_references.py
+```
+
+An observation is not a verified part, an assembled quantity or permission to wire batteries, charge or ride.
