@@ -294,3 +294,20 @@ def test_feasibility_receipts_are_visible_but_never_approval():
     assert "NOT QUALIFIED" in APP
     assert "No checkout, fabrication, charging or powered operation authorized." in APP
     assert "feasibility_report" in (ROOT / "builder" / "platform_engine.mjs").read_text()
+
+
+
+def test_build_passport_is_revision_aware_not_an_unqualified_checkout():
+    assert 'id="build-passport-section"' in HTML
+    assert 'id="build-passport"' in HTML
+    assert 'id="export-build-passport"' in HTML
+    assert 'id="print-build-passport"' in HTML
+    assert "function renderBuildPassport(candidate)" in APP
+    assert "buildBuildPassport(selected,state.bundle)" in APP
+    assert "proposePassportRevisionChange" in APP
+    assert "UNKNOWN" in APP
+    assert "No procurement, fabrication, charging or powered-operation authority." in APP
+    assert "MANUFACTURER_INSTRUCTIONS_NOT_INDEXED" in (ROOT / "builder" / "build_passport.mjs").read_text()
+    assert "UNKNOWN_NOT_LIVE" in (ROOT / "builder" / "build_passport.mjs").read_text()
+    assert "INVALIDATED_BY_REVISION_CHANGE" in (ROOT / "builder" / "build_passport.mjs").read_text()
+    assert ">Buy<" not in HTML
