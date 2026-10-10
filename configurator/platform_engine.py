@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from configurator.composer import compose_candidates
+from configurator.diversity import build_diverse_shortlist
 from configurator.evidence_explorer import build_evidence_explorer
 from configurator.engine import READINESS_RANK, generate_candidates, load_bundle
 
@@ -120,6 +121,9 @@ def generate_board_design_space(
     return {
         **curated,
         "candidates": candidates,
+        "diverse_shortlist": build_diverse_shortlist(
+            candidates, curated["profile"].get("hard_budget_usd")
+        ),
         "composition_summary": {
             "schema_version": 1,
             "curated_count": len(curated["candidates"]),
