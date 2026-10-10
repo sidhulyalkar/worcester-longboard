@@ -21,6 +21,7 @@ COMPOSER_PATH = ROOT / "configurator" / "composer.v1.json"
 SWAP_SLOTS_PATH = ROOT / "configurator" / "swap_slots.v1.json"
 GEOMETRY_PATH = ROOT / "catalog" / "board_geometry.v1.json"
 CATALOG_HEALTH_PATH = ROOT / "catalog" / "catalog_health.v1.json"
+PACKAGE_INCLUSIONS_PATH = ROOT / "catalog" / "board_package_inclusions.v1.json"
 
 
 def _load(path: Path) -> dict[str, Any]:
@@ -35,6 +36,7 @@ def load_platform_bundle() -> dict[str, Any]:
             "swapSlots": _load(SWAP_SLOTS_PATH),
             "geometry": _load(GEOMETRY_PATH),
             "catalogHealth": _load(CATALOG_HEALTH_PATH),
+            "packageInclusions": _load(PACKAGE_INCLUSIONS_PATH),
         }
     )
     return bundle
