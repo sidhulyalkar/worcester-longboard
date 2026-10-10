@@ -282,3 +282,15 @@ def test_diversity_shortlist_does_not_imply_authorized_build():
     assert 'data-shortlist-inspect=' in APP
     assert "Studies, not approved builds" in HTML
     assert "not mechanical qualification or purchasing approval" in APP
+
+
+
+def test_feasibility_receipts_are_visible_but_never_approval():
+    assert 'id="feasibility-panel"' in HTML
+    assert 'id="feasibility-records"' in HTML
+    assert 'id="export-feasibility"' in HTML
+    assert "function renderFeasibilityPanel()" in APP
+    assert "state.result.feasibility_report" in APP
+    assert "NOT QUALIFIED" in APP
+    assert "No checkout, fabrication, charging or powered operation authorized." in APP
+    assert "feasibility_report" in (ROOT / "builder" / "platform_engine.mjs").read_text()
