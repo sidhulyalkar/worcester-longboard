@@ -807,3 +807,10 @@ button[data-compare][aria-pressed="true"] {border-color:var(--green);color:var(-
 .shortlist-card button:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
 @media (max-width: 1040px) { .shortlist-grid {grid-template-columns:repeat(2,minmax(0,1fr));} }
 @media (max-width: 620px) { .shortlist-grid {grid-template-columns:1fr;} .shortlist-visual{height:175px;} }
+
+
+.shortlist-exclusions {margin-top:12px;font-size:12px;color:var(--muted);}
+.shortlist-exclusions summary {cursor:pointer;line-height:1.5;}
+.shortlist-exclusions summary:focus-visible {outline:3px solid var(--blue);outline-offset:3px;}
+.shortlist-exclusions ul {margin:8px 0;padding-left:20px;line-height:1.7;}
+.shortlist-exclusions p {line-height:1.6;}
