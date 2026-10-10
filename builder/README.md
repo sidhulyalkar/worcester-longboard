@@ -210,3 +210,18 @@ The Builder now exposes an expandable per-candidate feasibility receipt and JSON
 `PLANNING_STUDY`, `UNRESOLVED_STUDY` and `BLOCKED` are explanatory software states only. None permits procurement, fabrication, charging or powered use. For every candidate, the receipt carries an all-false authority object.
 
 Run `node --test tests/js/test_board_feasibility.mjs` and `python -m pytest -q tests/test_board_feasibility.py`; the full CI also tests Python/browser exact parity.
+
+
+## v1.3: Build Passport (revision-aware planning handoff)
+
+A selected candidate now offers a [Build Passport contract](../docs/build_passport_contract.md) with SKU text, explicit unverified revision, dated source/health, historical price basis, native-currency snapshots, unknown stock, and *unknown assembly purchase quantities*. It links to real supplier evidence but does not relabel any storefront as a manufacturer installation manual. It exposes donor-inclusion checks, interface measurement work, skill-gated receiving/assembly stages, JSON export, and print layout.
+
+A **revision what-if** invalidates every directly dependent pairwise interface claim and creates a separate non-authoritative change receipt. It never modifies the actual catalog. Python/JS implement matching packages and CI enforces manual and electric example parity with `tools/compare_build_passports.py`.
+
+```bash
+node --test tests/js/test_board_build_passport.mjs
+python -m pytest -q tests/test_board_build_passport.py
+python tools/generate_build_passport.py configurator/examples/trail_rider_profile.json brake_first_trail_core
+```
+
+This is the first auditable learning/sourcing tranche for [Issue #96](https://github.com/sidhulyalkar/worcester-longboard/issues/96), **not** a qualified ordering guide, self-assembly instruction sheet, electrical design, current quote or live checkout.
