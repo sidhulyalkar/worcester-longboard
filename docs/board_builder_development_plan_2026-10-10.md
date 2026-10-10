@@ -33,7 +33,7 @@ Merged: PR #84 (multi-vendor), #86 (catalog composition), #88 (source health), #
 
 ### Stage 1b: conversation UI and edit reconciliation
 
-- Wire state into \`builder/app.js\` with turn history, proposed before/after field changes, grouped accept/reject, one clarifying question, undo, session export, and visible contradiction explanations.
+- Wire state into `builder/app.js` with turn history, proposed before/after field changes, grouped accept/reject, one clarifying question, undo, session export, and visible contradiction explanations.
 - Handle manual questionnaire edits, example-brief resets, browser reloads and stale pending reviews without discarding accepted history or silently applying old suggestions.
 - Validate local-only storage, aria-live announcements, keyboard flow, cross-device layout and long-text robustness.
 - If integrating an LLM later, restrict it to producing *proposed* typed structured edits and clarifying questions. Deterministic validation remains authoritative.
@@ -44,7 +44,7 @@ Merged: PR #84 (multi-vendor), #86 (catalog composition), #88 (source health), #
 
 - Separate hard constraints (incompatible axle/hub, required independent brake, maximum width, hard budget when known, physical authorization gate) from soft targets (carving feel, weight goal, range target, maintenance).
 - Keep costs incomplete when source prices, shipping, labor, taxes or exchange rate are unknown. Hard budget feasibility is UNKNOWN when all-in total cannot be bounded.
-- Add conflict-directed elimination and informative alternatives: \`INCOMPATIBLE\`, \`UNKNOWN\`, \`MEASURE_FIRST\`, \`REFERENCE_COMPATIBLE\`.
+- Add conflict-directed elimination and informative alternatives: `INCOMPATIBLE`, `UNKNOWN`, `MEASURE_FIRST`, `REFERENCE_COMPATIBLE`.
 - Select three candidates via a diversity-aware Pareto frontier over actual deck/truck/wheel/brake/drive topology. Show fewer if fewer qualify, with reasons.
 - Improve geometry/physics *planning* studies: loaded clearance, wheel radius, expected propulsion topology, brake space, stance geometry, weight-envelope scenarios, uncertainties and tolerance stackups. Never infer structural safety from a render.
 
