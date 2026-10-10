@@ -29,7 +29,7 @@ const materiallyDistinct=(a,b)=>{
   return differences.length>=2 && (differences.includes("deck") || differences.includes("truck"));
 };
 function exclusion(candidate,maxBudget){
-  if(!candidate || !candidate.id || !Number.isFinite(Number(candidate.fit_score)))
+  if(!candidate || !candidate.id || typeof candidate.fit_score!=="number" || !Number.isFinite(candidate.fit_score))
     return "INVALID_PLANNING_CANDIDATE";
   if((candidate.blockers || []).length) return "HARD_MECHANICAL_OR_MISSION_BLOCKER";
   if((candidate.compatibility_findings || []).some(row=>row.state==="INCOMPATIBLE") ||
