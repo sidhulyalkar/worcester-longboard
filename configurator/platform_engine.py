@@ -12,6 +12,7 @@ from typing import Any
 
 from configurator.composer import compose_candidates
 from configurator.diversity import build_diverse_shortlist
+from configurator.feasibility import build_feasibility_report
 from configurator.evidence_explorer import build_evidence_explorer
 from configurator.engine import READINESS_RANK, generate_candidates, load_bundle
 
@@ -118,11 +119,13 @@ def generate_board_design_space(
             candidate, data["catalog"], data.get("catalogHealth")
         )
 
+    shortlist = build_diverse_shortlist(candidates, curated["profile"].get("hard_budget_usd"))
     return {
         **curated,
         "candidates": candidates,
-        "diverse_shortlist": build_diverse_shortlist(
-            candidates, curated["profile"].get("hard_budget_usd")
+        "diverse_shortlist": shortlist,
+        "feasibility_report": build_feasibility_report(
+            candidates, shortlist, curated["profile"].get("hard_budget_usd")
         ),
         "composition_summary": {
             "schema_version": 1,

@@ -75,6 +75,9 @@ def compare(left: dict[str, Any], right: dict[str, Any]) -> list[str]:
             f"excluded {lp.get('excluded')!r} vs {rp.get('excluded')!r}"
         )
 
+    if left.get("feasibility_report") != right.get("feasibility_report"):
+        errors.append("feasibility_report differs between Python and browser")
+
     lreq = left.get("requirements") or {}
     rreq = right.get("requirements") or {}
     for key in REQUIREMENT_KEYS:
