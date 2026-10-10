@@ -231,3 +231,18 @@ def test_example_rides_comparison_and_assembly_onboarding():
     assert 'No live electrical commissioning steps are provided' in APP
     assert 'CPSC battery/charger safety' in HTML
     assert '>Buy<' not in HTML
+
+
+def test_ride_brief_is_review_first_and_has_explicit_apply_discard_controls():
+    assert 'id="ride-brief-input"' in HTML
+    assert 'id="ride-brief-review-button"' in HTML
+    assert 'id="ride-brief-review"' in HTML
+    assert "parseRideBrief" in APP
+    assert "applyRideBriefReview" in APP
+    assert "data-ride-group" in APP
+    assert 'p.certainty === "EXPLICIT" ? " checked" : ""' in APP
+    assert 'id="ride-brief-discard"' in APP
+    assert "state.profile = next" in APP
+    assert 'state.selectedId = null' in APP
+    assert "No preview is a fabrication drawing" in APP
+    assert ">Buy<" not in HTML

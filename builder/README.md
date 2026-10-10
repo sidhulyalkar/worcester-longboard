@@ -139,3 +139,9 @@ The comparison workbench displays two selectable candidates from the same rider 
 The Assembly Readiness area translates a selected design into a learning/handoff roadmap. Deck/truck/wheel integration requires exact revision and manufacturer torque/fastener instructions. Drive/brake coexistence requires dimensional evidence. High-energy battery, BMS, charger, controller, enclosure and power commissioning require appropriately qualified specialists and independent validation; the generic Builder cannot authorize them. Do not assemble a loose-cell pack using catalog placeholders. Assembly labor, tools, shipping, tax, protective equipment and tests are outside known subtotals.
 
 Sources for safety context: CPSC micromobility charging guidance (https://www.cpsc.gov/Safety-Education/Safety-Education-Centers/Micromobility-Information-Center) and UL personal e-mobility electrical systems testing (https://www.ul.com/services/personal-e-mobility-evaluation-testing-and-certification). These do not confer certification or mechanical qualification upon generated candidates.
+
+## Review-first ride brief (v1)
+
+Above the sample rides, the Builder now accepts a short free-text ride description. A deterministic **local** parser proposes questionnaire edits, displaying current and proposed values. Explicit measurements and budgets are preselected for review; inferred terrain percentages or carving priorities are off until checked. Users must click **Apply checked changes + regenerate**. The normal candidate synthesis, previews, BOM, compatibility explorer and assembly-learning roadmap then update together.
+
+This is intentionally a narrow parser, not a general-purpose LLM chat agent. Unsupported and contradictory inputs surface questions, never fabrication instructions or purchase permission. See [customization roadmap](../docs/ride_brief_customization_roadmap.md).
