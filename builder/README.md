@@ -161,3 +161,21 @@ node --test tests/js/test_board_conversation_state.mjs
 ```
 
 See [October development roadmap](../docs/board_builder_development_plan_2026-10-10.md) for the staged UI, mechanical search, Build Passport and physical qualification roadmap.
+
+
+## Browser conversation integration (v1.1b)
+
+The browser ride brief now uses the deterministic session model. A rider can submit a new brief, inspect accepted-vs-inferred proposal groups, apply approved changes, compare regenerated boards, and undo the last recorded specification edit. The **Design conversation** panel shows recent revision history and exports a versioned local JSON session.
+
+Questionnaire input invalidates any pending proposal immediately. The completed manual form is reconciled as a tracked change; incomplete terrain percentages, contradicting budget or mileage and invalid values pause conversational edits until corrected. A second free-text turn cannot replace an unreviewed proposal without explicitly discarding it.
+
+The session snapshot stays in browser storage beside the existing profile; stale or mismatched local snapshots are not replayed. Loading one of the six example ride briefs saves the previous in-memory personal conversation so **Restore my previous profile** returns it. User-entered fit notes can appear in exported JSON; the UI does not upload them.
+
+This is still a deterministic, narrow local language parser. It does not promise general LLM understanding or automatically authorize physical compatibility, ordering, electrical work, charging or riding.
+
+Run:
+`node --test tests/js/test_board_ride_brief.mjs tests/js/test_board_conversation_state.mjs`
+and:
+`python -m pytest -q tests/test_board_builder_ui_contract.py`
+
+The next stage is conflict-directed feasibility and mechanically diverse candidate selection (Issue #95).
