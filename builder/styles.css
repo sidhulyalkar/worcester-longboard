@@ -888,3 +888,27 @@ button[data-compare][aria-pressed="true"] {border-color:var(--green);color:var(-
   body.printing-build-passport .passport-dual > div,
   body.printing-build-passport .passport-overview > div {break-inside:avoid}
 }
+
+
+/* Evidence notebook: explicitly self-reported, not a qualification workflow. */
+.passport-evidence-details{margin:20px 0;border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+.passport-evidence-details summary{cursor:pointer;font-size:14px;font-weight:650}
+.passport-evidence-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:15px 0}
+.passport-evidence-form label{display:grid;gap:6px;min-width:0;font-size:11px}
+.passport-evidence-form .passport-evidence-wide{grid-column:span 3}
+.passport-evidence-form input,.passport-evidence-form select,.passport-evidence-form textarea{
+  width:100%;min-width:0;box-sizing:border-box;border:1px solid var(--line);
+  border-radius:8px;background:var(--bg);color:var(--text);font:inherit;font-size:12px;padding:9px
+}
+.passport-evidence-form button{align-self:end;justify-self:start;grid-column:span 3;
+  border:1px solid rgba(120,174,252,.35);border-radius:8px;
+  background:rgba(120,174,252,.12);color:var(--text);padding:10px 14px;cursor:pointer}
+.passport-evidence-form :focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.passport-evidence-review{font-size:12px;line-height:1.6;padding:12px;background:rgba(239,200,111,.04);border-left:3px solid var(--yellow)}
+.passport-evidence-history{padding-left:24px;max-height:280px;overflow-y:auto}
+.passport-evidence-history li{font-size:12px;padding:8px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.passport-evidence-history small{display:block;line-height:1.6;color:var(--muted);margin:5px 0}
+.passport-evidence-history p{line-height:1.5}
+@media(max-width:850px){.passport-evidence-form{grid-template-columns:1fr 1fr}.passport-evidence-form .passport-evidence-wide,.passport-evidence-form button{grid-column:span 2}}
+@media(max-width:520px){.passport-evidence-form{grid-template-columns:1fr}.passport-evidence-form .passport-evidence-wide,.passport-evidence-form button{grid-column:span 1}}
+@media print{body.printing-build-passport .passport-evidence-form{display:none!important}body.printing-build-passport .passport-evidence-history{max-height:none!important;overflow:visible!important}}
