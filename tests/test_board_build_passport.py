@@ -31,7 +31,7 @@ def test_revision_sku_and_stock_are_independent():
 
 def test_electric_planning_price_is_not_vendor_quote():
     p = passport("x1_compact_electric_study")
-    battery = next(row for row in p["parts"] if row["component_id"] == "BATTERY-TRAIL-CLASS")
+    battery = next(row for row in p["parts"] if row["category"] == "battery")
     assert battery["price"]["price_basis"] == "UNSOURCED_PLANNING_ESTIMATE_USD"
     assert p["sourcing"]["unsourced_planning_usd_estimate"]["min"] > 0
     assert p["sourcing"]["sourced_usd_snapshot"]["min"] > 0
