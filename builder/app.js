@@ -6,6 +6,7 @@ import { generateBoardDesignSpace } from "./platform_engine.mjs";
 import {validateExampleRides,profileForExample} from "./example_rides.mjs";
 import {defaultComparisonIds,compareCandidates} from "./comparison.mjs";
 import {assemblyGuide} from "./assembly_guide.mjs";
+import {buildBuildPassport,proposePassportRevisionChange} from "./build_passport.mjs";
 import {
   createRideConversation,restoreRideConversation,reconcileManualRideProfile,
   proposeRideConversationTurn,acceptRideConversationTurn,rejectRideConversationTurn,
@@ -48,6 +49,8 @@ const state = {
   sessionOutOfSync: false,
   originalConversationBeforeExamples: null,
   originalProfileBeforeExamples: null,
+  passportCandidateId: null,
+  passportRevisionReceipt: null,
   comparisonIds: [],
   comparisonInitialized: false,
 };
@@ -1189,6 +1192,110 @@ function exportAssemblyGuide() {
   });
 }
 
+function currentBuildPassport(candidate=null) {
+  const selected=candidate || state.result?.candidates.find(x=>x.id===state.selectedId);
+  if(!selected)return null;
+  if(state.passportCandidateId!==selected.id) {
+    state.passportCandidateId=selected.id;
+    state.passportRevisionReceipt=null;
+  }
+  return state.passportRevisionReceipt || buildBuildPassport(selected,state.bundle);
+}
+function renderBuildPassport(candidate){
+  const host=$("#build-passport");
+  const passport=currentBuildPassport(candidate);
+  $("#export-build-passport").disabled=!passport;
+  $("#print-build-passport").disabled=!passport;
+  if(!passport){host.textContent="Select a board to inspect its sourcing and assembly evidence.";return;}
+  const cost=passport.sourcing;
+  const usd=v=>typeof v==="number" ? "$"+v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}) : "Unknown";
+  const quote=(part)=>part.price.min_usd===null ? "Unpriced" :
+    usd(part.price.min_usd)+(part.price.max_usd!==part.price.min_usd
+      ? " to "+usd(part.price.max_usd):"");
+  const seller=(part)=>{
+    const src=part.supplier;
+    const url=src.source_url;
+    const safeUrl=typeof url==="string" && /^https?:\/\//i.test(url) ? url : null;
+    const sourceLink=safeUrl?'<a href="'+escapeHtml(safeUrl)+
+      '" rel="noopener noreferrer" target="_blank">Supplier reference</a>':
+      '<span>No vendor URL</span>';
+    return sourceLink+
+      '<small>'+escapeHtml(src.name || src.source_kind)+' · '+
+      escapeHtml(src.verified_as_of || src.catalog_as_of || "undated")+
+      ' · '+escapeHtml(src.source_health)+'</small>';
+  };
+  const table=passport.parts.map(part=>
+    '<tr><td><strong>'+escapeHtml(part.label)+'</strong><small>'+
+    escapeHtml(part.component_id)+' · '+escapeHtml(part.manufacturer || "Unspecified maker")+
+    '</small></td><td>'+escapeHtml(part.sku_text || "SKU not established")+
+    '<small>'+escapeHtml(part.proposed_revision?"Proposed "+part.proposed_revision+" (unverified)":
+    "Exact received revision not verified")+'</small></td>'+
+    '<td>Unknown build count<small>Catalog price factor: '+
+      escapeHtml(part.price.pricing_reference_qty ?? "?")+'</small></td>'+
+    '<td>'+escapeHtml(quote(part))+'<small>'+
+      escapeHtml(part.price.price_basis.replaceAll("_"," ").toLowerCase())+
+      '</small></td>'+
+    '<td>'+seller(part)+'<small>Stock unknown · '+
+      escapeHtml(part.procurement_state)+'</small></td></tr>').join("");
+  const open=passport.unresolved.measurement_worklist;
+  const printed=passport.change_receipt;
+  const stages=passport.assembly.stages.map(stage=>
+    '<li><strong>'+escapeHtml(stage.label)+'</strong> · '+
+    escapeHtml(stage.status.replaceAll("_"," "))+
+    '<span>'+escapeHtml(stage.skills_and_work)+'</span></li>').join("");
+  host.innerHTML='<div class="passport-overview">'+
+    '<div><small>Reference USD snapshot</small><strong>'+usd(cost.sourced_usd_snapshot.min)+
+    ' to '+usd(cost.sourced_usd_snapshot.max)+'</strong></div>'+
+    '<div><small>Unsourced planning estimates</small><strong>'+usd(cost.unsourced_planning_usd_estimate.min)+
+    ' to '+usd(cost.unsourced_planning_usd_estimate.max)+'</strong></div>'+
+    '<div><small>Unknowns</small><strong>'+cost.unpriced_ids.length+
+    ' unpriced · '+open.length+' interface checks</strong></div></div>'+
+    '<p class="passport-warning">All-in price UNKNOWN. Quote quantities, exact revisions, vendor stock, '+
+    'manufacturer manuals and independent physical qualification are not confirmed. '+escapeHtml(passport.disclaimer)+'</p>'+
+    '<div class="table-wrap"><table class="passport-table"><thead><tr>'+
+    '<th>Catalog component</th><th>SKU / revision</th><th>Assembly quantity</th><th>Price snapshot</th><th>Supplier</th>'+
+    '</tr></thead><tbody>'+table+'</tbody></table></div>'+
+    '<div class="passport-dual">'+
+    '<div><h3>Receiving and interface evidence</h3>'+
+    '<p>'+passport.unresolved.unverified_revision_part_ids.length+' unverified revisions · '+
+      passport.unresolved.missing_manual_part_ids.length+' missing manufacturer instruction links · '+
+      passport.unresolved.source_refresh_ids.length+' source health follow-ups</p>'+
+    '<ol>'+open.slice(0,8).map(item=>'<li>'+escapeHtml(item.question)+
+      '<small>'+escapeHtml(item.component_ids.join(" + "))+'</small></li>').join("")+'</ol>'+
+    (open.length>8?'<p>+'+(open.length-8)+' more checks in JSON export and evidence explorer.</p>':'')+
+    '</div><div><h3>Assembly learning stages</h3><ol>'+stages+'</ol>'+
+    '<p>Electrical, battery and commissioning stages remain independently gated.</p></div></div>'+
+    '<div class="passport-revision-tool"><h3>What if the supplier sends a different revision?</h3>'+
+    '<p>Re-evaluate affected claims before considering a substitute. This is a local what-if check; it changes no catalog facts or purchase permission.</p>'+
+    '<div class="passport-revision-row"><label>Component<select id="passport-component">'+
+    passport.parts.map(p=>'<option value="'+escapeHtml(p.component_id)+'">'+escapeHtml(p.label)+'</option>').join("")+
+    '</select></label><label>Proposed revision<input id="passport-revision" type="text" maxlength="120" placeholder="Revision as marked on supplier part"></label>'+
+    '<button type="button" id="passport-check-revision">Show invalidated claims</button>'+
+    '<button type="button" id="passport-reset-revision">Reset what-if</button></div>'+
+    '<p id="passport-revision-status" role="status">'+
+    (printed?'Unverified revision '+escapeHtml(printed.proposed_revision)+' for '+
+      escapeHtml(printed.component_id)+' invalidates '+printed.invalidated_interface_ids.length+
+      ' catalog interface claims. Revalidate before any physical use.':
+      'Changing a part revision invalidates relevant catalog interface evidence.')+'</p></div>'+
+    '<p class="passport-footer">Planning handoff only. No procurement, fabrication, charging or powered-operation authority. '+
+    'Manufacturer documentation and actual receiving inspection must govern any separately qualified build.</p>';
+  $("#passport-check-revision").addEventListener("click",()=>{
+    const id=$("#passport-component").value,revision=$("#passport-revision").value;
+    try{
+      // Always start from the catalog snapshot, never accumulate speculative revisions.
+      state.passportRevisionReceipt=proposePassportRevisionChange(
+        buildBuildPassport(candidate,state.bundle),id,revision);
+      renderBuildPassport(candidate);
+    }catch(error) {
+      $("#passport-revision-status").textContent=error.message;
+    }
+  });
+  $("#passport-reset-revision").addEventListener("click",()=>{
+    state.passportRevisionReceipt=null;
+    renderBuildPassport(candidate);
+  });
+}
+
 function renderBom(candidate) {
   if (!candidate) return;
 
@@ -1263,6 +1370,7 @@ function renderBom(candidate) {
   explorer.querySelector("#export-evidence").addEventListener("click", exportEvidenceWorklist);
   renderSwapLab(candidate, state.swapBaselineId !== candidate.id);
   renderAssemblyGuide(candidate);
+  renderBuildPassport(candidate);
 }
 
 
@@ -1522,6 +1630,8 @@ function recompute() {
     return;
   }
   state.result = nextResult;
+  state.passportCandidateId=null;
+  state.passportRevisionReceipt=null;
   state.swapBaselineId = null;
   state.swapSelection = null;
   state.swapResult = null;
@@ -1652,6 +1762,16 @@ async function main() {
       if(state.result?.feasibility_report)
         downloadJson("worcester-feasibility-receipts.json",state.result.feasibility_report);
     });
+    $("#export-build-passport").addEventListener("click",()=>{
+      const passport=currentBuildPassport();
+      if(passport)downloadJson("worcester-build-passport-"+passport.candidate_id+".json",passport);
+    });
+    $("#print-build-passport").addEventListener("click",()=>{
+      if(!currentBuildPassport())return;
+      document.body.classList.add("printing-build-passport");
+      window.print();
+    });
+    window.addEventListener("afterprint",()=>document.body.classList.remove("printing-build-passport"));
     $("#export-profile").addEventListener("click", exportProfile);
     $("#export-design").addEventListener("click", exportSelectedDesign);
     $("#reset-swaps").addEventListener("click", resetSwaps);
