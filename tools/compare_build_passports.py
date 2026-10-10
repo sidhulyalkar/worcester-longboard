@@ -6,6 +6,9 @@ from pathlib import Path
 
 
 def diffs(left, right, pointer="$"):
+    # JSON has one numeric type: 800 and 800.0 are semantically identical.
+    if isinstance(left, (int, float)) and not isinstance(left, bool) and isinstance(right, (int, float)) and not isinstance(right, bool):
+        return [] if left == right else [f"{pointer}: {left!r} != {right!r}"]
     if type(left) is not type(right):
         return [f"{pointer}: types {type(left).__name__} != {type(right).__name__}"]
     if isinstance(left, dict):
