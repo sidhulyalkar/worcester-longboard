@@ -190,3 +190,16 @@ test("saved pending proposals are not executable after page reload",()=>{
   assert.throws(()=>acceptRideConversationTurn(restored,["weight"],questionnaire),
     /Missing or stale review/);
 });
+
+
+test("corrupt historical undo cannot inject fields after restoration",()=>{
+  let accepted=acceptRideConversationTurn(
+    proposeRideConversationTurn(init(),"I weigh 175 lb",questionnaire),["weight"],questionnaire);
+  const forged=exportRideConversation(accepted);
+  forged.history[0].profile.powered_operation_authorized=true;
+  const result=restoreRideConversation(forged,accepted.profile,questionnaire);
+  assert.equal(result.revision,0);
+  assert.equal(result.history.length,0);
+  assert.deepEqual(result.profile,accepted.profile);
+  locked(result);
+});
