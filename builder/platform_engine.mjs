@@ -1,6 +1,7 @@
 import { READINESS_RANK, generateCandidates } from "./engine.mjs";
 import { composeCandidates } from "./composer.mjs";
 import { buildEvidenceExplorer } from "./evidence_explorer.mjs";
+import { buildDiverseShortlist } from "./diversity.mjs";
 
 function bomSignature(candidate) {
   return (candidate.bom || [])
@@ -69,6 +70,7 @@ export function generateBoardDesignSpace(profile, bundle) {
   return {
     ...curated,
     candidates,
+    diverse_shortlist: buildDiverseShortlist(candidates, curated.profile.hard_budget_usd),
     composition_summary: {
       schema_version: 1,
       curated_count: curated.candidates.length,
