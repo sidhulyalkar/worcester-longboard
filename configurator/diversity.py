@@ -91,7 +91,15 @@ def build_diverse_shortlist(
     viable: list[tuple[dict[str, Any], dict[str, str]]] = []
     excluded: list[dict[str, str]] = []
     seen: set[str] = set()
-    for candidate in candidates:
+    # Do not inherit presentation/locale label ordering from the JS/Python
+    # candidate engines. Compare by the same numeric fit and stable ID.
+    def sorting_key(candidate: dict[str, Any]) -> tuple[float, str]:
+        score = candidate.get("fit_score") if isinstance(candidate, dict) else None
+        numeric = score if isinstance(score, (int, float)) and not isinstance(score, bool) else -1
+        return (-numeric, str(candidate.get("id") or "") if isinstance(candidate, dict) else "")
+
+    ordered = sorted(candidates, key=sorting_key)
+    for candidate in ordered:
         candidate_id = candidate.get("id") if isinstance(candidate, dict) else None
         if candidate_id and candidate_id in seen:
             excluded.append({"id": candidate_id, "reason": "DUPLICATE_ID"})
