@@ -41,8 +41,10 @@ def price_snapshot(part: dict[str, Any]) -> dict[str, Any]:
         qty = 1
     lo = hi = None
     if price and qty > 0:
-        if price.get("kind") in ("unit", "ceiling") and numeric(price.get("unit_price_usd")) is not None:
+        if price.get("kind") == "unit" and numeric(price.get("unit_price_usd")) is not None:
             lo = hi = two(price["unit_price_usd"] * qty)
+        elif price.get("kind") == "ceiling" and numeric(price.get("unit_price_usd")) is not None:
+            hi = two(price["unit_price_usd"] * qty)
         elif price.get("kind") == "range" and numeric(price.get("min_usd")) is not None and numeric(price.get("max_usd")) is not None:
             lo = two(price["min_usd"] * qty)
             hi = two(price["max_usd"] * qty)
@@ -54,7 +56,12 @@ def price_snapshot(part: dict[str, Any]) -> dict[str, Any]:
         "assembly_required_qty": None,
         "quantity_authority": "CATALOG_PRICE_MULTIPLIER_NOT_ASSEMBLY_QUANTITY",
         "min_usd": lo, "max_usd": hi,
-        "price_basis": "UNKNOWN" if lo is None else "DATED_SOURCE_REFERENCE_USD" if sourced else "UNSOURCED_PLANNING_ESTIMATE_USD",
+        "price_basis": (
+            "DATED_SOURCE_CEILING_USD" if sourced else "UNSOURCED_PLANNING_CEILING_USD"
+        ) if price.get("kind") == "ceiling" and hi is not None else (
+            "UNKNOWN" if lo is None else "DATED_SOURCE_REFERENCE_USD" if sourced
+            else "UNSOURCED_PLANNING_ESTIMATE_USD"
+        ),
         "native_price_snapshot": source.get("native_price_snapshot") or None,
         "availability": "UNKNOWN_NOT_LIVE",
         "quote_verified": False,
@@ -159,7 +166,8 @@ def build_build_passport(candidate: dict[str, Any], bundle: dict[str, Any]) -> d
             "unsourced_planning_usd_estimate": {"min": sums(planning, "min_usd"), "max": sums(planning, "max_usd")},
             "native_currency_snapshots": [{"component_id": p["component_id"], "raw_text": p["price"]["native_price_snapshot"]}
                                           for p in parts if p["price"]["native_price_snapshot"]],
-            "unpriced_ids": [p["component_id"] for p in parts if p["price"]["min_usd"] is None],
+            "unpriced_ids": [p["component_id"] for p in parts if p["price"]["min_usd"] is None and p["price"]["max_usd"] is None],
+            "ceiling_only_ids": [p["component_id"] for p in parts if p["price"]["min_usd"] is None and p["price"]["max_usd"] is not None],
             "all_in_total_usd": None, "all_in_status": "UNKNOWN_INCOMPLETE_COST_AND_QUANTITY",
             "purchase_quantities_confirmed": False, "live_stock_verified": False,
             "exclusions": ["shipping", "sales tax/duties", "tools and PPE",
