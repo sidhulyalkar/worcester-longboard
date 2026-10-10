@@ -103,3 +103,22 @@ test("too-long inputs and empty undo are rejected",()=>{
   assert.throws(()=>proposeRideConversationTurn(init(),"x".repeat(2401),questionnaire),/exceeds/);
   assert.throws(()=>undoRideConversationTurn(init()),/No accepted/);
 });
+
+
+test("relative carving edits never lower an already high preference",()=>{
+  let base={...defaults,snowboard_feel:95};
+  const initial=createRideConversation(base,questionnaire);
+  const turn=proposeRideConversationTurn(initial,"make it more snowboard-like",questionnaire);
+  assert.equal(turn.pending.proposals.find(p=>p.id==="carving"),undefined);
+  assert.equal(turn.pending.proposals.find(p=>p.id==="delta-carve").patch.snowboard_feel,100);
+  const accepted=acceptRideConversationTurn(turn,["delta-carve"],questionnaire);
+  assert.equal(accepted.profile.snowboard_feel,100);
+});
+
+test("manual patch and baseline validation reject type confusion",()=>{
+  assert.throws(()=>recordManualRideField(init(),"weight_lb","very light",questionnaire),/Invalid numeric/);
+  assert.throws(()=>recordManualRideField(init(),"stop_start","true",questionnaire),/Invalid boolean/);
+  assert.throws(()=>recordManualRideField(init(),"maintenance_tolerance","automatic",questionnaire),/Invalid selection/);
+  assert.throws(()=>createRideConversation({...defaults,weight_lb:"175"},questionnaire),/Invalid numeric/);
+  assert.throws(()=>createRideConversation({...defaults,fit_notes:5},questionnaire),/Invalid text/);
+});
