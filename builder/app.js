@@ -793,6 +793,11 @@ function renderExampleRides() {
 function loadExampleRide(id) {
   const scenario=state.bundle.exampleRides.scenarios.find(x=>x.id===id);
   if(!scenario)return;
+  if (!reconcileQuestionnaire()) {
+    $("#example-status").textContent =
+      "Complete or correct the current questionnaire before switching examples.";
+    return;
+  }
   if(!state.originalProfileBeforeExamples) {
     state.originalProfileBeforeExamples=structuredClone(state.profile);
     state.originalConversationBeforeExamples=exportRideConversation(state.conversation);
