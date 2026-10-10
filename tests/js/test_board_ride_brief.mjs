@@ -67,6 +67,19 @@ test("conflicting electric and manual intent is never guessed",()=>{
   assert.ok(report.warnings.some(w=>w.includes("Both electric")));
 });
 
+test("negations and discussing electric boards do not invent electric intent",()=>{
+  assert.equal(get(parseRideBrief("I want a non-electric board",questionnaire),"propulsion").patch.electric_propulsion,"no");
+  assert.equal(get(parseRideBrief("I don't know much about electric skateboards",questionnaire),"propulsion"),undefined);
+  assert.equal(get(parseRideBrief("I want an electric skateboard",questionnaire),"propulsion").patch.electric_propulsion,"yes");
+});
+
+test("cross-field contradictions require human correction",()=>{
+  const budget=parseRideBrief("I want a $3000 parts budget",questionnaire);
+  assert.throws(()=>applyRideBriefReview(defaults,budget,["budget"],questionnaire),/maximum budget/);
+  const range=parseRideBrief("I want 5 miles of range",questionnaire);
+  assert.throws(()=>applyRideBriefReview(defaults,range,["range"],questionnaire),/Typical ride exceeds/);
+});
+
 test("malformed and unauthorized review payloads fail closed",()=>{
   const review=parseRideBrief("want $1200 and 20 miles of range",questionnaire);
   assert.throws(()=>applyRideBriefReview(defaults,{...review,scope:"approved_build"},["budget"],questionnaire));
