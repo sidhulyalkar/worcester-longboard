@@ -890,6 +890,27 @@ function renderDiverseShortlist() {
     " mechanically different planning studies selected from "+shortlist.considered_count+
     " concepts. "+(shortlist.shortage_reason || "")+
     " Fit rankings, source evidence and visuals are not mechanical qualification or purchasing approval.";
+  const exclusions=$("#shortlist-exclusions");
+  if(exclusions) {
+    const reasonLabels={
+      HARD_MECHANICAL_OR_MISSION_BLOCKER:"Explicit mechanical or mission blocker",
+      INCOMPATIBLE_INTERFACE:"Incompatible part interfaces",
+      KNOWN_COMPONENT_COST_EXCEEDS_HARD_BUDGET:"Known component costs exceed budget ceiling",
+      NOT_SELECTED_OR_INSUFFICIENT_MECHANICAL_DIVERSITY:"Other studies or mechanically similar alternatives",
+      DUPLICATE_ID:"Duplicate catalog identifier",
+      INVALID_PLANNING_CANDIDATE:"Invalid planning record"
+    };
+    const counts=new Map();
+    for(const entry of shortlist.excluded)
+      counts.set(entry.reason,(counts.get(entry.reason)||0)+1);
+    const lines=[...counts].map(([reason,count])=>
+      '<li>'+escapeHtml(reasonLabels[reason] || reason)+': '+count+'</li>').join("");
+    exclusions.innerHTML=lines ?
+      '<details><summary>Why other designs are not in these three directions ('+
+      shortlist.excluded.length+')</summary><ul>'+lines+'</ul>'+
+      '<p>Exclusion from this three-direction shortlist is not an overall safety finding. '+
+      'Review each candidate’s full mechanical evidence and unresolved worklist below.</p></details>' : "";
+  }
   host.querySelectorAll("[data-shortlist-inspect]").forEach(button=>{
     button.addEventListener("click",()=>{
       const id=button.dataset.shortlistInspect;
