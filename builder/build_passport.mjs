@@ -206,10 +206,9 @@ export function proposePassportRevisionChange(passport,componentId,newRevision){
   };
   result.physical_qualification="NOT_QUALIFIED";
   if(result.assembly_inventory_audit){
-    // Recompute from the bound mapping, never keep an audit for the old revision.
-    // The mapping is embedded in the passport for revision what-if only if present.
-    if(result.assembly_inventory_audit_registry)result.assembly_inventory_audit=auditAssemblyInventory(result,result.assembly_inventory_audit_registry);
-    else result.assembly_inventory_audit=null;
+    // Never retain source-bound package claims after a proposed variant change.
+    // A new package registry must be applied deliberately to a new snapshot.
+    result.assembly_inventory_audit=null;
   }
   return result;
 }
