@@ -142,9 +142,11 @@ def restore_evidence_notebook(passport: dict[str, Any], raw: Any) -> dict[str, A
 
 def evaluate_evidence_notebook(passport: dict[str, Any], book: dict[str, Any]) -> dict[str, Any]:
     _assert_notebook(passport, book)
+    # Strip forged statuses and stale records, even for direct API callers.
+    reviewed = restore_evidence_notebook(passport, book)
     observed, instructions, sources, invalidated, measurements = (set() for _ in range(5))
     part_index = {p["component_id"]: p for p in passport["parts"]}
-    for record in book["records"]:
+    for record in reviewed["records"]:
         if record["kind"] == "RECEIVING_OBSERVATION":
             observed.add(record["component_id"])
             part = part_index[record["component_id"]]
@@ -160,7 +162,7 @@ def evaluate_evidence_notebook(passport: dict[str, Any], book: dict[str, Any]) -
     return {
         "schema_version": 1, "scope": "USER_EVIDENCE_REVIEW_QUEUE",
         "candidate_id": passport["candidate_id"],
-        "evidence_count": len(book["records"]),
+        "evidence_count": len(reviewed["records"]),
         "receiving_observed_part_ids": sorted(observed),
         "source_reference_part_ids": sorted(sources),
         "instruction_candidates_part_ids": sorted(instructions),
