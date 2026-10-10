@@ -215,8 +215,10 @@ def propose_passport_revision_change(passport: dict[str, Any], component_id: str
     part["supplier"]["verified_current_stock"] = False
     part["supplier"]["source_status"] = "PROPOSED_REVISION_NOT_VERIFIED_BY_SNAPSHOT"
     invalidated = []
+    # Donor boards can contain unlisted hubs/trucks: fail closed on all claims.
+    bundled_donor = bool(part["included_by_donor"])
     for claim in result["interface_claims"]:
-        if component_id in claim["component_ids"]:
+        if bundled_donor or component_id in claim["component_ids"]:
             claim["revision_evidence_state"] = "INVALIDATED_BY_REVISION_CHANGE"
             claim["valid_for_physical_build"] = False
             invalidated.append(claim["id"])
