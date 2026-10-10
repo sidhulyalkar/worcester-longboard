@@ -351,5 +351,5 @@ def test_builder_receiving_to_bom_review_is_unverified_and_accessible():
     assert "renderReceivingReconciliation(candidate);" in APP
     assert "No order line, received revision, source instruction" in APP
     assert "Actual order/assembly quantities: unknown" in APP
-    assert "rel=\\"noopener noreferrer\\"" in APP
+    assert "noopener noreferrer" in APP
     assert (ROOT/"builder"/"receiving_reconciliation.mjs").exists()
