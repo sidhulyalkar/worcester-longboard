@@ -91,3 +91,12 @@ def test_invalid_scores_are_fail_closed():
         if row["reason"] == "INVALID_PLANNING_CANDIDATE"
     ]) == 3
     assert not any(report["authority"].values())
+
+
+
+def test_unknown_axes_do_not_count_as_proven_differences():
+    first = make_candidate("known", "deck-a", "truck-x", "wheel-8", None, None, .9)
+    vague = make_candidate("vague", "deck-b", "UNKNOWN", "UNKNOWN", None, None, .8)
+    report = build_diverse_shortlist([first, vague], 1500)
+    assert report["selected_ids"] == ["known"]
+    assert report["shortage_reason"] is not None
