@@ -41,7 +41,8 @@ test("dated sourced part preserves SKU text, not fabricated revision or stock",(
 
 test("source USD reference separated from planning placeholder and missing prices",()=>{
   const p=get("x1_compact_electric_study");
-  const battery=p.parts.find(x=>x.component_id==="BATTERY-TRAIL-CLASS");
+  const battery=p.parts.find(x=>x.category==="battery");
+  assert.ok(battery,"the electric planning study should include a battery-class placeholder");
   assert.equal(battery.price.price_basis,"UNSOURCED_PLANNING_ESTIMATE_USD");
   assert.equal(battery.price.pricing_reference_qty,1);
   assert.equal(battery.price.assembly_required_qty,null);
