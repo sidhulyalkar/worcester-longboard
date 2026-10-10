@@ -73,3 +73,17 @@ def test_missing_and_invalid_revisions_are_rejected():
     with pytest.raises(ValueError, match="Missing catalog part"):
         build_build_passport({**CANDIDATES["brake_first_trail_core"],
                              "bom": [{"component_id": "NO-SUCH-PART"}]}, BUNDLE)
+
+
+
+def test_ceiling_is_upper_bound_not_exact_sourced_quote():
+    sample = {**CANDIDATES["brake_first_trail_core"],
+              "bom": [{"component_id": "TRUCK-M3-400"}]}
+    packet = build_build_passport(sample, BUNDLE)
+    part = packet["parts"][0]
+    assert part["price"]["kind"] == "ceiling"
+    assert part["price"]["min_usd"] is None
+    assert part["price"]["max_usd"] == 124.95
+    assert part["price"]["price_basis"] == "DATED_SOURCE_CEILING_USD"
+    assert packet["sourcing"]["ceiling_only_ids"] == ["TRUCK-M3-400"]
+    assert packet["sourcing"]["all_in_total_usd"] is None
