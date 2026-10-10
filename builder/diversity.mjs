@@ -23,7 +23,8 @@ export function mechanicalSignature(candidate) {
     drive:asId(selected.drive || categoryPart(candidate,"drive") || "NOT_SPECIFIED")
   };
 }
-const difference=(a,b)=>AXES.filter(axis=>a[axis]!==b[axis]);
+const evidenceForAxis=value=>value!=="UNKNOWN" && value!=="NOT_SPECIFIED";
+const difference=(a,b)=>AXES.filter(axis=>evidenceForAxis(a[axis]) && evidenceForAxis(b[axis]) && a[axis]!==b[axis]);
 const materiallyDistinct=(a,b)=>{
   const differences=difference(a,b);
   return differences.length>=2 && (differences.includes("deck") || differences.includes("truck"));
@@ -77,7 +78,7 @@ export function buildDiverseShortlist(candidates,hardBudgetUsd=null,limit=3){
     if(!eligible.length)break;
     // Prefer meaningful mechanical novelty over a fractional soft score.
     const novelty=row=>AXES.reduce((total,key)=>
-      total+(chosen.some(prior=>prior.signature[key]===row.signature[key])?0:
+      total+((!evidenceForAxis(row.signature[key]) || chosen.some(prior=>!evidenceForAxis(prior.signature[key]) || prior.signature[key]===row.signature[key]))?0:
         (key==="deck" || key==="truck" ? 2 : 1)),0);
     let next=eligible[0],best=novelty(next);
     for(const row of eligible.slice(1)){
