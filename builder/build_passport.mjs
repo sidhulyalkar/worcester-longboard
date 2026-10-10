@@ -185,8 +185,11 @@ export function proposePassportRevisionChange(passport,componentId,newRevision){
   part.supplier.verified_current_stock=false;
   part.supplier.source_status="PROPOSED_REVISION_NOT_VERIFIED_BY_SNAPSHOT";
   const invalidated=[];
+  // A whole-board donor can contain unenumerated hubs/trucks/bearings.
+  // Its changed revision conservatively invalidates every interface claim.
+  const bundledDonor=part.included_by_donor.length>0;
   for(const claim of result.interface_claims){
-    if(claim.component_ids.includes(componentId)){
+    if(bundledDonor || claim.component_ids.includes(componentId)){
       claim.revision_evidence_state="INVALIDATED_BY_REVISION_CHANGE";
       claim.valid_for_physical_build=false;
       invalidated.push(claim.id);
