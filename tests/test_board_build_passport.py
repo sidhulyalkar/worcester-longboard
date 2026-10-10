@@ -87,3 +87,15 @@ def test_ceiling_is_upper_bound_not_exact_sourced_quote():
     assert part["price"]["price_basis"] == "DATED_SOURCE_CEILING_USD"
     assert packet["sourcing"]["ceiling_only_ids"] == ["TRUCK-M3-400"]
     assert packet["sourcing"]["all_in_total_usd"] is None
+
+
+
+def test_bundled_donor_revision_conservatively_invalidates_all_interfaces():
+    packet = passport("brake_first_trail_core")
+    altered = propose_passport_revision_change(packet, "DONOR-COMP95", "new-donor-variant")
+    assert altered["change_receipt"]["invalidated_interface_ids"] == sorted(
+        rule["id"] for rule in packet["interface_claims"]
+    )
+    assert all(rule["revision_evidence_state"] == "INVALIDATED_BY_REVISION_CHANGE"
+               for rule in altered["interface_claims"])
+    assert not any(altered["authority"].values())
