@@ -64,8 +64,10 @@ export function parseRideBrief(raw,questionnaire) {
   if(typical)propose("typical","Typical ride",{typical_miles:Number(typical[1])},
     typical[0],"EXPLICIT","Daily or typical distance, not a range guarantee.");
 
-  const no=/\b(?:non[-\s]?electric|unpowered|manual\s+(?:board|mountainboard)|no\s+(?:motor|electric|power)|without\s+(?:motor|electric))\b/.test(text);
-  const yes=/\b(?:electric\s+(?:skateboard|mountainboard|board)|motorized|powered\s+(?:board|skateboard)|want\s+(?:an?\s+)?electric)\b/.test(text);
+  const no=/\b(?:non[-\s]?electric|unpowered|manual\s+(?:board|mountainboard)|no\s+(?:motor|electric|power)|without\s+(?:motor|electric)|don't\s+want\s+(?:an?\s+)?electric)\b/.test(text);
+  // Merely mentioning electric skateboard knowledge or a negated board is not consent.
+  const positiveContext=text.replace(/\b(?:non[-\s]?electric|without\s+(?:motor|electric)|don't\s+want\s+(?:an?\s+)?electric)\b/g,"");
+  const yes=/\b(?:want|need|prefer|build|buy|make|design|looking\s+for)\s+(?:to\s+)?(?:an?\s+)?(?:electric|powered)\s+(?:skateboard|mountainboard|board)\b/.test(positiveContext);
   if(no && yes) warnings.push("Both electric and unpowered preferences appear. Set propulsion manually.");
   else if(no || yes)propose("propulsion","Propulsion intent",
     {electric_propulsion:yes?"yes":"no"},yes?"Electric board":"Unpowered board","EXPLICIT",
@@ -117,6 +119,9 @@ export function applyRideBriefReview(profile,review,acceptedIds,questionnaire){
     review.schema_version!==1 || !Array.isArray(acceptedIds))
     throw new Error("Invalid ride-brief review");
   const fields=fieldsFor(questionnaire),next={...profile},seen=new Set();
+  const validIds=new Set((review.proposals || []).map(p=>p.id));
+  if(acceptedIds.some(id=>!validIds.has(id)) || new Set(acceptedIds).size!==acceptedIds.length)
+    throw new Error("Review contains unknown or duplicate accepted groups");
   for(const proposal of review.proposals || []){
     if(!acceptedIds.includes(proposal.id))continue;
     if(seen.has(proposal.id))throw new Error("Duplicate proposal");
@@ -135,5 +140,11 @@ export function applyRideBriefReview(profile,review,acceptedIds,questionnaire){
   if(TERRAIN.some(key=>next[key]!==profile[key]) &&
     TERRAIN.reduce((total,key)=>total+Number(next[key]||0),0)!==100)
     throw new Error("Terrain percentages must total 100");
+  if(Number.isFinite(next.typical_miles) && Number.isFinite(next.longest_miles) &&
+    next.typical_miles>next.longest_miles)
+    throw new Error("Typical ride exceeds longest ride: review both distances before applying.");
+  if(Number.isFinite(next.budget_usd) && Number.isFinite(next.hard_budget_usd) &&
+    next.budget_usd>next.hard_budget_usd)
+    throw new Error("Target budget exceeds the maximum budget: adjust your advanced budget limit first.");
   return next;
 }
