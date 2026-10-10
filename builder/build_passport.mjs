@@ -22,8 +22,10 @@ function priceSnapshot(part){
   const price=part.price || null,qty=numeric(price?.qty) ?? 1;
   let min=null,max=null;
   if(price && qty>0){
-    if(["unit","ceiling"].includes(price.kind) && numeric(price.unit_price_usd)!==null)
+    if(price.kind==="unit" && numeric(price.unit_price_usd)!==null)
       min=max=two(price.unit_price_usd*qty);
+    else if(price.kind==="ceiling" && numeric(price.unit_price_usd)!==null)
+      max=two(price.unit_price_usd*qty);
     else if(price.kind==="range" && numeric(price.min_usd)!==null && numeric(price.max_usd)!==null){
       min=two(price.min_usd*qty);
       max=two(price.max_usd*qty);
@@ -37,7 +39,9 @@ function priceSnapshot(part){
     assembly_required_qty:null,
     quantity_authority:"CATALOG_PRICE_MULTIPLIER_NOT_ASSEMBLY_QUANTITY",
     min_usd:min,max_usd:max,
-    price_basis:min===null?"UNKNOWN":sourced?"DATED_SOURCE_REFERENCE_USD":"UNSOURCED_PLANNING_ESTIMATE_USD",
+    price_basis:price?.kind==="ceiling" && max!==null
+      ? (sourced?"DATED_SOURCE_CEILING_USD":"UNSOURCED_PLANNING_CEILING_USD")
+      : min===null?"UNKNOWN":sourced?"DATED_SOURCE_REFERENCE_USD":"UNSOURCED_PLANNING_ESTIMATE_USD",
     native_price_snapshot:part.source?.native_price_snapshot || null,
     availability:"UNKNOWN_NOT_LIVE",
     quote_verified:false
@@ -132,7 +136,8 @@ export function buildBuildPassport(candidate,bundle){
       native_currency_snapshots:parts.filter(p=>p.price.native_price_snapshot).map(p=>({
         component_id:p.component_id,raw_text:p.price.native_price_snapshot
       })),
-      unpriced_ids:parts.filter(p=>p.price.min_usd===null).map(p=>p.component_id),
+      unpriced_ids:parts.filter(p=>p.price.min_usd===null && p.price.max_usd===null).map(p=>p.component_id),
+      ceiling_only_ids:parts.filter(p=>p.price.min_usd===null && p.price.max_usd!==null).map(p=>p.component_id),
       all_in_total_usd:null,all_in_status:"UNKNOWN_INCOMPLETE_COST_AND_QUANTITY",
       purchase_quantities_confirmed:false,live_stock_verified:false,
       exclusions:["shipping","sales tax/duties","tools and PPE","professional assembly and electrical inspection","testing/validation","quantity and inclusion audit"]
