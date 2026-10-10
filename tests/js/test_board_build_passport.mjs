@@ -102,3 +102,18 @@ test("donor includes are an inclusion audit, not automatic independent purchase 
   assert.ok(p.parts.every(x=>x.price.assembly_required_qty===null));
   assert.equal(p.sourcing.purchase_quantities_confirmed,false);
 });
+
+
+test("source price ceiling does not become an exact quote or free component",()=>{
+  const study={...sample("brake_first_trail_core"),
+    bom:[{component_id:"TRUCK-M3-400"}]};
+  const p=buildBuildPassport(study,bundle);
+  const part=p.parts[0];
+  assert.equal(part.price.kind,"ceiling");
+  assert.equal(part.price.min_usd,null);
+  assert.equal(part.price.max_usd,124.95);
+  assert.equal(part.price.price_basis,"DATED_SOURCE_CEILING_USD");
+  assert.deepEqual(p.sourcing.ceiling_only_ids,["TRUCK-M3-400"]);
+  assert.equal(p.sourcing.all_in_total_usd,null);
+  locked(p);
+});
