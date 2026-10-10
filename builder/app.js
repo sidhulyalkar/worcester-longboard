@@ -1322,6 +1322,39 @@ function currentBuildPassport(candidate=null) {
   }
   return state.passportRevisionReceipt || buildBuildPassport(selected,state.bundle);
 }
+function inclusionAuditHtml(passport){
+  const audit=passport.assembly_inventory_audit;
+  if(!audit)return '<p class="passport-warning">Package inclusion audit unavailable for this source snapshot. Contents and order quantities remain unknown.</p>';
+  const overlaps=audit.overlap_worklist;
+  const retrofits=audit.retrofit_worklist;
+  const donorLabels=audit.package_claims.map(p=>p.package_id).join(", ");
+  const rows=overlaps.map(item=>'<li><strong>'+escapeHtml(item.component_id)+
+    ' potentially included in '+escapeHtml(item.package_id)+'</strong>'+
+    '<p>'+escapeHtml(item.review_question)+'</p>'+
+    '<small>'+escapeHtml(item.classification.replaceAll("_"," "))+
+    ' · No price deduction or exact revision established</small></li>');
+  const retroRows=retrofits.map(item=>'<li><strong>'+escapeHtml(item.component_id)+
+    ' retrofit study:</strong> '+escapeHtml(item.question)+'</li>');
+  const unknown=audit.unmapped_inclusion_worklist.map(item=>
+    '<li>'+escapeHtml(item.inclusion_token)+
+    ' · '+escapeHtml(item.review_question)+'</li>');
+  const missingSku=audit.source_worklist.filter(p=>p.missing.includes("EXACT_SKU_OR_VARIANT")).length;
+  return '<details id="passport-inclusion-audit" class="passport-inclusion-audit">'+
+    '<summary>Parts-inclusion audit · '+audit.package_claims.length+' donor packages · '+
+    overlaps.length+' possible overlaps · '+retrofits.length+' retrofit questions</summary>'+
+    '<p class="section-copy">Catalog reference packages: '+escapeHtml(donorLabels||"None in this design")+
+    '. This is a source-matching worklist, not a cart. Similar part families do not prove received variants or included counts.</p>'+
+    '<div class="passport-inclusion-metrics"><span>'+audit.order_lines.length+
+    ' unresolved supplier order units</span><span>'+missingSku+' missing exact SKU references</span>'+
+    '<span>Actual order/assembly quantities: unknown</span></div>'+
+    (rows.length?'<h3>Potentially duplicated references</h3><ul>'+rows.join("")+'</ul>':
+      '<p>No direct BOM duplicates identified by the current registry. This does not certify package completeness.</p>')+
+    (retroRows.length?'<h3>Potential retrofits</h3><ul>'+retroRows.join("")+'</ul>':'')+
+    (unknown.length?'<h3>Unmapped included equipment</h3><ul>'+unknown.join("")+'</ul>':'')+
+    '<p class="passport-warning">Never subtract potential overlaps from the displayed known-parts subtotal without exact receiving and source proof. '+escapeHtml(audit.costs.warning)+'</p>'+
+    '</details>';
+}
+
 function renderBuildPassport(candidate){
   const host=$("#build-passport");
   const passport=currentBuildPassport(candidate);
@@ -1377,6 +1410,7 @@ function renderBuildPassport(candidate){
     '<div class="table-wrap"><table class="passport-table"><thead><tr>'+
     '<th>Catalog component</th><th>SKU / revision</th><th>Assembly quantity</th><th>Price snapshot</th><th>Supplier</th>'+
     '</tr></thead><tbody>'+table+'</tbody></table></div>'+
+    inclusionAuditHtml(passport)+
     '<div class="passport-dual">'+
     '<div><h3>Receiving and interface evidence</h3>'+
     '<p>'+passport.unresolved.unverified_revision_part_ids.length+' unverified revisions · '+
