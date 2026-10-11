@@ -23,7 +23,7 @@ const make=(fixedPosition=4)=>({
  motion:{scope:"CANDIDATE_MOTION_RESEARCH_ONLY",
   moving_part_id:"synthetic_wheel",stationary_part_ids:["synthetic_deck"],
   axis_point_assembly_mm:[0,0,0],axis_direction_assembly:[0,0,1],
-  angle_range_deg:[-45,45],sample_step_deg:15,uncertainty_mm:0.25,
+  angle_range_deg:[-45,45],sample_step_deg:15,uncertainty_mm:0.1,
   kinematics_physically_verified:false,dynamic_clearance_qualified:false,
   contact_verified:false}
 });
