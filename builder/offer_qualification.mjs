@@ -171,7 +171,7 @@ export function auditMakerOrderUnits(study,registry,catalog,{as_of=registry?.rev
   check(rowsBySlot.get(v.slot)?.variant_id===v.variant_id&&
     study.report.selection[v.slot]===v.variant_id&&
     study.graph.components.some(x=>x.component_id===v.variant_id),
-    "independent graph/worklist/variant identity mismatch");
+    "audited selection differs from independent graph/worklist/variant identity");
  }
  for(const [slot,value] of Object.entries(study.report.selection)){
   check(rowsBySlot.get(slot)?.variant_id===value&&
