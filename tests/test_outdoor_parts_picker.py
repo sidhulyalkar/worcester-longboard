@@ -74,3 +74,24 @@ def test_consumer_3d_printing_prohibits_release_and_primary_retention():
         "DO_NOT_SUBSTITUTE_WITH_GENERIC_FDM_PRINT")
     assert categories["binding-alignment-template"]["classification"] == "DISPLAY_ONLY"
     assert all(not x["checkout_eligible"] for x in REGISTRY["products"])
+
+
+def test_maker_unit_evidence_is_not_a_checkout_or_physical_release():
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    html = (root / "builder/parts.html").read_text()
+    app = (root / "builder/parts_picker_app.mjs").read_text()
+    css = (root / "builder/parts.css").read_text()
+    engine = (root / "builder/offer_qualification.mjs").read_text()
+    for id_ in ("maker-audit-summary", "maker-audit-rows", "picker-export-maker-audit"):
+        assert f'id="{id_}"' in html
+    assert 'auditMakerOrderUnits' in app
+    assert 'validateSupplierObservations' in app
+    assert 'outdoor_supplier_observations.v1.json' in app
+    assert 'HISTORICAL' in engine
+    assert 'actual_checkout_total:null' in engine
+    assert 'qualified_supplier_order_lines:0' in engine
+    assert 'professional_release_authorized:false' in engine
+    assert '@media print' in css
+    assert "Historical maker pack examples" in app
+    assert 'No live stock' in app
