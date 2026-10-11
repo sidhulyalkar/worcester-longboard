@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {validateRetailRegistry,compareRetailOffers,validateBuildStudies,
- composeResearchAlternatives} from "../../builder/retail_build_comparison.mjs";
+ researchRelatedSellerListings,composeResearchAlternatives} from "../../builder/retail_build_comparison.mjs";
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"../..");
 const read=s=>JSON.parse(fs.readFileSync(path.join(root,s),"utf8"));
 const catalog=read("catalog/outdoor_parts_picker.v1.json");
@@ -93,7 +93,11 @@ test("adversarial seller identity, mismatched package, and fake privileges fail 
   x=>x.offers.push({...x.offers[0]}),
   x=>x.comparison_policy.permit_checkout=true,
   x=>x.authority.procurement_authorized=true,
-  x=>x.offers[0].seller_variant_sku="FAKE-SELLER-OPTION"
+  x=>x.offers[0].seller_variant_sku="FAKE-SELLER-OPTION",
+  x=>x.offers[0].related_product_family_id="atomic-bent90",
+  x=>x.offers[4].related_product_family_id="salomon-qst94",
+  x=>x.offers[4].related_product_family_id="bogus-family",
+  x=>x.offers[4].related_product_family_id=null
  ];
  changes.forEach((fn,i)=>assert.throws(()=>validateRetailRegistry(mutate(fn),catalog),
   /Outdoor comparisons:/,"retailer tamper case "+i));
@@ -110,4 +114,19 @@ test("duplicate builds, unfamiliar variants and unsafe status cannot be silently
  ];
  changes.forEach((fn,i)=>assert.throws(()=>validateBuildStudies(mutate(fn),catalog),
   /Outdoor comparisons:|Parts Picker:/,"study tamper case "+i));
+});
+
+test("alpine retailer bundles only appear with related ski model, never all skis",()=>{
+ const atomic=researchRelatedSellerListings(retail,catalog,"atomic-bent90");
+ assert.equal(atomic.rows.length,2);
+ assert.ok(atomic.rows.every(x=>x.description.includes("Atomic Bent 90")));
+ assert.equal(atomic.selected_size_quoted,false);
+ assert.equal(atomic.checkout_eligible,false);
+ const salomon=researchRelatedSellerListings(retail,catalog,"salomon-qst94");
+ assert.deepEqual(salomon.rows,[]);
+ const expired=researchRelatedSellerListings(retail,catalog,"atomic-bent90",
+   {as_of:"2026-11-11"});
+ assert.ok(expired.rows.every(x=>x.state==="EXPIRED_OR_FUTURE_REVIEW"));
+ assert.throws(()=>researchRelatedSellerListings(retail,catalog,"none"),
+   /known alpine ski family/);
 });
