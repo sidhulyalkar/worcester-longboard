@@ -72,7 +72,7 @@ def validate(registry: dict, legacy: dict) -> dict:
     domains = registry["domains"]
     domain_ids = [domain["id"] for domain in domains]
     assert len(domain_ids) == len(set(domain_ids)), "Duplicate sport or equipment domain"
-    assert {"mountainboard", "snowboard", "alpine_ski", "splitboard", "surfboard"}.issubset(domain_ids)
+    assert {"mountainboard", "skateboard_longboard", "snowboard", "alpine_ski", "splitboard", "surfboard"}.issubset(domain_ids)
     assert "bicycle" in domain_ids and "camping_shelter" in domain_ids
     interface_index = {row["id"]: row for row in interfaces}
     for domain in domains:
