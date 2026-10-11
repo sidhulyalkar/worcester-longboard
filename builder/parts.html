@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <meta name="description" content="Evidence-aware ski, snowboard, longboard and mountainboard parts research with 3D assembly previews and unverified order worklists.">
+ <title>Worcester · Outdoor Parts Picker</title>
+ <link rel="stylesheet" href="./parts.css">
+</head>
+<body>
+ <header class="topbar">
+  <a class="wordmark" href="./">WORCESTER <span>OUTDOOR LAB</span></a>
+  <nav aria-label="Site sections"><a href="./">Board Builder</a><a href="./catalog.html">Catalog Lab</a><a href="#supplier-directory">Supplier directory</a></nav>
+ </header>
+ <main>
+  <section class="intro">
+   <div><p class="eyebrow">CATALOG COMPOSER / EXPERIMENTAL</p>
+    <h1>Build the entire setup, not just the board.</h1>
+    <p>Compare documented ski, boot, binding and deck families in a shared 3D assembly. Every selection carries manufacturer evidence, unresolved fit checks, and a shopping worklist that distinguishes a complete kit from missing hardware.</p>
+    <p class="caution"><strong>Research only.</strong> No live stock, checkout, confirmed seller pack quantities or verified physical mount. Ski bindings require professional mounting and release testing.</p>
+   </div>
+   <aside class="intro-stats" id="picker-coverage" role="status" aria-live="polite">Loading maker-referenced equipment catalog…</aside>
+  </section>
+
+  <section class="workspace" aria-label="Outdoor parts configuration workspace">
+   <aside class="configuration">
+    <div class="panel-title"><div><p class="eyebrow">01 / CHOOSE A SPORT</p><h2>Equipment and components</h2></div></div>
+    <label for="picker-domain" class="formlabel">Active assembly</label>
+    <select id="picker-domain">
+     <option value="alpine_ski">Alpine ski · source study</option>
+     <option value="snowboard">Snowboard · source study</option>
+     <option value="skateboard_longboard">Longboard · source study</option>
+     <option value="mountainboard">Mountainboard · source study</option>
+    </select>
+    <label for="picker-search" class="formlabel">Search maker families</label>
+    <input id="picker-search" placeholder="Find a part, brand, or reference" type="search" autocomplete="off">
+    <details class="fit-controls"><summary>Rider and boot measurements (optional)</summary>
+     <p>Measurements personalize warnings; they do not automatically determine an exact boot size or ski-binding release.</p>
+     <div class="fit-fields"><label>Left foot Mondo (mm)<input id="picker-left" type="number" min="150" max="360" step="1" placeholder="Measured"></label>
+      <label>Right foot Mondo (mm)<input id="picker-right" type="number" min="150" max="360" step="1" placeholder="Measured"></label></div>
+    </details>
+    <div id="picker-slots" class="picker-slots" aria-live="polite"></div>
+   </aside>
+
+   <div class="preview">
+    <div class="panel-title">
+     <div><p class="eyebrow">02 / ASSEMBLY TWIN</p><h2>What goes where?</h2></div>
+     <div class="mode-toggle" role="group" aria-label="Assembly view"><button id="picker-3d" aria-pressed="false">Orbit in 3D</button><button id="picker-2d" aria-pressed="true">2D reference</button></div>
+    </div>
+    <div class="view-meta"><span id="picker-study-status">Unverified system study</span><span id="picker-quantity-status">0 qualified order lines</span></div>
+    <div class="assembly-canvas">
+     <div id="picker-visual-svg" aria-label="Interactive source-linked schematic assembly"></div>
+     <div id="picker-visual-3d" hidden aria-label="3D illustrative exploded assembly"></div>
+    </div>
+    <p class="visual-caption" id="picker-view-note">3D parts are procedurally drawn visual proxies. Published ski lengths and board waist ratios can inform their relative shapes, but fastener positions, tolerances, boot shells and mounting clearances are not measured CAD.</p>
+    <div class="view-controls">
+     <label for="picker-explode">Explode assembly <output id="picker-explode-output" for="picker-explode">72%</output></label>
+     <input type="range" min="0" max="100" value="72" id="picker-explode">
+     <div id="picker-camera-controls" class="camera-controls" hidden role="group" aria-label="3D camera views">
+      <button data-camera="hero">Perspective</button><button data-camera="top">Top</button><button data-camera="side">Side</button><button data-camera="front">Front</button>
+     </div>
+    </div>
+    <div class="selected-panel">
+     <h3>Selected source reference</h3>
+     <div id="picker-component-detail">Choose a part from the assembly or the equipment list.</div>
+    </div>
+    <div class="part-list-wrap"><h3>Assembly map</h3><p>Keyboard and touch selection works independently of the 3D canvas.</p><div id="picker-part-tree" class="picker-part-tree"></div></div>
+   </div>
+  </section>
+
+  <section class="order-board">
+   <div class="panel-title"><div><p class="eyebrow">03 / PACKAGE AUDIT</p><h2>PC-builder-style ordering worklist</h2></div>
+    <div class="export-buttons"><button type="button" id="picker-demo">Load sample research setup</button><button type="button" id="picker-export-json">Export review JSON</button><button type="button" id="picker-export-csv">Export worklist CSV</button></div></div>
+   <p>One selected family is not necessarily one purchasable SKU. A complete longboard may already contain parts that would otherwise be counted twice. A ski may be sold without bindings; ski mounting is a separate professional service. Every seller order quantity stays unknown until exact contents are checked.</p>
+   <div id="picker-order-status" role="status" aria-live="polite" class="order-status"></div>
+   <div class="table-scroll"><table id="picker-order-table"><thead><tr><th>System</th><th>Selection / source</th><th>Required</th><th>Seller quantity</th><th>Status</th></tr></thead><tbody id="picker-order-rows"></tbody></table></div>
+   <div id="picker-findings" class="picker-findings"></div>
+  </section>
+
+  <div class="lower-grid">
+   <section id="supplier-directory" class="reference-panel"><p class="eyebrow">04 / SOURCING</p><h2>Maker and specialist retailers</h2>
+    <p>Curated starting points, not live stock feeds. Open the manufacturer first for exact size/revision evidence, then verify the matching retailer offer, shipped unit, shipping region, returns and mounting service.</p>
+    <div id="picker-vendors" class="vendor-list"></div>
+   </section>
+   <section class="reference-panel"><p class="eyebrow">05 / FABRICATION</p><h2>3D print it, or buy the real part?</h2>
+    <p>Printing may suit custom storage, noncritical guards and visualization. No generic printed replacement is approved for ski release systems, snowboard retention, axles, brakes or battery safety hardware.</p>
+    <div id="picker-print" class="print-list"></div>
+   </section>
+  </div>
+  <footer>Evidence-aware equipment studies · No fabrication, binding-release, charging or checkout authority · <a href="../docs/outdoor_parts_picker_v1.md">Data and review contract</a></footer>
+ </main>
+ <script type="module" src="./parts_picker_app.mjs"></script>
+</body>
+</html>
