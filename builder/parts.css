@@ -110,3 +110,16 @@ main{max-width:1480px;padding:21px 25px 45px;margin:auto}.intro{display:grid;gri
 .kit-inspect-button:focus-visible{outline:3px solid #ecc791;outline-offset:3px}
 .visual-scene-status{font-size:11px;color:#b7d7d9;line-height:1.5}
 @media print{.kit-inspect-button{display:none!important}.visual-scene-status{color:#111!important}}
+
+/* Schematic, revision-bound browser CAD controls, not manufacturing authority. */
+.cad-assembly-actions{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 3px}
+.cad-assembly-actions button{padding:10px 13px;border-radius:8px;
+ border:1px solid #5d8499;background:#233e50;color:#e4f3f8;
+ font-size:12px;font-weight:600;cursor:pointer}
+.cad-assembly-actions button[aria-pressed="true"]{background:#385b68;
+ border-color:#8bb2bb;box-shadow:inset 0 0 0 1px #9cbdc7}
+.cad-assembly-actions button:disabled{opacity:.5;cursor:not-allowed}
+.cad-assembly-actions button:focus-visible{outline:3px solid #e9bc85;outline-offset:3px}
+.cad-status{margin:6px 0 14px;font-size:11px;color:#b4d5dd;line-height:1.55}
+@media print{.cad-assembly-actions{display:none!important}
+ .cad-status{color:#111!important}}
