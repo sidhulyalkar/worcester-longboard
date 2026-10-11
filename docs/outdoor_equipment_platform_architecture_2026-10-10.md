@@ -163,3 +163,10 @@ The high-value first execution tranche after this contract is **a read-only v1-t
 A concrete, source-preserving, **read-only** graph adapter now exists in builder/outdoor_catalog_graph.mjs and configurator/outdoor_catalog_graph.py, with an inspectable Catalog Lab at /builder/catalog.html. It imports existing mountainboard references into separate provisional families, variants, historical supplier offers, engineering field claims and donor contents hypotheses, without claiming actual variant identity or fit.
 
 The graph preserves the complete legacy v1 snapshot and exact replay parity. The existing board engine remains the sole live configurator. Full details and negative-test contracts are in [Outdoor Catalog Graph v1](outdoor_catalog_graph_v1_contract.md). Real snowboard/ski product ingestion and compatibility solvers are future tranches under Issue #106.
+
+
+## Assembly Atlas milestone (semantic exploded views)
+
+An additional domain-specific **assembly recipe and SVG renderer** is now implemented in [Exploded Assembly Atlas contract](exploded_assembly_contract.md). It groups actual selected mountainboard catalog components into source-bound conceptual assemblies, connects probable donor contents as *unverified hypotheses*, and visualizes a schematic explode slider with part evidence and export. Five other sports have runnable, clearly **unsourced** example assembly recipes to validate that the UI and graphs are not board-only. No manufacturer product data or compatibility is created for those sports by the illustration layer.
+
+The graph is Python/JavaScript parity-checked across current board candidates and all five examples, and remains independent of exact fitting, fastener, ski release, purchase or electrical commissioning authority.
