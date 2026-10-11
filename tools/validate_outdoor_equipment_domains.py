@@ -78,6 +78,12 @@ def validate(registry: dict, legacy: dict) -> dict:
     for domain in domains:
         assert domain["stage"] in STAGES
         assert domain["required_roles"] and domain["interface_type_ids"]
+        conditional = domain.get("conditional_required_roles", [])
+        conditional_ids = [x["role"] for x in conditional]
+        assert len(conditional_ids) == len(set(conditional_ids)), "Duplicate conditional role"
+        assert all(x.get("when") and x.get("review") for x in conditional)
+        assert set(conditional_ids).isdisjoint(domain["required_roles"])
+        assert set(conditional_ids).isdisjoint(domain["optional_roles"])
         assert set(domain["required_roles"]).isdisjoint(domain["optional_roles"])
         assert all(isinstance(role, str) and role for role in
                    domain["required_roles"] + domain["optional_roles"])
@@ -110,6 +116,13 @@ def validate(registry: dict, legacy: dict) -> dict:
         d = next(x for x in domains if x["id"] == critical)
         assert "PROFESSIONAL" in d["qualification_policy"] or "CERTIFIED" in d["qualification_policy"]
     assert "electrical_powertrain" in target["interface_type_ids"]
+    for winter_domain in ("touring_ski", "splitboard"):
+        domain = next(x for x in domains if x["id"] == winter_domain)
+        assert any(x["role"] == "avalanche_safety_kit" and
+                   x["when"] == "AVALANCHE_TERRAIN" for x in
+                   domain.get("conditional_required_roles", [])), (
+            "Backcountry recipe needs terrain-conditional avalanche safety gear"
+        )
     return {
         "schema_version": 0,
         "validation": "DOMAIN_VOCABULARY_ONLY_NO_V1_RUNTIME_CHANGES",
