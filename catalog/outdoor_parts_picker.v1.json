@@ -32,28 +32,28 @@
       "coverage": "MAKER_SEEDED_RESEARCH"
     },
     {
+      "id": "touring_ski",
+      "label": "Touring skis",
+      "coverage": "TAXONOMY_ONLY_NO_ORDERABLE_VARIANTS"
+    },
+    {
       "id": "splitboard",
-      "label": "splitboard",
+      "label": "Splitboard",
       "coverage": "TAXONOMY_ONLY_NO_ORDERABLE_VARIANTS"
     },
     {
       "id": "surfboard",
-      "label": "surfboard",
+      "label": "Surfboard",
       "coverage": "TAXONOMY_ONLY_NO_ORDERABLE_VARIANTS"
     },
     {
-      "id": "kiteboard",
-      "label": "kiteboard",
+      "id": "bicycle",
+      "label": "Bicycle",
       "coverage": "TAXONOMY_ONLY_NO_ORDERABLE_VARIANTS"
     },
     {
-      "id": "wakeboard",
-      "label": "wakeboard",
-      "coverage": "TAXONOMY_ONLY_NO_ORDERABLE_VARIANTS"
-    },
-    {
-      "id": "snowshoe",
-      "label": "snowshoe",
+      "id": "camping_shelter",
+      "label": "Camping shelter",
       "coverage": "TAXONOMY_ONLY_NO_ORDERABLE_VARIANTS"
     }
   ],
@@ -317,7 +317,9 @@
       "kind": "specialist_retailer",
       "domains": [
         "alpine_ski",
-        "snowboard"
+        "snowboard",
+        "camping_shelter",
+        "bicycle"
       ],
       "notes": "Retailer for gear and local services; confirm exact shop service before order.",
       "stock_verified": false,
@@ -343,7 +345,8 @@
       "kind": "specialist_retailer",
       "domains": [
         "alpine_ski",
-        "splitboard"
+        "splitboard",
+        "touring_ski"
       ],
       "notes": "Touring binding parts and service manuals; touring compatibility separate.",
       "stock_verified": false,
@@ -370,6 +373,55 @@
         "skateboard_longboard"
       ],
       "notes": "Longboard wheels and bushings, exact axle/bearing fit to be confirmed.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    },
+    {
+      "id": "fcs",
+      "name": "FCS Surf",
+      "url": "https://www.surffcs.com/pages/fin-systems",
+      "kind": "manufacturer",
+      "domains": [
+        "surfboard"
+      ],
+      "notes": "Fin-box family reference. Legacy FCS-to-FCS II may require hardware; match installed box.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    },
+    {
+      "id": "voile",
+      "name": "Voilé",
+      "url": "https://www.voile.com/",
+      "kind": "manufacturer",
+      "domains": [
+        "splitboard",
+        "touring_ski"
+      ],
+      "notes": "Maker-specific splitboard puck/touring interfaces; exact adapters need review.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    },
+    {
+      "id": "shimano",
+      "name": "Shimano",
+      "url": "https://bike.shimano.com/",
+      "kind": "manufacturer",
+      "domains": [
+        "bicycle"
+      ],
+      "notes": "Official bike drivetrain/brake compatibility documents and exact model revision checks.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    },
+    {
+      "id": "bigagnes",
+      "name": "Big Agnes",
+      "url": "https://www.bigagnes.com/",
+      "kind": "manufacturer",
+      "domains": [
+        "camping_shelter"
+      ],
+      "notes": "Tent model-specific parts and accessory source; exact pole/tent version must be checked.",
       "stock_verified": false,
       "returns_terms_currently_verified": false
     }
