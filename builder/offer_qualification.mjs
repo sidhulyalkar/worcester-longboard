@@ -153,6 +153,31 @@ export function auditMakerOrderUnits(study,registry,catalog,{as_of=registry?.rev
  check(study.graph.domain_id===study.report.domain_id,"graph/report sport mismatch");
  check(JSON.stringify(study.selection)===JSON.stringify(study.report.selection),
    "selected variant state is not the audited selection");
+ // Structured cloning and snapshots can preserve aliasing between the two
+ // objects above. Cross-check the independent BOM rows + selected variants.
+ check(Array.isArray(study.report.rows)&&Array.isArray(study.selected_variants),
+   "missing independent selection receipts");
+ const rowsBySlot=new Map();
+ for(const row of study.report.rows){
+  check(typeof row.slot==="string"&&!rowsBySlot.has(row.slot),
+   "duplicate or invalid worklist slot");
+  rowsBySlot.set(row.slot,row);
+ }
+ const variantBySlot=new Map();
+ for(const v of study.selected_variants){
+  check(typeof v.slot==="string"&&!variantBySlot.has(v.slot),
+   "duplicate independent selected variant");
+  variantBySlot.set(v.slot,v);
+  check(rowsBySlot.get(v.slot)?.variant_id===v.variant_id&&
+    study.report.selection[v.slot]===v.variant_id&&
+    study.graph.components.some(x=>x.component_id===v.variant_id),
+    "independent graph/worklist/variant identity mismatch");
+ }
+ for(const [slot,value] of Object.entries(study.report.selection)){
+  check(rowsBySlot.get(slot)?.variant_id===value&&
+    variantBySlot.get(slot)?.variant_id===value,
+    "audited selection does not match source worklist receipt");
+ }
  const now=utcDay(as_of);
  const targets=new Map(registry.unit_requirements.map(x=>[refKey(x),x]));
  const selected=new Map(study.selected_variants.map(x=>[x.slot,x]));
