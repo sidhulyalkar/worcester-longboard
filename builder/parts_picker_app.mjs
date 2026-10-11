@@ -12,6 +12,8 @@ import {inspectGlbBytes} from "./cad_glb_contract.mjs";
 import {validateCadDimensionalEvidence,planCadPublishedDimensions}
  from "./cad_dimension_evidence.mjs";
 import {evaluateMetricFixture} from "./cad_metric_workbench.mjs";
+import {sampleCandidateMotionSweep,renderCandidateMotionSvg}
+ from "./cad_candidate_motion.mjs";
 const $=selector=>document.querySelector(selector);
 const esc=x=>String(x??"").replaceAll("&","&amp;").replaceAll("<","&lt;")
  .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
@@ -22,7 +24,7 @@ const cleanUrl=value=>{
 const state={catalog:null,offerObservations:null,offerAudit:null,
  retailCatalog:null,studyCatalog:null,alternatives:null,kitClaims:null,kitAudit:null,visualGraph:null,
  cadRecipe:null,cadModel:null,cadRegistry:null,cadReadiness:null,
- cadInspector:null,inspectedKit:null,dimensionalEvidence:null,publishedCad:null,metricResult:null,
+ cadInspector:null,inspectedKit:null,dimensionalEvidence:null,publishedCad:null,metricResult:null,motionResult:null,
  domain:"skateboard_longboard",selections:{},study:null,
  mode:"2d",separation:0,selectedId:null,viewer:null,viewerPromise:null,
  search:""};
@@ -230,8 +232,12 @@ function renderCompleteKitClosure(){
  }
  renderCadAssetReadiness();
  renderCadMakerDimensions();
- state.metricResult=null;
+ state.metricResult=null;state.motionResult=null;
  $("#picker-cad-metric-export").disabled=true;
+ $("#picker-cad-motion-export").disabled=true;
+ $("#picker-cad-motion-plot").replaceChildren();
+ $("#picker-cad-motion-status").textContent=
+  "No optional motion fixture loaded · steering and wheel-bite clearance UNKNOWN.";
  $("#picker-cad-metric-upload").disabled=!state.cadModel;
  $("#picker-cad-metric-results").replaceChildren();
  $("#picker-cad-metric-status").textContent=
@@ -576,6 +582,10 @@ function initEvents(){
   if(state.publishedCad)download("worcester-maker-dimensions-"+state.domain+".json",
    JSON.stringify(state.publishedCad,null,2)+"\n","application/json");
  });
+ $("#picker-cad-motion-export").addEventListener("click",()=>{
+  if(state.motionResult)download("worcester-candidate-motion-"+state.domain+".json",
+   JSON.stringify(state.motionResult,null,2)+"\n","application/json");
+ });
  $("#picker-cad-metric-export").addEventListener("click",()=>{
   if(state.metricResult)download("worcester-metric-candidate-"+state.domain+".json",
    JSON.stringify(state.metricResult,null,2)+"\n","application/json");
@@ -592,10 +602,19 @@ function initEvents(){
     throw Error("Choose a survey JSON under 64 KB with a complete kit selected");
    const input=JSON.parse(await file.text());
    const result=evaluateMetricFixture(input,{expected_variant_id:variant});
+   const motion=input.motion?sampleCandidateMotionSweep(input,
+    {expected_variant_id:variant}):null;
    if(kitId!==state.cadModel?.kit_id)
     throw Error("kit selection changed during calculation");
-   state.metricResult=result;
+   state.metricResult=result;state.motionResult=motion;
    $("#picker-cad-metric-export").disabled=false;
+   $("#picker-cad-motion-export").disabled=!motion;
+   $("#picker-cad-motion-status").textContent=motion?
+    "Candidate motion: "+motion.sample_count+" sampled angles · "+
+     motion.possible_overlap_pairs+" of "+motion.pair_count+
+     " pairs show possible AABB overlap at one or more samples · physical clearance UNKNOWN":
+    "No optional motion block in survey JSON · steering and wheel-bite clearance UNKNOWN.";
+   $("#picker-cad-motion-plot").innerHTML=motion?renderCandidateMotionSvg(motion):"";
    status.textContent=String(result.candidate_pairs_checked)+" candidate pair(s)"+
     " · "+result.possible_overlap_pairs+" potential AABB overlap(s)"+
     " · 0 physical clearances verified, 0 engineering approvals";
@@ -606,6 +625,11 @@ function initEvents(){
      '</td><td>Physical clearance UNKNOWN</td></tr>').join("")+
     '</tbody></table></div>';
   }catch(error){
+   state.metricResult=null;state.motionResult=null;
+   $("#picker-cad-motion-export").disabled=true;
+   $("#picker-cad-motion-plot").replaceChildren();
+   $("#picker-cad-motion-status").textContent=
+    "Motion study unavailable. No physical clearance or contact decision.";
    status.textContent="Metric survey held: "+error.message+
     ". No changes to the assembled board or safety readiness.";
   }finally{event.target.value="";}
