@@ -45,6 +45,7 @@ jobs:
           node --check builder/assembly_graph.mjs
           node --check builder/exploded_renderer.mjs
           node --check builder/snowboard_mount_reference.mjs
+          node --check tools/generate_snowboard_mount_checks.mjs
           node --check tools/generate_exploded_assembly_graphs.mjs
           node --check builder/catalog_lab.mjs
           node --check tools/generate_outdoor_catalog_graph.mjs
@@ -135,6 +136,7 @@ jobs:
           python tools/validate_outdoor_assembly_recipes.py
           python tools/compare_exploded_assemblies.py
           python tools/validate_board_sport_reference_studies.py
+          python tools/compare_snowboard_mount_checks.py
           python - <<'PY'
           import json
           from pathlib import Path
