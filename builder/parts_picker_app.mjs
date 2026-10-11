@@ -105,6 +105,11 @@ function selectPart(id){
 function redrawVisual(){
  const graph=currentGraph();
  if(!graph)return;
+ const kit=graph.kit_parent_variant_id!==undefined;
+ $("#picker-rendered-scene-status").textContent=kit?
+  graph.components.length+" distinct maker-advertised kit component categories · "+
+  "0 received/verified pieces · unmeasured 2D/3D visual proxies · one parent package":
+  graph.components.length+" source-family component reference(s) · unmeasured visual proxies";
  const host=$("#picker-visual-svg");
  host.innerHTML=renderExplodedAssemblySvg(graph,{explode:state.separation,
   selectedId:state.selectedId});
@@ -406,7 +411,7 @@ async function use3D(){
  $("#picker-camera-controls").hidden=false;
  $("#picker-3d").setAttribute("aria-pressed","true");
  $("#picker-2d").setAttribute("aria-pressed","false");
- $("#picker-view-note").textContent="3D is a source-linked size/proportion STUDY, never measured mounting geometry. Rotate with mouse/touch, select parts via the list, or choose a camera preset.";
+ $("#picker-view-note").textContent="3D shows independently explodable source-named categories, not measured parts or mounting geometry. Rotate with mouse/touch, select a component or choose a camera preset.";
  try{
   if(!state.viewerPromise){
    state.viewerPromise=import("./exploded_3d_viewer.mjs")
