@@ -9,6 +9,7 @@ import {assemblyGuide} from "./assembly_guide.mjs";
 import {buildAssemblyGraph} from "./assembly_graph.mjs";
 import {renderExplodedAssemblySvg} from "./exploded_renderer.mjs";
 import {evaluateSnowboardMountReference} from "./snowboard_mount_reference.mjs";
+import {assessBoardSportFit} from "./sport_fit_intake.mjs";
 import {buildBuildPassport,proposePassportRevisionChange} from "./build_passport.mjs";
 import {emptyEvidenceNotebook,recordEvidence,restoreEvidenceNotebook,evaluateEvidenceNotebook,EVIDENCE_KINDS} from "./evidence_notebook.mjs";
 import {buildReceivingReconciliation} from "./receiving_reconciliation.mjs";
@@ -67,6 +68,7 @@ const state = {
  explodedDisplayMode: "2d",
  exploded3DViewer: null,
  exploded3DLoading: null,
+ sportFitReport: null,
   receivingExpanded: false,
   comparisonIds: [],
   comparisonInitialized: false,
@@ -1330,6 +1332,51 @@ function renderExplodedView(candidate){
      '<p>'+graph.package_inclusion_hypotheses.length+' donor package references require actual receipt and included-parts reconciliation.</p>':'');
  redrawExplodedAssembly();
 }
+
+function initializeSportFitLab(){
+ const $fit=id=>$("#fit-"+id);
+ const container=$("#sport-fit-lab");
+ const syncSport=()=>{
+  const ski=$fit("sport").value==="alpine_ski";
+  $("#fit-snowboard-fields").hidden=ski;
+  $("#fit-ski-fields").hidden=!ski;
+ };
+ const invalidate=()=>{
+  state.sportFitReport=null;
+  $fit("export").disabled=true;
+  $("#fit-results").textContent="Inputs changed. Re-run the evidence and interface check; no fit is approved.";
+ };
+ $fit("sport").addEventListener("change",syncSport);
+ container.addEventListener("input",invalidate);
+ container.addEventListener("change",invalidate);
+ $fit("run").addEventListener("click",()=>{
+  const norm=$fit("binding-norm").value;
+  const report=assessBoardSportFit({
+   sport:$fit("sport").value,
+   rider_height_cm:$fit("height").value,rider_mass_kg:$fit("mass").value,
+   left_mondo_mm:$fit("left").value,right_mondo_mm:$fit("right").value,
+   board_mount:$fit("board-mount").value,binding_mount:$fit("binding-mount").value,
+   disc_family:$fit("disc").value,boot_retention:$fit("retention").value,
+   boot_sole_norm:$fit("sole-norm").value,
+   binding_accepted_norms:norm?[norm]:[],
+   boot_sole_length_mm:$fit("bsl").value,
+   ski_waist_mm:$fit("waist").value,brake_width_mm:$fit("brake").value
+  });
+  state.sportFitReport=report;
+  const flagged=report.findings.filter(x=>x.status==="INCOMPATIBLE");
+  $("#fit-results").innerHTML='<h4>'+escapeHtml(report.qualification.replaceAll("_"," "))+'</h4>'+
+   '<p>Declared values only, not source-bound exact product variants. '+
+   flagged.length+' known reference conflict(s); '+report.findings.length+
+   ' checks. All mounting, release and purchase decisions remain on hold.</p>'+
+   '<ul>'+report.findings.map(x=>'<li><strong>'+escapeHtml(x.status.replaceAll("_"," "))+
+   ' · '+escapeHtml(x.code.replaceAll("_"," "))+'</strong> '+escapeHtml(x.text)+'</li>').join("")+'</ul>';
+  $fit("export").disabled=false;
+ });
+ $fit("export").addEventListener("click",()=>{
+  if(state.sportFitReport)downloadJson("worcester-board-sport-fit-review.json",state.sportFitReport);
+ });
+ syncSport();
+}
 function initializeExplodedControls(){
  $("#exploded-mode-2d").addEventListener("click",()=>setExplodedMode("2d"));
  $("#exploded-mode-3d").addEventListener("click",()=>setExplodedMode("3d"));
@@ -2142,6 +2189,7 @@ async function main() {
   try {
     state.bundle = await loadBundle();
     initializeExplodedControls();
+    initializeSportFitLab();
     try{state.evidenceBooks=JSON.parse(localStorage.getItem(EVIDENCE_STORAGE_KEY)||"{}");}
     catch{state.evidenceBooks={};}
     if(!state.evidenceBooks || typeof state.evidenceBooks!=="object" ||
