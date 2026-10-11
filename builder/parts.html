@@ -70,6 +70,17 @@
       <button data-camera="hero">Perspective</button><button data-camera="top">Top</button><button data-camera="side">Side</button><button data-camera="front">Front</button>
      </div>
     </div>
+    <details class="cad-import-lab" id="picker-cad-import-lab">
+     <summary>CAD asset laboratory · exact revisions, GLB inspection and evidence gaps</summary>
+     <p>The integrated board remains above. Inspect imported geometry in a separate viewport: a local GLB supplies no trustworthy mounting datum or physical units. Convert STEP to a self-contained GLB offline, recording units, revision, rights and SHA-256 before a source-backed asset can be registered.</p>
+     <p id="picker-cad-readiness" role="status" aria-live="polite">Checking exact-revision CAD coverage…</p>
+     <div class="table-scroll"><table class="cad-coverage-table"><thead><tr><th>Assembly category</th><th>File-backed geometry</th><th>Mounting datum</th></tr></thead><tbody id="picker-cad-coverage-rows"></tbody></table></div>
+     <button type="button" id="picker-cad-evidence-export" disabled>Export CAD readiness evidence</button>
+     <label class="cad-inspect-label" for="picker-cad-upload">Inspect a local GLB for the selected assembly category (25 MB max)</label>
+     <input id="picker-cad-upload" type="file" accept=".glb,model/gltf-binary" disabled>
+     <p id="picker-cad-inspect-status" role="status" aria-live="polite">No GLB inspected. Complete board above is an unmeasured procedural reference.</p>
+     <div id="picker-cad-file-inspector" class="cad-file-inspector" hidden></div>
+    </details>
     <div class="selected-panel">
      <h3>Selected source reference</h3>
      <div id="picker-component-detail">Choose a part from the assembly or the equipment list.</div>
