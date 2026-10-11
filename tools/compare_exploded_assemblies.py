@@ -40,8 +40,9 @@ def main():
     registry=read("catalog/board_package_inclusions.v1.json")
     recipes=read("catalog/outdoor_assembly_recipes.v1.json")
     profile=read("configurator/examples/trail_rider_profile.json")
-    subjects=generate_board_design_space(profile,bundle)["candidates"]+recipes["examples"]
-    py=[build_assembly_graph(s,recipes,catalog,registry) for s in subjects]
+    refs=read("catalog/board_sport_reference_studies.v1.json")
+    subjects=generate_board_design_space(profile,bundle)["candidates"]+recipes["examples"]+refs["studies"]
+    py=[build_assembly_graph(s,recipes,catalog,registry,refs) for s in subjects]
     js=json.loads(subprocess.check_output(["node","tools/generate_exploded_assembly_graphs.mjs"],
                                           cwd=ROOT,text=True))
     mismatch=difference(py,js)
@@ -49,8 +50,9 @@ def main():
     assert all(not any(x["authority"].values()) for x in py)
     assert all(x["completeness"]["physical_connections_qualified"]==0 for x in py)
     print(json.dumps({"parity":"PASS","graphs":len(py),
-       "existing_board_studies":len(subjects)-len(recipes["examples"]),
+       "existing_board_studies":len(subjects)-len(recipes["examples"])-len(refs["studies"]),
        "illustrative_sport_concepts":len(recipes["examples"]),
+       "manufacturer_source_studies":len(refs["studies"]),
        "physical_approvals":0},indent=2))
 
 if __name__=="__main__":
