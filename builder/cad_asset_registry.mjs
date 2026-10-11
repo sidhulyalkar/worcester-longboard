@@ -7,7 +7,7 @@ const roles=["deck","zee_brackets","trucks","wheels","bearings",
  "deck_hardware","truck_hardware"];
 const id=x=>typeof x==="string"&&/^[a-z0-9][a-z0-9._-]{1,119}$/.test(x);
 const sourceIdentifier=x=>typeof x==="string"&&x.trim()===x&&
- x.length>1&&x.length<=200&&!/[\\x00-\\x1f]/.test(x);
+ x.length>1&&x.length<=200&&[...x].every(c=>c.charCodeAt(0)>=32);
 const https=x=>{try{const u=new URL(x);return u.protocol==="https:"&&!u.username&&!u.password;}catch{return false;}};
 const sha=x=>typeof x==="string"&&/^[a-f0-9]{64}$/.test(x);
 const locks=["procurement_authorized","fabrication_authorized",
