@@ -35,7 +35,8 @@ export function validatePartsRegistry(data){
  assert(data?.scope===SCOPE&&data.schema_version===1,"unsupported catalog");
  assert(Array.isArray(data.domains)&&Array.isArray(data.assembly_templates)&&
    Array.isArray(data.products)&&Array.isArray(data.sources)&&
-   Array.isArray(data.vendors)&&Array.isArray(data.print_guidance),"missing registry sections");
+   Array.isArray(data.vendors)&&Array.isArray(data.print_guidance)&&
+   Array.isArray(data.observed_listing_prices),"missing registry sections");
  unique(data.domains,x=>x.id);unique(data.sources,x=>x.id);
  unique(data.vendors,x=>x.id);unique(data.products,x=>x.id);
  const sources=new Map(data.sources.map(x=>[x.id,x]));
@@ -68,6 +69,22 @@ export function validatePartsRegistry(data){
      Number.isFinite(n)&&n>0),"invalid typed metric dimension");
    }
   }
+ }
+ const productById=new Map(data.products.map(x=>[x.id,x]));
+ const vendorById=new Map(data.vendors.map(x=>[x.id,x]));
+ unique(data.observed_listing_prices,x=>x.product_id);
+ for(const offer of data.observed_listing_prices){
+  const p=productById.get(offer.product_id);
+  assert(p&&p.source_id===offer.source_id&&vendorById.has(offer.merchant_id),
+   "orphan or mismatched price observation");
+  assert(offer.currency==="USD"&&Number.isFinite(offer.displayed_maker_listing_usd)&&
+   offer.displayed_maker_listing_usd>0&&offer.observed_on===data.as_of,
+   "invalid dated maker price");
+  assert(offer.price_basis==="MAKER_FAMILY_LISTING_NOT_EXACT_SIZE_ORDER_QUOTE"&&
+   offer.exact_sku_and_selected_size_confirmed===false&&
+   offer.seller_order_units===null&&offer.stock_verified===false&&
+   offer.eligible_for_bom_total===false&&offer.checkout_eligible===false,
+   "price cannot be used as a qualified supplier offer");
  }
  assert(Object.values(data.policy).every(v=>v===false),"catalog cannot grant physical or checkout rights");
  return {domains:data.domains.length,product_families:data.products.length,
@@ -233,6 +250,7 @@ export function buildPickerStudy(data,{domain_id,selections={},profile={}}={}){
   label:x.product.name+" · "+x.variant.label,
   source_url:sourceById.get(x.product.source_id).url,
   dimensions_mm:x.variant.dimensions_mm??null,
+  indicative_family_price:data.observed_listing_prices.find(p=>p.product_id===x.product.id)??null,
   inclusion_claim:x.product.inclusion_claim
  }))};
 }
