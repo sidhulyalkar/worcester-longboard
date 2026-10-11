@@ -10,16 +10,27 @@ const clone=x=>JSON.parse(JSON.stringify(x));
 const assert=(valid,message)=>{if(!valid)throw new Error("Outdoor catalog graph: "+message)};
 const namespaced=(kind,id)=>kind+":mountainboard:"+id;
 const stableBinding=c=>JSON.stringify([
-  c.id,c.category,c.sku??null,c.source?.kind??null,
-  c.source?.snapshot_id??null,c.source?.as_of??null,c.source?.url??null
+  c.id,c.category,c.label,c.manufacturer??null,c.sku??null,c.source?.kind??null,
+  c.source?.snapshot_id??null,c.source?.as_of??null,c.source?.url??null,
+  c.source?.seller??null,c.source?.native_price_snapshot??null,
+  c.price?.kind??null,c.price?.qty??null,
+  c.price?.unit_price_usd??null,c.price?.min_usd??null,c.price?.max_usd??null
 ]);
 const exactTextSku=c=>{
   if(!c.sku)return "ABSENT";
   return /(?:\/|\bfamily\b|\bclass\b)/i.test(c.sku)?"FAMILY_OR_ALTERNATE_SKUS_UNRESOLVED":"CATALOG_SKU_TEXT_NOT_RECEIVED_VARIANT";
 };
-const trustedListing=s=>
-  ["vendor","retailer"].includes(s?.kind) && typeof s.url==="string" &&
-  /^https:\/\//i.test(s.url) && !!s.snapshot_id && !!s.as_of && !!s.seller;
+const trustedListing=s=>{
+  if(!["vendor","retailer"].includes(s?.kind) ||
+    typeof s.url!=="string" || !s.snapshot_id || !s.as_of || !s.seller ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(s.as_of))return false;
+  try{
+    const parsed=new URL(s.url),date=new Date(s.as_of+"T00:00:00.000Z");
+    return parsed.protocol==="https:" && !!parsed.hostname &&
+      !parsed.username && !parsed.password && !Number.isNaN(date.valueOf()) &&
+      date.toISOString().slice(0,10)===s.as_of;
+  }catch{return false;}
+};
 export function buildOutdoorCatalogGraph(catalog,domains,packageRegistry){
  assert(catalog?.schema_version===1 && Array.isArray(catalog.components),
    "expected existing board components v1");
