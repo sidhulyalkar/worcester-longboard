@@ -86,15 +86,29 @@
    <p>Only named, matching product configurations and package families are compared. A shared model name is not enough; prices are historical page observations, not verified shopping-cart amounts. Availability, shipping, returns and tax are unknown.</p>
    <div id="picker-retail-results" aria-live="polite"></div>
   </section>
+  <section class="kit-closure" id="picker-kit-closure" aria-labelledby="picker-kit-heading">
+   <div class="panel-title">
+    <div><p class="eyebrow">05 / COMPLETE KIT RECEIPT</p>
+     <h2 id="picker-kit-heading">What's inside one complete board?</h2></div>
+    <button id="picker-export-kit" type="button" disabled>Export kit inclusion research JSON</button>
+   </div>
+   <p>One advertised seller package can contain many physical components. This lists manufacturer-claimed inclusions separately from assembly-count expectations and actual shipped contents. It does not add seven separate products to the cart or imply a measured assembly.</p>
+   <div id="picker-kit-summary" role="status" aria-live="polite">Choose a complete longboard to inspect its advertised component claims.</div>
+   <div class="table-scroll"><table class="kit-closure-table">
+    <thead><tr><th>Component / stable ID</th><th>Expected assembly units</th><th>Maker's inclusion claim</th><th>Units received</th><th>Status / original source</th></tr></thead>
+    <tbody id="picker-kit-rows"></tbody>
+   </table></div>
+   <div id="picker-kit-unknowns" class="kit-closure-unknowns"></div>
+  </section>
   <section class="order-board">
-   <div class="panel-title"><div><p class="eyebrow">05 / PACKAGE AUDIT</p><h2>PC-builder-style ordering worklist</h2></div>
+   <div class="panel-title"><div><p class="eyebrow">06 / PACKAGE AUDIT</p><h2>PC-builder-style ordering worklist</h2></div>
     <div class="export-buttons"><button type="button" id="picker-demo">Load sample research setup</button><button type="button" id="picker-export-json">Export review JSON</button><button type="button" id="picker-export-csv">Export worklist CSV</button></div></div>
    <p>One selected family is not necessarily one purchasable SKU. A complete longboard may already contain parts that would otherwise be counted twice. A ski may be sold without bindings; ski mounting is a separate professional service. Every seller order quantity stays unknown until exact contents are checked.</p>
    <div id="picker-order-status" role="status" aria-live="polite" class="order-status"></div>
    <div class="table-scroll"><table id="picker-order-table"><thead><tr><th>System</th><th>Selection / source</th><th>Required</th><th>Seller quantity</th><th>Status</th></tr></thead><tbody id="picker-order-rows"></tbody></table></div>
    <section class="maker-unit-audit" aria-labelledby="maker-unit-audit-title">
     <div class="panel-title">
-     <div><p class="eyebrow">06 / MANUFACTURER PACK RECEIPTS</p>
+     <div><p class="eyebrow">07 / MANUFACTURER PACK RECEIPTS</p>
       <h3 id="maker-unit-audit-title">Why this exact quantity?</h3></div>
      <button type="button" id="picker-export-maker-audit">Export unit evidence JSON</button>
     </div>
