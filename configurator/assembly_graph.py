@@ -17,7 +17,8 @@ def _unique(rows, label):
 
 def build_assembly_graph(subject: dict[str, Any], recipes: dict[str, Any],
                          catalog: dict[str, Any] | None = None,
-                         package_registry: dict[str, Any] | None = None) -> dict[str, Any]:
+                         package_registry: dict[str, Any] | None = None,
+                         reference_studies: dict[str, Any] | None = None) -> dict[str, Any]:
     if (recipes.get("scope") != "CONCEPTUAL_ASSEMBLY_VISUALIZATION_NOT_PHYSICAL_INSTRUCTIONS" or
             recipes.get("schema_version") != 1 or not isinstance(recipes.get("groups"), list) or
             not isinstance(recipes.get("domains"), list)):
@@ -37,13 +38,20 @@ def build_assembly_graph(subject: dict[str, Any], recipes: dict[str, Any],
     if not isinstance(rows, list) or not rows:
         raise ValueError("Missing assembly parts")
     source_parts = {x["id"]: x for x in (catalog or {}).get("components", [])}
+    reference_backed = False
     if concept:
-        if subject["id"] != domain["example_id"]:
-            raise ValueError("Unsupported unsourced concept identity")
         canonical = next((x for x in recipes["examples"] if
                           x["id"] == subject["id"] and x["domain_id"] == domain_id), None)
-        if not canonical or canonical != subject:
-            raise ValueError("Concept must be exact source-bound recipe; no arbitrary components")
+        studied = next((x for x in (reference_studies.get("studies") or []) if
+                        x["id"] == subject["id"] and x["domain_id"] == domain_id), None) if (
+                            reference_studies and
+                            reference_studies.get("scope") == "SOURCE_REFERENCED_BOARD_SPORT_STUDIES_NOT_VERIFIED_FIT_OR_CHECKOUT"
+                        ) else None
+        exact_concept = canonical is not None and canonical == subject
+        exact_study = studied is not None and studied == subject
+        if not exact_concept and not exact_study:
+            raise ValueError("Concept or reference study must match exact reviewed registry")
+        reference_backed = exact_study
     if not concept and (not catalog or not package_registry or
                         package_registry.get("scope") != "CATALOG_INCLUSION_HYPOTHESES_NOT_PACKAGE_CERTIFICATION"):
         raise ValueError("Existing board requires full source and donor registers")
@@ -71,16 +79,21 @@ def build_assembly_graph(subject: dict[str, Any], recipes: dict[str, Any],
         if not group:
             raise ValueError("Unknown assembly role " + role)
         source = (reference or {}).get("source") or {}
-        ref_kind = "illustrative_concept" if concept else source.get("kind") or "repository_reference"
+        ref_kind = ((row["source_kind"] if reference_backed else "illustrative_concept")
+                    if concept else source.get("kind") or "repository_reference")
         component_nodes.append({
             "id": "part:" + component_id,
             "component_id": component_id, "group_id": group["id"],
             "role": role, "label": row["label"], "order_index": i,
-            "manufacturer": None if concept else reference.get("manufacturer"),
-            "sku_text": None if concept else reference.get("sku"),
+            "manufacturer": (row.get("manufacturer") if reference_backed else None) if concept
+                else reference.get("manufacturer"),
+            "sku_text": (row.get("sku") if reference_backed else None) if concept
+                else reference.get("sku"),
             "source_kind": ref_kind,
-            "source_url": None if concept else source.get("url"),
-            "source_snapshot_id": None if concept else source.get("snapshot_id"),
+            "source_url": (row.get("source_url") if reference_backed else None) if concept
+                else source.get("url"),
+            "source_snapshot_id": (row.get("source_id") if reference_backed else None) if concept
+                else source.get("snapshot_id"),
             "exact_variant_verified": False,
             "assembly_required_quantity": None, "supplier_order_quantity": None,
             "visual_proxy_only": True,
@@ -141,11 +154,20 @@ def build_assembly_graph(subject: dict[str, Any], recipes: dict[str, Any],
     return {
         "schema_version": 1, "scope": "UNQUALIFIED_SEMANTIC_ASSEMBLY_EXPLODED_VIEW",
         "subject_id": subject["id"], "domain_id": domain_id, "label": subject["label"],
-        "origin": "ILLUSTRATIVE_DOMAIN_RECIPE" if concept else "EXISTING_BOARD_CANDIDATE",
-        "source_snapshot_as_of": None if concept else catalog.get("as_of"),
+        "origin": ("MANUFACTURER_REFERENCED_INTEGRATION_STUDY" if reference_backed else
+                   "ILLUSTRATIVE_DOMAIN_RECIPE" if concept else "EXISTING_BOARD_CANDIDATE"),
+        "source_snapshot_as_of": (reference_studies["reviewed_as_of"] if reference_backed else
+                                  None if concept else catalog.get("as_of")),
         "groups": active_groups, "components": component_nodes, "connections": connections,
         "package_inclusion_hypotheses": package_claims,
-        "unresolved_system_checks": list(domain["important_checks"]),
+        "manufacturer_advertised_contents": [
+            {"role": role, "source_listed": True,
+             "physically_received_and_counted": False, "shipped_quantity": None}
+            for role in subject["advertised_contents"]
+        ] if reference_backed else [],
+        "manufacturer_mount_reference": subject["known_mount_lookups"] if reference_backed else None,
+        "unresolved_system_checks": list(domain["important_checks"]) +
+            (list(subject["additional_checks"]) if reference_backed else []),
         "completeness": {
             "catalog_components_included": len(component_nodes),
             "unique_bom_component_ids": len(seen),
