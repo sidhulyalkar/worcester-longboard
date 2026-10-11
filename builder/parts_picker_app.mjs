@@ -151,6 +151,7 @@ function renderCadAssetReadiness(){
   esc(r.geometry_status==="PARAMETRIC_PROXY_ONLY"?
    "Procedural proxy only":"Dated GLB candidate, not aligned")+
   (r.revision?" · "+esc(r.revision):"")+
+  (r.asset_id?' <button type="button" data-cad-asset="'+esc(r.asset_id)+'">Inspect pinned GLB</button>':"")+
   '</td><td>UNKNOWN · not verified</td></tr>').join("");
  $("#picker-cad-readiness").textContent=state.cadModel?
   report.asset_candidates+"/7 file-backed candidates · "+report.missing_geometry+
@@ -549,6 +550,44 @@ function initEvents(){
  $("#picker-cad-evidence-export").addEventListener("click",()=>{
   if(state.cadModel)download("worcester-cad-evidence-"+state.domain+".json",
    JSON.stringify(state.cadReadiness,null,2)+"\n","application/json");
+ });
+ $("#picker-cad-coverage-rows").addEventListener("click",async event=>{
+  const button=event.target.closest("[data-cad-asset]");
+  if(!button)return;
+  const candidate=state.cadRegistry.assets.find(
+   a=>a.asset_id===button.dataset.cadAsset&&
+   a.kit_variant_id===state.cadModel?.selected_variant_id);
+  if(!candidate)return;
+  const currentKit=state.cadModel.kit_id,status=$("#picker-cad-inspect-status");
+  try{
+   status.textContent="Verifying pinned geometry digest for "+candidate.asset_id+"…";
+   const response=await fetch(candidate.path,{cache:"no-store"});
+   if(!response.ok)throw Error("pinned file is unavailable");
+   const blob=await response.blob();
+   if(blob.size!==candidate.byte_length||blob.size>25000000)
+    throw Error("pinned file size mismatch");
+   const bytes=await blob.arrayBuffer();
+   const hash=Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",bytes)))
+    .map(x=>x.toString(16).padStart(2,"0")).join("");
+   if(hash!==candidate.sha256)throw Error("SHA-256 mismatch; source asset not displayed");
+   inspectGlbBytes(bytes);
+   const host=$("#picker-cad-file-inspector");
+   if(!state.cadInspector)
+    state.cadInspector=await import("./cad_glb_inspector.mjs")
+     .then(x=>x.createLocalCadInspector(host));
+   if(currentKit!==state.cadModel?.kit_id)
+    throw Error("kit changed during loading");
+   const result=await state.cadInspector.load(bytes);
+   if(!result)return;
+   host.hidden=false;
+   status.textContent="Pinned, digest-verified "+candidate.origin+" candidate "+
+    candidate.part_number+" · "+candidate.revision+": "+
+    result.mesh_count+" mesh(es), native-file units declared mm but UNVERIFIED. "+
+    "No verified datums, assembly mating, clearances or purchasing approval.";
+  }catch(error){
+   status.textContent="Candidate CAD held: "+error.message+
+    ". The assembled schematic remains available.";
+  }
  });
  $("#picker-cad-upload").addEventListener("change",async event=>{
   const file=event.target.files?.[0],status=$("#picker-cad-inspect-status");
