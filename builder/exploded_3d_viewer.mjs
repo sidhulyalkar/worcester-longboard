@@ -96,7 +96,43 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
     const truckWidthScale=dimensions?.truck_total_width_mm?
       Math.max(0.75,Math.min(1.35,dimensions.truck_total_width_mm/400)):1;
     const role=part.role;
-    if(part.group_id==="platform") {
+    if(role.startsWith("kit_child_")){
+      // Seven independently selectable *category proxies*, not maker CAD.
+      // The arbitrary coordinates cannot imply tested brackets, fastener
+      // locations, wheel clearances, real bearing diameters or torque.
+      const diam=pickerVariants.find(x=>x.variant_id===part.parent_package_variant_id)
+        ?.visual_reference_claims?.wheel_diameter_mm;
+      const r=[85,105].includes(diam)?0.52*diam/105:0.48;
+      if(role==="kit_child_deck")board(group,mat,1.72,6.9);
+      else if(role==="kit_child_zee_brackets"){
+        for(const y of [-2.17,2.17]){
+          box(group,1.3,0.28,0.16,mat,0,y,0.07);
+          for(const x of [-0.56,0.56])box(group,0.14,0.35,0.33,mat,x,y,-0.13);
+        }
+      }else if(role==="kit_child_trucks"){
+        for(const y of [-2.17,2.17]){
+          box(group,2.8,0.15,0.18,mat,0,y,-0.5);
+          box(group,0.63,0.55,0.2,mat,0,y,-0.26);
+        }
+      }else if(role==="kit_child_wheels"){
+        for(const y of [-2.17,2.17])for(const x of [-1.46,1.46])
+          wheel(group,mat,x,y,r);
+      }else if(role==="kit_child_bearings"){
+        for(const y of [-2.17,2.17])for(const x of [-1.46,1.46])
+          for(const side of [-0.18,0.18])
+            add(group,new THREE.TorusGeometry(0.18,0.07,8,18),mat,
+              [x+side,y,0.03],[0,Math.PI/2,0]);
+      }else if(role==="kit_child_deck_hardware"||
+               role==="kit_child_truck_hardware"){
+        const span=role==="kit_child_deck_hardware"?0.42:0.53;
+        const length=role==="kit_child_deck_hardware"?0.48:0.38;
+        for(const y of [-2.17,2.17])for(const x of [-span,span]){
+          box(group,0.075,0.075,length,mat,x,y,-0.05);
+          add(group,new THREE.CylinderGeometry(0.12,0.12,0.07,12),
+            mat,[x,y,length/2]);
+        }
+      }
+    }else if(part.group_id==="platform") {
       if(role==="ski_pair"){
         board(group,mat,0.48*boardWidthScale,8.5*boardLengthScale,-0.47);
         board(group,mat,0.48*boardWidthScale,8.5*boardLengthScale,0.47);
@@ -215,7 +251,8 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
       separation,selectedId,visualState:nextVisualState
     });
     if(!Array.isArray(pickerVariants) ||
-       pickerVariants.some(x=>!nextGraph.components.some(p=>p.component_id===x.variant_id)))
+       pickerVariants.some(x=>!nextGraph.components.some(p=>p.component_id===x.variant_id)&&
+         nextGraph.kit_parent_variant_id!==x.variant_id))
       throw Error("Picker visual variants must match current source-bound graph");
     const key=JSON.stringify([proposed.reference_proportions,
       pickerVariants.map(x=>[x.variant_id,x.dimensions_mm,x.visual_reference_claims])]);
