@@ -135,6 +135,50 @@ async function main(){
   assert.equal(readiness.verified_mount_datums,0);
   assert.equal(readiness.clearance_status,"NOT_EVALUATED");
   assert.equal(readiness.additional_purchase_lines,0);
+  assert.equal(await page.locator("#picker-cad-maker-dimensions tr").count(),12);
+  await page.locator("#picker-cad-import-lab .cad-maker-evidence > summary").click();
+  const makerDownload=page.waitForEvent("download");
+  await page.locator("#picker-cad-maker-export").click();
+  const makerReport=JSON.parse(await readFile(await (await makerDownload).path(),"utf8"));
+  assert.equal(makerReport.claims.length,12);
+  assert.equal(makerReport.claims.find(c=>c.label==="nominal_wheel_diameter").value_mm,105);
+  assert.equal(makerReport.claims.find(c=>c.label==="template_along_holes").value_mm,53.975);
+  assert.ok(makerReport.claims.every(c=>!c.usable_as_mounting_datum));
+  await page.locator("#picker-cad-import-lab .cad-metric-lab > summary").click();
+  const fakePart=(id,offset)=>({
+   id,source_url:"https://example.com/synthetic-not-cad",revision:"synthetic-only",
+   geometry_evidence:"UNVERIFIED_CANDIDATE_BOUNDS",
+   mating_datums_physically_verified:false,exact_revision_received:false,
+   survey_tolerance_mm:0.25,
+   local_bounds_mm:{min_mm:[-1,-1,-1],max_mm:[1,1,1]},
+   correspondences:[[0,0,0],[5,0,0],[0,5,0],[0,0,5]]
+    .map(p=>({local_mm:p,assembly_mm:p.map((x,i)=>x+(i===0?offset:0))}))
+  });
+  const metricFixture={
+   schema_version:1,scope:"METRIC_CAD_SURVEY_FIXTURE_RESEARCH_ONLY",
+   kit_variant_id:readiness.selected_variant_id,units:"mm",
+   authority:{procurement_authorized:false,fabrication_authorized:false,
+    physical_fit_qualified:false},
+   parts:[fakePart("synthetic_deck",0),fakePart("synthetic_truck",12)]
+  };
+  await page.locator("#picker-cad-metric-upload").setInputFiles({
+   name:"wrong-kit.json",mimeType:"application/json",
+   buffer:Buffer.from(JSON.stringify({...metricFixture,kit_variant_id:"forged-other-kit"}))});
+  assertBrowser((await page.locator("#picker-cad-metric-status").innerText())
+   .includes("Metric survey held:"),"Fixture wrong-kit validation missing");
+  await page.locator("#picker-cad-metric-upload").setInputFiles({
+   name:"synthetic-survey.json",mimeType:"application/json",
+   buffer:Buffer.from(JSON.stringify(metricFixture))});
+  assertBrowser((await page.locator("#picker-cad-metric-status").innerText())
+   .includes("0 physical clearances verified"),"Candidate survey granted a physical clearance");
+  assert.equal(await page.locator("#picker-cad-metric-results tr").count(),2);
+  const surveyDownload=page.waitForEvent("download");
+  await page.locator("#picker-cad-metric-export").click();
+  const survey=JSON.parse(await readFile(await (await surveyDownload).path(),"utf8"));
+  assert.equal(survey.physical_clearances_verified,0);
+  assert.equal(survey.procurement_authorized,false);
+  assert.equal(survey.pairs[0].classification,"CANDIDATE_AABBS_SEPARATED");
+  note("Manufacturer stencil, 105mm source identity and fail-closed metric candidate analyzer");
   await page.locator("#picker-cad-upload").setInputFiles({
    name:"tampered.glb",mimeType:"model/gltf-binary",
    buffer:Buffer.from("not a valid GLB")});
@@ -232,6 +276,10 @@ async function main(){
   assert.equal(await page.locator("#picker-explode").inputValue(),"0");
   const visual85=await page.locator("#picker-visual-svg [data-exploded-part]")
     .evaluateAll(els=>els.map(x=>x.getAttribute("data-exploded-part")));
+  assert.equal(await page.locator("#picker-cad-metric-export").isDisabled(),true);
+  const switchedEvidence=await page.locator("#picker-cad-maker-dimensions").textContent();
+  assertBrowser(switchedEvidence.includes("85 mm")&&!switchedEvidence.includes("105 mm"),
+   "Maker wheel diameter evidence leaked from 105 to 85 mm");
   assertBrowser(visual85.every(id=>id.includes("caguama85")),
    "Old 105 mm kit child IDs leaked into new visual graph");
   await page.locator("#picker-3d").click();
