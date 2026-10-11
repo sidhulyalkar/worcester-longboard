@@ -108,6 +108,12 @@ async function main(){
   assertBrowser(retail.includes("424.00"),"105 mm listed price missing");
   assertBrowser(retail.includes("NOT verified exact checkout SKU"),
    "Unqualified seller identity warning missing");
+  assertBrowser(retail.includes("INCLUSION REVISION CONFLICT HOLD")&&
+   retail.includes("Do not treat these as identical seller kits")&&
+   retail.includes("PARIS V2")&&retail.includes("PARIS V3"),
+   "Retail truck revision conflict was hidden from the user");
+  assertBrowser(!retail.includes("Published setup price gap"),
+   "Mismatched retailer packages must not show an equal-price comparison");
   await clickStudy(page,"long-nimble");
   retail=await page.locator("#picker-retail-results").innerText();
   assertBrowser(retail.includes("364.00"),"85 mm offer price not visible");
