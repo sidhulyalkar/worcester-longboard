@@ -34,7 +34,11 @@ main{max-width:1480px;padding:21px 25px 45px;margin:auto}.intro{display:grid;gri
 .three-studies,.retail-compare{margin-top:16px;border:1px solid var(--line);
  background:var(--panel);border-radius:15px;padding:18px;min-width:0}
 .three-studies>p,.retail-compare>p{font-size:12px;color:var(--muted);max-width:950px}
-.comparison-rider-fields{grid-template-columns:minmax(190px,270px);margin:14px 0 18px}
+.comparison-rider-fields{display:flex;flex-direction:column;align-items:stretch;
+ max-width:370px;gap:7px;margin:14px 0 18px}
+.comparison-rider-fields>label{font-weight:600;font-size:12px}
+.picker-input-validation{font-size:12px;color:var(--hold);margin:0}
+.picker-input-validation:empty{display:none}
 .study-comparison-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .study-card{border:1px solid #3c5b6d;background:#112832;min-width:0;
  padding:15px;border-radius:11px;display:flex;flex-direction:column;gap:9px}
@@ -67,3 +71,11 @@ main{max-width:1480px;padding:21px 25px 45px;margin:auto}.intro{display:grid;gri
  .study-differences,.retail-price{color:#111}
  .study-card button,.comparison-rider-fields{display:none!important}
  .study-comparison-grid{grid-template-columns:repeat(3,1fr)}}
+
+.study-review{border:1px solid #466374;border-radius:8px;padding:8px 10px}
+.study-review summary{font-weight:650;color:#e8c48e;cursor:pointer;font-size:11px;line-height:1.45}
+.study-review ul{margin:8px 0 2px;padding-left:16px;display:grid;gap:5px}
+.study-review li{font-size:11px;line-height:1.5;color:#d1e1e6}
+.study-review-none{font-size:11px;color:var(--muted)}
+@media print{.study-review ul{display:block}.study-review li{color:#111}
+ .picker-input-validation{color:#111}}
