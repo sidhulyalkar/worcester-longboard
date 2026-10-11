@@ -32,7 +32,11 @@
         "mounting_disc",
         "puck_or_mounting_kit",
         "touring_pivot",
-        "truck_pair"
+        "truck_pair",
+        "bracket_set",
+        "mounting_hardware",
+        "bushing_set",
+        "bearing_set"
       ],
       "vector": [
         -1.18,
