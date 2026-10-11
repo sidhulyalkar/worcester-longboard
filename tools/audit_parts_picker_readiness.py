@@ -38,6 +38,7 @@ def assess(root: Path = ROOT, *, as_of: str) -> dict:
     supplier = _read(root, "outdoor_supplier_observations.v1.json")
     retail = _read(root, "outdoor_retail_comparisons.v1.json")
     builds = _read(root, "outdoor_build_studies.v1.json")
+    complete_kits = _read(root, "outdoor_complete_kit_claims.v1.json")
 
     domain_ids = [x["id"] for x in catalog["domains"]]
     templates = {x["domain_id"]: x for x in catalog["assembly_templates"]}
@@ -45,10 +46,13 @@ def assess(root: Path = ROOT, *, as_of: str) -> dict:
     option_count = sum(len(x["variants"]) for x in products)
     retail_options = retail["offers"]
     maker_observations = supplier["listing_observations"]
+    package_claims = complete_kits["kits"]
+    child_claims = [part for kit in package_claims for part in kit["children"]]
 
     # Structural integrity checks intentionally independent of marketing claims.
     errors = []
-    for name, registry in (("supplier", supplier), ("retail", retail), ("builds", builds)):
+    for name, registry in (("supplier", supplier), ("retail", retail),
+                           ("builds", builds), ("complete_kits", complete_kits)):
         authority = registry.get("authority", {})
         if any(authority.get(key) is not False for key in KNOWN_APPROVALS):
             errors.append(name + ": missing or promoted authority lock")
@@ -63,6 +67,21 @@ def assess(root: Path = ROOT, *, as_of: str) -> dict:
     if len({v["id"] for p in products for v in p["variants"]}) != option_count:
         errors.append("duplicate research variant ID")
     product_index = {x["id"]: x for x in products}
+    complete_variants = {v["id"] for p in products if p["slot"] == "long_complete"
+                         for v in p["variants"]}
+    if len(package_claims) != 2 or any(
+        k["variant_id"] not in complete_variants
+        or k["seller_checkout_option_verified"]
+        or k["actual_received_kit_verified"]
+        for k in package_claims
+    ):
+        errors.append("complete-kit maker claims invalid or falsely received")
+    if any(
+        p["actual_received_units"] is not None
+        or p["direct_seller_purchase_required"] is not False
+        for p in child_claims
+    ):
+        errors.append("complete-kit child claim promoted to received item or separate purchase")
     variant_ids = {v["id"] for p in products for v in p["variants"]}
     for p in products:
         if p["domain_id"] not in templates:
@@ -188,6 +207,9 @@ def assess(root: Path = ROOT, *, as_of: str) -> dict:
             "different_variant_comparisons_with_2_merchants": distinct_named_comparisons,
             "named_variant_comparisons_blocked_by_inclusion_revision": conflicting_inclusion_revisions,
             "curated_unqualified_studies": len(builds["studies"]),
+            "maker_advertised_complete_kits": len(package_claims),
+            "maker_advertised_kit_child_claims": len(child_claims),
+            "physically_received_kit_child_claims_verified": 0,
             "seller_exact_checkout_variants_qualified": 0,
             "physical_connections_qualified": 0,
             "procurement_authorized_builds": 0,
