@@ -83,6 +83,31 @@
       "comparison": "SPECIALIST_SYSTEM_QUALIFICATION"
     },
     {
+      "id": "skateboard_deck_to_truck",
+      "domain": "skateboard_longboard",
+      "representation": "mount_and_clearance",
+      "required_inputs": [
+        "deck_mount_pattern_mm",
+        "truck_baseplate_pattern_mm",
+        "riser_stack_mm",
+        "wheelbite_clearance"
+      ],
+      "comparison": "MEASUREMENT_AND_REVISION_REQUIRED"
+    },
+    {
+      "id": "skateboard_wheel_to_truck",
+      "domain": "skateboard_longboard",
+      "representation": "bearing_and_retention",
+      "required_inputs": [
+        "bearing_bore_mm",
+        "bearing_width_mm",
+        "axle_diameter_mm",
+        "wheel_offset_mm",
+        "axle_retention"
+      ],
+      "comparison": "MEASUREMENT_AND_REVISION_REQUIRED"
+    },
+    {
       "id": "snowboard_binding_mount",
       "domain": "snowboard",
       "representation": "mount_family",
@@ -221,8 +246,7 @@
       "required_roles": [
         "deck_or_complete_board",
         "terrain_interface",
-        "steering_or_truck",
-        "rider_retention"
+        "steering_or_truck"
       ],
       "optional_roles": [
         "wheel",
@@ -235,7 +259,8 @@
         "charger",
         "protection",
         "maintenance_tool",
-        "axle"
+        "axle",
+        "rider_retention"
       ],
       "interface_type_ids": [
         "deck_to_truck_mount",
@@ -255,6 +280,48 @@
       ],
       "visual_adapter": "BOARD_TWIN_V1",
       "qualification_policy": "INDEPENDENT_BRAKING_MECHANICAL_AND_POWER_GATES",
+      "automatic_purchase_authority": false
+    },
+    {
+      "id": "skateboard_longboard",
+      "label": "Skateboards, longboards and compact electric boards",
+      "stage": "FUTURE_ADAPTER",
+      "required_roles": [
+        "deck",
+        "truck_pair",
+        "wheelset"
+      ],
+      "optional_roles": [
+        "griptape",
+        "riser_set",
+        "bearing_set",
+        "bushing_set",
+        "brake",
+        "drive",
+        "motor",
+        "esc",
+        "battery",
+        "charger",
+        "protection",
+        "maintenance_tool"
+      ],
+      "interface_type_ids": [
+        "skateboard_deck_to_truck",
+        "skateboard_wheel_to_truck",
+        "electrical_powertrain"
+      ],
+      "mission_inputs": [
+        "rider_mass_kg",
+        "terrain",
+        "ride_style",
+        "distance_target_km",
+        "commute_or_downhill",
+        "skill_level",
+        "stance_ergonomics",
+        "budget"
+      ],
+      "visual_adapter": "SKATEBOARD_VIEWER_PROPOSED",
+      "qualification_policy": "MAKER_MECHANICAL_AND_INDEPENDENT_BRAKING_POWER_GATES",
       "automatic_purchase_authority": false
     },
     {
