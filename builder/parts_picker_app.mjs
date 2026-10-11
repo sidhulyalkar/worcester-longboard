@@ -175,7 +175,9 @@ function renderCompleteKitClosure(){
   '<p><small>Kit reference '+esc(result.kit_id)+'. Source revision and individual fastener counts require inspection.</small></p>';
  body.innerHTML=result.rows.map(r=>{
   const url=cleanUrl(r.source_url);
-  return '<tr><td><strong>'+esc(r.label)+'</strong><small>'+esc(r.child_id)+'</small></td>'+
+  return '<tr><td><strong>'+esc(r.label)+'</strong><small>'+esc(r.child_id)+'</small>'+
+    '<button type="button" class="kit-inspect-button" data-kit-inspect="'+esc(r.child_id)+
+    '">Highlight in assembly</button></td>'+
    '<td>'+esc(r.expected_assembly_units??"UNKNOWN")+
    '<small>'+esc(r.expectation_basis.replaceAll("_"," "))+'</small></td>'+
    '<td>'+esc(r.source_claim)+'</td>'+
@@ -491,6 +493,14 @@ function initEvents(){
  $("#picker-part-tree").addEventListener("click",e=>{
   const el=e.target.closest("[data-picker-part]");
   if(el)selectPart(el.dataset.pickerPart);
+ });
+ $("#picker-kit-rows").addEventListener("click",e=>{
+  const el=e.target.closest("[data-kit-inspect]");
+  if(!el)return;
+  selectPart(el.dataset.kitInspect);
+  $(".preview").scrollIntoView({behavior:"smooth",block:"start"});
+  $("#picker-part-tree [data-picker-part='"+CSS.escape(el.dataset.kitInspect)+"']")
+    ?.focus({preventScroll:true});
  });
  $("#picker-demo").addEventListener("click",loadDemo);
  $("#picker-export-json").addEventListener("click",()=>exportWorklist("json"));
