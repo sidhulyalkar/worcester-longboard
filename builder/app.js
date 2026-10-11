@@ -6,6 +6,8 @@ import { generateBoardDesignSpace } from "./platform_engine.mjs";
 import {validateExampleRides,profileForExample} from "./example_rides.mjs";
 import {defaultComparisonIds,compareCandidates} from "./comparison.mjs";
 import {assemblyGuide} from "./assembly_guide.mjs";
+import {buildAssemblyGraph} from "./assembly_graph.mjs";
+import {renderExplodedAssemblySvg} from "./exploded_renderer.mjs";
 import {buildBuildPassport,proposePassportRevisionChange} from "./build_passport.mjs";
 import {emptyEvidenceNotebook,recordEvidence,restoreEvidenceNotebook,evaluateEvidenceNotebook,EVIDENCE_KINDS} from "./evidence_notebook.mjs";
 import {buildReceivingReconciliation} from "./receiving_reconciliation.mjs";
@@ -57,6 +59,10 @@ const state = {
   evidenceBooks: {},
   evidenceStatus: "",
   evidenceExpanded: false,
+  explodedDomain: "mountainboard",
+  explodedAmount: 78,
+  explodedSelectedPart: null,
+  explodedGraph: null,
   receivingExpanded: false,
   comparisonIds: [],
   comparisonInitialized: false,
@@ -80,7 +86,7 @@ async function fetchJson(path) {
 }
 
 async function loadBundle() {
-  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides, packageInclusions, documentReferences] = await Promise.all([
+  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides, packageInclusions, documentReferences, assemblyRecipes] = await Promise.all([
     fetchJson("../configurator/questionnaire.v1.json"),
     fetchJson("../configurator/rules.v1.json"),
     fetchJson("../catalog/board_components.v1.json"),
@@ -93,8 +99,9 @@ async function loadBundle() {
     fetchJson("../configurator/example_rides.v1.json"),
     fetchJson("../catalog/board_package_inclusions.v1.json"),
     fetchJson("../catalog/manufacturer_document_references.v1.json"),
+    fetchJson("../catalog/outdoor_assembly_recipes.v1.json"),
   ]);
-  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides, packageInclusions, documentReferences };
+  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides, packageInclusions, documentReferences, assemblyRecipes };
 }
 
 function restoreProfile(questionnaire) {
@@ -1171,6 +1178,137 @@ function exportComparison() {
   });
 }
 
+function selectedExplodedSubject(candidate){
+ const recipe=state.bundle?.assemblyRecipes;
+ if(!recipe) return null;
+ if(state.explodedDomain==="mountainboard")return candidate;
+ return recipe.examples.find(x=>x.domain_id===state.explodedDomain)||null;
+}
+function safeExplodedLink(url){
+ if(typeof url!=="string")return null;
+ try{
+  const parsed=new URL(url);
+  if(parsed.protocol!=="https:"||!parsed.hostname||parsed.username||parsed.password)return null;
+  return url;
+ }catch{return null;}
+}
+function redrawExplodedAssembly(){
+ const graph=state.explodedGraph;
+ if(!graph)return;
+ const selected=graph.components.find(x=>x.component_id===state.explodedSelectedPart)||
+   graph.components[0];
+ state.explodedSelectedPart=selected.component_id;
+ $("#exploded-visual").innerHTML=renderExplodedAssemblySvg(graph,{
+   explode:state.explodedAmount,selectedId:selected.component_id});
+ $("#exploded-amount-value").textContent=state.explodedAmount+"%";
+ $("#exploded-visual").querySelectorAll("[data-exploded-part]").forEach(node=>{
+   node.addEventListener("click",()=>{
+     state.explodedSelectedPart=node.getAttribute("data-exploded-part");
+     redrawExplodedAssembly();
+   });
+ });
+ $("#exploded-tree").querySelectorAll("[data-exploded-item]").forEach(button=>{
+   button.setAttribute("aria-pressed",String(button.getAttribute("data-exploded-item")===selected.component_id));
+ });
+ const source=safeExplodedLink(selected.source_url);
+ const donor=(graph.package_inclusion_hypotheses||[])
+   .find(x=>x.container_component_id===selected.component_id);
+ const possibleOverlaps=(graph.package_inclusion_hypotheses||[]).flatMap(x=>
+   x.content_tokens.filter(t=>t.potential_duplicate_bom_component_ids.includes(selected.component_id))
+    .map(xi=>x.container_component_id+" · "+xi.token));
+ $("#exploded-detail").innerHTML='<h4>'+escapeHtml(selected.label)+'</h4><dl>'+
+   '<dt>Role</dt><dd>'+escapeHtml(selected.role.replaceAll("_"," "))+' · '+escapeHtml(selected.group_id)+'</dd>'+
+   '<dt>Catalog identity</dt><dd>'+escapeHtml(selected.component_id)+'</dd>'+
+   '<dt>Manufacturer / SKU</dt><dd>'+escapeHtml(selected.manufacturer||"Not established")+
+   ' · '+escapeHtml(selected.sku_text||"Not established")+'</dd>'+
+   '<dt>Recorded source</dt><dd>'+escapeHtml(selected.source_kind.replaceAll("_"," "))+
+   (source?' · <a href="'+escapeHtml(source)+'" target="_blank" rel="noopener noreferrer">Reference page</a>':'')+
+   '</dd><dt>Assembly quantity</dt><dd>Unknown. Reference price multiplier: '+
+   escapeHtml(selected.reference_price_factor??"not recorded")+' (not an order quantity)</dd>'+
+   '<dt>Revision / physical fit</dt><dd>Not qualified</dd></dl>'+
+   (donor?'<p class="exploded-hold">Donor may include '+donor.content_tokens.length+
+   ' referenced item families. Exact parts, included counts and substitutions remain unverified.</p>':'')+
+   (possibleOverlaps.length?'<p class="exploded-hold">Possible package overlap: '+
+      escapeHtml(possibleOverlaps.join("; "))+'. Never deduct by assumption.</p>':'')+
+   '<p class="exploded-hold">Schematic component placement is not measured geometry or an assembly instruction.</p>';
+}
+function renderExplodedView(candidate){
+ const host=$("#exploded-view-section");
+ if(!host||!candidate||!state.bundle?.assemblyRecipes)return;
+ const subject=selectedExplodedSubject(candidate);
+ if(!subject)return;
+ const graph=buildAssemblyGraph(subject,state.bundle.assemblyRecipes,
+   state.bundle.catalog,state.bundle.packageInclusions);
+ state.explodedGraph=graph;
+ if(!graph.components.some(x=>x.component_id===state.explodedSelectedPart))
+   state.explodedSelectedPart=graph.components[0]?.component_id??null;
+ $("#exploded-summary").innerHTML=
+   '<span><strong>'+graph.completeness.catalog_components_included+'</strong> component references</span>'+
+   '<span><strong>'+graph.groups.length+'</strong> assemblies</span>'+
+   '<span><strong>'+graph.package_inclusion_hypotheses.length+'</strong> donor hypotheses</span>'+
+   '<span><strong>0</strong> physically verified connections</span>'+
+   '<span><strong>'+escapeHtml(graph.origin==="ILLUSTRATIVE_DOMAIN_RECIPE"?"Unsourced sport example":"Selected board candidate")+'</strong></span>';
+ $("#exploded-tree").innerHTML=graph.groups.map(group=>{
+   const nodes=graph.components.filter(x=>x.group_id===group.id);
+   const open=nodes.some(x=>x.component_id===state.explodedSelectedPart);
+   return '<details'+(open?' open':'')+'><summary>'+
+     escapeHtml(group.label)+' <small>'+nodes.length+' reference'+(nodes.length===1?'':'s')+'</small></summary>'+
+     '<div>'+nodes.map(node=>'<button class="exploded-part-btn" type="button" data-exploded-item="'+
+       escapeHtml(node.component_id)+'" aria-pressed="'+(node.component_id===state.explodedSelectedPart?'true':'false')+'">'+
+       escapeHtml(node.label)+'<small>'+escapeHtml(node.role.replaceAll("_"," "))+
+       ' · exact revision unknown</small></button>').join("")+
+     '</div></details>';
+ }).join("");
+ $("#exploded-tree").querySelectorAll("[data-exploded-item]").forEach(button=>{
+   button.addEventListener("click",()=>{
+     state.explodedSelectedPart=button.getAttribute("data-exploded-item");
+     redrawExplodedAssembly();
+   });
+ });
+ $("#exploded-worklist").innerHTML='<p>This is a learning and research view. None of the connections, assembly counts, fit, mounting hardware, ski-binding release or power stages have been qualified.</p>'+
+   '<ul>'+graph.unresolved_system_checks.map(x=>'<li>'+escapeHtml(x)+'</li>').join("")+'</ul>'+
+   (graph.package_inclusion_hypotheses.length?
+     '<p>'+graph.package_inclusion_hypotheses.length+' donor package references require actual receipt and included-parts reconciliation.</p>':'');
+ redrawExplodedAssembly();
+}
+function initializeExplodedControls(){
+ const recipes=state.bundle.assemblyRecipes;
+ const selection=$("#exploded-domain");
+ selection.innerHTML=recipes.domains.map(x=>
+   '<option value="'+escapeHtml(x.id)+'">'+escapeHtml(x.label)+
+   (x.source==="UNSOURCED_ILLUSTRATIVE_CONCEPT"?" · concept":" · selected design")+'</option>').join("");
+ selection.value=state.explodedDomain;
+ selection.addEventListener("change",()=>{
+   state.explodedDomain=selection.value;
+   state.explodedSelectedPart=null;
+   renderExplodedView(state.result?.candidates.find(x=>x.id===state.selectedId));
+ });
+ $("#exploded-amount").addEventListener("input",event=>{
+   state.explodedAmount=Number(event.target.value);
+   redrawExplodedAssembly();
+ });
+ $("#exploded-reset").addEventListener("click",()=>{
+   state.explodedAmount=78;
+   $("#exploded-amount").value=String(state.explodedAmount);
+   state.explodedSelectedPart=null;
+   renderExplodedView(state.result?.candidates.find(x=>x.id===state.selectedId));
+ });
+ $("#exploded-export-json").addEventListener("click",()=>{
+   if(!state.explodedGraph)return;
+   downloadJson("worcester-assembly-graph-"+state.explodedGraph.subject_id+".json",
+      state.explodedGraph);
+ });
+ $("#exploded-export-svg").addEventListener("click",()=>{
+   const graph=state.explodedGraph;if(!graph)return;
+   const image=renderExplodedAssemblySvg(graph,{explode:state.explodedAmount,
+      selectedId:state.explodedSelectedPart});
+   const blob=new Blob([image],{type:"image/svg+xml;charset=utf-8"});
+   const url=URL.createObjectURL(blob),link=document.createElement("a");
+   link.href=url;link.download="worcester-exploded-"+graph.subject_id+".svg";
+   link.click();URL.revokeObjectURL(url);
+ });
+}
+
 function renderAssemblyGuide(candidate) {
   const host=$("#assembly-guide");
   if(!candidate) {host.innerHTML='<p>Select a design to inspect assembly effort.</p>';return;}
@@ -1586,6 +1724,7 @@ function renderBom(candidate) {
   explorer.querySelector("#export-evidence").addEventListener("click", exportEvidenceWorklist);
   renderSwapLab(candidate, state.swapBaselineId !== candidate.id);
   renderAssemblyGuide(candidate);
+  renderExplodedView(candidate);
   renderBuildPassport(candidate);
 }
 
@@ -1933,6 +2072,7 @@ function exportSelectedDesign() {
 async function main() {
   try {
     state.bundle = await loadBundle();
+    initializeExplodedControls();
     try{state.evidenceBooks=JSON.parse(localStorage.getItem(EVIDENCE_STORAGE_KEY)||"{}");}
     catch{state.evidenceBooks={};}
     if(!state.evidenceBooks || typeof state.evidenceBooks!=="object" ||
