@@ -5,7 +5,15 @@ const PALETTE={platform:0x496f89,mount:0xe9b475,ground:0x85bda0,
  rider:0xbca8e8,control:0xe79c94,power:0x9baef0,utility:0xc5c497};
 
 export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
-  const [THREE, orbitModule]=await Promise.all([
+  // Prefer an explicitly installed, pinned local Three.js package.
+  // A research preview may fall back to the CDN when node_modules is absent.
+  // If neither is reachable, the caller retains the accessible SVG.
+  const local=await fetch("/node_modules/three/build/three.module.js",
+    {method:"HEAD"}).then(r=>r.ok).catch(()=>false);
+  const [THREE, orbitModule]=await Promise.all(local?[
+    import("/node_modules/three/build/three.module.js"),
+    import("/node_modules/three/examples/jsm/controls/OrbitControls.js")
+  ]:[
     import("https://esm.sh/three@0.180.0"),
     import("https://esm.sh/three@0.180.0/examples/jsm/controls/OrbitControls.js")
   ]);
@@ -229,6 +237,7 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
   }
   function select(id) {
     selected=id;
+    renderer.domElement.dataset.selectedComponentId=id??"";
     for(const [partId,obj] of nodes) {
       const m=obj.userData.material;
       m.emissive.setHex(partId===selected?0x566a82:0x000000);
@@ -264,6 +273,8 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
       }
     }
     visualState=nextVisualState;
+    renderer.domElement.dataset.scenePartCount=String(nodes.size);
+    renderer.domElement.dataset.scenePartIds=JSON.stringify([...nodes.keys()]);
     select(selectedId);moveParts(separation);
   }
   function fit() {
@@ -275,6 +286,7 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
     const target={hero:[11,-14,11],top:[0,-0.01,21],
       side:[20,0,4],front:[0,-20,5]}[name]||[11,-14,11];
     camera.position.set(...target);orbit.target.set(0,0,0.55);
+    renderer.domElement.dataset.cameraPreset=name;
     orbit.update();schedule();
   }
   function schedule(){
@@ -287,6 +299,8 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
     if(disposed)return;
     if(document.visibilityState==="hidden")return;
     orbit.update();renderer.render(scene,camera);
+    renderer.domElement.dataset.renderedFrames=String(
+      Number(renderer.domElement.dataset.renderedFrames||0)+1);
     if(--settle>0)frame=requestAnimationFrame(render);
   }
   function onPointerDown(e){down=[e.clientX,e.clientY];}
