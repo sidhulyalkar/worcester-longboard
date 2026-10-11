@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {sampleCandidateMotionSweep,renderCandidateMotionSvg}
  from "../../builder/cad_candidate_motion.mjs";
 
+import {makeSyntheticCandidateMotionFixture} from "../../builder/cad_demo_fixture.mjs";
 const part=(id,tx=0,box={min_mm:[-1,-1,-1],max_mm:[1,1,1]})=>({
  id,source_url:"https://example.com/synthetic-not-manufacturer-cad",
  revision:"test-only",geometry_evidence:"UNVERIFIED_CANDIDATE_BOUNDS",
@@ -93,4 +94,21 @@ test("motion export renderer refuses false physical clearance fields",()=>{
  const report=sampleCandidateMotionSweep(make());
  report.physical_clearances_verified=1;
  assert.throws(()=>renderCandidateMotionSvg(report),/CAD motion candidate:/);
+});
+
+test("one-click example is explicitly synthetic, exact-kit-bound, and non-orderable",()=>{
+ const variant="loaded-tangent-caguama-85 mm Caguama 80a";
+ const fixture=makeSyntheticCandidateMotionFixture(variant);
+ assert.equal(fixture.kit_variant_id,variant);
+ assert.equal(fixture.fixture_type,"SYNTHETIC_NUMERICAL_DEMO_NOT_REAL_ASSEMBLY");
+ assert.ok(fixture.parts.every(p=>p.exact_revision_received===false));
+ const result=sampleCandidateMotionSweep(fixture,{expected_variant_id:variant});
+ assert.equal(result.sample_count,7);
+ assert.equal(result.pair_count,1);
+ assert.equal(result.geometry_contacts_confirmed,0);
+ assert.equal(result.physical_clearances_verified,0);
+ assert.equal(result.procurement_authorized,false);
+ assert.throws(()=>sampleCandidateMotionSweep(fixture,{
+  expected_variant_id:"loaded-tangent-complete-105 mm Dad Bod 77a"
+ }),/match selected exact kit variant/);
 });
