@@ -91,6 +91,10 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
     const boardWidthScale=dimensions?.waist_mm?
       Math.max(0.65,Math.min(1.5,dimensions.waist_mm/
       (domain==="alpine_ski"?94:250))):1;
+    // Documented published overall truck widths influence a VISUAL ratio only.
+    // Axle mounts, deck holes, brake and drive envelopes are never derived here.
+    const truckWidthScale=dimensions?.truck_total_width_mm?
+      Math.max(0.75,Math.min(1.35,dimensions.truck_total_width_mm/400)):1;
     const role=part.role;
     if(part.group_id==="platform") {
       if(role==="ski_pair"){
@@ -133,7 +137,7 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
           mat,[0,y,0]);
       }else{
         for(const y of [-2.2,2.2]){
-          box(group,3.6,0.12,0.12,mat,0,y,0);
+          box(group,3.6*truckWidthScale,0.12,0.12,mat,0,y,0);
           box(group,0.54,0.48,0.31,mat,0,y,0.22);
         }
       }

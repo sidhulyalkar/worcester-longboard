@@ -129,6 +129,15 @@ function pairChecks(domain, selected, profile={}){
     findings.push({kind:"REVIEW",message:"Recorded foot Mondo value is outside the published men's Step On binding boot-size band. These are FOOT measurements, not confirmed boot sizes. A fitting and model-specific chart are required."});
    }
   }
+ }else if(domain==="mountainboard"){
+  const trucks=selected.get("mt_trucks")?.product;
+  const brake=selected.get("mt_brake")?.product;
+  if(trucks&&brake&&trucks.interface_claims?.mt_brake_family==="MBS_BRAKE_SYSTEM_INCOMPATIBLE")
+   findings.push({kind:"INCOMPATIBLE",code:"MBS_CNC_420_BRAKE_CONFLICT",
+    message:"MBS identifies the selected Matrix III CNC 420 mm truck (12307) as NOT compatible with MBS Brake Systems. Do not combine or fabricate an unqualified adapter."});
+  if(trucks?.id==="mbs-cnc420"&&!brake)
+   findings.push({kind:"REVIEW",code:"CNC_420_BRAKE_PATH_HOLD",
+    message:"Selected CNC 420 mm truck is not MBS Brake System compatible. Any braking approach requires a separate independently validated design."});
  }else if(domain==="alpine_ski"){
   const boot=selected.get("ski_boot")?.product;
   const binding=selected.get("ski_binding")?.product;

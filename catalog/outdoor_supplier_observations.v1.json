@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "scope": "MANUFACTURER_LISTING_OBSERVATIONS_RESEARCH_NOT_PURCHASE_QUOTES",
+  "reviewed_as_of": "2026-10-10",
+  "expiry_policy": {
+    "max_age_days": 30,
+    "no_inferred_stock": true,
+    "shipping_tax_unknown": true,
+    "no_automatic_checkout": true
+  },
+  "unit_requirements": [
+    {
+      "domain_id": "mountainboard",
+      "slot": "mt_deck",
+      "items_per_assembly": 1,
+      "item_kind": "deck",
+      "source": "RESEARCH_ASSEMBLY_TARGET_NOT_SELLER_ORDER"
+    },
+    {
+      "domain_id": "mountainboard",
+      "slot": "mt_trucks",
+      "items_per_assembly": 2,
+      "item_kind": "truck",
+      "source": "RESEARCH_ASSEMBLY_TARGET_NOT_SELLER_ORDER"
+    },
+    {
+      "domain_id": "mountainboard",
+      "slot": "mt_bindings",
+      "items_per_assembly": 2,
+      "item_kind": "individual_binding",
+      "source": "RESEARCH_ASSEMBLY_TARGET_NOT_SELLER_ORDER"
+    },
+    {
+      "domain_id": "skateboard_longboard",
+      "slot": "long_complete",
+      "items_per_assembly": 1,
+      "item_kind": "complete_board",
+      "source": "RESEARCH_ASSEMBLY_TARGET_NOT_SELLER_ORDER"
+    },
+    {
+      "domain_id": "snowboard",
+      "slot": "snowboard",
+      "items_per_assembly": 1,
+      "item_kind": "snowboard",
+      "source": "RESEARCH_ASSEMBLY_TARGET_NOT_SELLER_ORDER"
+    },
+    {
+      "domain_id": "alpine_ski",
+      "slot": "ski_pair",
+      "items_per_assembly": 2,
+      "item_kind": "individual_ski",
+      "source": "RESEARCH_ASSEMBLY_TARGET_NOT_SELLER_ORDER"
+    }
+  ],
+  "listing_observations": [
+    {
+      "id": "mbs-deck-11303",
+      "domain_id": "mountainboard",
+      "slot": "mt_deck",
+      "selected_variant_id": "mbs-comp95-silver-hex-95",
+      "manufacturer": "MBS",
+      "seller_id": "mbs",
+      "maker_product_code": "11303",
+      "selection_identity": "PUBLISHED_MODEL_OPTION_CODE",
+      "source_url": "https://www.mbs.com/shop/p/mbs-comp-95-mountainboard-deck-silver-hex",
+      "observed_on": "2026-10-10",
+      "seller_unit": {
+        "individual_items": 1,
+        "item_kind": "deck",
+        "pack_contents_confirmed_from_maker_page": true
+      },
+      "displayed_price": {
+        "amount": 119.95,
+        "currency": "USD",
+        "price_scope": "PUBLISHED_OPTION_LISTING"
+      },
+      "availability_state": "NOT_REVALIDATED",
+      "receipt_contents_inspected": false,
+      "source_identity_exact_variant_verified": false,
+      "financial_checkout_authorized": false,
+      "physical_fit_verified": false,
+      "remarks": "Maker specifies silver-hex 95 cm deck, dimensions, and 11303; mounting hole spacing and delivered contents remain unverified.",
+      "package_claims": [
+        "Deck only reference; mounting fasteners not assumed included"
+      ],
+      "product_id": "mbs-comp95"
+    },
+    {
+      "id": "mbs-truck-12300",
+      "domain_id": "mountainboard",
+      "slot": "mt_trucks",
+      "selected_variant_id": "mbs-matrix3-12300-black-400",
+      "manufacturer": "MBS",
+      "seller_id": "mbs",
+      "maker_product_code": "12300",
+      "selection_identity": "PUBLISHED_MODEL_OPTION_CODE",
+      "source_url": "https://www.mbs.com/shop/p/mbs-matrix-iii-mountainboard-truck-12x400mm",
+      "observed_on": "2026-10-10",
+      "seller_unit": {
+        "individual_items": 1,
+        "item_kind": "truck",
+        "pack_contents_confirmed_from_maker_page": true
+      },
+      "displayed_price": {
+        "amount": 119.95,
+        "currency": "USD",
+        "price_scope": "PUBLISHED_OPTION_LISTING"
+      },
+      "availability_state": "NOT_REVALIDATED",
+      "receipt_contents_inspected": false,
+      "source_identity_exact_variant_verified": false,
+      "financial_checkout_authorized": false,
+      "physical_fit_verified": false,
+      "remarks": "Maker explicitly lists 12×400 mm black Matrix III truck (ea.). 50 mm axles are reference only; do not mix 420 mm CNC brake restrictions.",
+      "package_claims": [
+        "Each truck, not a pair",
+        "Axle hardware and included shocks require direct box verification"
+      ],
+      "product_id": "mbs-matrix3"
+    },
+    {
+      "id": "mbs-cnc-12307",
+      "domain_id": "mountainboard",
+      "slot": "mt_trucks",
+      "selected_variant_id": "mbs-cnc420-12307",
+      "manufacturer": "MBS",
+      "seller_id": "mbs",
+      "maker_product_code": "12307",
+      "selection_identity": "PUBLISHED_MODEL_OPTION_CODE",
+      "source_url": "https://www.mbs.com/shop/p/mbs-matrix-iii-mountain-board-truck-12mmx420mm",
+      "observed_on": "2026-10-10",
+      "seller_unit": {
+        "individual_items": 1,
+        "item_kind": "truck",
+        "pack_contents_confirmed_from_maker_page": true
+      },
+      "displayed_price": {
+        "amount": 124.95,
+        "currency": "USD",
+        "price_scope": "PUBLISHED_OPTION_LISTING"
+      },
+      "availability_state": "NOT_REVALIDATED",
+      "receipt_contents_inspected": false,
+      "source_identity_exact_variant_verified": false,
+      "financial_checkout_authorized": false,
+      "physical_fit_verified": false,
+      "remarks": "CNC 420 mm source forbids MBS Brake Systems, even if the deck itself fits.",
+      "package_claims": [
+        "One CNC truck (ea.)",
+        "MBS Brake Systems incompatible"
+      ],
+      "product_id": "mbs-cnc420"
+    },
+    {
+      "id": "mbs-bind-14051",
+      "domain_id": "mountainboard",
+      "slot": "mt_bindings",
+      "selected_variant_id": "mbs-f5-14051-pair",
+      "manufacturer": "MBS",
+      "seller_id": "mbs",
+      "maker_product_code": "14051",
+      "selection_identity": "PUBLISHED_MODEL_OPTION_CODE",
+      "source_url": "https://www.mbs.com/shop/p/14051-mbs-f5-bindings-1-pair",
+      "observed_on": "2026-10-10",
+      "seller_unit": {
+        "individual_items": 2,
+        "item_kind": "individual_binding",
+        "pack_contents_confirmed_from_maker_page": true
+      },
+      "displayed_price": {
+        "amount": 119.95,
+        "currency": "USD",
+        "price_scope": "PUBLISHED_OPTION_LISTING"
+      },
+      "availability_state": "NOT_REVALIDATED",
+      "receipt_contents_inspected": false,
+      "source_identity_exact_variant_verified": false,
+      "financial_checkout_authorized": false,
+      "physical_fit_verified": false,
+      "remarks": "Maker calls this one pair. Exact footpad/hardware contents and recipient fit still unverified.",
+      "package_claims": [
+        "Seller package is one pair of F5 bindings",
+        "Other hardware not assumed"
+      ],
+      "product_id": "mbs-f5"
+    },
+    {
+      "id": "loaded-tangent-standard-105",
+      "domain_id": "skateboard_longboard",
+      "slot": "long_complete",
+      "selected_variant_id": "loaded-tangent-complete-105 mm Dad Bod 77a",
+      "manufacturer": "Loaded",
+      "seller_id": "loaded",
+      "maker_product_code": null,
+      "selection_identity": "SELECTED_SETUP_NO_EXACT_SKU",
+      "source_url": "https://www.loadedboards.com/products/tangent-longboard-skateboard",
+      "observed_on": "2026-10-10",
+      "seller_unit": {
+        "individual_items": 1,
+        "item_kind": "complete_board",
+        "pack_contents_confirmed_from_maker_page": true
+      },
+      "displayed_price": {
+        "amount": 424,
+        "currency": "USD",
+        "price_scope": "MAKER_FAMILY_PRICE_NOT_VARIANT_QUOTE"
+      },
+      "availability_state": "NOT_REVALIDATED",
+      "receipt_contents_inspected": false,
+      "source_identity_exact_variant_verified": false,
+      "financial_checkout_authorized": false,
+      "physical_fit_verified": false,
+      "remarks": "Maker lists complete with Tangent deck, Zee brackets, Paris V3 trucks, Orangatang Dad Bod 105mm, Jehu V2 bearings and two hardware sets. No exact item SKU provided.",
+      "package_claims": [
+        "Kit can cover deck, trucks, wheels, bearings and two hardware sets; require seller checkout confirmation"
+      ],
+      "product_id": "loaded-tangent-complete"
+    },
+    {
+      "id": "burton-goodcompany-145",
+      "domain_id": "snowboard",
+      "slot": "snowboard",
+      "selected_variant_id": "burton-goodcompany-145-cm",
+      "manufacturer": "Burton",
+      "seller_id": "burton",
+      "maker_product_code": "27WIN-235951",
+      "selection_identity": "FAMILY_CODE_NOT_SIZE_SKU",
+      "source_url": "https://www.burton.com/en-us/products/burton-good-company-camber-snowboard-235951?color=A03&regionSelector=true",
+      "observed_on": "2026-10-10",
+      "seller_unit": {
+        "individual_items": 1,
+        "item_kind": "snowboard",
+        "pack_contents_confirmed_from_maker_page": true
+      },
+      "displayed_price": {
+        "amount": 449.95,
+        "currency": "USD",
+        "price_scope": "MAKER_FAMILY_PRICE_NOT_VARIANT_QUOTE"
+      },
+      "availability_state": "NOT_REVALIDATED",
+      "receipt_contents_inspected": false,
+      "source_identity_exact_variant_verified": false,
+      "financial_checkout_authorized": false,
+      "physical_fit_verified": false,
+      "remarks": "Burton publishes 145 cm, 245 mm waist and model/color-level code; size-specific seller SKU and included hardware unresolved.",
+      "package_claims": [
+        "Board only; bindings, compatible discs and boots separate"
+      ],
+      "product_id": "burton-goodcompany"
+    },
+    {
+      "id": "atomic-bent90-157",
+      "domain_id": "alpine_ski",
+      "slot": "ski_pair",
+      "selected_variant_id": "atomic-bent90-157-cm",
+      "manufacturer": "Atomic",
+      "seller_id": "atomic",
+      "maker_product_code": "AA0030956+",
+      "selection_identity": "FAMILY_CODE_NOT_SIZE_SKU",
+      "source_url": "https://www.atomic.com/en-us/products/bent-90-aa7367-202600",
+      "observed_on": "2026-10-10",
+      "seller_unit": {
+        "individual_items": null,
+        "item_kind": "individual_ski",
+        "pack_contents_confirmed_from_maker_page": false
+      },
+      "displayed_price": {
+        "amount": 725,
+        "currency": "USD",
+        "price_scope": "MAKER_FAMILY_PRICE_NOT_VARIANT_QUOTE"
+      },
+      "availability_state": "NOT_REVALIDATED",
+      "receipt_contents_inspected": false,
+      "source_identity_exact_variant_verified": false,
+      "financial_checkout_authorized": false,
+      "physical_fit_verified": false,
+      "remarks": "Atomic publishes 157 cm and 90 mm waist on 2026 Bent 90 product. AA0030956+ is a model family code, not an independently verified 157 cm seller SKU or exact pair packaging.",
+      "package_claims": [
+        "Order unit and exact ski package count must be confirmed"
+      ],
+      "product_id": "atomic-bent90"
+    }
+  ],
+  "notes": "Public original-manufacturer listing records as of 2026-10-10. Only identity-coded, declared pack-unit examples can yield a historical reference quantity and price subtotal. None is a live offer or a fabrication/checkout authorization.",
+  "authority": {
+    "procurement_authorized": false,
+    "fabrication_authorized": false,
+    "charging_authorized": false,
+    "powered_operation_authorized": false,
+    "generic_builder_may_promote_x1_authority": false
+  }
+}

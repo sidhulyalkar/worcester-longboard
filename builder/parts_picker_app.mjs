@@ -1,5 +1,6 @@
 import {validatePartsRegistry,buildPickerStudy} from "./parts_picker_engine.mjs";
 import {renderExplodedAssemblySvg} from "./exploded_renderer.mjs";
+import {validateSupplierObservations,auditMakerOrderUnits} from "./offer_qualification.mjs";
 const $=selector=>document.querySelector(selector);
 const esc=x=>String(x??"").replaceAll("&","&amp;").replaceAll("<","&lt;")
  .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
@@ -7,7 +8,8 @@ const cleanUrl=value=>{
  try{const u=new URL(value);return u.protocol==="https:"&&!u.username&&!u.password?u.href:null;}
  catch{return null;}
 };
-const state={catalog:null,domain:"alpine_ski",selections:{},study:null,
+const state={catalog:null,offerObservations:null,offerAudit:null,
+ domain:"alpine_ski",selections:{},study:null,
  mode:"2d",separation:72,selectedId:null,viewer:null,viewerPromise:null,
  search:""};
 const sourceFor=id=>state.catalog.sources.find(s=>s.id===id);
@@ -115,11 +117,19 @@ function exportWorklist(format){
  if(!state.study)return;
  if(format==="json")return download("worcester-parts-research-"+state.domain+".json",
   JSON.stringify({report:state.study.report,source_bound_variants:state.study.selected_variants,
+    maker_unit_observations:state.offerAudit,
    visual_geometry:"UNSCALED_PROXY_NOT_MEASURED_CAD"},null,2)+"\n","application/json");
- const headers=["Sport","Slot","Variant ID","Requirement","Status","Supplier order units","Notes"];
- const rows=[headers,...state.study.report.rows.map(r=>[
-  state.domain,r.label,r.variant_id??"",r.needed,r.status,"UNKNOWN",r.exact_variant_revision_verified?"":"Check exact SKU, package contents and fit"
- ])];
+ const headers=["Sport","Slot","Variant ID","Requirement","Status",
+  "Actual supplier order units","Historical maker pack examples","Maker code","Notes"];
+ const bySlot=new Map(state.offerAudit?.rows.map(x=>[x.slot,x])||[]);
+ const rows=[headers,...state.study.report.rows.map(r=>{
+  const maker=bySlot.get(r.slot);
+  return [state.domain,r.label,r.variant_id??"",r.needed,r.status,
+   "UNKNOWN",maker?.reference_pack_count===null||maker?.reference_pack_count===undefined?
+    "HOLD":String(maker.reference_pack_count)+" (historical only)",
+   maker?.maker_product_code||"",
+   "Confirm source revision, received contents, physical fit and current stock"];
+ })];
  download("worcester-parts-worklist-"+state.domain+".csv",
   rows.map(row=>row.map(quoteCsv).join(",")).join("\n")+"\n","text/csv;charset=utf-8");
 }
@@ -152,6 +162,43 @@ function renderOrder(){
    '<p>No declared conflict established. Missing manufacturer evidence can still prevent safe assembly.</p>')+
   '<p>No print-to-ski mounting templates, automatic release settings, electrical assembly permission, or inferred seller pack quantities are generated.</p>';
 }
+
+function renderMakerUnitAudit(){
+ const host=$("#maker-audit-summary"),body=$("#maker-audit-rows");
+ if(!state.offerObservations||!state.study){
+  host.textContent="No manufacturer unit observations loaded.";
+  body.replaceChildren();return;
+ }
+ const today=new Date().toISOString().slice(0,10);
+ state.offerAudit=auditMakerOrderUnits(state.study,state.offerObservations,state.catalog,{as_of:today});
+ const audit=state.offerAudit;
+ const sum=Object.entries(audit.historical_partial_subtotals_by_currency)
+  .map(([currency,value])=>esc(currency)+" "+value.toFixed(2)).join(" · ")||"No matched lines";
+ host.innerHTML='<span><strong>'+audit.matched_historical_unit_lines+
+  '</strong> dated maker pack line(s)</span>'+
+  '<span>Partial historical reference: '+sum+'</span>'+
+  '<span><strong>0</strong> purchase-authorized lines</span>'+
+  '<span>Audit date: '+esc(today)+' UTC · No live stock</span>';
+ body.innerHTML=audit.rows.map(x=>{
+  const link=cleanUrl(x.source_url);
+  const amount=x.reference_extended_amount!==null?
+   '<small>Maker price example '+esc(x.reference_currency)+' '+
+   x.reference_extended_amount.toFixed(2)+' (dated, partial)</small>':'';
+  return '<tr><td>'+esc(x.label)+'</td>'+
+   '<td><span class="source-part-code">'+esc(x.maker_product_code??"Unknown option code")+'</span>'+
+   (link?'<small><a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">Original maker listing ↗</a></small>':'')+
+   '<small>'+esc(x.observed_on??"No reviewed listing")+'</small></td>'+
+   '<td>'+esc(x.required_item_count??"Unknown")+'</td>'+
+   '<td>'+esc(x.seller_unit_items??"Unknown")+
+   (x.item_kind?'<small>'+esc(x.item_kind.replaceAll("_"," "))+'/pack</small>':'')+'</td>'+
+   '<td>'+(x.reference_pack_count===null?'<span class="unit-hold">HOLD</span>':
+    '<span class="unit-reference">'+x.reference_pack_count+' reference pack(s)</span>')+
+   amount+'</td>'+
+   '<td class="'+(x.reference_pack_count===null?"unit-hold":"unit-reference")+'">'+
+   esc(x.status.replaceAll("_"," "))+
+   '<small>'+esc(x.review_actions?.[0]??"Stock, taxes, shipping and fit unverified")+'</small></td></tr>';
+ }).join("");
+}
 function renderVendorDirectory(){
  const vendors=state.catalog.vendors.filter(x=>x.domains.includes(state.domain));
  $("#picker-vendors").innerHTML=vendors.map(v=>{
@@ -178,7 +225,7 @@ function refresh(){
    }});
   if(!state.study.graph.components.some(x=>x.component_id===state.selectedId))
    state.selectedId=state.study.graph.components[0]?.component_id??null;
-  renderSlots();renderOrder();renderVendorDirectory();renderTree();
+  renderSlots();renderOrder();renderMakerUnitAudit();renderVendorDirectory();renderTree();
   if(state.selectedId)selectPart(state.selectedId);
   else $("#picker-component-detail").textContent="No part families selected.";
   redrawVisual();
@@ -274,13 +321,22 @@ function initEvents(){
  $("#picker-demo").addEventListener("click",loadDemo);
  $("#picker-export-json").addEventListener("click",()=>exportWorklist("json"));
  $("#picker-export-csv").addEventListener("click",()=>exportWorklist("csv"));
+ $("#picker-export-maker-audit").addEventListener("click",()=>{
+  if(state.offerAudit)download("worcester-maker-unit-evidence-"+state.domain+".json",
+   JSON.stringify(state.offerAudit,null,2)+"\n","application/json");
+ });
 }
 async function main(){
  try{
-  const res=await fetch("../catalog/outdoor_parts_picker.v1.json",{cache:"no-store"});
-  if(!res.ok)throw Error("Cannot load parts registry");
+  const [res,obsRes]=await Promise.all([
+   fetch("../catalog/outdoor_parts_picker.v1.json",{cache:"no-store"}),
+   fetch("../catalog/outdoor_supplier_observations.v1.json",{cache:"no-store"})
+  ]);
+  if(!res.ok||!obsRes.ok)throw Error("Cannot load parts and maker observation registries");
   state.catalog=await res.json();
+  state.offerObservations=await obsRes.json();
   const coverage=validatePartsRegistry(state.catalog);
+  validateSupplierObservations(state.offerObservations,state.catalog);
   $("#picker-coverage").innerHTML='<strong>'+coverage.product_families+' product families</strong> / '+
    coverage.variant_choices+' referenced choices<br>'+
    coverage.suppliers+' supplier directories · '+coverage.source_documents+' maker pages<br>'+
