@@ -188,6 +188,47 @@
           <div id="candidate-detail" class="candidate-detail"></div>
         </section>
 
+
+        <section id="exploded-view-section" class="exploded-view-section" aria-labelledby="exploded-view-title">
+          <div class="section-head">
+            <div>
+              <p class="kicker">ASSEMBLY ATLAS / Source-bound mechanical complexity</p>
+              <h2 id="exploded-view-title">Inside the build</h2>
+            </div>
+            <div class="exploded-view-actions">
+              <button type="button" id="exploded-export-svg">Export diagram SVG</button>
+              <button type="button" id="exploded-export-json">Export assembly graph</button>
+            </div>
+          </div>
+          <p class="section-copy">Separate the components to understand each system and its evidence gaps. Every silhouette and displacement is illustrative, not CAD, a verified parts count or installation instructions. Explore other board sports using explicitly unsourced conceptual recipes.</p>
+          <div class="exploded-toolbar">
+            <label for="exploded-domain">Equipment system
+              <select id="exploded-domain" aria-label="Exploded view equipment type"><option value="mountainboard">Selected mountainboard</option></select>
+            </label>
+            <label for="exploded-amount">Assembly separation <output id="exploded-amount-value" for="exploded-amount">78%</output>
+              <input id="exploded-amount" type="range" min="0" max="100" step="1" value="78">
+            </label>
+            <button type="button" id="exploded-reset">Reset view</button>
+          </div>
+          <div id="exploded-summary" class="exploded-summary" role="status" aria-live="polite"></div>
+          <div class="exploded-layout">
+            <div class="exploded-visual-wrap">
+              <div id="exploded-visual" class="exploded-visual"></div>
+              <p class="exploded-diagram-note">Illustrative positioning and quantities only. Unverified package contents and physical interfaces remain separate from design geometry.</p>
+            </div>
+            <div class="exploded-sidebar">
+              <h3>Assembly tree</h3>
+              <p class="exploded-tree-help">Select a component to inspect its source, assembly group and outstanding checks.</p>
+              <div id="exploded-tree" class="exploded-tree"></div>
+              <div id="exploded-detail" class="exploded-detail" aria-live="polite"></div>
+            </div>
+          </div>
+          <details class="exploded-worklist">
+            <summary>System checks still required</summary>
+            <div id="exploded-worklist"></div>
+          </details>
+        </section>
+
         <section id="swap-lab" class="swap-lab">
           <div class="section-head">
             <div>
