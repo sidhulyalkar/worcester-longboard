@@ -7,6 +7,8 @@ import {validateMakerKitClaims,auditCompleteKitClaim} from "./complete_kit_closu
 import {buildCompleteKitVisualGraph} from "./complete_kit_visual_graph.mjs";
 import {validateKitCadRecipe,compileCompleteKitCadDisplay} from "./complete_kit_cad_schema.mjs";
 import {renderCompleteKitCadSvg} from "./complete_kit_cad_svg.mjs";
+import {validateCadAssetRegistry,planCadAssetReadiness} from "./cad_asset_registry.mjs";
+import {inspectGlbBytes} from "./cad_glb_contract.mjs";
 const $=selector=>document.querySelector(selector);
 const esc=x=>String(x??"").replaceAll("&","&amp;").replaceAll("<","&lt;")
  .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
@@ -16,7 +18,8 @@ const cleanUrl=value=>{
 };
 const state={catalog:null,offerObservations:null,offerAudit:null,
  retailCatalog:null,studyCatalog:null,alternatives:null,kitClaims:null,kitAudit:null,visualGraph:null,
- cadRecipe:null,cadModel:null,
+ cadRecipe:null,cadModel:null,cadRegistry:null,cadReadiness:null,
+ cadInspector:null,inspectedKit:null,
  domain:"skateboard_longboard",selections:{},study:null,
  mode:"2d",separation:0,selectedId:null,viewer:null,viewerPromise:null,
  search:""};
@@ -139,6 +142,21 @@ function redrawVisual(){
   catch(error){fallbackTo2D("3D study could not render this selection. SVG fallback remains available.");}
  }
 }
+function renderCadAssetReadiness(){
+ const report=state.cadReadiness=planCadAssetReadiness(state.cadModel,state.cadRegistry);
+ $("#picker-cad-evidence-export").disabled=!state.cadModel;
+ $("#picker-cad-upload").disabled=!state.cadModel;
+ $("#picker-cad-coverage-rows").innerHTML=report.rows.map(r=>
+  '<tr><td>'+esc(r.role.replaceAll("_"," "))+'</td><td>'+
+  esc(r.geometry_status==="PARAMETRIC_PROXY_ONLY"?
+   "Procedural proxy only":"Dated GLB candidate, not aligned")+
+  (r.revision?" · "+esc(r.revision):"")+
+  '</td><td>UNKNOWN · not verified</td></tr>').join("");
+ $("#picker-cad-readiness").textContent=state.cadModel?
+  report.asset_candidates+"/7 file-backed candidates · "+report.missing_geometry+
+  " procedural categories · 0 verified mounting datums · clearance NOT EVALUATED · 0 extra orders":
+  "No complete-kit geometry coverage for this selection. No physical approval.";
+}
 function download(name,data,mime){
  const blob=new Blob([data],{type:mime}),url=URL.createObjectURL(blob);
  const a=document.createElement("a");a.href=url;a.download=name;document.body.append(a);
@@ -182,6 +200,16 @@ function renderCompleteKitClosure(){
  state.visualGraph=buildCompleteKitVisualGraph(state.study,result);
  state.cadModel=compileCompleteKitCadDisplay(
   state.study,result,state.kitClaims,state.cadRecipe);
+ const kit=state.cadModel?.kit_id??null;
+ if(state.inspectedKit!==kit){
+  state.cadInspector?.dispose();
+  state.cadInspector=null;state.inspectedKit=kit;
+  $("#picker-cad-file-inspector").hidden=true;
+  $("#picker-cad-inspect-status").textContent=
+   "No local GLB inspected for this kit. The integrated board uses procedural geometry.";
+  $("#picker-cad-upload").value="";
+ }
+ renderCadAssetReadiness();
  const exportButton=$("#picker-export-kit");
  exportButton.disabled=result.rows.length===0;
  if(!result.rows.length){
@@ -518,6 +546,40 @@ function initEvents(){
  $("#picker-separate").addEventListener("click",()=>{
   state.separation=100;$("#picker-explode").value="100";redrawVisual();
  });
+ $("#picker-cad-evidence-export").addEventListener("click",()=>{
+  if(state.cadModel)download("worcester-cad-evidence-"+state.domain+".json",
+   JSON.stringify(state.cadReadiness,null,2)+"\n","application/json");
+ });
+ $("#picker-cad-upload").addEventListener("change",async event=>{
+  const file=event.target.files?.[0],status=$("#picker-cad-inspect-status");
+  if(!file)return;
+  const kit=state.cadModel?.kit_id,part=state.selectedId;
+  try{
+   if(!kit||!part||file.size>25000000||file.size<28)
+    throw Error("Select a file under 25 MB while viewing a complete-kit part");
+   const data=await file.arrayBuffer();
+   inspectGlbBytes(data);
+   status.textContent="Inspecting isolated unverified geometry from "+file.name+"…";
+   const host=$("#picker-cad-file-inspector");
+   if(!state.cadInspector)
+    state.cadInspector=await import("./cad_glb_inspector.mjs")
+     .then(x=>x.createLocalCadInspector(host));
+   if(kit!==state.cadModel?.kit_id)
+    throw Error("Kit changed during import. Re-select the file.");
+   const result=await state.cadInspector.load(data);
+   if(!result)return;
+   host.hidden=false;
+   status.textContent="Local-only GLB attached to "+part+" for inspection: "+
+    result.mesh_count+" mesh(es), "+result.vertex_reference_count+
+    " referenced vertices; native-file bounds "+
+    [result.bounds_in_file_units.x,result.bounds_in_file_units.y,
+     result.bounds_in_file_units.z].map(x=>x.toPrecision(4)).join(" × ")+
+    " (UNITS UNKNOWN). No assembly mating, clearance test or new order lines.";
+  }catch(error){
+   status.textContent="Local CAD file held: "+error.message+
+    ". The integrated schematic above remains available.";
+  }finally{event.target.value="";}
+ });
  $("#picker-cad-export").addEventListener("click",()=>{
   if(state.cadModel)download("worcester-parametric-cad-research-"+state.domain+".json",
    JSON.stringify(state.cadModel,null,2)+"\n","application/json");
@@ -554,15 +616,16 @@ function initEvents(){
 }
 async function main(){
  try{
-  const [res,obsRes,retailRes,studyRes,kitRes,cadRes]=await Promise.all([
+  const [res,obsRes,retailRes,studyRes,kitRes,cadRes,assetsRes]=await Promise.all([
    fetch("../catalog/outdoor_parts_picker.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_supplier_observations.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_retail_comparisons.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_build_studies.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_complete_kit_claims.v1.json",{cache:"no-store"}),
-   fetch("../catalog/outdoor_complete_kit_cad_recipes.v1.json",{cache:"no-store"})
+   fetch("../catalog/outdoor_complete_kit_cad_recipes.v1.json",{cache:"no-store"}),
+   fetch("../catalog/outdoor_cad_asset_registry.v1.json",{cache:"no-store"})
   ]);
-  if(!res.ok||!obsRes.ok||!retailRes.ok||!studyRes.ok||!kitRes.ok||!cadRes.ok)
+  if(!res.ok||!obsRes.ok||!retailRes.ok||!studyRes.ok||!kitRes.ok||!cadRes.ok||!assetsRes.ok)
    throw Error("Cannot load all four source-bound parts, retailer and study registries");
   state.catalog=await res.json();
   state.offerObservations=await obsRes.json();
@@ -570,7 +633,9 @@ async function main(){
   state.studyCatalog=await studyRes.json();
   state.kitClaims=await kitRes.json();
   state.cadRecipe=await cadRes.json();
+  state.cadRegistry=await assetsRes.json();
   validateKitCadRecipe(state.cadRecipe);
+  validateCadAssetRegistry(state.cadRegistry);
   const coverage=validatePartsRegistry(state.catalog);
   validateSupplierObservations(state.offerObservations,state.catalog);
   validateRetailRegistry(state.retailCatalog,state.catalog);
