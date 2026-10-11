@@ -34,6 +34,7 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
   const grid=new THREE.GridHelper(20,20,0x3a5967,0x263d4a);
   grid.rotation.x=Math.PI/2;grid.position.z=-2.6;scene.add(grid);
   let graph=null,plan=null,nodes=new Map(),selected=null,disposed=false;
+  let visualState=null,proportionsKey=null;
   let frame=null,settle=0,down=null;
   const raycaster=new THREE.Raycaster();
   const pointer=new THREE.Vector2();
@@ -77,8 +78,11 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
   function disc(group,mat,r=0.46,z=0) {
     add(group,new THREE.CylinderGeometry(r,r,0.13,28),mat,[0,0,z],[Math.PI/2,0,0]);
   }
-  function createProxy(part,domain) {
+  function createProxy(part,domain,proportions=null) {
     const group=new THREE.Group(),mat=material(PALETTE[part.group_id]||0xaac2c7);
+    const lengthScale=proportions?.deck_length_ratio??1;
+    const widthScale=proportions?.deck_width_ratio??1;
+    const wheelScale=proportions?.wheel_diameter_ratio??1;
     const role=part.role;
     if(part.group_id==="platform") {
       if(role==="ski_pair"){
@@ -86,8 +90,8 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
       }else if(role==="splitboard"){
         board(group,mat,1,7.8,-0.55);board(group,mat,1,7.8,0.55);
       }else if(role==="surfboard")board(group,mat,2.35,8.2);
-      else board(group,mat,domain==="skateboard_longboard"?1.7:2.25,
-                 domain==="snowboard"?8.0:7.2);
+      else board(group,mat,(domain==="skateboard_longboard"?1.7:2.25)*widthScale,
+                 (domain==="snowboard"?8.0:7.2)*lengthScale);
     }else if(part.group_id==="ground") {
       if(role==="fin_set"){
         box(group,0.11,0.55,0.85,mat,-0.5,0,0.25);
@@ -100,7 +104,7 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
         box(group,0.46,7.3,0.07,mat,-0.45,0,0);
         box(group,0.46,7.3,0.07,mat,0.45,0,0);
       }else{
-        for(const x of [-1.15,1.15])for(const y of [-2.2,2.2])wheel(group,mat,x,y);
+        for(const x of [-1.15,1.15])for(const y of [-2.2,2.2])wheel(group,mat,x,y,0.46*wheelScale);
       }
     }else if(part.group_id==="mount") {
       if(role==="mounting_disc"||role==="puck_or_mounting_kit"||role==="touring_pivot"){
@@ -158,23 +162,27 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
   }
   function moveParts(separation) {
     if(!graph)return;
-    plan=planExplodedScene(graph,{separation,selectedId:selected});
+    plan=planExplodedScene(graph,{separation,selectedId:selected,visualState});
     for(const part of plan.parts){
       const node=nodes.get(part.component_id);
       if(node)node.position.set(...part.position);
     }
     schedule();
   }
-  function update(nextGraph,separation=78,selectedId=null) {
+  function update(nextGraph,separation=78,selectedId=null,nextVisualState=null) {
     if(disposed)return;
-    if(graph!==nextGraph){
-      planExplodedScene(nextGraph);
-      clearParts();graph=nextGraph;
+    const proposed=planExplodedScene(nextGraph,{
+      separation,selectedId,visualState:nextVisualState
+    });
+    const key=JSON.stringify(proposed.reference_proportions);
+    if(graph!==nextGraph||key!==proportionsKey){
+      clearParts();graph=nextGraph;proportionsKey=key;
       for(const part of nextGraph.components){
-        const obj=createProxy(part,nextGraph.domain_id);
+        const obj=createProxy(part,nextGraph.domain_id,proposed.reference_proportions);
         nodes.set(part.component_id,obj);root.add(obj);
       }
     }
+    visualState=nextVisualState;
     select(selectedId);moveParts(separation);
   }
   function fit() {
