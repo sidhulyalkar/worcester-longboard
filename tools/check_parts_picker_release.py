@@ -33,6 +33,13 @@ REQUIRED_REVIEW_CHECKS = (
 )
 ACTIVE_SPORTS = {"alpine_ski", "snowboard", "skateboard_longboard", "mountainboard"}
 REQUIRED_BROWSER_WIDTHS = {390, 768, 1280, 1440}
+REQUIRED_BROWSER_CHECK_NAMES = {
+    "Four sports render three cards, load source-bound assemblies and stay non-orderable",
+    "Seven child IDs render in actual local WebGL, camera and keyboard selection work",
+    "Unavailable pinned-local and CDN Three.js both fall back to SVG without losing parts",
+    "Actual browser JSON/CSV downloads preserve zero approved order lines",
+    "390, 768, 1280 and 1440 px screenshots captured with overflow checks",
+}
 ZERO_AUTHORITY = (
     "procurement_authorized",
     "fabrication_authorized",
@@ -155,6 +162,10 @@ def evaluate(
                 and x.get("result") == "PASS"
                 for x in browser_report["checks"]
             )
+            and REQUIRED_BROWSER_CHECK_NAMES.issubset({
+                x["name"] for x in browser_report["checks"]
+                if isinstance(x, dict) and isinstance(x.get("name"), str)
+            })
         )
         if browser_pass:
             passed.append("Actual Chromium flow, responsive and fallback receipts")
