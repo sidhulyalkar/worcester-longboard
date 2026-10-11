@@ -546,6 +546,14 @@
       "reviewed_on": "2026-10-10",
       "summary": "evo published professional ski mounting and binding-calibration service.",
       "revision_fingerprint": null
+    },
+    {
+      "id": "mbs-cnc-420",
+      "url": "https://www.mbs.com/shop/p/mbs-matrix-iii-mountain-board-truck-12mmx420mm",
+      "source_kind": "manufacturer_page",
+      "reviewed_on": "2026-10-10",
+      "summary": "MBS 12307 CNC 12×420 black ea; manufacturer explicitly marks incompatible with MBS Brake Systems.",
+      "revision_fingerprint": null
     }
   ],
   "products": [
@@ -1194,6 +1202,15 @@
           "label": "95 cm deck family",
           "dimensions_mm": null,
           "manufacturer_sku": null
+        },
+        {
+          "id": "mbs-comp95-silver-hex-95",
+          "label": "Silver Hex 95 cm · maker part 11303",
+          "dimensions_mm": {
+            "length_mm": 950,
+            "width_mm": 251
+          },
+          "manufacturer_sku": null
         }
       ],
       "interface_claims": {
@@ -1227,6 +1244,15 @@
           "id": "mbs-matrix3-420 mm / 70 mm axle",
           "label": "420 mm / 70 mm axle",
           "dimensions_mm": null,
+          "manufacturer_sku": null
+        },
+        {
+          "id": "mbs-matrix3-12300-black-400",
+          "label": "Matrix III 12×400 mm black · maker part 12300",
+          "dimensions_mm": {
+            "truck_total_width_mm": 400,
+            "axle_diameter_mm": 12
+          },
           "manufacturer_sku": null
         }
       ],
@@ -1282,6 +1308,12 @@
         {
           "id": "mbs-f5-F5 family",
           "label": "F5 family",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        },
+        {
+          "id": "mbs-f5-14051-pair",
+          "label": "F5 binding pair · maker part 14051",
           "dimensions_mm": null,
           "manufacturer_sku": null
         }
@@ -1347,6 +1379,39 @@
       },
       "inclusion_claim": [
         "Electric system demands separate protective/electrical/charging qualification; not an automatic shopping kit"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "mbs-cnc420",
+      "domain_id": "mountainboard",
+      "slot": "mt_trucks",
+      "brand": "MBS",
+      "name": "Matrix III CNC 420 (12 mm/70 mm axle)",
+      "source_id": "mbs-cnc-420",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "mbs-cnc420-12307",
+          "label": "CNC black 420 mm · maker part 12307",
+          "dimensions_mm": {
+            "truck_total_width_mm": 420,
+            "axle_diameter_mm": 12
+          },
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "mt_brake_family": "MBS_BRAKE_SYSTEM_INCOMPATIBLE",
+        "axle_width_mm": 420,
+        "axle_diameter_mm": 12
+      },
+      "inclusion_claim": [
+        "Manufacturer identifies this SKU as one CNC truck; expressly incompatible with MBS Brake Systems."
       ],
       "print_safety": "FACTORY_ONLY"
     }
