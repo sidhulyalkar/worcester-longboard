@@ -645,7 +645,7 @@ function initEvents(){
    host.hidden=false;
    status.textContent="Pinned, digest-verified "+candidate.origin+" candidate "+
     candidate.part_number+" · "+candidate.revision+": "+
-    result.mesh_count+" mesh(es), native-file units declared mm but UNVERIFIED. "+
+    result.mesh_count+" mesh(es), glTF scene meters; physical source scale NOT VERIFIED. "+
     "No verified datums, assembly mating, clearances or purchasing approval.";
   }catch(error){
    status.textContent="Candidate CAD held: "+error.message+
