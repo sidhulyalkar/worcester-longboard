@@ -269,14 +269,18 @@ function renderRetailMatches(){
  const sections=comparisons.map(x=>{
   const count=x.compared_merchants;
   return '<article class="retail-match"><h3>'+esc(x.product_name)+'</h3>'+
-   '<p class="'+(count>=2?"unit-reference":"unit-hold")+'">'+
+   '<p class="'+(x.conflict?"unit-hold":count>=2?"unit-reference":"unit-hold")+'">'+
    esc(x.status.replaceAll("_"," "))+
-   '. Same published setup and package, NOT verified exact checkout SKU.</p>'+
+   '. Named wheel setup only; included hardware must also match. NOT verified exact checkout SKU.</p>'+
+   (x.conflict?'<p class="retail-conflict" role="status"><strong>Do not treat these as identical seller kits.</strong> '+
+    esc(x.conflict.explanation)+'</p>':'')+
    '<div class="retail-offer-grid">'+x.rows.map(offer=>{
     const url=cleanUrl(offer.source_url);
     return '<div class="retail-offer">'+
       '<strong>'+esc(offer.merchant_name)+'</strong>'+
       '<p>'+esc(offer.setup)+'</p>'+
+      '<p><strong>Declared trucks: '+esc(offer.advertised_truck_revision_claim?.replaceAll("_"," ")??"UNKNOWN")+
+       '</strong> · original package contents not physically received</p>'+
       '<p class="retail-price">USD '+offer.displayed_amount_usd.toFixed(2)+
       '<small> · observed '+esc(offer.observed_on)+'</small></p>'+
       '<small>'+esc(offer.status.replaceAll("_"," "))+
