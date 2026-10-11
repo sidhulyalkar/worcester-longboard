@@ -146,6 +146,84 @@
           "meaning": "PUBLISHED_NOMINAL_WHEEL_DIAMETER"
         }
       ]
+    },
+    {
+      "id": "paris-v3-150mm-polished-dimensions",
+      "roles": [
+        "trucks"
+      ],
+      "applies_to": [
+        "loaded-tangent-complete-105 mm Dad Bod 77a",
+        "loaded-tangent-caguama-85 mm Caguama 80a"
+      ],
+      "source_url": "https://www.paristruckco.com/products/v3-150mm-50-polished",
+      "source_type": "MAKER_PRODUCT_SPECIFICATION",
+      "note": "Official Paris V3 product-family measurements only. Seller may ship V2; physical revision, mounting holes, hanger steering trajectory and truck geometry unverified.",
+      "claims": [
+        {
+          "name": "hanger_width",
+          "value_mm": 150,
+          "meaning": "PUBLISHED_PRODUCT_DIMENSION_NOT_MATING_DATUM"
+        },
+        {
+          "name": "axle_width",
+          "value_mm": 215,
+          "meaning": "PUBLISHED_PRODUCT_DIMENSION_NOT_MATING_DATUM"
+        },
+        {
+          "name": "axle_height",
+          "value_mm": 65,
+          "meaning": "PUBLISHED_PRODUCT_DIMENSION_NOT_MATING_DATUM"
+        }
+      ]
+    },
+    {
+      "id": "orangatang-dad-bod-105mm-width",
+      "roles": [
+        "wheels"
+      ],
+      "applies_to": [
+        "loaded-tangent-complete-105 mm Dad Bod 77a"
+      ],
+      "source_url": "https://www.orangatangwheels.com/products/dad-bod-105mm-longboard-wheel",
+      "source_type": "MAKER_PRODUCT_SPECIFICATION",
+      "note": "Official width and nominal contact patch claims for 105mm Dad Bod wheel family. No bore, bearing-seat, wheel offset or deck-clearance datum verified.",
+      "claims": [
+        {
+          "name": "wheel_width",
+          "value_mm": 62,
+          "meaning": "PUBLISHED_PRODUCT_DIMENSION_NOT_MATING_DATUM"
+        },
+        {
+          "name": "contact_patch_width",
+          "value_mm": 57,
+          "meaning": "PUBLISHED_PRODUCT_DIMENSION_NOT_MATING_DATUM"
+        }
+      ]
+    },
+    {
+      "id": "orangatang-caguama-85mm-width",
+      "roles": [
+        "wheels"
+      ],
+      "applies_to": [
+        "loaded-tangent-caguama-85 mm Caguama 80a"
+      ],
+      "source_url": "https://www.orangatangwheels.com/products/caguama-85mm-longboard-wheel",
+      "source_type": "MAKER_PRODUCT_SPECIFICATION",
+      "note": "Official width and nominal contact patch claims for 85mm Caguama wheel family. No bore, bearing-seat, wheel offset or deck-clearance datum verified.",
+      "claims": [
+        {
+          "name": "wheel_width",
+          "value_mm": 58.5,
+          "meaning": "PUBLISHED_PRODUCT_DIMENSION_NOT_MATING_DATUM"
+        },
+        {
+          "name": "contact_patch_width",
+          "value_mm": 56,
+          "meaning": "PUBLISHED_PRODUCT_DIMENSION_NOT_MATING_DATUM"
+        }
+      ]
     }
   ]
 }
