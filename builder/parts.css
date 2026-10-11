@@ -103,3 +103,10 @@ main{max-width:1480px;padding:21px 25px 45px;margin:auto}.intro{display:grid;gri
  .kit-closure-unknowns,#picker-kit-summary,.kit-conflict{color:#111!important}
  .kit-closure .panel-title button{display:none!important}
  #picker-kit-summary{background:white;border:1px solid #777}}
+
+.kit-inspect-button{display:block;margin-top:8px;padding:6px 9px;
+ border:1px solid #5d90a5;border-radius:7px;background:#234354;
+ color:#e4f3f8;font-size:10px;cursor:pointer}
+.kit-inspect-button:focus-visible{outline:3px solid #ecc791;outline-offset:3px}
+.visual-scene-status{font-size:11px;color:#b7d7d9;line-height:1.5}
+@media print{.kit-inspect-button{display:none!important}.visual-scene-status{color:#111!important}}
