@@ -115,6 +115,10 @@ test("tampered seller hosts, variant IDs, quantities, dates, fake approvals fail
   d=>d.listing_observations[0].displayed_price.price_scope="MAKER_FAMILY_PRICE_NOT_VARIANT_QUOTE",
   d=>d.listing_observations[0].displayed_price.amount=-8,
   d=>d.unit_requirements.push({...d.unit_requirements[0]}),
+  d=>d.unit_requirements[1].items_per_assembly=1,
+  d=>d.unit_requirements[2].item_kind="pair",
+  d=>d.listing_observations.push({...d.listing_observations[0],id:"copied-option"}),
+
   d=>d.authority.procurement_authorized=true,
   d=>d.expiry_policy.max_age_days=365
  ];
