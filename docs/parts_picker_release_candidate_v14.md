@@ -46,7 +46,7 @@ node tests/browser/parts_picker_smoke.mjs
 python tools/check_parts_picker_release.py --mode preview
 ```
 
-Screenshots include `desktop-alpine_ski.png`, `desktop-snowboard.png`, `desktop-skateboard_longboard.png`, `desktop-mountainboard.png`, `mobile-390.png`, `tablet-768.png`, `desktop-1280.png` and `cdn-unavailable-svg-fallback.png`.
+Screenshots include `desktop-alpine_ski.png`, `desktop-snowboard.png`, `desktop-skateboard_longboard.png`, `desktop-mountainboard.png`, `mobile-390.png`, `tablet-768.png`, `desktop-1280.png` and `cdn-unavailable-svg-fallback.png`, plus `print-css-preview.png`. The print test checks that evidence and the worklist remain visible while export controls are hidden.
 
 **The screenshot files are not a substitute for actually inspecting them.** The successful test of a blocked CDN also does **not** test successful Three.js startup or native mobile GPU WebGL. Claim those as validated only after separate real-browser verification.
 
