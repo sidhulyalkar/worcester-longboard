@@ -12,7 +12,8 @@
     "real_touch_device": "PENDING",
     "successful_webgl_orbit": "PENDING",
     "print_or_export_readability": "PENDING",
-    "external_maker_links_and_current_product_identity": "PENDING"
+    "external_maker_links_and_current_product_identity": "PENDING",
+    "integrated_board_cad_schema_visual_parity": "PENDING"
   },
   "recognizes_non_procurement_status": false,
   "recognizes_no_physical_release": false,
