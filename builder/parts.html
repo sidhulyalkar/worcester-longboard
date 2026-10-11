@@ -32,7 +32,7 @@
     <select id="picker-domain">
      <option value="alpine_ski">Alpine ski · source study</option>
      <option value="snowboard">Snowboard · source study</option>
-     <option value="skateboard_longboard">Longboard · source study</option>
+     <option value="skateboard_longboard" selected>Longboard · integrated assembly study</option>
      <option value="mountainboard">Mountainboard · source study</option>
     </select>
     <label for="picker-search" class="formlabel">Search maker families</label>
@@ -56,7 +56,7 @@
      <div id="picker-visual-3d" hidden aria-label="3D illustrative exploded assembly"></div>
     </div>
     <p id="picker-rendered-scene-status" class="visual-scene-status" aria-live="polite">Assembly uses unmeasured reference geometry. Child categories are research only.</p>
-    <p class="visual-caption" id="picker-view-note">For complete longboards, one parametric display schema powers the integrated and exploded 2D/3D board. Published dimensions appear separately from inferred visual placements. Mounts, tolerances, fastener patterns and clearances are NOT manufacturer CAD or physical approvals.</p>
+    <p class="visual-caption" id="picker-view-note">For complete longboards, one parametric display schema powers the integrated and exploded 2D/3D board. Published dimensions appear separately from inferred visual placements. Mounts, tolerances, fastener patterns and clearances are not measured or manufacturer CAD, and are not physical approvals.</p>
     <div class="view-controls">
      <div class="cad-assembly-actions" role="group" aria-label="Parametric board configuration">
       <button type="button" id="picker-assemble" aria-pressed="false">Assemble complete board</button>
@@ -64,8 +64,8 @@
       <button type="button" id="picker-cad-export" disabled>Export parametric CAD display schema</button>
      </div>
      <p id="picker-cad-status" class="cad-status" role="status" aria-live="polite">No source-matched parametric complete-board model yet.</p>
-     <label for="picker-explode">Explode assembly <output id="picker-explode-output" for="picker-explode">72%</output></label>
-     <input type="range" min="0" max="100" value="72" id="picker-explode">
+     <label for="picker-explode">Explode assembly <output id="picker-explode-output" for="picker-explode">0%</output></label>
+     <input type="range" min="0" max="100" value="0" id="picker-explode">
      <div id="picker-camera-controls" class="camera-controls" hidden role="group" aria-label="3D camera views">
       <button data-camera="hero">Perspective</button><button data-camera="top">Top</button><button data-camera="side">Side</button><button data-camera="front">Front</button>
      </div>
