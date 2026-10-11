@@ -30,8 +30,25 @@ export function inspectGlbBytes(input){
  for(const b of [...(json.buffers??[]),...(json.images??[])]){
   check(!("uri" in b),"external or data URI resources are not allowed");
  }
- check((json.buffers??[]).length<=1&&json.accessors?.length<=16384,
-  "GLB structure exceeds inspector budget");
+ check((json.buffers??[]).length===1&&
+  Array.isArray(json.accessors)&&json.accessors.length<=16384,
+  "GLB requires one embedded binary buffer and bounded accessors");
+ const binStart=20+jsonLength;
+ check(binStart+8<=data.byteLength&&
+  view.getUint32(binStart+4,true)===0x004e4942,
+  "missing GLB binary chunk");
+ const binLength=view.getUint32(binStart,true);
+ check(binLength%4===0&&binStart+8+binLength===data.byteLength&&
+  Number.isSafeInteger(json.buffers[0].byteLength)&&
+  json.buffers[0].byteLength>0&&json.buffers[0].byteLength<=binLength&&
+  binLength-json.buffers[0].byteLength<=3,
+  "embedded GLB binary length mismatch");
+ for(const b of json.bufferViews??[]){
+  check(b.buffer===0&&Number.isSafeInteger(b.byteOffset??0)&&
+   Number.isSafeInteger(b.byteLength)&&b.byteLength>=0&&
+   (b.byteOffset??0)+b.byteLength<=json.buffers[0].byteLength,
+   "out-of-bounds binary buffer view");
+ }
  const meshes=json.meshes;
  let vertices=0;
  for(const m of meshes){
