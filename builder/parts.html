@@ -74,6 +74,18 @@
    <p>One selected family is not necessarily one purchasable SKU. A complete longboard may already contain parts that would otherwise be counted twice. A ski may be sold without bindings; ski mounting is a separate professional service. Every seller order quantity stays unknown until exact contents are checked.</p>
    <div id="picker-order-status" role="status" aria-live="polite" class="order-status"></div>
    <div class="table-scroll"><table id="picker-order-table"><thead><tr><th>System</th><th>Selection / source</th><th>Required</th><th>Seller quantity</th><th>Status</th></tr></thead><tbody id="picker-order-rows"></tbody></table></div>
+   <section class="maker-unit-audit" aria-labelledby="maker-unit-audit-title">
+    <div class="panel-title">
+     <div><p class="eyebrow">04 / MANUFACTURER PACK RECEIPTS</p>
+      <h3 id="maker-unit-audit-title">Why this exact quantity?</h3></div>
+     <button type="button" id="picker-export-maker-audit">Export unit evidence JSON</button>
+    </div>
+    <p>Reference examples only: exact source options with public manufacturer part codes may support historical *each vs pair* arithmetic. All prices are dated, partial and exclude unresolved items, tax, shipping, mounting and inspection. No current stock, purchase approval, or physical-fit qualification.</p>
+    <div id="maker-audit-summary" class="maker-audit-summary" role="status" aria-live="polite">Manufacturer unit evidence pending.</div>
+    <div class="table-scroll"><table class="maker-audit-table"><thead>
+     <tr><th>Component</th><th>Maker evidence</th><th>Assembly items</th><th>Maker pack</th><th>Historical reference packs</th><th>Status</th></tr>
+    </thead><tbody id="maker-audit-rows"></tbody></table></div>
+   </section>
    <div id="picker-findings" class="picker-findings"></div>
   </section>
 
