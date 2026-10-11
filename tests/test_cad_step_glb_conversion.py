@@ -107,7 +107,7 @@ def test_step_conversion_and_manifest_staging_isolated_in_temporary_repository()
         assert staged["sha256"] == conversion["output_glb_sha256"]
         tampered = dict(conversion, gltf_scene_units="mm")
         receipt_file.write_text(json.dumps(tampered))
-        bad = subprocess.run(base_command[:-18] + base_command[-18:],
+        bad = subprocess.run(base_command,
                              capture_output=True, text=True, timeout=30)
         assert bad.returncode != 0
         assert "conversion receipt" in bad.stderr.lower()
