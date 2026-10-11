@@ -236,6 +236,49 @@
               <div id="exploded-detail" class="exploded-detail" aria-live="polite"></div>
             </div>
           </div>
+          <details id="sport-fit-lab" class="sport-fit-lab">
+            <summary>Personalize snowboard or ski fit research</summary>
+            <p>Enter measured rider and boot details to expose interface conflicts and unresolved product-variant checks. This does not choose a safe binding, ski length or release setting.</p>
+            <div class="sport-fit-grid">
+              <label>Sport
+                <select id="fit-sport"><option value="snowboard">Snowboard</option><option value="alpine_ski">Alpine ski</option></select>
+              </label>
+              <label>Height (cm)<input id="fit-height" type="number" min="80" max="230" step="0.5" placeholder="Measured"></label>
+              <label>Rider mass (kg)<input id="fit-mass" type="number" min="20" max="250" step="0.5" placeholder="Measured"></label>
+              <label>Left foot Mondo length (mm)<input id="fit-left" type="number" min="150" max="360" step="1" placeholder="Measured"></label>
+              <label>Right foot Mondo length (mm)<input id="fit-right" type="number" min="150" max="360" step="1" placeholder="Measured"></label>
+            </div>
+            <div id="fit-snowboard-fields" class="sport-fit-grid">
+              <label>Board mount family
+                <select id="fit-board-mount"><option value="">Not identified</option><option value="CHANNEL_M6_REFERENCE">Channel (reference)</option><option value="2X4_REFERENCE">2×4 (reference)</option><option value="4X4_REFERENCE">4×4 (reference)</option><option value="3D_LEGACY_REFERENCE">Legacy 3D (reference)</option></select>
+              </label>
+              <label>Binding mounting family
+                <select id="fit-binding-mount"><option value="">Not identified</option><option value="REFLEX">Re:Flex</option><option value="EST">EST</option></select>
+              </label>
+              <label>Disc family
+                <select id="fit-disc"><option value="">Unknown / not confirmed</option><option value="BURTON_REFLEX_COMBO">Re:Flex Combo (reference)</option><option value="BURTON_3D_HINGE">3D Hinge (reference)</option></select>
+              </label>
+              <label>Boot retention
+                <select id="fit-retention"><option value="STRAP">Strap</option><option value="STEP_ON_ONLY">Step On (model matching required)</option></select>
+              </label>
+            </div>
+            <div id="fit-ski-fields" class="sport-fit-grid" hidden>
+              <label>Marked boot sole norm
+                <select id="fit-sole-norm"><option value="">Unknown</option><option value="ISO_5355_ADULT">ISO 5355 (adult alpine)</option><option value="ISO_23223_GRIPWALK">ISO 23223 (GripWalk)</option><option value="ISO_9523_TOURING">ISO 9523 (touring)</option></select>
+              </label>
+              <label>Binding-accepted sole norm (manufacturer claim needed)
+                <select id="fit-binding-norm"><option value="">Unverified</option><option value="ISO_5355_ADULT">ISO 5355 (adult alpine)</option><option value="ISO_23223_GRIPWALK">ISO 23223 (GripWalk)</option><option value="ISO_9523_TOURING">ISO 9523 (touring)</option></select>
+              </label>
+              <label>Marked boot sole length (mm)<input id="fit-bsl" type="number" min="180" max="380" placeholder="From boot shell"></label>
+              <label>Ski waist (mm)<input id="fit-waist" type="number" min="45" max="180" placeholder="Exact ski variant"></label>
+              <label>Nominal brake width (mm)<input id="fit-brake" type="number" min="50" max="200" placeholder="Exact binding/brake"></label>
+            </div>
+            <div class="sport-fit-actions">
+              <button type="button" id="fit-run">Review safety and fit holds</button>
+              <button type="button" id="fit-export" disabled>Export review JSON</button>
+            </div>
+            <div id="fit-results" class="sport-fit-results" role="status" aria-live="polite">No fit assessment has been performed. All declared product fits remain unqualified.</div>
+          </details>
           <details class="exploded-worklist">
             <summary>System checks still required</summary>
             <div id="exploded-worklist"></div>
