@@ -300,3 +300,12 @@ After selecting a board, open **Inside the build** beneath the BOM. The source-a
 The equipment selector also demonstrates **illustrative, UNSOURCED** longboard/skateboard, snowboard, alpine ski, splitboard and surfboard assembly recipes. These examples introduce no saleable SKU, matched boot-binding or physical approval. Snowboards and skis have separate fit/release checks, splitboards require touring pivot/puck interfaces, and fins can be optional for surfboards. Existing board candidate/BOM/price outputs are unchanged.
 
 Technical specification: [Exploded assembly contract](../docs/exploded_assembly_contract.md). Validation: node --test tests/js/test_board_exploded_assembly.mjs; python tools/compare_exploded_assemblies.py. Actual mounting/fastener geometry, assembly quantities, stock, donor contents and power/ride authority remain unknown.
+
+
+## Public manufacturer reference studies: longboards and Burton snowboards
+
+The Assembly Atlas equipment selector now has a separate group of **maker-referenced but unqualified** designs. It includes the manufacturer-advertised complete assemblies for Loaded Tangent and Omakase longboards, plus Burton Custom, Good Company and Process board families studied with Mission, Cartel and Step On Re:Flex binding families and Burton Combo Disc references.
+
+The manufacturer product pages provide meaningful board/mount/component information, but actual boot and binding sizes, purchased options, included unit counts, correct hardware, revisions, fit and current quotes are not known. No auto-generated assembly procedures or checkout controls are enabled. Step On family choices explicitly require matching Step On boots; Re:Flex needs the correct discs; EST is not suitable for non-Channel boards. Every physical qualification remains blocked.
+
+Source registry: catalog/board_sport_reference_studies.v1.json. Negative/positive mounting family rules: builder/snowboard_mount_reference.mjs. Source/fit contract: docs/board_sport_reference_pilot_v1.md.
