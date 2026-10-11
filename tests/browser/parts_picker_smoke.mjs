@@ -154,6 +154,20 @@ async function main(){
    correspondences:[[0,0,0],[5,0,0],[0,5,0],[0,0,5]]
     .map(p=>({local_mm:p,assembly_mm:p.map((x,i)=>x+(i===0?offset:0))}))
   });
+  await page.locator("#picker-cad-motion-demo").click();
+  await page.waitForFunction(()=>document.querySelector("#picker-cad-motion-status")
+   ?.textContent.includes("SYNTHETIC ALGORITHM EXAMPLE ONLY"),null,{timeout:10000});
+  assert.equal(await page.locator("#picker-cad-motion-plot svg").count(),1);
+  assertBrowser((await page.locator("#picker-cad-metric-status").innerText())
+   .includes("SYNTHETIC, NOT MANUFACTURER GEOMETRY"),
+   "Synthetic demonstration was falsely promoted to measured geometry");
+  const demoExport=page.waitForEvent("download");
+  await page.locator("#picker-cad-motion-export").click();
+  const demo=JSON.parse(await readFile(await (await demoExport).path(),"utf8"));
+  assert.equal(demo.physical_clearances_verified,0);
+  assert.equal(demo.motion_kinematics_verified,false);
+  assert.equal(demo.between_samples_checked,false);
+  note("One-click synthetic motion demo keeps kit purchase and engineering authority locked");
   const metricFixture={
    schema_version:1,scope:"METRIC_CAD_SURVEY_FIXTURE_RESEARCH_ONLY",
    kit_variant_id:readiness.selected_variant_id,units:"mm",
