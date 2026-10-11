@@ -19,7 +19,10 @@ export function validateCadAssetRegistry(registry){
  check(registry.coordinate_policy?.native_file_units==="EXPLICIT_PER_ASSET"&&
   registry.coordinate_policy.unmeasured_display_frame==="ARBITRARY_VISUAL_UNITS"&&
   registry.coordinate_policy.allow_automatic_visual_to_metric_alignment===false&&
-  registry.coordinate_policy.allow_unverified_collision_clearance===false,
+  registry.coordinate_policy.allow_unverified_collision_clearance===false&&
+  registry.coordinate_policy.gltf_scene_units==="m"&&
+  registry.coordinate_policy.source_cad_units==="mm"&&
+  registry.coordinate_policy.required_mm_to_gltf_m_scale===0.001,
   "cannot silently align actual CAD and illustrative visual frames");
  check(locks.every(k=>registry.authority?.[k]===false),"authority must remain locked");
  check(Array.isArray(registry.assets)&&registry.assets.length<=128,"asset list invalid");
@@ -36,7 +39,9 @@ export function validateCadAssetRegistry(registry){
    https(a.source_url)&&typeof a.license==="string"&&a.license.trim().length>2&&
    /^\d{4}-\d{2}-\d{2}$/.test(a.evidence_date??""),
    "source, dated evidence and reuse rights required");
-  check(a.format==="glb"&&a.units==="mm"&&sha(a.sha256)&&
+  check(a.format==="glb"&&a.units==="mm"&&
+   a.gltf_scene_units==="m"&&a.mm_to_gltf_m_scale===0.001&&
+   sha(a.conversion_receipt_sha256)&&sha(a.source_step_sha256)&&sha(a.sha256)&&
    a.path==="/assets/cad/"+a.sha256+".glb",
    "only locally pinned, digest-addressed GLB with declared mm units");
   check(a.byte_length>20&&Number.isSafeInteger(a.byte_length)&&
