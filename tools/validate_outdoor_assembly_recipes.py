@@ -36,9 +36,12 @@ def main():
         ids=[x["component_id"] for x in ex["components"]]
         assert len(ids)==len(set(ids))
         assert all(x["role"] in roles for x in ex["components"])
-        assert all(x["role"] in allowed or
-                   (ex["domain_id"]=="skateboard_longboard" and x["role"]=="truck")
-                   for x in ex["components"]),f"Role unavailable for domain: {ex['domain_id']}"
+        assert all(x["role"] in allowed for x in ex["components"]), (
+            f"Role unavailable for domain: {ex['domain_id']}"
+        )
+        assert set(domain["required_roles"]).issubset(
+            set(x["role"] for x in ex["components"])
+        ), f"Missing conceptual role in domain: {ex['domain_id']}"
         assert all(x["source_kind"]=="illustrative_concept" and
                    x["manufacturer"] is None and x["sku"] is None and
                    x["source_url"] is None and x["price"] is None and
