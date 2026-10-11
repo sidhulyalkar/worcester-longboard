@@ -122,7 +122,8 @@ test("tampered seller hosts, variant IDs, quantities, dates, fake approvals fail
   d=>d.authority.procurement_authorized=true,
   d=>d.expiry_policy.max_age_days=365
  ];
- for(const fn of cases)assert.throws(()=>validateSupplierObservations(mutate(fn),catalog),/Offer audit:/);
+ cases.forEach((fn,i)=>assert.throws(()=>validateSupplierObservations(mutate(fn),catalog),
+  /Offer audit:/,"tamper case index "+i));
  const study=select("mountainboard",{mt_trucks:"mbs-matrix3-12300-black-400"});
  const forged=structuredClone(study);
  forged.report.checkout_eligible=true;
