@@ -85,7 +85,7 @@ function syntheticLocalGlb(){
  result.writeUInt32LE(padded,12);result.write("JSON",16);
  bytes.copy(result,20);result.fill(32,20+bytes.length,20+padded);
  result.writeUInt32LE(36,20+padded);
- result.write("BIN\\u0000",24+padded);
+ result.write("BIN\u0000",24+padded);
  Buffer.from(vertices.buffer).copy(result,28+padded);
  return result;
 }
