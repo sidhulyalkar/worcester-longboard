@@ -97,7 +97,7 @@ export function buildOutdoorCatalogGraph(catalog,domains,packageRegistry){
      native_price_snapshot:source.native_price_snapshot??null,
      live_stock_verified:false,source_status:"REFERENCE_SNAPSHOT_ONLY"
    });
-   for(const [field,value] of Object.entries(comp.interfaces||{}).sort(([a],[b])=>a.localeCompare(b,"en"))){
+   for(const [field,value] of Object.entries(comp.interfaces||{}).sort(([a],[b])=>a<b?-1:a>b?1:0)){
      claims.push({
        id:namespaced("claim",comp.id+":"+field),variant_id:variantId,
        interface_field:field,raw_catalog_value:clone(value),
