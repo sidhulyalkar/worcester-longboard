@@ -52,6 +52,8 @@ Screenshots include `desktop-alpine_ski.png`, `desktop-snowboard.png`, `desktop-
 
 **The screenshot files are not a substitute for actually inspecting them.** The successful test of a blocked CDN also does **not** test successful Three.js startup or native mobile GPU WebGL. Claim those as validated only after separate real-browser verification.
 
+> **New integrated-board evidence:** The default Loaded study now starts fully assembled, switches to 100% exploded, and uses a compact source-bound parametric CAD *display* schema. The human reviewer must explicitly compare both views in SVG and live WebGL, confirm the full board is visually comprehensible, verify the 85/105 wheel change and source labels, and confirm unknown hardware counts are not pictured as real screw patterns. This is recorded under `integrated_board_cad_schema_visual_parity`; no screenshot or software CI run qualifies physical mounting geometry.
+
 ## Manual human review still required
 
 Use `docs/parts_picker_human_review.template.json` as the checklist. An authorized reviewer must inspect the exact final tested commit and provide actual evidence for:
