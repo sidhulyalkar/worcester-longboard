@@ -123,6 +123,7 @@ jobs:
           python tools/compare_receiving_reconciliations.py
           python tools/validate_manufacturer_document_references.py
           python tools/validate_board_package_inclusions.py
+          python tools/validate_outdoor_equipment_domains.py
           python - <<'PY'
           import json
           from pathlib import Path
