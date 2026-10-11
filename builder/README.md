@@ -275,3 +275,10 @@ python tools/validate_manufacturer_document_references.py
 ```
 
 An observation is not a verified part, an assembled quantity or permission to wire batteries, charge or ride.
+
+
+## Experimental multi-sport direction
+
+The current Builder **still configures mountainboard studies only**. The repository now contains a [domain-neutral outdoor-equipment architecture](../docs/outdoor_equipment_platform_architecture_2026-10-10.md) and [read-only taxonomy registry](../catalog/outdoor_equipment_domains.v0.json) for proposed snowboard, ski, surfboard, bicycle and camping-shelter adapters.
+
+These are **not** current user-facing product options. They add no supplier products, physical approvals or change to v1 Board Builder outputs. The first implementation following the domain contract is a read-only v1 catalog-to-core adapter, tested against the existing evidence and authority model.
