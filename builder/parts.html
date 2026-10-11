@@ -75,6 +75,22 @@
      <p>The integrated board remains above. Inspect imported geometry in a separate viewport: a local GLB supplies no trustworthy mounting datum or physical units. Convert STEP to a self-contained GLB offline, recording units, revision, rights and SHA-256 before a source-backed asset can be registered.</p>
      <p id="picker-cad-readiness" role="status" aria-live="polite">Checking exact-revision CAD coverage…</p>
      <div class="table-scroll"><table class="cad-coverage-table"><thead><tr><th>Assembly category</th><th>File-backed geometry</th><th>Mounting datum</th></tr></thead><tbody id="picker-cad-coverage-rows"></tbody></table></div>
+     <details class="cad-maker-evidence">
+      <summary>Manufacturer dimensions and original drawings (not mating datums)</summary>
+      <p>Publicly stated envelopes and DIY stencil dimensions are presented as claims, never used to scale or position the assembled meshes. No tolerance, truck V2/V3 revision or received-part metrology is established.</p>
+      <div class="table-scroll"><table class="cad-coverage-table"><thead><tr><th>Component</th><th>Maker claim</th><th>Dimension</th><th>Evidence</th></tr></thead>
+       <tbody id="picker-cad-maker-dimensions"></tbody></table></div>
+      <button type="button" id="picker-cad-maker-export" disabled>Export maker dimension provenance</button>
+     </details>
+     <details class="cad-metric-lab">
+      <summary>Metric datum alignment and collision broad-phase (research sandbox)</summary>
+      <p>Upload a small, source-documented survey JSON for the selected kit. The solver uses three or more matched landmarks to compute rigid transforms and evaluates axis-aligned bounding-box separation. Results never establish physical fit, steering clearance, engineering tolerances or product readiness. The procedural board above is unchanged.</p>
+      <label class="cad-inspect-label" for="picker-cad-metric-upload">Candidate metrology fixture JSON (up to 64 KB)</label>
+      <input id="picker-cad-metric-upload" type="file" accept=".json,application/json" disabled>
+      <p id="picker-cad-metric-status" role="status" aria-live="polite">No independent survey provided; 0 physical clearances verified.</p>
+      <div id="picker-cad-metric-results" class="cad-metric-results"></div>
+      <button type="button" id="picker-cad-metric-export" disabled>Export candidate broad-phase report</button>
+     </details>
      <button type="button" id="picker-cad-evidence-export" disabled>Export CAD readiness evidence</button>
      <label class="cad-inspect-label" for="picker-cad-upload">Inspect a local GLB for the selected assembly category (25 MB max)</label>
      <input id="picker-cad-upload" type="file" accept=".glb,model/gltf-binary" disabled>
