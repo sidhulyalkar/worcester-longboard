@@ -22,6 +22,7 @@ Canonical family seed: `catalog/outdoor_parts_picker.v1.json`.
 - 9 taxonomy domains consistent with `catalog/outdoor_equipment_domains.v0.json`.
 - 4 active maker-referenced research workflows: alpine ski, snowboard, longboard, mountainboard.
 - 23 manufacturer product families and 37 source-publication size/option labels in the initial seed, plus 18 brand and specialist retailer directory links. Different seller pack quantities, exact SKU/barcode/revision IDs and actual received kit contents remain **unverified**.
+- 9 dated **manufacturer listing-price observations** may be displayed alongside their original page links. They are family-page references, **not exact-size seller quotes**; all `eligible_for_bom_total` flags remain false and no price is included in the worklist total.
 - The other 5 domains, **touring ski, splitboard, surfboard, bicycle and camping shelter**, remain schema/directory exploration only. **They are not operational Parts Picker build recipes yet.** Do not imply full coverage of all sports.
 - Manufacturer links are primary *specification/evidence* references; retailer links are supplier discovery. Supplier reputation, authorized-dealer status, stock, price, local taxes, return eligibility, shipping constraints and installation services must be verified for the exact chosen revision and region.
 
