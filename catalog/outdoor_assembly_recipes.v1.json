@@ -31,7 +31,8 @@
         "hardware",
         "mounting_disc",
         "puck_or_mounting_kit",
-        "touring_pivot"
+        "touring_pivot",
+        "truck_pair"
       ],
       "vector": [
         -1.18,
@@ -224,7 +225,7 @@
         {
           "component_id": "DEMO-LB-TRUCKS",
           "label": "Truck-pair interface study",
-          "role": "truck",
+          "role": "truck_pair",
           "manufacturer": null,
           "sku": null,
           "source_url": null,
