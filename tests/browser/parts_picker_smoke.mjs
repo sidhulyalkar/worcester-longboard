@@ -205,6 +205,7 @@ async function main(){
   note("Unavailable 3D CDN falls back to source-linked 2D without breaking worklist");
   await writeFile(path.join(artifacts,"browser-qa.json"),JSON.stringify({
    status:"PASS",checks,viewport_widths:[390,768,1280,1440],
+   head_sha:process.env.PARTS_BROWSER_HEAD_SHA??null,
    explicit_limitations:["Browser simulation is not physical CAD qualification",
     "CDN success/WebGL performance not qualified","Mobile on-device touch not manually inspected",
     "No seller availability, checkout SKU or current shipping verified"]
@@ -219,7 +220,7 @@ catch(error){
  faults.push({message:String(error?.stack||error)});
  await mkdir(artifacts,{recursive:true});
  await writeFile(path.join(artifacts,"browser-qa.json"),JSON.stringify({
-  status:"FAIL",checks,faults
+  status:"FAIL",checks,faults,head_sha:process.env.PARTS_BROWSER_HEAD_SHA??null
  },null,2)+"\n");
  console.error(error);process.exitCode=1;
 }finally{
