@@ -82,7 +82,8 @@
       "remarks": "Maker specifies silver-hex 95 cm deck, dimensions, and 11303; mounting hole spacing and delivered contents remain unverified.",
       "package_claims": [
         "Deck only reference; mounting fasteners not assumed included"
-      ]
+      ],
+      "product_id": "mbs-comp95"
     },
     {
       "id": "mbs-truck-12300",
@@ -114,7 +115,8 @@
       "package_claims": [
         "Each truck, not a pair",
         "Axle hardware and included shocks require direct box verification"
-      ]
+      ],
+      "product_id": "mbs-matrix3"
     },
     {
       "id": "mbs-cnc-12307",
@@ -146,7 +148,8 @@
       "package_claims": [
         "One CNC truck (ea.)",
         "MBS Brake Systems incompatible"
-      ]
+      ],
+      "product_id": "mbs-cnc420"
     },
     {
       "id": "mbs-bind-14051",
@@ -178,7 +181,8 @@
       "package_claims": [
         "Seller package is one pair of F5 bindings",
         "Other hardware not assumed"
-      ]
+      ],
+      "product_id": "mbs-f5"
     },
     {
       "id": "loaded-tangent-standard-105",
@@ -209,7 +213,8 @@
       "remarks": "Maker lists complete with Tangent deck, Zee brackets, Paris V3 trucks, Orangatang Dad Bod 105mm, Jehu V2 bearings and two hardware sets. No exact item SKU provided.",
       "package_claims": [
         "Kit can cover deck, trucks, wheels, bearings and two hardware sets; require seller checkout confirmation"
-      ]
+      ],
+      "product_id": "loaded-tangent-complete"
     },
     {
       "id": "burton-goodcompany-145",
@@ -240,7 +245,8 @@
       "remarks": "Burton publishes 145 cm, 245 mm waist and model/color-level code; size-specific seller SKU and included hardware unresolved.",
       "package_claims": [
         "Board only; bindings, compatible discs and boots separate"
-      ]
+      ],
+      "product_id": "burton-goodcompany"
     },
     {
       "id": "atomic-bent90-157",
@@ -271,7 +277,8 @@
       "remarks": "Atomic publishes 157 cm and 90 mm waist on 2026 Bent 90 product. AA0030956+ is a model family code, not an independently verified 157 cm seller SKU or exact pair packaging.",
       "package_claims": [
         "Order unit and exact ski package count must be confirmed"
-      ]
+      ],
+      "product_id": "atomic-bent90"
     }
   ],
   "notes": "Public original-manufacturer listing records as of 2026-10-10. Only identity-coded, declared pack-unit examples can yield a historical reference quantity and price subtotal. None is a live offer or a fabrication/checkout authorization.",
