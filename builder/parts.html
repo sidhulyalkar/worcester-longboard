@@ -87,6 +87,7 @@
       <p>Upload a small, source-documented survey JSON for the selected kit. The solver uses three or more matched landmarks to compute rigid transforms and evaluates axis-aligned bounding-box separation. Results never establish physical fit, steering clearance, engineering tolerances or product readiness. The procedural board above is unchanged.</p>
       <label class="cad-inspect-label" for="picker-cad-metric-upload">Candidate metrology fixture JSON (up to 64 KB)</label>
       <input id="picker-cad-metric-upload" type="file" accept=".json,application/json" disabled>
+      <button type="button" id="picker-cad-motion-demo" disabled>Run synthetic steering example</button>
       <p id="picker-cad-metric-status" role="status" aria-live="polite">No independent survey provided; 0 physical clearances verified.</p>
       <div id="picker-cad-metric-results" class="cad-metric-results"></div>
       <button type="button" id="picker-cad-metric-export" disabled>Export candidate broad-phase report</button>
