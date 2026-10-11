@@ -7,6 +7,8 @@ from __future__ import annotations
 import copy
 import json
 import re
+from datetime import date
+from urllib.parse import urlsplit
 from typing import Any
 
 AUTHORITY = {
@@ -31,9 +33,13 @@ def _namespaced(kind: str, id: str) -> str:
 
 def _stable_binding(c: dict) -> str:
     s = c.get("source") or {}
+    price = c.get("price") or {}
     return json.dumps([
-        c["id"], c["category"], c.get("sku"),
-        s.get("kind"), s.get("snapshot_id"), s.get("as_of"), s.get("url")
+        c["id"], c["category"], c.get("label"), c.get("manufacturer"), c.get("sku"),
+        s.get("kind"), s.get("snapshot_id"), s.get("as_of"), s.get("url"),
+        s.get("seller"), s.get("native_price_snapshot"),
+        price.get("kind"), price.get("qty"), price.get("unit_price_usd"),
+        price.get("min_usd"), price.get("max_usd")
     ], ensure_ascii=False, separators=(",", ":"))
 
 
@@ -47,9 +53,19 @@ def _sku_resolution(c: dict) -> str:
 
 
 def _trusted_listing(s: dict) -> bool:
-    return (s.get("kind") in ("vendor", "retailer") and
-            isinstance(s.get("url"), str) and s["url"].lower().startswith("https://") and
-            bool(s.get("snapshot_id")) and bool(s.get("as_of")) and bool(s.get("seller")))
+    if not (s.get("kind") in ("vendor", "retailer") and
+            isinstance(s.get("url"), str) and
+            s.get("snapshot_id") and s.get("as_of") and s.get("seller")):
+        return False
+    try:
+        parsed = urlsplit(s["url"])
+        stamp = s["as_of"]
+        return (parsed.scheme == "https" and bool(parsed.hostname) and
+                not parsed.username and not parsed.password and
+                bool(re.fullmatch(r"\d{4}-\d{2}-\d{2}", stamp)) and
+                date.fromisoformat(stamp).isoformat() == stamp)
+    except (TypeError, ValueError):
+        return False
 
 
 def build_outdoor_catalog_graph(catalog: dict[str, Any], domains: dict[str, Any],
