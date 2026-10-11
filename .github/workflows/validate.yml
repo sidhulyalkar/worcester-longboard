@@ -41,6 +41,9 @@ jobs:
           node --check builder/feasibility.mjs
           node --check builder/build_passport.mjs
           node --check builder/assembly_inventory.mjs
+          node --check builder/outdoor_catalog_graph.mjs
+          node --check builder/catalog_lab.mjs
+          node --check tools/generate_outdoor_catalog_graph.mjs
           node --check builder/evidence_notebook.mjs
           node --check builder/receiving_reconciliation.mjs
           node --check tools/generate_receiving_reconciliation.mjs
@@ -59,7 +62,7 @@ jobs:
           node --check tools/render_board_candidate_previews.mjs
           node --check tools/evaluate_board_swap.mjs
       - name: Test browser Board Builder engines, composer and visuals
-        run: node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_catalog_composer.mjs tests/js/test_board_evidence_explorer.mjs tests/js/test_board_comparison.mjs tests/js/test_board_diversity.mjs tests/js/test_board_feasibility.mjs tests/js/test_board_build_passport.mjs tests/js/test_board_assembly_inventory.mjs tests/js/test_board_evidence_notebook.mjs tests/js/test_board_receiving_reconciliation.mjs tests/js/test_board_builder_swap_lab.mjs tests/js/test_board_builder_visuals.mjs tests/js/test_board_ride_brief.mjs tests/js/test_board_conversation_state.mjs
+        run: node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_catalog_composer.mjs tests/js/test_board_evidence_explorer.mjs tests/js/test_board_comparison.mjs tests/js/test_board_diversity.mjs tests/js/test_board_feasibility.mjs tests/js/test_board_build_passport.mjs tests/js/test_board_assembly_inventory.mjs tests/js/test_board_evidence_notebook.mjs tests/js/test_outdoor_catalog_graph.mjs tests/js/test_board_receiving_reconciliation.mjs tests/js/test_board_builder_swap_lab.mjs tests/js/test_board_builder_visuals.mjs tests/js/test_board_ride_brief.mjs tests/js/test_board_conversation_state.mjs
       - run: python -m pytest -q tests
       - name: Validate Board Builder catalog and authority boundary
         run: python tools/validate_board_builder.py
@@ -124,6 +127,7 @@ jobs:
           python tools/validate_manufacturer_document_references.py
           python tools/validate_board_package_inclusions.py
           python tools/validate_outdoor_equipment_domains.py
+          python tools/compare_outdoor_catalog_graphs.py
           python - <<'PY'
           import json
           from pathlib import Path

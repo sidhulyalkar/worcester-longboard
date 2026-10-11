@@ -353,3 +353,18 @@ def test_builder_receiving_to_bom_review_is_unverified_and_accessible():
     assert "Actual order/assembly quantities: unknown" in APP
     assert "noopener noreferrer" in APP
     assert (ROOT/"builder"/"receiving_reconciliation.mjs").exists()
+
+
+def test_experimental_catalog_lab_is_linked_and_not_a_checkout():
+    index = (ROOT / "builder" / "index.html").read_text()
+    html = (ROOT / "builder" / "catalog.html").read_text()
+    js = (ROOT / "builder" / "catalog_lab.mjs").read_text()
+    assert 'href="./catalog.html"' in index
+    assert 'script type="module" src="./catalog_lab.mjs"' in html
+    assert 'role="search"' in html
+    assert 'role="status"' in html
+    assert "buildOutdoorCatalogGraph" in js
+    assert "status:\"DATED_VENDOR_OR_RETAILER_REFERENCE_ONLY\"" not in js  # provided by graph, not UI
+    assert "No items are purchasable from this page" in html
+    assert "seller_pack_unit_count" not in js or "unknown" in js
+    assert 'target="_blank" rel="noopener noreferrer"' in js or 'rel="noopener noreferrer"' in js

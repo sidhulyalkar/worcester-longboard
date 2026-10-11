@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Outdoor Equipment Catalog Lab | Worcester</title>
+<link rel="stylesheet" href="./catalog.css">
+</head>
+<body>
+<main class="lab">
+<header class="lab-head">
+  <div>
+    <p class="kicker">WORCESTER / EXPERIMENTAL CATALOG LAB</p>
+    <h1>One equipment graph. Many outdoor systems.</h1>
+    <p class="lede">Explore the evidence-aware product structure underneath the Board Builder. Mountainboard data is imported today; other equipment domains are proposed schemas, not live product listings.</p>
+  </div>
+  <nav aria-label="Catalog navigation"><a href="./">Board Builder</a><a href="../">Project home</a></nav>
+</header>
+<section class="warning" aria-label="Research status"><strong>Read-only research, not a shopping cart.</strong> Every family/variant below is provisional. Manufacturer sources are dated references; exact part revisions, supplier order units, assembly fit, stock and electrical safety are not verified.</section>
+<section class="overview" aria-labelledby="overview-title">
+  <h2 id="overview-title">Catalog coverage</h2>
+  <div id="catalog-stats" class="stats" aria-live="polite"><p>Loading source-bound catalog...</p></div>
+</section>
+<section class="verticals" aria-labelledby="verticals-title">
+  <div class="heading"><h2 id="verticals-title">Equipment domains</h2><p>The vocabulary is wider than the currently active product catalog.</p></div>
+  <div id="catalog-domains" class="domain-grid"></div>
+</section>
+<section class="inventory" aria-labelledby="inventory-title">
+  <div class="heading"><h2 id="inventory-title">Provisional mountainboard catalog</h2><p>Search 37 legacy references with their variants, documented fields, package hypotheses and source gaps. No items are purchasable from this page.</p></div>
+  <form class="filters" id="catalog-filters" role="search">
+    <label>Search catalog<input type="search" id="catalog-query" placeholder="Try MBS, wheel, brake, TRAMPA..." autocomplete="off"></label>
+    <label>Component role<select id="catalog-role"><option value="">All roles</option></select></label>
+    <label>Source evidence<select id="catalog-source"><option value="">All source types</option><option value="dated">Dated vendor/retailer references</option><option value="planning">Unpriced or non-vendor references</option></select></label>
+  </form>
+  <p id="catalog-filter-status" role="status" aria-live="polite">Loading...</p>
+  <div id="catalog-results" class="results"></div>
+</section>
+<footer>Research-only catalog prototype. Product identity, vendor pack quantities and physical releases must be established independently.</footer>
+</main>
+<script type="module" src="./catalog_lab.mjs"></script>
+</body>
+</html>

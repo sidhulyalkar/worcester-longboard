@@ -282,3 +282,12 @@ An observation is not a verified part, an assembled quantity or permission to wi
 The current Builder **still configures mountainboard studies only**. The repository now contains a [domain-neutral outdoor-equipment architecture](../docs/outdoor_equipment_platform_architecture_2026-10-10.md) and [read-only taxonomy registry](../catalog/outdoor_equipment_domains.v0.json) for proposed skateboard/longboard, snowboard, ski, surfboard, bicycle and camping-shelter adapters.
 
 These are **not** current user-facing product options. They add no supplier products, physical approvals or change to v1 Board Builder outputs. The first implementation following the domain contract is a read-only v1 catalog-to-core adapter, tested against the existing evidence and authority model.
+
+
+## Outdoor Catalog Lab (experimental)
+
+From the Board Builder top navigation, open **Catalog Lab**, or visit http://127.0.0.1:8000/builder/catalog.html with the existing local server. It now shows nine planned equipment domains and a read-only, searchable product/variant/offer/engineering-claim graph imported from the current board catalog.
+
+No skis, snowboards, surfboards or other sport products are yet indexed; those domains are architecture proposals. All families and variants are provisional, historical supplier references are not live stock, and order quantities, maker-revision applicability, physical fit and all release authorities remain unverified.
+
+Graph contract: [Outdoor Catalog Graph v1](../docs/outdoor_catalog_graph_v1_contract.md). Cross-runtime parity test: python tools/compare_outdoor_catalog_graphs.py . Legacy Board Builder candidate generation and Build Passport are regression-tested for exact replay parity.

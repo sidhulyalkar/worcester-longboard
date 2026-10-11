@@ -156,3 +156,10 @@ Bicycle and shelter recipes, specialized safety/rating workflows, vendor/catalog
 Do not begin with an unrestricted scraping agent, hundreds of low-evidence SKUs, one universal recommendation score, automatic mounting prescriptions, or a generic 3D mesh renderer that pretends all equipment shares the same physics.
 
 The high-value first execution tranche after this contract is **a read-only v1-to-core product graph adapter and a carefully sourced snowboard mounting-interface pilot**, with no changes to the current electric mountainboard solver.
+
+
+## First implemented migration slice: v1 catalog graph adapter
+
+A concrete, source-preserving, **read-only** graph adapter now exists in builder/outdoor_catalog_graph.mjs and configurator/outdoor_catalog_graph.py, with an inspectable Catalog Lab at /builder/catalog.html. It imports existing mountainboard references into separate provisional families, variants, historical supplier offers, engineering field claims and donor contents hypotheses, without claiming actual variant identity or fit.
+
+The graph preserves the complete legacy v1 snapshot and exact replay parity. The existing board engine remains the sole live configurator. Full details and negative-test contracts are in [Outdoor Catalog Graph v1](outdoor_catalog_graph_v1_contract.md). Real snowboard/ski product ingestion and compatibility solvers are future tranches under Issue #106.
