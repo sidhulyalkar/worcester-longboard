@@ -197,6 +197,13 @@ async function main(){
   assert.equal(await canvas.getAttribute("data-assembly-separation"),"0");
   assert.equal(await canvas.getAttribute("data-cad-schema-scope"),
    "BROWSER_PARAMETRIC_CAD_DISPLAY_UNQUALIFIED");
+  const gpu=await canvas.evaluate(el=>({
+    calls:Number(el.dataset.drawCalls),triangles:Number(el.dataset.triangles)
+  }));
+  assertBrowser(Number.isFinite(gpu.calls)&&gpu.calls>0&&gpu.calls<=90&&
+   Number.isFinite(gpu.triangles)&&gpu.triangles>0&&gpu.triangles<120000,
+   "CAD viewer geometry exceeded prototype draw budget: "+JSON.stringify(gpu));
+
   await screenshot(page,"integrated-board-parametric-cad-webgl");
   await page.locator("#picker-separate").click();
   assert.equal(await canvas.getAttribute("data-assembly-pose"),"EXPLODED_VISUAL_STUDY");
