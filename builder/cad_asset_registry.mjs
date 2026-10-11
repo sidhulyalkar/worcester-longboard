@@ -6,6 +6,8 @@ const check=(ok,message)=>{if(!ok)fail(message);};
 const roles=["deck","zee_brackets","trucks","wheels","bearings",
  "deck_hardware","truck_hardware"];
 const id=x=>typeof x==="string"&&/^[a-z0-9][a-z0-9._-]{1,119}$/.test(x);
+const sourceIdentifier=x=>typeof x==="string"&&x.trim()===x&&
+ x.length>1&&x.length<=200&&!/[\\x00-\\x1f]/.test(x);
 const https=x=>{try{const u=new URL(x);return u.protocol==="https:"&&!u.username&&!u.password;}catch{return false;}};
 const sha=x=>typeof x==="string"&&/^[a-f0-9]{64}$/.test(x);
 const locks=["procurement_authorized","fabrication_authorized",
@@ -25,8 +27,8 @@ export function validateCadAssetRegistry(registry){
  for(const a of registry.assets){
   check(id(a.asset_id)&&!ids.has(a.asset_id),"duplicate or invalid asset ID");
   ids.add(a.asset_id);
-  check(id(a.kit_variant_id)&&roles.includes(a.role)&&
-   id(a.part_number)&&id(a.revision),"exact kit/part revision and role required");
+  check(sourceIdentifier(a.kit_variant_id)&&roles.includes(a.role)&&
+   sourceIdentifier(a.part_number)&&sourceIdentifier(a.revision),"exact kit/part revision and role required");
   const key=a.kit_variant_id+":"+a.role;
   check(!slots.has(key),"ambiguous assets for a kit role");
   slots.add(key);
