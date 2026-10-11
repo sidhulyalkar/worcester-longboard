@@ -37,8 +37,9 @@ function symbol(node,domain){
    return [-40,0,40].map(x=>'<circle cx="'+x+'" r="13" '+style+
     '/><circle cx="'+x+'" r="5" '+style+'/>').join("");
   if(role==="kit_child_deck_hardware"||role==="kit_child_truck_hardware")
-   return [-36,-12,12,36].map(x=>'<path d="M'+x+' -25V23" '+style+
-    '/><circle cx="'+x+'" cy="-27" r="8" '+style+'/>').join("");
+   // One symbolic hardware family, not a claim that exactly four bolts ship.
+   return '<path d="M0 -39V33" '+style+
+    '/><circle cx="0" cy="-43" r="10" '+style+'/>';
  }
  if(grp==="platform")return hull(domain);
  if(grp==="mount"){
