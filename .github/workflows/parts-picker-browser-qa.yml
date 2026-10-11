@@ -45,6 +45,7 @@ jobs:
       - name: Run actual browser release gate and responsive snapshots
         env:
           PARTS_BROWSER_ARTIFACTS: ${{ runner.temp }}/parts-picker-browser-artifacts
+          PARTS_BROWSER_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: node tests/browser/parts_picker_smoke.mjs
       - name: Upload source-aware browser QA evidence
         if: always()
