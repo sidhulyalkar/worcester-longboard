@@ -14,6 +14,7 @@ import {validateCadDimensionalEvidence,planCadPublishedDimensions}
 import {evaluateMetricFixture} from "./cad_metric_workbench.mjs";
 import {sampleCandidateMotionSweep,renderCandidateMotionSvg}
  from "./cad_candidate_motion.mjs";
+import {makeSyntheticCandidateMotionFixture} from "./cad_demo_fixture.mjs";
 const $=selector=>document.querySelector(selector);
 const esc=x=>String(x??"").replaceAll("&","&amp;").replaceAll("<","&lt;")
  .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
@@ -239,6 +240,7 @@ function renderCompleteKitClosure(){
  $("#picker-cad-motion-status").textContent=
   "No optional motion fixture loaded · steering and wheel-bite clearance UNKNOWN.";
  $("#picker-cad-metric-upload").disabled=!state.cadModel;
+ $("#picker-cad-motion-demo").disabled=!state.cadModel;
  $("#picker-cad-metric-results").replaceChildren();
  $("#picker-cad-metric-status").textContent=
   "No independent candidate survey loaded for this kit · 0 physical clearances verified.";
@@ -590,34 +592,36 @@ function initEvents(){
   if(state.metricResult)download("worcester-metric-candidate-"+state.domain+".json",
    JSON.stringify(state.metricResult,null,2)+"\n","application/json");
  });
- $("#picker-cad-metric-upload").addEventListener("change",async event=>{
-  const file=event.target.files?.[0],status=$("#picker-cad-metric-status");
-  if(!file)return;
-  const kitId=state.cadModel?.kit_id,variant=state.cadModel?.selected_variant_id;
-  state.metricResult=null;
+ const clearCandidate=()=>{
+  state.metricResult=null;state.motionResult=null;
   $("#picker-cad-metric-export").disabled=true;
+  $("#picker-cad-motion-export").disabled=true;
   $("#picker-cad-metric-results").replaceChildren();
+  $("#picker-cad-motion-plot").replaceChildren();
+ };
+ function showCandidateFixture(input,{kitId,variant,synthetic=false}){
+  const status=$("#picker-cad-metric-status");
+  clearCandidate();
   try{
-   if(!kitId||file.size>65536||file.size<10)
-    throw Error("Choose a survey JSON under 64 KB with a complete kit selected");
-   const input=JSON.parse(await file.text());
    const result=evaluateMetricFixture(input,{expected_variant_id:variant});
    const motion=input.motion?sampleCandidateMotionSweep(input,
     {expected_variant_id:variant}):null;
-   if(kitId!==state.cadModel?.kit_id)
+   if(kitId!==state.cadModel?.kit_id||variant!==state.cadModel?.selected_variant_id)
     throw Error("kit selection changed during calculation");
    state.metricResult=result;state.motionResult=motion;
    $("#picker-cad-metric-export").disabled=false;
    $("#picker-cad-motion-export").disabled=!motion;
    $("#picker-cad-motion-status").textContent=motion?
-    "Candidate motion: "+motion.sample_count+" sampled angles · "+
-     motion.possible_overlap_pairs+" of "+motion.pair_count+
-     " pairs show possible AABB overlap at one or more samples · physical clearance UNKNOWN":
+    (synthetic?"SYNTHETIC ALGORITHM EXAMPLE ONLY · ":"Candidate motion: ")+
+    motion.sample_count+" sampled angles · "+
+    motion.possible_overlap_pairs+" of "+motion.pair_count+
+    " pairs show possible AABB overlap · physical clearance UNKNOWN":
     "No optional motion block in survey JSON · steering and wheel-bite clearance UNKNOWN.";
    $("#picker-cad-motion-plot").innerHTML=motion?renderCandidateMotionSvg(motion):"";
-   status.textContent=String(result.candidate_pairs_checked)+" candidate pair(s)"+
-    " · "+result.possible_overlap_pairs+" potential AABB overlap(s)"+
-    " · 0 physical clearances verified, 0 engineering approvals";
+   status.textContent=(synthetic?"SYNTHETIC, NOT MANUFACTURER GEOMETRY · ":"")+
+    result.candidate_pairs_checked+" candidate pair(s) · "+
+    result.possible_overlap_pairs+" potential AABB overlap(s) · "+
+    "0 physical clearances verified, 0 engineering approvals";
    $("#picker-cad-metric-results").innerHTML='<div class="table-scroll"><table class="cad-coverage-table">'+
     '<thead><tr><th>Candidate pair</th><th>AABB broad-phase</th><th>Decision</th></tr></thead><tbody>'+
     result.pairs.map(p=>'<tr><td>'+esc(p.a)+" / "+esc(p.b)+
@@ -625,13 +629,34 @@ function initEvents(){
      '</td><td>Physical clearance UNKNOWN</td></tr>').join("")+
     '</tbody></table></div>';
   }catch(error){
-   state.metricResult=null;state.motionResult=null;
-   $("#picker-cad-motion-export").disabled=true;
-   $("#picker-cad-motion-plot").replaceChildren();
+   clearCandidate();
    $("#picker-cad-motion-status").textContent=
     "Motion study unavailable. No physical clearance or contact decision.";
    status.textContent="Metric survey held: "+error.message+
     ". No changes to the assembled board or safety readiness.";
+  }
+ }
+ $("#picker-cad-motion-demo").addEventListener("click",()=>{
+  const kitId=state.cadModel?.kit_id,variant=state.cadModel?.selected_variant_id;
+  if(!kitId||!variant)return;
+  showCandidateFixture(makeSyntheticCandidateMotionFixture(variant),
+   {kitId,variant,synthetic:true});
+ });
+ $("#picker-cad-metric-upload").addEventListener("change",async event=>{
+  const file=event.target.files?.[0];
+  if(!file)return;
+  const kitId=state.cadModel?.kit_id,variant=state.cadModel?.selected_variant_id;
+  try{
+   if(!kitId||file.size>65536||file.size<10)
+    throw Error("Choose a survey JSON under 64 KB with a complete kit selected");
+   const input=JSON.parse(await file.text());
+   showCandidateFixture(input,{kitId,variant});
+  }catch(error){
+   clearCandidate();
+   $("#picker-cad-metric-status").textContent="Metric survey held: "+error.message+
+    ". No changes to the assembled board or safety readiness.";
+   $("#picker-cad-motion-status").textContent=
+    "Motion study unavailable. No physical clearance or contact decision.";
   }finally{event.target.value="";}
  });
  $("#picker-cad-evidence-export").addEventListener("click",()=>{
