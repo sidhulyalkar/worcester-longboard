@@ -72,6 +72,7 @@ def evaluate(
         retail = load_json(root / "catalog/outdoor_retail_comparisons.v1.json")
         builds = load_json(root / "catalog/outdoor_build_studies.v1.json")
         maker_kits = load_json(root / "catalog/outdoor_complete_kit_claims.v1.json")
+        cad_recipe = load_json(root / "catalog/outdoor_complete_kit_cad_recipes.v1.json")
     except (FileNotFoundError, ValueError, json.JSONDecodeError) as exc:
         return {
             "scope": "PARTS_PICKER_RESEARCH_PREVIEW_RELEASE_GATE",
@@ -85,7 +86,7 @@ def evaluate(
 
     for name, registry in (
         ("parts", parts), ("supplier", supplier), ("retail", retail), ("builds", builds),
-        ("maker_kits", maker_kits)
+        ("maker_kits", maker_kits), ("cad_recipe", cad_recipe)
     ):
         authority = registry.get("authority", registry.get("policy"))
         if not isinstance(authority, dict) or any(
@@ -125,6 +126,24 @@ def evaluate(
         for kit in maker_kits.get("kits", [])
     ):
         issues.append("unconfirmed seller package contents were promoted to received/order items")
+    cad_parts = cad_recipe.get("primitives", [])
+    cad_policy = cad_recipe.get("dimensional_evidence_policy", {})
+    if (cad_recipe.get("scope") !=
+            "SCHEMATIC_PARAMETRIC_CAD_RECIPE_NOT_MEASURED_MANUFACTURER_CAD"
+        or cad_recipe.get("coordinate_frame", {}).get("units") !=
+            "ARBITRARY_VISUAL_UNITS"
+        or cad_recipe.get("coordinate_frame", {}).get("origin_physically_measured") is not False
+        or len(cad_parts) != 7
+        or [x.get("role") for x in cad_parts] != [
+            "deck", "zee_brackets", "trucks", "wheels", "bearings",
+            "deck_hardware", "truck_hardware"
+        ]
+        or any(cad_policy.get(key) is not False for key in (
+            "actual_mates_verified", "physical_clearances_verified",
+            "fastener_locations_verified", "structural_strength_verified"
+        ))
+        or cad_policy.get("all_normalized_placements_are_inferred") is not True):
+        issues.append("parametric CAD display schema claims physical geometry or omits kit roles")
     for sport in ACTIVE_SPORTS:
         subset = [x for x in studies if x.get("domain_id") == sport]
         if len(subset) != 3:
