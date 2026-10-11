@@ -36,6 +36,7 @@ REQUIRED_BROWSER_WIDTHS = {390, 768, 1280, 1440}
 REQUIRED_BROWSER_CHECK_NAMES = {
     "Four sports render three cards, load source-bound assemblies and stay non-orderable",
     "Seven child IDs render in actual local WebGL, camera and keyboard selection work",
+    "Parametric complete board assembles and explodes in actual WebGL, SVG and source-locked exports",
     "Unavailable pinned-local and CDN Three.js both fall back to SVG without losing parts",
     "Actual browser JSON/CSV downloads preserve zero approved order lines",
     "390, 768, 1280 and 1440 px screenshots captured with overflow checks",
