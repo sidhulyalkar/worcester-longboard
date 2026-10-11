@@ -94,6 +94,7 @@ def test_promoted_source_authority_or_missing_sports_fail_closed(tmp_path):
         "outdoor_supplier_observations.v1.json",
         "outdoor_retail_comparisons.v1.json",
         "outdoor_build_studies.v1.json",
+        "outdoor_complete_kit_claims.v1.json",
     ):
         target = tmp_path / "catalog" / source
         target.parent.mkdir(parents=True, exist_ok=True)
