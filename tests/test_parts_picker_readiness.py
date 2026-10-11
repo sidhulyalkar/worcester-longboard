@@ -16,6 +16,9 @@ def test_reference_breadth_is_never_confused_with_sku_or_physical_qualification(
     assert s["reference_variant_choices"] == 41
     assert s["curated_unqualified_studies"] == 12
     assert s["maker_observations_total"] == 7
+    assert s["maker_advertised_complete_kits"] == 2
+    assert s["maker_advertised_kit_child_claims"] == 14
+    assert s["physically_received_kit_child_claims_verified"] == 0
     assert s["retail_observations_total"] == 6
     assert s["different_variant_comparisons_with_2_merchants"] == 0
     assert s["named_variant_comparisons_blocked_by_inclusion_revision"] == 2
@@ -57,6 +60,7 @@ def test_corrupted_retail_relationship_or_approval_fails_closed(tmp_path):
     for name in (
         "outdoor_parts_picker.v1.json", "outdoor_supplier_observations.v1.json",
         "outdoor_retail_comparisons.v1.json", "outdoor_build_studies.v1.json",
+        "outdoor_complete_kit_claims.v1.json",
     ):
         target = tmp_path / "catalog" / name
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -80,6 +84,7 @@ def test_missing_required_sport_preset_refuses_readiness(tmp_path):
     for name in (
         "outdoor_parts_picker.v1.json", "outdoor_supplier_observations.v1.json",
         "outdoor_retail_comparisons.v1.json", "outdoor_build_studies.v1.json",
+        "outdoor_complete_kit_claims.v1.json",
     ):
         target = tmp_path / "catalog" / name
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -91,3 +96,21 @@ def test_missing_required_sport_preset_refuses_readiness(tmp_path):
     r = assess(tmp_path, as_of="2026-10-11")
     assert not r["integrity_valid"]
     assert any("expected 3" in e for e in r["integrity_errors"])
+
+
+def test_received_kit_claim_is_not_silently_promoted(tmp_path):
+    for name in (
+        "outdoor_parts_picker.v1.json", "outdoor_supplier_observations.v1.json",
+        "outdoor_retail_comparisons.v1.json", "outdoor_build_studies.v1.json",
+        "outdoor_complete_kit_claims.v1.json",
+    ):
+        dest = tmp_path / "catalog" / name
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(ROOT / "catalog" / name, dest)
+    p = tmp_path / "catalog/outdoor_complete_kit_claims.v1.json"
+    obj = json.loads(p.read_text())
+    obj["kits"][0]["children"][0]["actual_received_units"] = 1
+    p.write_text(json.dumps(obj))
+    result = assess(tmp_path, as_of="2026-10-11")
+    assert not result["integrity_valid"]
+    assert any("child claim promoted" in x for x in result["integrity_errors"])
