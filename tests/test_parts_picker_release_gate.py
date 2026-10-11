@@ -10,9 +10,10 @@ from tools.check_parts_picker_release import (
 )
 
 
-def browser_pass():
+def browser_pass(sha=None):
     return {
         "status": "PASS",
+        "head_sha": sha,
         "checks": [
             {"name": f"scenario {i}", "result": "PASS"} for i in range(8)
         ],
@@ -45,7 +46,7 @@ def test_research_preview_structurally_valid_but_not_merge_ready_without_reviews
 
 def test_complete_head_matched_candidate_receipts_only_qualify_software_review():
     sha = "a" * 40
-    result = evaluate(ROOT, browser_report=browser_pass(),
+    result = evaluate(ROOT, browser_report=browser_pass(sha),
                       manual_review=signoff(sha), head_sha=sha)
     assert result["structural_pass"]
     assert result["browser_pass"]
@@ -59,24 +60,28 @@ def test_complete_head_matched_candidate_receipts_only_qualify_software_review()
 def test_incomplete_or_stale_manual_review_never_authorizes_merge():
     sha = "b" * 40
     old_review = signoff("c" * 40)
-    result = evaluate(ROOT, browser_report=browser_pass(),
+    result = evaluate(ROOT, browser_report=browser_pass(sha),
                       manual_review=old_review, head_sha=sha)
     assert not result["human_review_pass"]
     assert not result["candidate_merge_ready"]
 
     review = signoff(sha)
     review["checks"]["successful_webgl_orbit"] = "PENDING"
-    result = evaluate(ROOT, browser_report=browser_pass(),
+    result = evaluate(ROOT, browser_report=browser_pass(sha),
                       manual_review=review, head_sha=sha)
     assert not result["candidate_merge_ready"]
 
     review = signoff(sha)
     review["recognizes_non_procurement_status"] = False
-    result = evaluate(ROOT, browser_report=browser_pass(),
+    result = evaluate(ROOT, browser_report=browser_pass(sha),
                       manual_review=review, head_sha=sha)
     assert not result["candidate_merge_ready"]
 
-    bad_browser = browser_pass()
+    result = evaluate(ROOT, browser_report=browser_pass("c" * 40),
+                      manual_review=signoff(sha), head_sha=sha)
+    assert not result["candidate_merge_ready"]
+
+    bad_browser = browser_pass(sha)
     bad_browser["viewport_widths"].remove(390)
     result = evaluate(ROOT, browser_report=bad_browser,
                       manual_review=signoff(sha), head_sha=sha)
