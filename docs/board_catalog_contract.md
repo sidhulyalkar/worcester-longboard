@@ -242,6 +242,6 @@ A vendor URL, good fit score, catalog inclusion, or visual rendering never creat
 
 ## Experimental multi-sport architecture (not active)
 
-The v1 catalog remains the sole live source for Board Builder. A separate **read-only** domain vocabulary for mountainboard, snowboard, alpine/touring skis, splitboard, surfboard, bicycle and camping shelter is defined in [Outdoor Equipment Platform Architecture](outdoor_equipment_platform_architecture_2026-10-10.md) and the [domain registry](../catalog/outdoor_equipment_domains.v0.json).
+The v1 catalog remains the sole live source for Board Builder. A separate **read-only** domain vocabulary for mountainboard, skateboard/longboard, snowboard, alpine/touring skis, splitboard, surfboard, bicycle and camping shelter is defined in [Outdoor Equipment Platform Architecture](outdoor_equipment_platform_architecture_2026-10-10.md) and the [domain registry](../catalog/outdoor_equipment_domains.v0.json).
 
 This proposal does **not** enable products from those sports, grant variant compatibility, or change physical/procurement/powered authority. Cross-sport product graphs and runtime adapters must be independently implemented and parity-checked before launch.
