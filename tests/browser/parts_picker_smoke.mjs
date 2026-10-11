@@ -123,7 +123,7 @@ async function main(){
   note("Four sports render three cards, load source-bound assemblies and stay non-orderable");
   await page.locator("#picker-domain").selectOption("skateboard_longboard");
   await clickStudy(page,"long-rollover");
-  await page.locator("#picker-cad-import-lab summary").click();
+  await page.locator("#picker-cad-import-lab > summary").click();
   assertBrowser((await page.locator("#picker-cad-readiness").innerText())
    .includes("0/7 file-backed candidates"),"No CAD coverage hold");
   assert.equal(await page.locator("#picker-cad-coverage-rows tr").count(),7);
