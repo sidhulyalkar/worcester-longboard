@@ -63,6 +63,7 @@ def evaluate(
         supplier = load_json(root / "catalog/outdoor_supplier_observations.v1.json")
         retail = load_json(root / "catalog/outdoor_retail_comparisons.v1.json")
         builds = load_json(root / "catalog/outdoor_build_studies.v1.json")
+        maker_kits = load_json(root / "catalog/outdoor_complete_kit_claims.v1.json")
     except (FileNotFoundError, ValueError, json.JSONDecodeError) as exc:
         return {
             "scope": "PARTS_PICKER_RESEARCH_PREVIEW_RELEASE_GATE",
@@ -75,7 +76,8 @@ def evaluate(
         }
 
     for name, registry in (
-        ("parts", parts), ("supplier", supplier), ("retail", retail), ("builds", builds)
+        ("parts", parts), ("supplier", supplier), ("retail", retail), ("builds", builds),
+        ("maker_kits", maker_kits)
     ):
         authority = registry.get("authority", registry.get("policy"))
         if not isinstance(authority, dict) or any(
@@ -100,6 +102,21 @@ def evaluate(
         issues.append("unexpected set of supported source-bound sport templates")
     if len(studies) != 12 or {x.get("domain_id") for x in studies} != ACTIVE_SPORTS:
         issues.append("exactly twelve research presets across the four sports required")
+    if len(maker_kits.get("kits", [])) != 2 or sum(
+        len(x.get("children", [])) for x in maker_kits.get("kits", [])
+    ) != 14:
+        issues.append("two maker-declared seven-child complete kits are required")
+    if any(
+        kit.get("actual_received_kit_verified") is not False
+        or kit.get("seller_checkout_option_verified") is not False
+        or any(
+            child.get("actual_received_units") is not None
+            or child.get("direct_seller_purchase_required") is not False
+            for child in kit.get("children", [])
+        )
+        for kit in maker_kits.get("kits", [])
+    ):
+        issues.append("unconfirmed seller package contents were promoted to received/order items")
     for sport in ACTIVE_SPORTS:
         subset = [x for x in studies if x.get("domain_id") == sport]
         if len(subset) != 3:
