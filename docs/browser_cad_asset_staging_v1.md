@@ -1,5 +1,8 @@
 # CAD geometry staging: source-first browser twin, v1
 
+> **Updated 2026-10-11:** This first-stage protocol is superseded for ingestion by [CAD Metric Twin v2](./browser_cad_metric_twin_v2.md). Conversion is no longer optional: staging requires a SHA-256-matched STEP→GLB conversion receipt and glTF 2.0 meter units. Follow v2 for commands and source measurements. This document remains as historical design context, not an executable staging recipe.
+
+
 **Status:** implemented on draft PR #114, stacked on #110–#113; preview-only. No new maker geometry or validated physical mating is claimed. The complete Loaded Tangent remains one parent maker package with seven **source-listed categories**, not seven purchase lines. Seller Paris V2 versus Paris V3 truck revision discrepancy, inventory receipt, mounting datums and mechanical qualification remain unresolved.
 
 ## What the browser can do now
