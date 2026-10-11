@@ -38,6 +38,14 @@ const priceValid=price=>price&&Number.isFinite(price.amount)&&price.amount>0&&
  ].includes(price.price_scope);
 const cloneAuthority=()=>({...AUTH});
 const refKey=x=>x.domain_id+"|"+x.slot;
+const REFERENCE_TARGETS=Object.freeze({
+ "mountainboard|mt_deck":["deck",1],
+ "mountainboard|mt_trucks":["truck",2],
+ "mountainboard|mt_bindings":["individual_binding",2],
+ "skateboard_longboard|long_complete":["complete_board",1],
+ "snowboard|snowboard":["snowboard",1],
+ "alpine_ski|ski_pair":["individual_ski",2]
+});
 
 export function validateSupplierObservations(registry,catalog){
  validatePartsRegistry(catalog);
@@ -66,11 +74,21 @@ export function validateSupplierObservations(registry,catalog){
   check(catalog.assembly_templates.some(t=>t.domain_id===r.domain_id&&
     t.slots.some(s=>s.id===r.slot&&s.id!=="ski_service")),
     "assembly target not in canonical slots");
+  const expected=REFERENCE_TARGETS[refKey(r)];
+  check(expected&&expected[0]===r.item_kind&&expected[1]===r.items_per_assembly,
+   "unapproved change to research assembly unit target");
   check(!kinds.has(refKey(r)),"duplicate assembly target");
   kinds.set(refKey(r),r);
  }
+ check(kinds.size===Object.keys(REFERENCE_TARGETS).length,
+   "missing required canonical unit targets");
  uniq(registry.listing_observations,"id");
+ const selectedOfferKeys=new Set();
  for(const o of registry.listing_observations){
+  const selectionKey=o.domain_id+"|"+o.slot+"|"+o.selected_variant_id;
+  check(!selectedOfferKeys.has(selectionKey),
+   "duplicate maker listings for a selected research variant require an explicit comparison policy");
+  selectedOfferKeys.add(selectionKey);
   const product=products.get(o.product_id);
   // The product key exists independently from maker part code.
   check(product&&product.domain_id===o.domain_id&&product.slot===o.slot,
