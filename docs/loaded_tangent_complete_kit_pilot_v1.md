@@ -1,3 +1,5 @@
+> **Visual update, October 11:** The complete-kit pilot now projects seven manufacturer-advertised component categories into separately selectable/explodable SVG and 3D visual proxies. This replaces the earlier single composite longboard illustration while preserving **one seller package, zero child purchases, zero measured mates, zero physically verified contents**. See [seven-part visual design](loaded_complete_kit_seven_part_visual_v1.md). These shapes still are not measured or approved CAD.
+
 # Loaded Tangent complete-kit research pilot: inclusion claims and revision conflict
 
 **Research reviewed October 11, 2026.** Source pages are dated reference evidence, not a live seller checkout or received physical kit.
