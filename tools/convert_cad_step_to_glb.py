@@ -29,11 +29,11 @@ def convert(step_path: Path, glb_path: Path, *, tolerance_mm: float = 0.2,
 
     if step_path.suffix.lower() not in (".step", ".stp"):
         raise ValueError("An original STEP (.step/.stp) file is required.")
+    if not 0.05 <= tolerance_mm <= 1.0 or not 0.05 <= angle_rad <= 0.8:
+        raise ValueError("Use a declared bounded tessellation tolerance.")
     contents = step_path.read_bytes()
     if not 64 <= len(contents) <= 100_000_000:
         raise ValueError("STEP input size outside 64 B to 100 MB budget.")
-    if not 0.05 <= tolerance_mm <= 1.0 or not 0.05 <= angle_rad <= 0.8:
-        raise ValueError("Use a declared bounded tessellation tolerance.")
     glb_path.parent.mkdir(parents=True, exist_ok=True)
 
     # CadQuery/OCCT interprets the STEP header unit and produces millimeters.
