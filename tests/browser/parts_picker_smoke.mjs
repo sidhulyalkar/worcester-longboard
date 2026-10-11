@@ -170,6 +170,13 @@ async function main(){
   const selected=await page.locator("#picker-part-tree [data-picker-part][aria-pressed=true]").count();
   assert.equal(selected,1);
   note("Part tree remains keyboard operable");
+  await page.emulateMedia({media:"print"});
+  assert.equal(await page.locator("#picker-export-json").isVisible(),false);
+  assert.equal(await page.locator("#picker-order-table").isVisible(),true);
+  assert.equal(await page.locator("#picker-visual-svg").isVisible(),true);
+  await screenshot(page,"print-css-preview");
+  await page.emulateMedia({media:"screen"});
+  note("Print stylesheet preserves evidence and hides misleading interactive checkout controls");
   noErrors();
   await desktop.close();
 
