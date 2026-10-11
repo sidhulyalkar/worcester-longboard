@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "reviewed_head_sha": null,
+  "reviewer": "",
+  "evidence_links": [],
+  "checks": {
+    "visual_desktop_1440": "PENDING",
+    "visual_desktop_1280": "PENDING",
+    "visual_tablet_768": "PENDING",
+    "visual_mobile_390": "PENDING",
+    "keyboard_and_screen_reader": "PENDING",
+    "real_touch_device": "PENDING",
+    "successful_webgl_orbit": "PENDING",
+    "print_or_export_readability": "PENDING",
+    "external_maker_links_and_current_product_identity": "PENDING"
+  },
+  "recognizes_non_procurement_status": false,
+  "recognizes_no_physical_release": false,
+  "instructions": "Copy this template OUTSIDE the repo into a private review record. Fill reviewer, exact final 40-hex-char HEAD, evidence URLs, and each PASS only after inspecting it. Do not set any cart, fabrication, binding release or electrical approval."
+}
