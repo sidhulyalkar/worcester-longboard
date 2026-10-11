@@ -13,8 +13,8 @@ LEGACY = json.loads((ROOT / "catalog/board_components.v1.json").read_text())
 
 def test_all_current_categories_migrate_without_changing_existing_engine():
     result = validate(REGISTRY, LEGACY)
-    assert result["domain_count"] >= 6
-    assert result["typed_interface_count"] >= 10
+    assert result["domain_count"] >= 9
+    assert result["typed_interface_count"] >= 17
     assert result["legacy_category_count"] == len({x["category"] for x in LEGACY["components"]})
     assert result["new_product_variants_registered"] == 0
     assert result["physical_authority"] is False
@@ -73,6 +73,8 @@ def test_ski_release_never_approved_from_catalog_claim_state():
 def test_disciplines_do_not_share_blanket_pairwise_compatibility():
     board = next(x for x in REGISTRY["domains"] if x["id"] == "snowboard")
     surf = next(x for x in REGISTRY["domains"] if x["id"] == "surfboard")
+    street = next(x for x in REGISTRY["domains"] if x["id"] == "skateboard_longboard")
+    assert "skateboard_deck_to_truck" in street["interface_type_ids"]
     assert "snowboard_binding_mount" in board["interface_type_ids"]
     assert "surfboard_fin_box" in surf["interface_type_ids"]
     assert "surfboard_fin_box" not in board["interface_type_ids"]
