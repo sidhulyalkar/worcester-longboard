@@ -6,6 +6,9 @@
  <meta name="description" content="Evidence-aware ski, snowboard, longboard and mountainboard parts research with 3D assembly previews and unverified order worklists.">
  <title>Worcester · Outdoor Parts Picker</title>
  <link rel="stylesheet" href="./parts.css">
+ <!-- Optional source-pinned local Three.js modules. The source-aware SVG works
+      without node_modules, WebGL or any third-party CDN access. -->
+ <script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js"}}</script>
 </head>
 <body>
  <header class="topbar">
@@ -52,6 +55,7 @@
      <div id="picker-visual-svg" aria-label="Interactive source-linked schematic assembly"></div>
      <div id="picker-visual-3d" hidden aria-label="3D illustrative exploded assembly"></div>
     </div>
+    <p id="picker-rendered-scene-status" class="visual-scene-status" aria-live="polite">Assembly uses unmeasured reference geometry. Child categories are research only.</p>
     <p class="visual-caption" id="picker-view-note">3D parts are procedurally drawn visual proxies. Published ski lengths and board waist ratios can inform their relative shapes, but fastener positions, tolerances, boot shells and mounting clearances are not measured CAD.</p>
     <div class="view-controls">
      <label for="picker-explode">Explode assembly <output id="picker-explode-output" for="picker-explode">72%</output></label>
