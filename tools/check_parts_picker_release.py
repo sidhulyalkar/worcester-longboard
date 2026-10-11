@@ -28,6 +28,7 @@ REQUIRED_REVIEW_CHECKS = (
     "keyboard_and_screen_reader",
     "real_touch_device",
     "successful_webgl_orbit",
+    "integrated_board_cad_schema_visual_parity",
     "print_or_export_readability",
     "external_maker_links_and_current_product_identity",
 )
