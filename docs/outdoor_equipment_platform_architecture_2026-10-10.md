@@ -54,7 +54,7 @@ The phases are parallel: universal source/variant infrastructure underneath, spe
 | Skateboards and longboards | Deck, trucks, wheelset, bearing/riser hardware, optional electric system | Baseplate pattern, axle/bearing fit, wheelbite clearance and optional electrical safety |
 | Snowboards | Board, left/right boot fit, bindings, mounting disc/kit | Burton 2x4, 4x4, legacy 3D and Channel mount families; discs/screws/adapters; binding size and boot fit |
 | Alpine skis | Ski pair, boots, bindings, brakes | Boot-sole norm, binding acceptance, sole length, mounting zone and brake width; professional release and mounting tests |
-| Touring skis | Ski, boots, touring bindings, skins, crampons | Tech insert system, touring/downhill modes, boot norm, climbing attachment and separate release qualification |
+| Touring skis | Ski, boots, touring bindings, skins and mode-specific gear | Tech insert system, touring/downhill modes, boot norm, climbing attachment and separate release qualification |
 | Splitboards | Board, bindings, pucks, skins, tour pivot | Mode-switching interface and adapter chain, not just a ride-mode binding pattern |
 | Surfboards | Board/hull, fin boxes, fins, leash | FCS II versus other fin systems and adapters, fin configuration, board volume/skill and leash attachment |
 | Bicycles | Frame, fork, wheels, brakes, drivetrain | Hub spacing, axle and rotor standard, wheel/tire clearance, bottom bracket/drivetrain system |
@@ -104,6 +104,8 @@ The file at catalog/outdoor_equipment_domains.v0.json is the first implementatio
 - 9 bounded equipment domains and their required and optional roles.
 - 17 typed, intentionally conservative interfaces.
 - Per-domain inputs, proposed viewer adapters, and qualification policies.
+- Terrain-conditional safety-role requirements. Touring skis and splitboards require explicit avalanche equipment/training review for avalanche terrain; this is not an automatically certifiable catalog choice.
+- Surfboard fin sets are an optional component role because finless designs exist.
 - A read-only role mapping for every existing v1 component category.
 - No new sellable products, manufacturer SKUs, live prices, fit determinations or released authority.
 
