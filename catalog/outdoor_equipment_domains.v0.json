@@ -405,8 +405,7 @@
       ],
       "optional_roles": [
         "ski_crampon",
-        "pole_pair",
-        "avalanche_safety_kit"
+        "pole_pair"
       ],
       "interface_type_ids": [
         "ski_boot_to_binding_release",
@@ -424,7 +423,14 @@
       ],
       "visual_adapter": "SKI_PAIR_VIEWER_PROPOSED",
       "qualification_policy": "PROFESSIONAL_BINDING_RELEASE_AND_AVALANCHE_TRAINING_REQUIRED",
-      "automatic_purchase_authority": false
+      "automatic_purchase_authority": false,
+      "conditional_required_roles": [
+        {
+          "role": "avalanche_safety_kit",
+          "when": "AVALANCHE_TERRAIN",
+          "review": "Domain-specific rescue equipment and hands-on training are required for avalanche terrain; no catalog score certifies competence."
+        }
+      ]
     },
     {
       "id": "splitboard",
@@ -439,8 +445,7 @@
       ],
       "optional_roles": [
         "crampon_pair",
-        "pole_pair",
-        "avalanche_safety_kit"
+        "pole_pair"
       ],
       "interface_type_ids": [
         "snowboard_boot_to_binding",
@@ -458,17 +463,24 @@
       ],
       "visual_adapter": "SPLITBOARD_MULTI_MODE_VIEWER_PROPOSED",
       "qualification_policy": "MAKER_MODE_TRANSITION_AND_AVALANCHE_TRAINING_REQUIRED",
-      "automatic_purchase_authority": false
+      "automatic_purchase_authority": false,
+      "conditional_required_roles": [
+        {
+          "role": "avalanche_safety_kit",
+          "when": "AVALANCHE_TERRAIN",
+          "review": "Domain-specific rescue equipment and hands-on training are required for avalanche terrain; no catalog score certifies competence."
+        }
+      ]
     },
     {
       "id": "surfboard",
       "label": "Surfboards and accessories",
       "stage": "FUTURE_ADAPTER",
       "required_roles": [
-        "surfboard",
-        "fin_set"
+        "surfboard"
       ],
       "optional_roles": [
+        "fin_set",
         "leash",
         "traction_pad",
         "board_bag",
