@@ -368,3 +368,24 @@ def test_experimental_catalog_lab_is_linked_and_not_a_checkout():
     assert "No items are purchasable from this page" in html
     assert "seller_pack_unit_count" not in js or "unknown" in js
     assert 'target="_blank" rel="noopener noreferrer"' in js or 'rel="noopener noreferrer"' in js
+
+
+def test_exploded_assembly_atlas_is_interactive_and_non_authoritative():
+    index = (ROOT/"builder"/"index.html").read_text()
+    app = (ROOT/"builder"/"app.js").read_text()
+    css = (ROOT/"builder"/"styles.css").read_text()
+    assert 'id="exploded-view-section"' in index
+    assert 'id="exploded-amount" type="range"' in index
+    assert 'id="exploded-domain"' in index
+    assert 'id="exploded-export-svg"' in index
+    assert 'id="exploded-export-json"' in index
+    assert 'id="exploded-tree"' in index
+    assert 'id="exploded-detail"' in index
+    assert "initializeExplodedControls()" in app
+    assert "renderExplodedView(candidate)" in app
+    assert 'renderExplodedAssemblySvg(graph' in app
+    assert 'aria-pressed="' in app
+    assert "NOT ASSEMBLY GEOMETRY" in (ROOT/"builder"/"exploded_renderer.mjs").read_text()
+    assert "NO ASSEMBLY PERMISSION" not in app  # no fake approval widget
+    assert "quantity" in css or "assembly" in css
+    assert "@media(max-width:900px)" in css
