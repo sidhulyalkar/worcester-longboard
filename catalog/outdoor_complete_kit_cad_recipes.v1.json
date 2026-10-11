@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "scope": "SCHEMATIC_PARAMETRIC_CAD_RECIPE_NOT_MEASURED_MANUFACTURER_CAD",
+  "recipe_id": "loaded-tangent-complete-reference-assembly-v1",
+  "reviewed_on": "2026-10-11",
+  "source_of_kit_contents": "catalog/outdoor_complete_kit_claims.v1.json",
+  "description": "Normalized integrated and exploded display only. No source-verified mounting positions, material, tolerances, axle geometry or fastener totals.",
+  "coordinate_frame": {
+    "units": "ARBITRARY_VISUAL_UNITS",
+    "x": "across riding platform",
+    "y": "nose-to-tail",
+    "z": "vertical",
+    "origin": "illustrative deck midpoint",
+    "origin_physically_measured": false
+  },
+  "dimensional_evidence_policy": {
+    "published_values_allowed": [
+      "complete_board_length_mm",
+      "complete_board_width_mm",
+      "advertised_wheel_diameter_mm"
+    ],
+    "published_dimensions_are_not_mating_datums": true,
+    "all_normalized_placements_are_inferred": true,
+    "actual_mates_verified": false,
+    "fastener_locations_verified": false,
+    "physical_clearances_verified": false,
+    "structural_strength_verified": false
+  },
+  "layout": {
+    "deck_length_u": 7.1,
+    "deck_width_u": 1.93,
+    "deck_height_u": 1.24,
+    "deck_thickness_u": 0.13,
+    "station_y_u": [
+      -2.5,
+      2.5
+    ],
+    "wheel_x_u": [
+      -1.59,
+      1.59
+    ],
+    "hub_center_z_u": 0.22,
+    "bracket_z_u": 0.83,
+    "truck_z_u": 0.35,
+    "reference_wheel_diameter_mm": 105,
+    "wheel_radius_at_reference_u": 0.52,
+    "parts_explode_offsets_u": {
+      "deck": [
+        0,
+        0,
+        2.1
+      ],
+      "zee_brackets": [
+        0.12,
+        0,
+        1.05
+      ],
+      "trucks": [
+        0.3,
+        0,
+        -0.2
+      ],
+      "wheels": [
+        1.6,
+        0,
+        -0.55
+      ],
+      "bearings": [
+        2.6,
+        0,
+        -0.14
+      ],
+      "deck_hardware": [
+        -1.65,
+        -0.2,
+        1.95
+      ],
+      "truck_hardware": [
+        -1.8,
+        0,
+        -0.75
+      ]
+    }
+  },
+  "primitives": [
+    {
+      "role": "deck",
+      "shape": "tapered_deck_shell",
+      "pattern": "SINGLE",
+      "material": "deck"
+    },
+    {
+      "role": "zee_brackets",
+      "shape": "vee_bracket_symbol",
+      "pattern": "STATIONS",
+      "material": "bracket"
+    },
+    {
+      "role": "trucks",
+      "shape": "truck_hanger_symbol",
+      "pattern": "STATIONS",
+      "material": "truck"
+    },
+    {
+      "role": "wheels",
+      "shape": "wheel_with_hub",
+      "pattern": "FOUR_CORNERS",
+      "material": "wheel"
+    },
+    {
+      "role": "bearings",
+      "shape": "bearing_ring",
+      "pattern": "TWO_PER_WHEEL",
+      "material": "bearing"
+    },
+    {
+      "role": "deck_hardware",
+      "shape": "single_fastener_set_symbol",
+      "pattern": "SINGLE_NOT_QUANTITY",
+      "material": "hardware"
+    },
+    {
+      "role": "truck_hardware",
+      "shape": "single_fastener_set_symbol",
+      "pattern": "SINGLE_NOT_QUANTITY",
+      "material": "hardware"
+    }
+  ],
+  "optimizations": {
+    "source_schema_driven": true,
+    "shared_reusable_primitive_geometry": true,
+    "render_unchanged_scene_without_rebuild": true,
+    "geometry_revision_key_includes_selected_kit_id": true
+  },
+  "authority": {
+    "procurement_authorized": false,
+    "fabrication_authorized": false,
+    "charging_authorized": false,
+    "powered_operation_authorized": false,
+    "generic_builder_may_promote_x1_authority": false
+  }
+}
