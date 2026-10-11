@@ -291,3 +291,12 @@ From the Board Builder top navigation, open **Catalog Lab**, or visit http://127
 No skis, snowboards, surfboards or other sport products are yet indexed; those domains are architecture proposals. All families and variants are provisional, historical supplier references are not live stock, and order quantities, maker-revision applicability, physical fit and all release authorities remain unverified.
 
 Graph contract: [Outdoor Catalog Graph v1](../docs/outdoor_catalog_graph_v1_contract.md). Cross-runtime parity test: python tools/compare_outdoor_catalog_graphs.py . Legacy Board Builder candidate generation and Build Passport are regression-tested for exact replay parity.
+
+
+## Exploded Assembly Atlas (mountainboards + cross-sport concepts)
+
+After selecting a board, open **Inside the build** beneath the BOM. The source-aware assembly graph separates the selected design's existing catalog components into conceptual systems such as platform, mounting, wheels, rider interface, brakes/drive and power. Drag **Assembly separation** from assembled overview to exploded diagram, select a part in the grouped tree or diagram, inspect its source and package-overlap questions, and export an SVG diagram or JSON assembly graph. These are **never assembly instructions or verified CAD dimensions**.
+
+The equipment selector also demonstrates **illustrative, UNSOURCED** longboard/skateboard, snowboard, alpine ski, splitboard and surfboard assembly recipes. These examples introduce no saleable SKU, matched boot-binding or physical approval. Snowboards and skis have separate fit/release checks, splitboards require touring pivot/puck interfaces, and fins can be optional for surfboards. Existing board candidate/BOM/price outputs are unchanged.
+
+Technical specification: [Exploded assembly contract](../docs/exploded_assembly_contract.md). Validation: node --test tests/js/test_board_exploded_assembly.mjs; python tools/compare_exploded_assemblies.py. Actual mounting/fastener geometry, assembly quantities, stock, donor contents and power/ride authority remain unknown.
