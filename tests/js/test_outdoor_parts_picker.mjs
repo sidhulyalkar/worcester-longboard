@@ -113,3 +113,21 @@ test("printing taxonomy explicitly holds structurally critical equipment",()=>{
  assert.equal(unsafe.classification,"DO_NOT_SUBSTITUTE_WITH_GENERIC_FDM_PRINT");
  assert.match(unsafe.notes,/release|retention/);
 });
+
+test("dated indicative maker prices cannot turn into a BOM/order total",()=>{
+ assert.ok(catalog.observed_listing_prices.length>=8);
+ assert.ok(catalog.observed_listing_prices.every(p=>p.stock_verified===false &&
+  p.eligible_for_bom_total===false && p.seller_order_units===null));
+ const x=study("alpine_ski",{ski_pair:variant("atomic-bent90")});
+ const offer=x.selected_variants[0].indicative_family_price;
+ assert.equal(offer.displayed_maker_listing_usd,725);
+ assert.equal(offer.observed_on,catalog.as_of);
+ assert.equal(x.report.known_order_total_usd,null);
+ assert.equal(x.report.qualified_supplier_order_lines,0);
+ let bad=structuredClone(catalog);
+ bad.observed_listing_prices[0].eligible_for_bom_total=true;
+ assert.throws(()=>validatePartsRegistry(bad),/price cannot/);
+ bad=structuredClone(catalog);
+ bad.observed_listing_prices[0].source_id="other-source";
+ assert.throws(()=>validatePartsRegistry(bad),/orphan or mismatched/);
+});
