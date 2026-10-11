@@ -164,11 +164,13 @@ async function main(){
   await page.locator("#picker-cad-metric-upload").setInputFiles({
    name:"wrong-kit.json",mimeType:"application/json",
    buffer:Buffer.from(JSON.stringify({...metricFixture,kit_variant_id:"forged-other-kit"}))});
-  assertBrowser((await page.locator("#picker-cad-metric-status").innerText())
-   .includes("Metric survey held:"),"Fixture wrong-kit validation missing");
+  await page.waitForFunction(()=>document.querySelector("#picker-cad-metric-status")
+   ?.textContent.includes("Metric survey held:"),null,{timeout:10000});
   await page.locator("#picker-cad-metric-upload").setInputFiles({
    name:"synthetic-survey.json",mimeType:"application/json",
    buffer:Buffer.from(JSON.stringify(metricFixture))});
+  await page.waitForFunction(()=>document.querySelector("#picker-cad-metric-status")
+   ?.textContent.includes("candidate pair(s)"),null,{timeout:10000});
   assertBrowser((await page.locator("#picker-cad-metric-status").innerText())
    .includes("0 physical clearances verified"),"Candidate survey granted a physical clearance");
   assert.equal(await page.locator("#picker-cad-metric-results tr").count(),2);
