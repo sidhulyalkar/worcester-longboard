@@ -17,7 +17,10 @@ def test_reference_breadth_is_never_confused_with_sku_or_physical_qualification(
     assert s["curated_unqualified_studies"] == 12
     assert s["maker_observations_total"] == 7
     assert s["retail_observations_total"] == 6
-    assert s["different_variant_comparisons_with_2_merchants"] == 2
+    assert s["different_variant_comparisons_with_2_merchants"] == 0
+    assert s["named_variant_comparisons_blocked_by_inclusion_revision"] == 2
+    assert any(x["code"] == "RETAILER_INCLUDED_TRUCK_REVISION_CONFLICT"
+               for x in result["blockers"])
     assert s["seller_exact_checkout_variants_qualified"] == 0
     assert s["physical_connections_qualified"] == 0
     assert s["procurement_authorized_builds"] == 0
