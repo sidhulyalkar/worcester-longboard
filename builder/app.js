@@ -8,6 +8,7 @@ import {defaultComparisonIds,compareCandidates} from "./comparison.mjs";
 import {assemblyGuide} from "./assembly_guide.mjs";
 import {buildAssemblyGraph} from "./assembly_graph.mjs";
 import {renderExplodedAssemblySvg} from "./exploded_renderer.mjs";
+import {evaluateSnowboardMountReference} from "./snowboard_mount_reference.mjs";
 import {buildBuildPassport,proposePassportRevisionChange} from "./build_passport.mjs";
 import {emptyEvidenceNotebook,recordEvidence,restoreEvidenceNotebook,evaluateEvidenceNotebook,EVIDENCE_KINDS} from "./evidence_notebook.mjs";
 import {buildReceivingReconciliation} from "./receiving_reconciliation.mjs";
@@ -86,7 +87,7 @@ async function fetchJson(path) {
 }
 
 async function loadBundle() {
-  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides, packageInclusions, documentReferences, assemblyRecipes] = await Promise.all([
+  const [questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides, packageInclusions, documentReferences, assemblyRecipes, referenceStudies] = await Promise.all([
     fetchJson("../configurator/questionnaire.v1.json"),
     fetchJson("../configurator/rules.v1.json"),
     fetchJson("../catalog/board_components.v1.json"),
@@ -100,8 +101,9 @@ async function loadBundle() {
     fetchJson("../catalog/board_package_inclusions.v1.json"),
     fetchJson("../catalog/manufacturer_document_references.v1.json"),
     fetchJson("../catalog/outdoor_assembly_recipes.v1.json"),
+    fetchJson("../catalog/board_sport_reference_studies.v1.json"),
   ]);
-  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides, packageInclusions, documentReferences, assemblyRecipes };
+  return { questionnaire, rules, catalog, architectures, compatibility, swapSlots, geometry, composer, catalogHealth, exampleRides, packageInclusions, documentReferences, assemblyRecipes, referenceStudies };
 }
 
 function restoreProfile(questionnaire) {
@@ -1182,6 +1184,10 @@ function selectedExplodedSubject(candidate){
  const recipe=state.bundle?.assemblyRecipes;
  if(!recipe) return null;
  if(state.explodedDomain==="mountainboard")return candidate;
+ if(state.explodedDomain.startsWith("reference:")){
+   const id=state.explodedDomain.slice("reference:".length);
+   return state.bundle.referenceStudies?.studies.find(x=>x.id===id)||null;
+ }
  return recipe.examples.find(x=>x.domain_id===state.explodedDomain)||null;
 }
 function safeExplodedLink(url){
@@ -1238,7 +1244,7 @@ function renderExplodedView(candidate){
  const subject=selectedExplodedSubject(candidate);
  if(!subject)return;
  const graph=buildAssemblyGraph(subject,state.bundle.assemblyRecipes,
-   state.bundle.catalog,state.bundle.packageInclusions);
+   state.bundle.catalog,state.bundle.packageInclusions,state.bundle.referenceStudies);
  state.explodedGraph=graph;
  if(!graph.components.some(x=>x.component_id===state.explodedSelectedPart))
    state.explodedSelectedPart=graph.components[0]?.component_id??null;
@@ -1247,7 +1253,9 @@ function renderExplodedView(candidate){
    '<span><strong>'+graph.groups.length+'</strong> assemblies</span>'+
    '<span><strong>'+graph.package_inclusion_hypotheses.length+'</strong> donor hypotheses</span>'+
    '<span><strong>0</strong> physically verified connections</span>'+
-   '<span><strong>'+escapeHtml(graph.origin==="ILLUSTRATIVE_DOMAIN_RECIPE"?"Unsourced sport example":"Selected board candidate")+'</strong></span>';
+   '<span><strong>'+escapeHtml(graph.origin==="ILLUSTRATIVE_DOMAIN_RECIPE"?"Unsourced sport example":
+     graph.origin==="MANUFACTURER_REFERENCED_INTEGRATION_STUDY"?
+       "Maker product-reference study · fit unverified":"Selected board candidate")+'</strong></span>';
  $("#exploded-tree").innerHTML=graph.groups.map(group=>{
    const nodes=graph.components.filter(x=>x.group_id===group.id);
    const open=nodes.some(x=>x.component_id===state.explodedSelectedPart);
@@ -1265,8 +1273,15 @@ function renderExplodedView(candidate){
      redrawExplodedAssembly();
    });
  });
+ const mount=graph.manufacturer_mount_reference?
+   evaluateSnowboardMountReference(graph.manufacturer_mount_reference):null;
  $("#exploded-worklist").innerHTML='<p>This is a learning and research view. None of the connections, assembly counts, fit, mounting hardware, ski-binding release or power stages have been qualified.</p>'+
+   (mount?'<p><strong>Maker mounting-family comparison: '+escapeHtml(mount.verdict.replaceAll("_"," "))+
+     '</strong>. '+escapeHtml(mount.reason)+' Boot fit: '+escapeHtml(mount.boot_fit)+'. Not installation permission.</p>':'')+
    '<ul>'+graph.unresolved_system_checks.map(x=>'<li>'+escapeHtml(x)+'</li>').join("")+'</ul>'+
+   (graph.manufacturer_advertised_contents.length?
+     '<p>Manufacturer lists '+graph.manufacturer_advertised_contents.length+
+     ' component families in this offering. Actual included counts, inspected revisions and complete-kit equivalence remain unknown.</p>':'')+
    (graph.package_inclusion_hypotheses.length?
      '<p>'+graph.package_inclusion_hypotheses.length+' donor package references require actual receipt and included-parts reconciliation.</p>':'');
  redrawExplodedAssembly();
@@ -1276,7 +1291,11 @@ function initializeExplodedControls(){
  const selection=$("#exploded-domain");
  selection.innerHTML=recipes.domains.map(x=>
    '<option value="'+escapeHtml(x.id)+'">'+escapeHtml(x.label)+
-   (x.source==="UNSOURCED_ILLUSTRATIVE_CONCEPT"?" · concept":" · selected design")+'</option>').join("");
+   (x.source==="UNSOURCED_ILLUSTRATIVE_CONCEPT"?" · concept":" · selected design")+'</option>').join("")+
+   '<optgroup label="Manufacturer reference studies · not qualified">'+
+   (state.bundle.referenceStudies?.studies||[]).map(x=>
+     '<option value="reference:'+escapeHtml(x.id)+'">'+escapeHtml(x.label)+
+     ' · source-linked</option>').join("")+'</optgroup>';
  selection.value=state.explodedDomain;
  selection.addEventListener("change",()=>{
    state.explodedDomain=selection.value;

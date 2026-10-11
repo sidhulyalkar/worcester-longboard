@@ -62,7 +62,7 @@ def test_duplicate_unknown_roles_or_forged_concept_fail_closed():
     with pytest.raises(ValueError,match="Unknown catalog"):build(c)
     e=copy.deepcopy(RECIPES["examples"][0])
     e["components"][0]["sku"]="fake"
-    with pytest.raises(ValueError,match="exact source-bound recipe"):build(e)
+    with pytest.raises(ValueError,match="exact reviewed registry"):build(e)
     bad=copy.deepcopy(RECIPES)
     bad["groups"][0]["roles"].append("truck")
     with pytest.raises(ValueError,match="Ambiguous assembly role"):build(find("brake_first_trail_core"),bad)

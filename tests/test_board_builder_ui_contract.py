@@ -389,3 +389,18 @@ def test_exploded_assembly_atlas_is_interactive_and_non_authoritative():
     assert "NO ASSEMBLY PERMISSION" not in app  # no fake approval widget
     assert "quantity" in css or "assembly" in css
     assert "@media(max-width:900px)" in css
+
+
+def test_maker_reference_studies_are_distinct_from_concept_and_retail_checkout():
+    app = (ROOT/"builder"/"app.js").read_text()
+    atlas = (ROOT/"builder"/"assembly_graph.mjs").read_text()
+    maker = (ROOT/"builder"/"snowboard_mount_reference.mjs").read_text()
+    assert "board_sport_reference_studies.v1.json" in app
+    assert "reference:"+"" in app
+    assert "MANUFACTURER_REFERENCED_INTEGRATION_STUDY" in app
+    assert "evaluateSnowboardMountReference" in app
+    assert "referenceStudies" in atlas
+    assert "exact reviewed registry" in atlas
+    assert "MAKER_FAMILY_REFERENCE_MATCH_REVIEW_REQUIRED" in maker
+    assert "MANUFACTURER_REFERENCE_INCOMPATIBLE" in maker
+    assert "physical_fit_verified:false" in maker
