@@ -79,3 +79,19 @@ def test_disciplines_do_not_share_blanket_pairwise_compatibility():
     assert "surfboard_fin_box" in surf["interface_type_ids"]
     assert "surfboard_fin_box" not in board["interface_type_ids"]
     assert all(x["automatic_purchase_authority"] is False for x in REGISTRY["domains"])
+
+
+def test_avalanche_terrain_requires_equipment_review_and_finless_surf_remains_possible():
+    for domain_id in ("touring_ski", "splitboard"):
+        domain = next(x for x in REGISTRY["domains"] if x["id"] == domain_id)
+        assert any(x["role"] == "avalanche_safety_kit" and
+                   x["when"] == "AVALANCHE_TERRAIN" for x in
+                   domain["conditional_required_roles"])
+        assert "avalanche_safety_kit" not in domain["optional_roles"]
+    surf = next(x for x in REGISTRY["domains"] if x["id"] == "surfboard")
+    assert "fin_set" not in surf["required_roles"]
+    assert "fin_set" in surf["optional_roles"]
+    corrupted = copy.deepcopy(REGISTRY)
+    next(x for x in corrupted["domains"] if x["id"] == "splitboard")["conditional_required_roles"] = []
+    with pytest.raises(AssertionError, match="avalanche"):
+        validate(corrupted, LEGACY)
