@@ -78,6 +78,8 @@ export function validateRetailRegistry(data,catalog){
     "unsupported or fractional seller package count");
   const match=offer.selected_variant_id===null?null:variants.get(offer.selected_variant_id);
   if(match){
+   assert(offer.related_product_family_id===null,
+    "size-matched offer must not also carry unresolved family relation");
    assert(offer.product_id===match.product.id&&
     match.product.domain_id==="skateboard_longboard"&&match.product.slot==="long_complete"&&
     offer.option_selection_verified_on_page===true&&offer.pack_count===1&&
@@ -87,6 +89,11 @@ export function validateRetailRegistry(data,catalog){
    assert(offer.product_id===null&&offer.selected_variant_id===null&&
     offer.option_selection_verified_on_page===false,
     "unqualified variant may not inherit a matched seller setup");
+   const related=catalog.products.find(x=>x.id===offer.related_product_family_id);
+   assert(related&&related.domain_id==="alpine_ski"&&related.slot==="ski_pair"&&
+    offer.observed_setup.toLowerCase().includes(related.brand.toLowerCase())&&
+    offer.observed_setup.toLowerCase().includes(related.name.toLowerCase()),
+    "unselected retailer bundle lacks evidence for a matching product family");
   }
   dateOf(offer.observed_on);
   keys.push([offer.merchant_id,offer.selected_variant_id??"unselected",
@@ -140,6 +147,32 @@ export function compareRetailOffers(data,catalog,variantId,{as_of=data.reviewed_
   }:null,
   current_price_quote:null,live_inventory_checked:false,orderable:false,
   taxes_shipping_and_returns_verified:false,exact_seller_sku_verified:false,
+  authority:{...AUTH}};
+}
+// Related seller pages are RESEARCH ONLY. A family relationship NEVER grants
+// selected size, maker revision, package equality, seller SKU or live stock.
+export function researchRelatedSellerListings(data,catalog,familyId,
+ {as_of=data.reviewed_on}={}){
+ validateRetailRegistry(data,catalog);dateOf(as_of);
+ const family=catalog.products.find(x=>x.id===familyId);
+ assert(family&&family.domain_id==="alpine_ski"&&family.slot==="ski_pair",
+  "related listing lookup requires a known alpine ski family");
+ const rows=data.offers.filter(x=>x.related_product_family_id===familyId)
+  .map(o=>{
+   const days=age(o.observed_on,as_of);
+   return {id:o.id,merchant_id:o.merchant_id,
+    merchant_name:data.merchants.find(x=>x.id===o.merchant_id).brand,
+    description:o.observed_setup,source_url:o.source_url,
+    seller_catalog_family_code:o.seller_variant_sku,
+    historical_page_amount_usd:o.listed_amount_usd,observed_on:o.observed_on,
+    state:days<0||days>data.comparison_policy.max_age_days?
+      "EXPIRED_OR_FUTURE_REVIEW":"RELATED_FAMILY_ONLY_NOT_VARIANT_MATCH",
+    exact_variant_verified:false,package_equivalence_verified:false,
+    retailer_order_authorized:false,live_stock_verified:false
+   };
+  });
+ return {scope:"RELATED_RETAIL_FAMILY_EVIDENCE_NOT_COMPARABLE",
+  family_id:familyId,rows,selected_size_quoted:false,checkout_eligible:false,
   authority:{...AUTH}};
 }
 export function validateBuildStudies(data,catalog){
