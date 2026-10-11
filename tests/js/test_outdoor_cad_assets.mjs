@@ -31,6 +31,7 @@ const candidate=(variant,role="deck")=>({
  format:"glb",units:"mm",
  gltf_scene_units:"m",mm_to_gltf_m_scale:0.001,
  conversion_receipt_sha256:"b".repeat(64),source_step_sha256:"c".repeat(64),
+ conversion_receipt_path:"/assets/cad/"+"a".repeat(64)+".conversion.json",
  sha256:"a".repeat(64),
  path:"/assets/cad/"+"a".repeat(64)+".glb",byte_length:1200,
  asset_revision_confirmed:false,verified_mount_datums:false,
