@@ -42,6 +42,7 @@ export function validateCadAssetRegistry(registry){
   check(a.format==="glb"&&a.units==="mm"&&
    a.gltf_scene_units==="m"&&a.mm_to_gltf_m_scale===0.001&&
    sha(a.conversion_receipt_sha256)&&sha(a.source_step_sha256)&&sha(a.sha256)&&
+   a.conversion_receipt_path==="/assets/cad/"+a.sha256+".conversion.json"&&
    a.path==="/assets/cad/"+a.sha256+".glb",
    "only locally pinned, digest-addressed GLB with declared mm units");
   check(a.byte_length>20&&Number.isSafeInteger(a.byte_length)&&
