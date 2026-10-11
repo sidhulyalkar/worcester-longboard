@@ -5,7 +5,10 @@
     "native_file_units": "EXPLICIT_PER_ASSET",
     "unmeasured_display_frame": "ARBITRARY_VISUAL_UNITS",
     "allow_automatic_visual_to_metric_alignment": false,
-    "allow_unverified_collision_clearance": false
+    "allow_unverified_collision_clearance": false,
+    "gltf_scene_units": "m",
+    "source_cad_units": "mm",
+    "required_mm_to_gltf_m_scale": 0.001
   },
   "assets": [],
   "authority": {
