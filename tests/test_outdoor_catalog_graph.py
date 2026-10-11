@@ -90,3 +90,19 @@ def test_original_board_engine_and_passport_exact_parity():
     assert generate_board_design_space(profile,other)==original
     for c in original["candidates"][:4]:
         assert build_build_passport(c,bundle)==build_build_passport(c,other)
+
+def test_source_credentials_invalid_date_and_price_snapshot_tamper_fail_closed():
+    changed=copy.deepcopy(CATALOG)
+    changed["components"][0]["source"]["url"]="https://user:secret@www.mbs.com/product"
+    g=build(changed)
+    assert not any(x["variant_id"]=="variant:mountainboard:DONOR-COMP95"
+                   for x in g["supplier_offer_references"])
+    changed["components"][0]["source"]["url"]="https://www.mbs.com/product"
+    changed["components"][0]["source"]["as_of"]="2026-02-30"
+    g=build(changed)
+    assert not any(x["variant_id"]=="variant:mountainboard:DONOR-COMP95"
+                   for x in g["supplier_offer_references"])
+    graph=build()
+    graph["legacy_catalog_snapshot"]["components"][0]["price"]["unit_price_usd"]=0.01
+    with pytest.raises(ValueError,match="stale graph snapshot"):
+        replay_legacy_board_catalog(graph)
