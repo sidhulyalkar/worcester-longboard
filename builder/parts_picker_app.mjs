@@ -208,7 +208,12 @@ function renderThreeStudies(){
  if(!state.studyCatalog||!state.retailCatalog||!state.study){
   host.textContent="Build studies are not yet available.";details.textContent="";return;
  }
- const mass=$("#picker-mass").value||null;
+ const entered=$("#picker-mass").value.trim();
+ const amount=entered===""?null:Number(entered);
+ const validMass=amount===null||Number.isFinite(amount)&&amount>=15&&amount<=250;
+ $("#picker-mass-validation").textContent=validMass?"": 
+  "Rider mass is outside the supported 15–250 kg research range. This input is ignored until corrected.";
+ const mass=validMass?amount:null;
  state.alternatives=composeResearchAlternatives(state.catalog,state.studyCatalog,
   state.offerObservations,state.retailCatalog,state.domain,{
    as_of:new Date().toISOString().slice(0,10),
@@ -233,6 +238,11 @@ function renderThreeStudies(){
    '<p class="study-historical">Partial historic maker subtotal: '+historical+
    ' · NOT build total</p>'+
    '<p class="study-note">'+esc(card.notes.join("; "))+'</p>'+
+   (card.findings.length?'<details class="study-review"><summary>Inspect '+
+     card.findings.length+' unresolved compatibility / professional checks</summary>'+
+     '<ul>'+card.findings.map(f=>'<li data-warning-code="'+esc(f.code??f.kind)+'">'+
+     '<strong>'+esc(f.kind)+'</strong>: '+esc(f.message)+'</li>').join("")+'</ul></details>':
+     '<p class="study-review-none">No declared conflict; physical fit remains unqualified.</p>')+
    '<button type="button" data-load-study="'+esc(card.id)+
    '"'+(active?' aria-pressed="true"':' aria-pressed="false"')+'>'+
    (active?'Currently inspecting':'Inspect this configuration')+'</button>'+
@@ -280,7 +290,7 @@ function renderRetailMatches(){
  });
  if(loose.length)sections.push('<article class="retail-match">'+
   '<h3>Related listings that must NOT be compared as an exact variant</h3>'+
-  '<p>These 2026 ski-only and ski-plus-binding bundles have different maker codes and package contents. Neither is verified against the selected 157 cm research size or binding/boot specification.</p>'+
+  '<p>These 2026 ski-only and ski-plus-binding bundles have different maker codes and package contents. Neither is confirmed against the selected ski length, boot or binding revision.</p>'+
   loose.map(o=>{const url=cleanUrl(o.source_url);return '<p><strong>'+
    esc(o.observed_setup)+'</strong> · USD '+o.listed_amount_usd.toFixed(2)+
    ' historical page listing · <strong>ON HOLD</strong>'+
