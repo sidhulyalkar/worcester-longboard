@@ -121,7 +121,13 @@ async function main(){
    "Different ski-only and with-binding packages were treated as equal");
   assertBrowser((await page.locator("#picker-findings").innerText()).toLowerCase()
    .includes("professional"),"Ski professional release/mount warnings missing");
-  note("Incomparable ski bundles and professional mount review remain explicit");
+  await clickStudy(page,"ski-balanced-94");
+  const salomonRetail=await page.locator("#picker-retail-results").innerText();
+  assertBrowser(!salomonRetail.includes("Atomic Bent 90"),
+   "Unrelated Atomic retailer bundles leaked into a selected Salomon QST study");
+  assertBrowser(salomonRetail.includes("No distinct seller sources"),
+   "Missing size-matched Salomon retailer evidence must remain a clear hold");
+  note("Ski bundles are family-bound; unqualified Atomic offers do not leak into Salomon");
   await page.locator("#picker-domain").selectOption("snowboard");
   await clickStudy(page,"snow-compact-step");
   await page.locator("details.fit-controls summary").click();
