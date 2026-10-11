@@ -6,7 +6,7 @@ const unique=(rows,label)=>{
  const ids=rows.map(x=>x.id);
  if(new Set(ids).size!==ids.length)throw new Error("Duplicate "+label);
 };
-export function buildAssemblyGraph(subject,recipes,catalog=null,packageRegistry=null){
+export function buildAssemblyGraph(subject,recipes,catalog=null,packageRegistry=null,referenceStudies=null){
  if(recipes?.scope!=="CONCEPTUAL_ASSEMBLY_VISUALIZATION_NOT_PHYSICAL_INSTRUCTIONS" ||
    recipes.schema_version!==1 || !Array.isArray(recipes.groups) || !Array.isArray(recipes.domains))
    throw new Error("Invalid assembly recipe contract");
@@ -22,11 +22,16 @@ export function buildAssemblyGraph(subject,recipes,catalog=null,packageRegistry=
  const rows=concept?subject?.components:subject?.bom;
  if(!Array.isArray(rows)||!rows.length)throw new Error("Missing assembly parts");
  const sourceParts=new Map((catalog?.components||[]).map(x=>[x.id,x]));
- if(concept && subject.id!==domain.example_id)throw new Error("Unsupported unsourced concept identity");
+ let referenceBacked=false;
  if(concept){
    const canonical=recipes.examples.find(x=>x.id===subject.id && x.domain_id===domainId);
-   if(!canonical || JSON.stringify(canonical)!==JSON.stringify(subject))
-     throw new Error("Concept must be exact source-bound recipe; no arbitrary components");
+   const studied=referenceStudies?.scope==="SOURCE_REFERENCED_BOARD_SPORT_STUDIES_NOT_VERIFIED_FIT_OR_CHECKOUT"?
+     referenceStudies.studies?.find(x=>x.id===subject.id&&x.domain_id===domainId):null;
+   const exactConcept=canonical&&JSON.stringify(canonical)===JSON.stringify(subject);
+   const exactStudy=studied&&JSON.stringify(studied)===JSON.stringify(subject);
+   if(!exactConcept && !exactStudy)
+     throw new Error("Concept or reference study must match exact reviewed registry");
+   referenceBacked=Boolean(exactStudy);
  }
  if(!concept && (!catalog || !packageRegistry ||
     packageRegistry.scope!=="CATALOG_INCLUSION_HYPOTHESES_NOT_PACKAGE_CERTIFICATION"))
@@ -52,16 +57,17 @@ export function buildAssemblyGraph(subject,recipes,catalog=null,packageRegistry=
    const grp=groupByRole.get(role);
    if(!grp)throw new Error("Unknown assembly role "+role);
    const source=reference?.source||{};
-   const refKind=concept?"illustrative_concept":source.kind||"repository_reference";
-   const url=concept?null:source.url??null;
+   const refKind=concept?(referenceBacked?row.source_kind:"illustrative_concept"):
+     source.kind||"repository_reference";
+   const url=concept?(referenceBacked?row.source_url:null):source.url??null;
    return {
      id:"part:"+componentId,component_id:componentId,
      group_id:grp.id,role,label:row.label,order_index:i,
-     manufacturer:concept?null:reference.manufacturer??null,
-     sku_text:concept?null:reference.sku??null,
+     manufacturer:concept?(referenceBacked?row.manufacturer:null):reference.manufacturer??null,
+     sku_text:concept?(referenceBacked?row.sku:null):reference.sku??null,
      source_kind:refKind,
      source_url:url,
-     source_snapshot_id:concept?null:source.snapshot_id??null,
+     source_snapshot_id:concept?(referenceBacked?row.source_id:null):source.snapshot_id??null,
      exact_variant_verified:false,
      assembly_required_quantity:null, supplier_order_quantity:null,
      visual_proxy_only:true,
@@ -105,11 +111,18 @@ export function buildAssemblyGraph(subject,recipes,catalog=null,packageRegistry=
  return {
    schema_version:1,scope:"UNQUALIFIED_SEMANTIC_ASSEMBLY_EXPLODED_VIEW",
    subject_id:subject.id,domain_id:domainId,label:subject.label,
-   origin:concept?"ILLUSTRATIVE_DOMAIN_RECIPE":"EXISTING_BOARD_CANDIDATE",
-   source_snapshot_as_of:concept?null:catalog.as_of,
+   origin:referenceBacked?"MANUFACTURER_REFERENCED_INTEGRATION_STUDY":
+     concept?"ILLUSTRATIVE_DOMAIN_RECIPE":"EXISTING_BOARD_CANDIDATE",
+   source_snapshot_as_of:referenceBacked?referenceStudies.reviewed_as_of:
+     concept?null:catalog.as_of,
    groups:activeGroups,components:componentNodes,connections,
    package_inclusion_hypotheses:packageClaims,
-   unresolved_system_checks:[...domain.important_checks],
+   manufacturer_advertised_contents:referenceBacked?
+     subject.advertised_contents.map(role=>({role,source_listed:true,
+       physically_received_and_counted:false,shipped_quantity:null})):[],
+   manufacturer_mount_reference:referenceBacked?subject.known_mount_lookups:null,
+   unresolved_system_checks:[...domain.important_checks,
+     ...(referenceBacked?subject.additional_checks:[])],
    completeness:{catalog_components_included:componentNodes.length,
      unique_bom_component_ids:seen.size,
      conceptual_assembly_groups:activeGroups.length,
