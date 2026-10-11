@@ -48,7 +48,9 @@ function renderSlots(){
     '<br>Specific manufacturer SKU, revision and pack quantities: unverified. '+
     (url?'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Read manufacturer evidence ↗</a>':'')+
     (parts.length?'<br>'+esc(parts[0]):'')+
-    (price?'<br><strong>Maker listing snapshot: 
+     (price?'<br><strong>Maker listing reference USD '+
+      price.displayed_maker_listing_usd.toFixed(2)+' ('+esc(price.observed_on)+
+      ')</strong> · Not an exact-size quote or cart total.':'')+'</div>':
     '<div class="slot-product-evidence">No maker product selected. An unselected or unqualified component cannot be silently added to the cart.</div>')+
    '</article>';
  }).join("");
@@ -136,7 +138,9 @@ function renderOrder(){
   return '<tr><td><strong>'+esc(r.label)+'</strong></td><td>'+
    (entry?esc(entry.label):'Not selected')+
    (url?'<small><a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Original manufacturer listing ↗</a></small>':'')+
-   (entry?.indicative_family_price?'<small>Maker snapshot 
+   (entry?.indicative_family_price?'<small>Maker reference USD '+
+     entry.indicative_family_price.displayed_maker_listing_usd.toFixed(2)+
+     ' · indicative family-level price only</small>':'')+
    '</td><td>'+esc(r.needed)+'</td><td><strong>UNKNOWN</strong>'+
    '<small>SKU, package size and included hardware need inspection</small></td>'+
    '<td class="'+(r.status==="MISSING_REQUIRED_REFERENCE"?"status-missing":"status-hold")+'">'+
