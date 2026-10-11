@@ -134,7 +134,18 @@ async function main(){
   const cardText=await page.locator("#picker-study-cards").innerText();
   assertBrowser(cardText.includes("compatibility/review findings"),
    "Rider range warnings not reflected in cards");
-  note("Asymmetric foot and rider mass inputs update review-only findings");
+  await page.locator("#picker-study-cards .study-card").first()
+   .locator("summary").click();
+  assertBrowser((await page.locator(
+   '#picker-study-cards [data-warning-code="MAKER_WEIGHT_BAND_REVIEW"]').count())>=1,
+   "The published weight-range warning was not accessible to the rider");
+  await page.locator("#picker-mass").fill("999");
+  assertBrowser((await page.locator("#picker-mass-validation").innerText())
+   .includes("outside the supported"),"Invalid rider mass lacks visible explanation");
+  assertBrowser(!(await page.locator("#picker-order-status").innerText())
+   .includes("Selection held"),"Invalid optional mass left stale order study");
+  await page.locator("#picker-mass").fill("105");
+  note("Asymmetric foot sizing and invalid/range weight data remain review-only");
   // Download must remain a research report, never an order.
   const event=page.waitForEvent("download");
   await page.locator("#picker-export-json").click();
