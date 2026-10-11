@@ -80,6 +80,8 @@ jobs:
         run: python tools/validate_board_builder.py
       - name: Check Parts Picker release preview safety contract
         run: python tools/check_parts_picker_release.py --mode preview
+      - name: Audit Parts Picker measured product readiness and source freshness
+        run: python tools/audit_parts_picker_readiness.py --as-of "$(date -u +%F)" --out /tmp/parts-picker-readiness.json
       - name: Audit multi-vendor catalog provenance and source health
         run: |
           python tools/audit_board_catalog.py \
