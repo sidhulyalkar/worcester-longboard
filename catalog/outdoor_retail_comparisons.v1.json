@@ -24,7 +24,8 @@
       "sales_tax_verified": false,
       "shipping_total_verified": false,
       "manufacturer_exact_revision_qualified": false,
-      "checkout_eligible": false
+      "checkout_eligible": false,
+      "related_product_family_id": null
     },
     {
       "id": "loaded-105-skatesusa",
@@ -46,7 +47,8 @@
       "sales_tax_verified": false,
       "shipping_total_verified": false,
       "manufacturer_exact_revision_qualified": false,
-      "checkout_eligible": false
+      "checkout_eligible": false,
+      "related_product_family_id": null
     },
     {
       "id": "loaded-85-direct",
@@ -68,7 +70,8 @@
       "sales_tax_verified": false,
       "shipping_total_verified": false,
       "manufacturer_exact_revision_qualified": false,
-      "checkout_eligible": false
+      "checkout_eligible": false,
+      "related_product_family_id": null
     },
     {
       "id": "loaded-85-skatesusa",
@@ -90,7 +93,8 @@
       "sales_tax_verified": false,
       "shipping_total_verified": false,
       "manufacturer_exact_revision_qualified": false,
-      "checkout_eligible": false
+      "checkout_eligible": false,
+      "related_product_family_id": null
     },
     {
       "id": "atomic-2026-skiessentials-flat",
@@ -112,7 +116,8 @@
       "sales_tax_verified": false,
       "shipping_total_verified": false,
       "manufacturer_exact_revision_qualified": false,
-      "checkout_eligible": false
+      "checkout_eligible": false,
+      "related_product_family_id": "atomic-bent90"
     },
     {
       "id": "atomic-2026-skiessentials-marker-bundle",
@@ -134,7 +139,8 @@
       "sales_tax_verified": false,
       "shipping_total_verified": false,
       "manufacturer_exact_revision_qualified": false,
-      "checkout_eligible": false
+      "checkout_eligible": false,
+      "related_product_family_id": "atomic-bent90"
     }
   ],
   "merchants": [
