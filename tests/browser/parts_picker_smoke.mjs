@@ -68,6 +68,27 @@ async function clickStudy(page,id){
   "Study update status missing");
 }
 
+function syntheticLocalGlb(){
+ // Explicitly test-only mesh, not Loaded/Paris geometry or an approved component.
+ const vertices=new Float32Array([0,0,0,1,0,0,0,1,0]);
+ const payload={asset:{version:"2.0"},buffers:[{byteLength:36}],
+  bufferViews:[{buffer:0,byteOffset:0,byteLength:36}],
+  accessors:[{bufferView:0,componentType:5126,count:3,type:"VEC3",
+   min:[0,0,0],max:[1,1,0]}],
+  meshes:[{primitives:[{attributes:{POSITION:0}}]}],
+  nodes:[{mesh:0}],scenes:[{nodes:[0]}],scene:0};
+ const bytes=Buffer.from(JSON.stringify(payload));
+ const padded=Math.ceil(bytes.length/4)*4;
+ const result=Buffer.alloc(12+8+padded+8+36);
+ result.write("glTF");result.writeUInt32LE(2,4);
+ result.writeUInt32LE(result.length,8);
+ result.writeUInt32LE(padded,12);result.write("JSON",16);
+ bytes.copy(result,20);result.fill(32,20+bytes.length,20+padded);
+ result.writeUInt32LE(36,20+padded);
+ result.write("BIN\\u0000",24+padded);
+ Buffer.from(vertices.buffer).copy(result,28+padded);
+ return result;
+}
 async function main(){
  await mkdir(artifacts,{recursive:true});
  await ready();
@@ -120,7 +141,20 @@ async function main(){
   assertBrowser((await page.locator("#picker-cad-inspect-status").innerText())
    .includes("Local CAD file held:"),"Corrupt geometry not rejected");
   assert.equal(await page.locator("#picker-cad-file-inspector").isHidden(),true);
-  note("CAD file coverage, unknown mounting datums, unqualified local GLB upload");
+  await page.locator("#picker-cad-upload").setInputFiles({
+   name:"synthetic-geometry.glb",mimeType:"model/gltf-binary",
+   buffer:syntheticLocalGlb()});
+  await page.waitForFunction(()=>document.querySelector("#picker-cad-inspect-status")
+   ?.textContent.includes("Local-only GLB attached"),null,{timeout:20000});
+  const isolated=page.locator("#picker-cad-file-inspector canvas");
+  await isolated.waitFor({state:"visible",timeout:10000});
+  assert.equal(await isolated.getAttribute("data-cad-inspection"),"ISOLATED_NOT_ASSEMBLED");
+  assert.equal(await isolated.getAttribute("data-fit-authority"),"NONE");
+  assertBrowser((await page.locator("#picker-cad-inspect-status").innerText())
+   .includes("UNITS UNKNOWN"),"Local mesh was silently converted to millimeters");
+  assert.equal(await page.locator("#picker-visual-svg [data-exploded-part]").count(),7,
+   "Imported mesh replaced the integrated board");
+  note("Real Chromium imports and orbits isolated synthetic GLB without assembly authority");
   assert.equal(await page.locator("#picker-kit-rows tr").count(),7,
    "Complete Loaded maker kit must expose seven source-listed child categories");
   assert.equal(await page.locator("#picker-explode").inputValue(),"0");
