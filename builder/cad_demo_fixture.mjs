@@ -27,7 +27,7 @@ export function makeSyntheticCandidateMotionFixture(variantId){
    axis_point_assembly_mm:[0,0,0],
    axis_direction_assembly:[0,0,1],
    angle_range_deg:[-45,45],sample_step_deg:15,
-   uncertainty_mm:0.25,kinematics_physically_verified:false,
+   uncertainty_mm:0.1,kinematics_physically_verified:false,
    dynamic_clearance_qualified:false,contact_verified:false
   }};
 }
