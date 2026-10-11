@@ -479,8 +479,7 @@ function initEvents(){
  $("#picker-export-csv").addEventListener("click",()=>exportWorklist("csv"));
  $("#picker-export-kit").addEventListener("click",()=>{
   if(state.kitAudit?.rows?.length)download("worcester-kit-inclusion-"+state.domain+".json",
-   JSON.stringify(state.kitAudit,null,2)+"
-","application/json");
+   JSON.stringify(state.kitAudit,null,2)+"\n","application/json");
  });
  $("#picker-export-maker-audit").addEventListener("click",()=>{
   if(state.offerAudit)download("worcester-maker-unit-evidence-"+state.domain+".json",
