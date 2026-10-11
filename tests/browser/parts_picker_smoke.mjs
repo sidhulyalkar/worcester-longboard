@@ -102,6 +102,20 @@ async function main(){
   note("Four sports render three cards, load source-bound assemblies and stay non-orderable");
   await page.locator("#picker-domain").selectOption("skateboard_longboard");
   await clickStudy(page,"long-rollover");
+  assert.equal(await page.locator("#picker-kit-rows tr").count(),7,
+   "Complete Loaded maker kit must expose seven source-listed child categories");
+  const kit105=await page.locator("#picker-kit-summary").innerText();
+  assertBrowser(kit105.includes("SELLER PACKAGE REVISION CONFLICT HOLD")&&
+    kit105.includes("0 verified received components")&&
+    kit105.includes("0 separate child purchases"),
+   "Source package rows must preserve V2/V3 conflict and no-double-buy status");
+  const kitDownload=page.waitForEvent("download");
+  await page.locator("#picker-export-kit").click();
+  const kitPacket=JSON.parse(await readFile(await (await kitDownload).path(),"utf8"));
+  assert.equal(kitPacket.rows.length,7);
+  assert.equal(kitPacket.actual_seller_unit_count,null);
+  assert.equal(kitPacket.independent_additional_item_orders,0);
+  assert.equal(kitPacket.authority.procurement_authorized,false);
   let retail=await page.locator("#picker-retail-results").innerText();
   assertBrowser(retail.includes("Loaded Boards")&&retail.includes("Skates USA"),
    "105 mm setup must compare two merchants");
@@ -115,6 +129,11 @@ async function main(){
   assertBrowser(!retail.includes("Published setup price gap"),
    "Mismatched retailer packages must not show an equal-price comparison");
   await clickStudy(page,"long-nimble");
+  assert.equal(await page.locator("#picker-kit-rows tr").count(),7);
+  const kit85=await page.locator("#picker-kit-summary").innerText();
+  assertBrowser(kit85.includes("loaded-tangent-caguama85")&&
+    !kit85.includes("loaded-tangent-dadbod105"),
+    "Choosing Caguama left the old Dad Bod complete kit graph active");
   retail=await page.locator("#picker-retail-results").innerText();
   assertBrowser(retail.includes("364.00"),"85 mm offer price not visible");
   assertBrowser(!retail.includes("424.00"),"85 mm selection leaked 105 mm retailer offer");
