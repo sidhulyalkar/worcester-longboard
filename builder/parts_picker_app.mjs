@@ -17,8 +17,8 @@ const cleanUrl=value=>{
 const state={catalog:null,offerObservations:null,offerAudit:null,
  retailCatalog:null,studyCatalog:null,alternatives:null,kitClaims:null,kitAudit:null,visualGraph:null,
  cadRecipe:null,cadModel:null,
- domain:"alpine_ski",selections:{},study:null,
- mode:"2d",separation:72,selectedId:null,viewer:null,viewerPromise:null,
+ domain:"skateboard_longboard",selections:{},study:null,
+ mode:"2d",separation:0,selectedId:null,viewer:null,viewerPromise:null,
  search:""};
 const sourceFor=id=>state.catalog.sources.find(s=>s.id===id);
 const currentGraph=()=>state.visualGraph??state.study?.graph;
@@ -580,6 +580,11 @@ async function main(){
    coverage.variant_choices+' referenced choices<br>'+
    coverage.suppliers+' supplier directories · '+coverage.source_documents+' maker pages<br>'+
    '<small>Four active sport assembly workflows; no checkout-ready SKU combinations.</small>';
+  // Lead with the fully integrated, unqualified Loaded kit research view.
+  // Choose by canonical catalog identity, never a hard-coded seller SKU.
+  const pilot=state.catalog.products.find(p=>p.id==="loaded-tangent-complete");
+  const preset=pilot?.variants?.[0]?.id;
+  if(preset)state.selections.long_complete=preset;
   initEvents();renderPrint();refresh();
  }catch(err){
   $("#picker-coverage").textContent="Catalog unavailable: "+err.message;
