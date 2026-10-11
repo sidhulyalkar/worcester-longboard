@@ -79,3 +79,27 @@ main{max-width:1480px;padding:21px 25px 45px;margin:auto}.intro{display:grid;gri
 .study-review-none{font-size:11px;color:var(--muted)}
 @media print{.study-review ul{display:block}.study-review li{color:#111}
  .picker-input-validation{color:#111}}
+
+/* Maker-complete-configuration receipt. Counts below are NOT supplier order lines. */
+.kit-closure{margin-top:16px;border:1px solid var(--line);border-radius:15px;
+ padding:18px;background:var(--panel);min-width:0}
+.kit-closure>p,.kit-closure-unknowns{font-size:12px;color:var(--muted);line-height:1.55}
+#picker-kit-summary{padding:14px;margin:12px 0;border-radius:10px;
+ background:#1b303d;border:1px solid #43606e;font-size:12px;line-height:1.5}
+.kit-closure-table{width:100%;min-width:860px;border-collapse:collapse}
+.kit-closure-table th,.kit-closure-table td{padding:10px;text-align:left;
+ border-bottom:1px solid var(--line);font-size:11px;vertical-align:top}
+.kit-closure-table td small{display:block;font-size:10px;color:var(--muted);
+ margin-top:4px;overflow-wrap:anywhere}
+.kit-closure-table td strong{font-weight:700}
+.kit-conflict{border-left:3px solid #df9f82;padding-left:12px;color:#f0bfad;font-size:12px}
+.kit-closure-unknowns ul{padding-left:20px}
+.kit-closure-unknowns li{margin-bottom:5px}
+@media(max-width:680px){.kit-closure{padding:12px}
+.kit-closure .panel-title{align-items:stretch;flex-direction:column}
+.kit-closure .panel-title button{width:100%}}
+@media print{.kit-closure{background:white;color:#111}
+ .kit-closure-table th,.kit-closure-table td,.kit-closure-table td small,
+ .kit-closure-unknowns,#picker-kit-summary,.kit-conflict{color:#111!important}
+ .kit-closure .panel-title button{display:none!important}
+ #picker-kit-summary{background:white;border:1px solid #777}}
