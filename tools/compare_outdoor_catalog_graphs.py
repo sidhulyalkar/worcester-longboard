@@ -21,7 +21,28 @@ def main():
     incl=read("catalog/board_package_inclusions.v1.json")
     graph=build_outdoor_catalog_graph(catalog,domains,incl)
     js=json.loads(subprocess.check_output(["node","tools/generate_outdoor_catalog_graph.mjs"],cwd=ROOT,text=True))
-    assert graph==js, "Cross-runtime outdoor catalog graph mismatch"
+    if graph != js:
+        def first_difference(a, b, route="$"):
+            if type(a) is not type(b):
+                return f"{route}: types {type(a).__name__} != {type(b).__name__}; values {str(a)[:140]} != {str(b)[:140]}"
+            if isinstance(a, dict):
+                for key in sorted(set(a) | set(b)):
+                    if key not in a or key not in b:
+                        return f"{route}.{key}: missing from one graph"
+                    result = first_difference(a[key], b[key], f"{route}.{key}")
+                    if result:
+                        return result
+            if isinstance(a, list):
+                if len(a) != len(b):
+                    return f"{route}: list length {len(a)} != {len(b)}"
+                for i, (x, y) in enumerate(zip(a, b)):
+                    result = first_difference(x, y, f"{route}[{i}]")
+                    if result:
+                        return result
+            if a != b:
+                return f"{route}: {str(a)[:250]} != {str(b)[:250]}"
+            return ""
+        raise AssertionError("Cross-runtime outdoor catalog graph mismatch: " + first_difference(graph,js))
     assert replay_legacy_board_catalog(graph)==catalog
     assert graph["summary"]["imported_legacy_components"]==len(catalog["components"])
     assert graph["summary"]["confirmed_exact_variants"]==0
