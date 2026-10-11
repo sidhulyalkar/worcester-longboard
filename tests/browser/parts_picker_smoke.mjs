@@ -104,6 +104,12 @@ async function main(){
   await clickStudy(page,"long-rollover");
   assert.equal(await page.locator("#picker-kit-rows tr").count(),7,
    "Complete Loaded maker kit must expose seven source-listed child categories");
+  assert.equal(await page.locator("#picker-part-tree [data-picker-part]").count(),7,
+   "Source-bound tree must expose seven separately selectable kit components");
+  assert.equal(await page.locator("#picker-visual-svg [data-exploded-part]").count(),7,
+   "2D visual must contain seven independently explodable kit components");
+  assertBrowser((await page.locator("#picker-rendered-scene-status").innerText())
+   .includes("0 received/verified pieces"),"3D falsely claims a received kit");
   const kit105=await page.locator("#picker-kit-summary").innerText();
   assertBrowser(kit105.includes("SELLER PACKAGE REVISION CONFLICT HOLD")&&
     kit105.includes("0 verified received components")&&
@@ -116,6 +122,13 @@ async function main(){
   assert.equal(kitPacket.actual_seller_unit_count,null);
   assert.equal(kitPacket.independent_additional_item_orders,0);
   assert.equal(kitPacket.authority.procurement_authorized,false);
+  const fullDownload=page.waitForEvent("download");
+  await page.locator("#picker-export-json").click();
+  const fullPacket=JSON.parse(await readFile(await (await fullDownload).path(),"utf8"));
+  assert.equal(fullPacket.display_graph.components.length,7);
+  assert.equal(fullPacket.display_graph.kit_parent_variant_id,kitPacket.variant_id);
+  assert.equal(fullPacket.report.qualified_supplier_order_lines,0);
+  assert.equal(fullPacket.display_graph.completeness.physical_connections_qualified,0);
   let retail=await page.locator("#picker-retail-results").innerText();
   assertBrowser(retail.includes("Loaded Boards")&&retail.includes("Skates USA"),
    "105 mm setup must compare two merchants");
@@ -138,6 +151,36 @@ async function main(){
   assertBrowser(retail.includes("364.00"),"85 mm offer price not visible");
   assertBrowser(!retail.includes("424.00"),"85 mm selection leaked 105 mm retailer offer");
   note("Retail offers distinguish 85/105 mm named setups and disclaim checkout identity");
+  const visual85=await page.locator("#picker-visual-svg [data-exploded-part]")
+    .evaluateAll(els=>els.map(x=>x.getAttribute("data-exploded-part")));
+  assertBrowser(visual85.every(id=>id.includes("caguama85")),
+   "Old 105 mm kit child IDs leaked into new visual graph");
+  await page.locator("#picker-3d").click();
+  const canvas=page.locator("#picker-visual-3d canvas");
+  await canvas.waitFor({state:"visible",timeout:30000});
+  await page.waitForFunction(()=>{
+    const c=document.querySelector("#picker-visual-3d canvas");
+    return c?.dataset.scenePartCount==="7"&&Number(c.dataset.renderedFrames)>0;
+  },null,{timeout:30000});
+  assertBrowser(await canvas.evaluate(c=>!!(
+    c.getContext("webgl2")||c.getContext("webgl"))&&c.width>100&&c.height>100),
+    "No successful WebGL context with seven maker source-named children");
+  assertBrowser((await canvas.getAttribute("data-scene-part-ids")).includes("caguama85"),
+    "Canvas painted incorrect source kit");
+  await page.locator('#picker-camera-controls [data-camera="top"]').click();
+  assert.equal(await canvas.getAttribute("data-camera-preset"),"top");
+  await page.locator('#picker-part-tree [data-picker-part]').nth(3).click();
+  const chosenId=await page.locator('#picker-part-tree [data-picker-part]')
+   .nth(3).getAttribute("data-picker-part");
+  assert.equal(await canvas.getAttribute("data-selected-component-id"),chosenId);
+  await page.locator("#picker-explode").evaluate(el=>{
+    el.value="100";el.dispatchEvent(new Event("input",{bubbles:true}));
+  });
+  assertBrowser((await page.locator("#picker-explode-output").innerText()).includes("100"),
+    "Exploded slider failed to update real WebGL scene");
+  await screenshot(page,"longboard-kit-seven-part-live-webgl");
+  await page.locator("#picker-2d").click();
+  note("Seven child IDs render in actual local WebGL, camera and keyboard selection work");
   await page.locator("#picker-domain").selectOption("alpine_ski");
   await clickStudy(page,"ski-playful-short");
   const skiListings=await page.locator("#picker-retail-results").innerText();
@@ -231,6 +274,7 @@ async function main(){
   const fallbackContext=await browser.newContext({viewport:{width:1280,height:820}});
   const fallback=await fallbackContext.newPage();
   await fallback.route("https://esm.sh/**",route=>route.abort("failed"));
+  await fallback.route("**/node_modules/three/**",route=>route.abort("failed"));
   const fallbackErrors=await browserErrors(fallback,"WebGL dependency fallback");
   await initialized(fallback);
   await fallback.locator("#picker-3d").click();
@@ -240,7 +284,7 @@ async function main(){
    "3D failure did not explain SVG fallback");
   await screenshot(fallback,"cdn-unavailable-svg-fallback");
   fallbackErrors();await fallbackContext.close();
-  note("Unavailable 3D CDN falls back to source-linked 2D without breaking worklist");
+  note("Unavailable pinned-local and CDN Three.js both fall back to SVG without losing parts");
   await writeFile(path.join(artifacts,"browser-qa.json"),JSON.stringify({
    status:"PASS",checks,viewport_widths:[390,768,1280,1440],
    head_sha:process.env.PARTS_BROWSER_HEAD_SHA??null,
