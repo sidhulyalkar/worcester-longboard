@@ -130,10 +130,13 @@ def evaluate(
             and REQUIRED_BROWSER_WIDTHS.issubset(
                 set(browser_report.get("viewport_widths", []))
             )
+            and (head_sha is None or browser_report.get("head_sha") == head_sha)
             and all(
-                x.get("result") == "PASS"
+                isinstance(x, dict)
+                and isinstance(x.get("name"), str)
+                and len(x["name"]) >= 5
+                and x.get("result") == "PASS"
                 for x in browser_report["checks"]
-                if isinstance(x, dict)
             )
         )
         if browser_pass:
