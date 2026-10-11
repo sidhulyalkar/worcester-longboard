@@ -9,6 +9,9 @@ import {validateKitCadRecipe,compileCompleteKitCadDisplay} from "./complete_kit_
 import {renderCompleteKitCadSvg} from "./complete_kit_cad_svg.mjs";
 import {validateCadAssetRegistry,planCadAssetReadiness} from "./cad_asset_registry.mjs";
 import {inspectGlbBytes} from "./cad_glb_contract.mjs";
+import {validateCadDimensionalEvidence,planCadPublishedDimensions}
+ from "./cad_dimension_evidence.mjs";
+import {evaluateMetricFixture} from "./cad_metric_workbench.mjs";
 const $=selector=>document.querySelector(selector);
 const esc=x=>String(x??"").replaceAll("&","&amp;").replaceAll("<","&lt;")
  .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
@@ -19,7 +22,7 @@ const cleanUrl=value=>{
 const state={catalog:null,offerObservations:null,offerAudit:null,
  retailCatalog:null,studyCatalog:null,alternatives:null,kitClaims:null,kitAudit:null,visualGraph:null,
  cadRecipe:null,cadModel:null,cadRegistry:null,cadReadiness:null,
- cadInspector:null,inspectedKit:null,
+ cadInspector:null,inspectedKit:null,dimensionalEvidence:null,publishedCad:null,metricResult:null,
  domain:"skateboard_longboard",selections:{},study:null,
  mode:"2d",separation:0,selectedId:null,viewer:null,viewerPromise:null,
  search:""};
@@ -142,6 +145,20 @@ function redrawVisual(){
   catch(error){fallbackTo2D("3D study could not render this selection. SVG fallback remains available.");}
  }
 }
+function renderCadMakerDimensions(){
+ const report=state.publishedCad=planCadPublishedDimensions(
+  state.cadModel,state.dimensionalEvidence);
+ $("#picker-cad-maker-export").disabled=!state.cadModel;
+ $("#picker-cad-maker-dimensions").innerHTML=report.claims.map(c=>{
+  const url=cleanUrl(c.source_url);
+  return '<tr><td>'+esc(c.role.replaceAll("_"," "))+'</td><td>'+
+   esc(c.label.replaceAll("_"," "))+
+   '<small>'+esc(c.meaning.replaceAll("_"," "))+'</small></td><td>'+
+   esc(c.value_mm)+' mm</td><td>'+
+   (url?'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Maker original ↗</a>':"")+
+   '<small>'+esc(c.source_note)+'</small></td></tr>';
+ }).join("");
+}
 function renderCadAssetReadiness(){
  const report=state.cadReadiness=planCadAssetReadiness(state.cadModel,state.cadRegistry);
  $("#picker-cad-evidence-export").disabled=!state.cadModel;
@@ -174,6 +191,7 @@ function exportWorklist(format){
   JSON.stringify({report:state.study.report,source_bound_variants:state.study.selected_variants,
     display_graph:currentGraph(),
     parametric_cad_display:state.cadModel,
+    maker_published_dimensions_not_mount_datums:state.publishedCad,
     maker_unit_observations:state.offerAudit,
     complete_kit_claim_audit:state.kitAudit,
    visual_geometry:"UNSCALED_PROXY_NOT_MEASURED_CAD"},null,2)+"\n","application/json");
@@ -211,6 +229,13 @@ function renderCompleteKitClosure(){
   $("#picker-cad-upload").value="";
  }
  renderCadAssetReadiness();
+ renderCadMakerDimensions();
+ state.metricResult=null;
+ $("#picker-cad-metric-export").disabled=true;
+ $("#picker-cad-metric-upload").disabled=!state.cadModel;
+ $("#picker-cad-metric-results").replaceChildren();
+ $("#picker-cad-metric-status").textContent=
+  "No independent candidate survey loaded for this kit · 0 physical clearances verified.";
  const exportButton=$("#picker-export-kit");
  exportButton.disabled=result.rows.length===0;
  if(!result.rows.length){
@@ -547,6 +572,44 @@ function initEvents(){
  $("#picker-separate").addEventListener("click",()=>{
   state.separation=100;$("#picker-explode").value="100";redrawVisual();
  });
+ $("#picker-cad-maker-export").addEventListener("click",()=>{
+  if(state.publishedCad)download("worcester-maker-dimensions-"+state.domain+".json",
+   JSON.stringify(state.publishedCad,null,2)+"\n","application/json");
+ });
+ $("#picker-cad-metric-export").addEventListener("click",()=>{
+  if(state.metricResult)download("worcester-metric-candidate-"+state.domain+".json",
+   JSON.stringify(state.metricResult,null,2)+"\n","application/json");
+ });
+ $("#picker-cad-metric-upload").addEventListener("change",async event=>{
+  const file=event.target.files?.[0],status=$("#picker-cad-metric-status");
+  if(!file)return;
+  const kitId=state.cadModel?.kit_id,variant=state.cadModel?.selected_variant_id;
+  state.metricResult=null;
+  $("#picker-cad-metric-export").disabled=true;
+  $("#picker-cad-metric-results").replaceChildren();
+  try{
+   if(!kitId||file.size>65536||file.size<10)
+    throw Error("Choose a survey JSON under 64 KB with a complete kit selected");
+   const input=JSON.parse(await file.text());
+   const result=evaluateMetricFixture(input,{expected_variant_id:variant});
+   if(kitId!==state.cadModel?.kit_id)
+    throw Error("kit selection changed during calculation");
+   state.metricResult=result;
+   $("#picker-cad-metric-export").disabled=false;
+   status.textContent=String(result.candidate_pairs_checked)+" candidate pair(s)"+
+    " · "+result.possible_overlap_pairs+" potential AABB overlap(s)"+
+    " · 0 physical clearances verified, 0 engineering approvals";
+   $("#picker-cad-metric-results").innerHTML='<div class="table-scroll"><table class="cad-coverage-table">'+
+    '<thead><tr><th>Candidate pair</th><th>AABB broad-phase</th><th>Decision</th></tr></thead><tbody>'+
+    result.pairs.map(p=>'<tr><td>'+esc(p.a)+" / "+esc(p.b)+
+     '</td><td>'+esc(p.classification.replaceAll("_"," "))+
+     '</td><td>Physical clearance UNKNOWN</td></tr>').join("")+
+    '</tbody></table></div>';
+  }catch(error){
+   status.textContent="Metric survey held: "+error.message+
+    ". No changes to the assembled board or safety readiness.";
+  }finally{event.target.value="";}
+ });
  $("#picker-cad-evidence-export").addEventListener("click",()=>{
   if(state.cadModel)download("worcester-cad-evidence-"+state.domain+".json",
    JSON.stringify(state.cadReadiness,null,2)+"\n","application/json");
@@ -655,16 +718,17 @@ function initEvents(){
 }
 async function main(){
  try{
-  const [res,obsRes,retailRes,studyRes,kitRes,cadRes,assetsRes]=await Promise.all([
+  const [res,obsRes,retailRes,studyRes,kitRes,cadRes,assetsRes,dimsRes]=await Promise.all([
    fetch("../catalog/outdoor_parts_picker.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_supplier_observations.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_retail_comparisons.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_build_studies.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_complete_kit_claims.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_complete_kit_cad_recipes.v1.json",{cache:"no-store"}),
-   fetch("../catalog/outdoor_cad_asset_registry.v1.json",{cache:"no-store"})
+   fetch("../catalog/outdoor_cad_asset_registry.v1.json",{cache:"no-store"}),
+   fetch("../catalog/outdoor_cad_dimensional_evidence.v1.json",{cache:"no-store"})
   ]);
-  if(!res.ok||!obsRes.ok||!retailRes.ok||!studyRes.ok||!kitRes.ok||!cadRes.ok||!assetsRes.ok)
+  if(!res.ok||!obsRes.ok||!retailRes.ok||!studyRes.ok||!kitRes.ok||!cadRes.ok||!assetsRes.ok||!dimsRes.ok)
    throw Error("Cannot load all four source-bound parts, retailer and study registries");
   state.catalog=await res.json();
   state.offerObservations=await obsRes.json();
@@ -673,8 +737,10 @@ async function main(){
   state.kitClaims=await kitRes.json();
   state.cadRecipe=await cadRes.json();
   state.cadRegistry=await assetsRes.json();
+  state.dimensionalEvidence=await dimsRes.json();
   validateKitCadRecipe(state.cadRecipe);
   validateCadAssetRegistry(state.cadRegistry);
+  validateCadDimensionalEvidence(state.dimensionalEvidence);
   const coverage=validatePartsRegistry(state.catalog);
   validateSupplierObservations(state.offerObservations,state.catalog);
   validateRetailRegistry(state.retailCatalog,state.catalog);
