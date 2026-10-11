@@ -21,6 +21,7 @@ const bundle={
 };
 const recipes=read("catalog/outdoor_assembly_recipes.v1.json");
 const profile=read("configurator/examples/trail_rider_profile.json");
-const subjects=[...generateBoardDesignSpace(profile,bundle).candidates,...recipes.examples];
-const graphs=subjects.map(s=>buildAssemblyGraph(s,recipes,bundle.catalog,bundle.packageInclusions));
+const referenceStudies=read("catalog/board_sport_reference_studies.v1.json");
+const subjects=[...generateBoardDesignSpace(profile,bundle).candidates,...recipes.examples,...referenceStudies.studies];
+const graphs=subjects.map(s=>buildAssemblyGraph(s,recipes,bundle.catalog,bundle.packageInclusions,referenceStudies));
 console.log(JSON.stringify(graphs));
