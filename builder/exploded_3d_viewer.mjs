@@ -365,6 +365,9 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
       }
     }
     cadModel=nextCad;visualState=nextVisualState;
+    // The complete rolling-board studio uses a visual ground close to the
+    // nominal wheel silhouettes. This remains unmeasured, not ride height.
+    grid.position.z=nextCad?-0.37:-2.6;
     renderer.domElement.dataset.cadSchemaScope=nextCad?.scope??"NONE";
     renderer.domElement.dataset.kitVariantId=nextCad?.selected_variant_id??"";
     renderer.domElement.dataset.scenePartCount=String(nodes.size);
@@ -393,6 +396,8 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
     if(disposed)return;
     if(document.visibilityState==="hidden")return;
     orbit.update();renderer.render(scene,camera);
+    renderer.domElement.dataset.drawCalls=String(renderer.info.render.calls);
+    renderer.domElement.dataset.triangles=String(renderer.info.render.triangles);
     renderer.domElement.dataset.renderedFrames=String(
       Number(renderer.domElement.dataset.renderedFrames||0)+1);
     if(--settle>0)frame=requestAnimationFrame(render);
