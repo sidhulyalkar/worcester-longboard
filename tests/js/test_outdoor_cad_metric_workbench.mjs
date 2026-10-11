@@ -45,13 +45,18 @@ function fixture(variant,space=12){
   parts:[part("synthetic_deck"),part("synthetic_bracket",[space,0,0])]};
 }
 test("maker envelope, DIY stencil and wheel-size claims are traceable, NOT mating datums",()=>{
- assert.equal(validateCadDimensionalEvidence(registry).published_records,5);
+ assert.equal(validateCadDimensionalEvidence(registry).published_records,8);
  const large=planCadPublishedDimensions(cad("loaded-tangent-complete"),registry);
  const small=planCadPublishedDimensions(cad("loaded-tangent-caguama"),registry);
  assert.equal(large.scope,"PUBLISHED_DIMENSIONS_READ_ONLY_NOT_CAD");
- assert.equal(large.claims.length,12);
+ assert.equal(large.claims.length,17);
  assert.equal(large.claims.find(c=>c.label==="nominal_wheel_diameter").value_mm,105);
  assert.equal(small.claims.find(c=>c.label==="nominal_wheel_diameter").value_mm,85);
+ assert.equal(large.claims.find(c=>c.label==="axle_width").value_mm,215);
+ assert.equal(large.claims.find(c=>c.label==="wheel_width").value_mm,62);
+ assert.equal(small.claims.find(c=>c.label==="wheel_width").value_mm,58.5);
+ assert.ok(large.claims.filter(c=>c.meaning==="PUBLISHED_PRODUCT_DIMENSION_NOT_MATING_DATUM")
+  .every(c=>c.usable_as_mounting_datum===false));
  assert.equal(large.claims.find(c=>c.label==="template_across_holes").value_mm,41.275);
  assert.equal(large.claims.find(c=>c.label==="template_along_holes").value_mm,53.975);
  assert.equal(large.qualified_mates,0);
