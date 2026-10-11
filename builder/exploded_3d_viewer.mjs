@@ -100,6 +100,17 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
       if(role==="ski_pair"){
         board(group,mat,0.48*boardWidthScale,8.5*boardLengthScale,-0.47);
         board(group,mat,0.48*boardWidthScale,8.5*boardLengthScale,0.47);
+      }else if(role==="deck"&&domain==="skateboard_longboard"&&
+        [85,105].includes(variant?.visual_reference_claims?.wheel_diameter_mm)){
+        // A single visual-only complete-kit proxy. One selection, not an
+        // assertion that wheel hubs/trucks/brackets are measured or assembled.
+        const diameter=variant.visual_reference_claims.wheel_diameter_mm;
+        const scale=diameter/105;
+        board(group,mat,1.72,6.9);
+        for(const y of [-2.35,2.35]){
+          box(group,2.5,0.12,0.13,mat,0,y,-0.44);
+          for(const x of [-1.42,1.42])wheel(group,mat,x,y,0.51*scale);
+        }
       }else if(role==="splitboard"){
         board(group,mat,1,7.8,-0.55);board(group,mat,1,7.8,0.55);
       }else if(role==="surfboard")board(group,mat,2.35,8.2);
@@ -206,7 +217,8 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
     if(!Array.isArray(pickerVariants) ||
        pickerVariants.some(x=>!nextGraph.components.some(p=>p.component_id===x.variant_id)))
       throw Error("Picker visual variants must match current source-bound graph");
-    const key=JSON.stringify([proposed.reference_proportions,pickerVariants.map(x=>[x.variant_id,x.dimensions_mm])]);
+    const key=JSON.stringify([proposed.reference_proportions,
+      pickerVariants.map(x=>[x.variant_id,x.dimensions_mm,x.visual_reference_claims])]);
     if(graph!==nextGraph||key!==proportionsKey){
       clearParts();graph=nextGraph;proportionsKey=key;
       for(const part of nextGraph.components){
