@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "scope": "DIVERSE_THREE_WAY_EQUIPMENT_STUDIES_NOT_RECOMMENDATIONS",
+  "reviewed_on": "2026-10-10",
+  "studies": [
+    {
+      "id": "ski-playful-short",
+      "domain_id": "alpine_ski",
+      "title": "Playful short ski",
+      "design_intent": "Shorter 90 mm waist resort/freestyle reference",
+      "selections": {
+        "ski_pair": "atomic-bent90-157-cm",
+        "ski_binding": "tyrolia-gw-ref-Unspecified model / brake",
+        "ski_boot": "salomon-alpha130-Size to be fitted"
+      },
+      "notes": [
+        "Boot model/fitted size and BSL unknown",
+        "Binding brand/family is illustrative; exact model, brake and professional mount required"
+      ],
+      "authority": "UNQUALIFIED_VISUAL_AND_SOURCING_STUDY"
+    },
+    {
+      "id": "ski-balanced-94",
+      "domain_id": "alpine_ski",
+      "title": "All-mountain 94",
+      "design_intent": "Wider 94 mm Salomon QST study for varied snow",
+      "selections": {
+        "ski_pair": "salomon-qst94-164-cm",
+        "ski_binding": "tyrolia-mn-ref-Unspecified model / brake",
+        "ski_boot": "salomon-alpha100-Size and sole unknown"
+      },
+      "notes": [
+        "Ski is sold without bindings",
+        "Boot sole norm is unspecified, so manufacturer-family pairing cannot establish fit"
+      ],
+      "authority": "UNQUALIFIED_VISUAL_AND_SOURCING_STUDY"
+    },
+    {
+      "id": "ski-longer-94",
+      "domain_id": "alpine_ski",
+      "title": "Longer QST 94",
+      "design_intent": "Longer reference length, same 94 mm waist family",
+      "selections": {
+        "ski_pair": "salomon-qst94-180-cm",
+        "ski_binding": "tyrolia-gw-ref-Unspecified model / brake",
+        "ski_boot": "salomon-alpha130-Size to be fitted"
+      },
+      "notes": [
+        "Length selection is a research choice, not user weight/ability prescription",
+        "Release settings and drilling always professional"
+      ],
+      "authority": "UNQUALIFIED_VISUAL_AND_SOURCING_STUDY"
+    },
+    {
+      "id": "snow-compact-step",
+      "domain_id": "snowboard",
+      "title": "Compact Step On",
+      "design_intent": "145 cm Channel board with Step On retention family",
+      "selections": {
+        "snowboard": "burton-goodcompany-145-cm",
+        "snow_binding": "burton-stepon-S",
+        "snow_boot": "burton-stepon-boot-ref-Unselected men's model and Mondo",
+        "snow_hardware": "burton-channel-hardware-Revision-specific bolts/disc unknown"
+      },
+      "notes": [
+        "Binding label is a research size band, not guaranteed foot fit",
+        "Mounting discs, matching boot series and hardware must be confirmed"
+      ],
+      "authority": "UNQUALIFIED_VISUAL_AND_SOURCING_STUDY"
+    },
+    {
+      "id": "snow-classic-straps",
+      "domain_id": "snowboard",
+      "title": "Classic strap freestyle",
+      "design_intent": "152 cm Channel board with a conventional strap-binding family",
+      "selections": {
+        "snowboard": "burton-goodcompany-152-cm",
+        "snow_binding": "burton-mission-Size not selected",
+        "snow_boot": "burton-strap-boot-ref-Unselected model and size",
+        "snow_hardware": "burton-channel-hardware-Revision-specific bolts/disc unknown"
+      },
+      "notes": [
+        "Binding size and boot make/model remain unknown",
+        "Mounting interface still requires exact disc and fasteners"
+      ],
+      "authority": "UNQUALIFIED_VISUAL_AND_SOURCING_STUDY"
+    },
+    {
+      "id": "snow-larger-step",
+      "domain_id": "snowboard",
+      "title": "Longer Step On",
+      "design_intent": "155 cm board with large-size Step On research",
+      "selections": {
+        "snowboard": "burton-goodcompany-155-cm",
+        "snow_binding": "burton-stepon-L",
+        "snow_boot": "burton-stepon-boot-ref-Unselected men's model and Mondo",
+        "snow_hardware": "burton-channel-hardware-Revision-specific bolts/disc unknown"
+      },
+      "notes": [
+        "Longer board/waist reference only",
+        "Must independently fit both boots, binding size and rider stance"
+      ],
+      "authority": "UNQUALIFIED_VISUAL_AND_SOURCING_STUDY"
+    },
+    {
+      "id": "long-rollover",
+      "domain_id": "skateboard_longboard",
+      "title": "Maximum rollover",
+      "design_intent": "Loaded Tangent full setup with 105 mm Dad Bod wheels",
+      "selections": {
+        "long_complete": "loaded-tangent-complete-105 mm Dad Bod 77a"
+      },
+      "notes": [
+        "Larger wheel increases published rough-ground rollover capability",
+        "Not a downhill, gravel-trail or electric approval"
+      ],
+      "authority": "UNQUALIFIED_VISUAL_AND_SOURCING_STUDY"
+    },
+    {
+      "id": "long-nimble",
+      "domain_id": "skateboard_longboard",
+      "title": "Lower and nimble",
+      "design_intent": "Loaded Tangent Caguama 85 mm complete for agility",
+      "selections": {
+        "long_complete": "loaded-tangent-caguama-85 mm Caguama 80a"
+      },
+      "notes": [
+        "Same platform family, different wheel diameter and lower ride",
+        "Exact retailer setup and shipped contents require verification"
+      ],
+      "authority": "UNQUALIFIED_VISUAL_AND_SOURCING_STUDY"
+    },
+    {
+      "id": "long-modular",
+      "domain_id": "skateboard_longboard",
+      "title": "Modular bracket build",
+      "design_intent": "Deck and separate trucks/wheels as an incomplete custom package",
+      "selections": {
+        "long_deck": "loaded-tangent-deck-Deck + Zee brackets",
+        "long_trucks": "loaded-tangent-trucks-ref-150mm reference",
+        "long_wheels": "loaded-dadbod-ref-105 mm 77a"
+      },
+      "notes": [
+        "Bearings, mounting hardware, bushings, rider-specific fasteners unresolved",
+        "No implied compatibility from inclusion in another complete kit"
+      ],
+      "authority": "UNQUALIFIED_VISUAL_AND_SOURCING_STUDY"
+    },
+    {
+      "id": "mt-stable-standard",
+      "domain_id": "mountainboard",
+      "title": "Traditional all-terrain",
+      "design_intent": "Comp 95 and Matrix III 400 mm with F5 bindings",
+      "selections": {
+        "mt_deck": "mbs-comp95-silver-hex-95",
+        "mt_trucks": "mbs-matrix3-12300-black-400",
+        "mt_wheels": "mbs-rockstar-8-inch tire with hub selection unknown",
+        "mt_bindings": "mbs-f5-14051-pair"
+      },
+      "notes": [
+        "Documented maker codes for some parts, other tire/hub details unresolved",
+        "Brake and speed controls unresolved"
+      ],
+      "authority": "UNQUALIFIED_VISUAL_AND_SOURCING_STUDY"
+    },
+    {
+      "id": "mt-wide-cnc",
+      "domain_id": "mountainboard",
+      "title": "Wide CNC platform",
+      "design_intent": "Comp 95 paired with wide CNC 420 mm truck family",
+      "selections": {
+        "mt_deck": "mbs-comp95-silver-hex-95",
+        "mt_trucks": "mbs-cnc420-12307",
+        "mt_wheels": "mbs-rockstar-8-inch tire with hub selection unknown",
+        "mt_bindings": "mbs-f5-14051-pair"
+      },
+      "notes": [
+        "CNC 420 cannot pair with MBS Brake Systems",
+        "Mechanical/electrical propulsion and braking not qualified"
+      ],
+      "authority": "UNQUALIFIED_VISUAL_AND_SOURCING_STUDY"
+    },
+    {
+      "id": "mt-400-brake-study",
+      "domain_id": "mountainboard",
+      "title": "400 mm brake hypothesis",
+      "design_intent": "Comp 95 / Matrix III 400 with tentative MBS brake family",
+      "selections": {
+        "mt_deck": "mbs-comp95-silver-hex-95",
+        "mt_trucks": "mbs-matrix3-12300-black-400",
+        "mt_wheels": "mbs-rockstar-8-inch tire with hub selection unknown",
+        "mt_bindings": "mbs-f5-14051-pair",
+        "mt_brake": "mbs-brake-Hardware and rotor revision unknown"
+      },
+      "notes": [
+        "Generic brake catalog entry does not establish exact hub/axle/rotor compatibility",
+        "Braking system remains a physical review hold"
+      ],
+      "authority": "UNQUALIFIED_VISUAL_AND_SOURCING_STUDY"
+    }
+  ],
+  "constraints": {
+    "no_physical_fit_approvals": true,
+    "no_cart_generation": true,
+    "no_binding_release_settings": true,
+    "no_inferred_missing_parts": true,
+    "each_domain_requires_three_distinct_selections": true
+  },
+  "authority": {
+    "procurement_authorized": false,
+    "fabrication_authorized": false,
+    "charging_authorized": false,
+    "powered_operation_authorized": false,
+    "generic_builder_may_promote_x1_authority": false
+  }
+}
