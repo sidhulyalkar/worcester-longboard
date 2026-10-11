@@ -108,6 +108,7 @@ def test_promoted_source_authority_or_missing_sports_fail_closed(tmp_path):
         "outdoor_retail_comparisons.v1.json",
         "outdoor_build_studies.v1.json",
         "outdoor_complete_kit_claims.v1.json",
+        "outdoor_complete_kit_cad_recipes.v1.json",
     ):
         target = tmp_path / "catalog" / source
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -123,3 +124,29 @@ def test_promoted_source_authority_or_missing_sports_fail_closed(tmp_path):
     result = evaluate(tmp_path)
     assert not result["structural_pass"]
     assert not result["candidate_merge_ready"]
+
+
+def test_unqualified_parametric_cad_recipe_cannot_claim_physical_clearance(tmp_path):
+    for source in (
+        "outdoor_parts_picker.v1.json",
+        "outdoor_supplier_observations.v1.json",
+        "outdoor_retail_comparisons.v1.json",
+        "outdoor_build_studies.v1.json",
+        "outdoor_complete_kit_claims.v1.json",
+        "outdoor_complete_kit_cad_recipes.v1.json",
+    ):
+        dest = tmp_path / "catalog" / source
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(ROOT / "catalog" / source, dest)
+    (tmp_path / "builder").mkdir()
+    (tmp_path / "builder" / "parts.html").write_text("preview")
+    (tmp_path / "tests/browser").mkdir(parents=True)
+    (tmp_path / "tests/browser/parts_picker_smoke.mjs").write_text("test")
+    recipe_path = tmp_path / "catalog/outdoor_complete_kit_cad_recipes.v1.json"
+    recipe = json.loads(recipe_path.read_text())
+    recipe["dimensional_evidence_policy"]["physical_clearances_verified"] = True
+    recipe_path.write_text(json.dumps(recipe))
+    result = evaluate(tmp_path)
+    assert not result["structural_pass"]
+    assert not result["candidate_merge_ready"]
+    assert any("parametric CAD" in e for e in result["issues"])
