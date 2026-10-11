@@ -5,6 +5,8 @@ import {validateRetailRegistry,validateBuildStudies,compareRetailOffers,
  researchRelatedSellerListings,composeResearchAlternatives} from "./retail_build_comparison.mjs";
 import {validateMakerKitClaims,auditCompleteKitClaim} from "./complete_kit_closure.mjs";
 import {buildCompleteKitVisualGraph} from "./complete_kit_visual_graph.mjs";
+import {validateKitCadRecipe,compileCompleteKitCadDisplay} from "./complete_kit_cad_schema.mjs";
+import {renderCompleteKitCadSvg} from "./complete_kit_cad_svg.mjs";
 const $=selector=>document.querySelector(selector);
 const esc=x=>String(x??"").replaceAll("&","&amp;").replaceAll("<","&lt;")
  .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
@@ -14,6 +16,7 @@ const cleanUrl=value=>{
 };
 const state={catalog:null,offerObservations:null,offerAudit:null,
  retailCatalog:null,studyCatalog:null,alternatives:null,kitClaims:null,kitAudit:null,visualGraph:null,
+ cadRecipe:null,cadModel:null,
  domain:"alpine_ski",selections:{},study:null,
  mode:"2d",separation:72,selectedId:null,viewer:null,viewerPromise:null,
  search:""};
@@ -106,18 +109,33 @@ function redrawVisual(){
  const graph=currentGraph();
  if(!graph)return;
  const kit=graph.kit_parent_variant_id!==undefined;
- $("#picker-rendered-scene-status").textContent=kit?
-  graph.components.length+" distinct maker-advertised kit component categories · "+
-  "0 received/verified pieces · unmeasured 2D/3D visual proxies · one parent package":
+ $("#picker-rendered-scene-status").textContent=kit&&state.cadModel?
+  "Integrated parametric board · "+graph.components.length+
+  " source-named categories · maker board "+
+  state.cadModel.published_dimensions_mm.complete_length+" × "+
+  state.cadModel.published_dimensions_mm.complete_width+" mm, wheels "+
+  state.cadModel.published_dimensions_mm.wheel_diameter+
+  " mm · 0 measured mounts or received pieces":
   graph.components.length+" source-family component reference(s) · unmeasured visual proxies";
+ $("#picker-cad-export").disabled=!state.cadModel;
+ $("#picker-cad-status").textContent=state.cadModel?
+  "Schema: "+state.cadModel.recipe_id+" · "+
+  (state.separation===0?"integrated assembled view":"exploded view")+
+  " · normalized schematic poses only. Not manufacturer CAD.":
+  "No source-matched parametric complete-board model for this selection.";
+ $("#picker-assemble").setAttribute("aria-pressed",String(state.separation===0));
+ $("#picker-separate").setAttribute("aria-pressed",String(state.separation===100));
  const host=$("#picker-visual-svg");
- host.innerHTML=renderExplodedAssemblySvg(graph,{explode:state.separation,
-  selectedId:state.selectedId});
+ host.innerHTML=state.cadModel?
+  renderCompleteKitCadSvg(state.cadModel,{explode:state.separation,
+   selectedId:state.selectedId}):
+  renderExplodedAssemblySvg(graph,{explode:state.separation,
+   selectedId:state.selectedId});
  host.querySelectorAll("[data-exploded-part]").forEach(part=>
   part.addEventListener("click",()=>selectPart(part.getAttribute("data-exploded-part"))));
  $("#picker-explode-output").textContent=state.separation+"%";
  if(state.mode==="3d"&&state.viewer){
-  try{state.viewer.update(graph,state.separation,state.selectedId,null,state.study.selected_variants);}
+  try{state.viewer.update(graph,state.separation,state.selectedId,null,state.study.selected_variants,state.cadModel);}
   catch(error){fallbackTo2D("3D study could not render this selection. SVG fallback remains available.");}
  }
 }
@@ -136,6 +154,7 @@ function exportWorklist(format){
  if(format==="json")return download("worcester-parts-research-"+state.domain+".json",
   JSON.stringify({report:state.study.report,source_bound_variants:state.study.selected_variants,
     display_graph:currentGraph(),
+    parametric_cad_display:state.cadModel,
     maker_unit_observations:state.offerAudit,
     complete_kit_claim_audit:state.kitAudit,
    visual_geometry:"UNSCALED_PROXY_NOT_MEASURED_CAD"},null,2)+"\n","application/json");
@@ -161,6 +180,8 @@ function renderCompleteKitClosure(){
    state.retailCatalog,{as_of:asOf});
  state.kitAudit=result;
  state.visualGraph=buildCompleteKitVisualGraph(state.study,result);
+ state.cadModel=compileCompleteKitCadDisplay(
+  state.study,result,state.kitClaims,state.cadRecipe);
  const exportButton=$("#picker-export-kit");
  exportButton.disabled=result.rows.length===0;
  if(!result.rows.length){
@@ -188,7 +209,7 @@ function renderCompleteKitClosure(){
  }).join("");
  unknowns.innerHTML='<h3>Receiving and assembly unknowns</h3><ul>'+
    result.known_unknowns.map(s=>'<li>'+esc(s)+'</li>').join("")+'</ul>'+
-   '<p>Each manufacturer-advertised component category now has its own selectable, explodable 2D/3D visual proxy. No shape, position, mate or fastener pattern is measured CAD. All seven stable child IDs are included in the review JSON export.</p>';
+   '<p>The assembled and exploded board are generated from one compact parametric display schema. Deck and wheel size references are published; every mount offset, axle spacing, clearance and fastener location is illustrative, not measured manufacturer CAD. Source-linked child IDs are preserved.</p>';
 }
 function renderOrder(){
  const report=state.study.report;
@@ -444,6 +465,7 @@ function loadDemo(){
   state.selections.snow_boot=get("snow_boot","burton-stepon-boot-ref");
  }else if(state.domain==="skateboard_longboard"){
   state.selections.long_complete=get("long_complete","loaded-tangent-complete");
+  state.separation=0;$("#picker-explode").value="0";
  }else{
   state.selections.mt_deck=get("mt_deck","mbs-comp95");
   state.selections.mt_trucks=get("mt_trucks","mbs-matrix3");
@@ -462,6 +484,9 @@ function initEvents(){
   if(!slot)return;
   const value=e.target.value;
   if(value)state.selections[slot]=value;else delete state.selections[slot];
+  if(state.domain==="skateboard_longboard"&&slot==="long_complete"&&value){
+   state.separation=0;$("#picker-explode").value="0";
+  }
   if(state.domain==="skateboard_longboard"&&value){
    if(slot==="long_complete")for(const key of ["long_deck","long_trucks","long_wheels","long_hardware"])delete state.selections[key];
    else delete state.selections.long_complete;
@@ -478,12 +503,25 @@ function initEvents(){
    x.domain_id===state.domain);
   if(!entry)return;
   state.selections={...entry.selections};
+  if(state.domain==="skateboard_longboard"&&state.selections.long_complete){
+   state.separation=0;$("#picker-explode").value="0";
+  }
   state.selectedId=null;
   state.search="";
   $("#picker-search").value="";
   refresh();
  });
  $("#picker-explode").addEventListener("input",e=>{state.separation=Number(e.target.value);redrawVisual();});
+ $("#picker-assemble").addEventListener("click",()=>{
+  state.separation=0;$("#picker-explode").value="0";redrawVisual();
+ });
+ $("#picker-separate").addEventListener("click",()=>{
+  state.separation=100;$("#picker-explode").value="100";redrawVisual();
+ });
+ $("#picker-cad-export").addEventListener("click",()=>{
+  if(state.cadModel)download("worcester-parametric-cad-research-"+state.domain+".json",
+   JSON.stringify(state.cadModel,null,2)+"\n","application/json");
+ });
  $("#picker-3d").addEventListener("click",use3D);
  $("#picker-2d").addEventListener("click",()=>{fallbackTo2D();redrawVisual();});
  $("#picker-camera-controls").addEventListener("click",e=>{
@@ -516,20 +554,23 @@ function initEvents(){
 }
 async function main(){
  try{
-  const [res,obsRes,retailRes,studyRes,kitRes]=await Promise.all([
+  const [res,obsRes,retailRes,studyRes,kitRes,cadRes]=await Promise.all([
    fetch("../catalog/outdoor_parts_picker.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_supplier_observations.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_retail_comparisons.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_build_studies.v1.json",{cache:"no-store"}),
-   fetch("../catalog/outdoor_complete_kit_claims.v1.json",{cache:"no-store"})
+   fetch("../catalog/outdoor_complete_kit_claims.v1.json",{cache:"no-store"}),
+   fetch("../catalog/outdoor_complete_kit_cad_recipes.v1.json",{cache:"no-store"})
   ]);
-  if(!res.ok||!obsRes.ok||!retailRes.ok||!studyRes.ok||!kitRes.ok)
+  if(!res.ok||!obsRes.ok||!retailRes.ok||!studyRes.ok||!kitRes.ok||!cadRes.ok)
    throw Error("Cannot load all four source-bound parts, retailer and study registries");
   state.catalog=await res.json();
   state.offerObservations=await obsRes.json();
   state.retailCatalog=await retailRes.json();
   state.studyCatalog=await studyRes.json();
   state.kitClaims=await kitRes.json();
+  state.cadRecipe=await cadRes.json();
+  validateKitCadRecipe(state.cadRecipe);
   const coverage=validatePartsRegistry(state.catalog);
   validateSupplierObservations(state.offerObservations,state.catalog);
   validateRetailRegistry(state.retailCatalog,state.catalog);
