@@ -6,6 +6,7 @@ import {fileURLToPath} from "node:url";
 import {validateCadAssetRegistry,planCadAssetReadiness}
  from "../../builder/cad_asset_registry.mjs";
 import {inspectGlbBytes} from "../../builder/cad_glb_contract.mjs";
+import {validateCadConversionReceipt} from "../../builder/cad_conversion_receipt.mjs";
 import {compileCompleteKitCadDisplay} from "../../builder/complete_kit_cad_schema.mjs";
 import {buildPickerStudy} from "../../builder/parts_picker_engine.mjs";
 import {auditCompleteKitClaim} from "../../builder/complete_kit_closure.mjs";
@@ -121,4 +122,39 @@ test("GLB preflight recognizes self-contained mesh but never assumes millimeters
  assert.throws(()=>inspectGlbBytes(extra),/external or data URI/);
  const corrupt=Buffer.from(bytes);corrupt.writeUInt32LE(900,8);
  assert.throws(()=>inspectGlbBytes(corrupt),/header/);
+});
+
+test("conversion receipts require metric scale, consistent bounds, hashes and no engineering release",()=>{
+ const receipt={
+  schema_version:1,scope:"STEP_TO_GLTF_CONVERSION_RECEIPT_NOT_MEASURED_FIT",
+  source_step_sha256:"c".repeat(64),output_glb_sha256:"d".repeat(64),
+  source_cad_units:"mm",gltf_scene_units:"m",mm_to_gltf_m_scale:0.001,
+  source_step_bytes:1024,output_glb_bytes:2048,
+  source_bounds_mm:[[0,0,0],[40,20,12]],source_extents_mm:[40,20,12],
+  gltf_sorted_extents_m:[0.012,0.02,0.04],
+  max_sorted_extent_error_mm:0.001,
+  tessellation_tolerance_mm:0.2,angular_tolerance_rad:0.15,
+  geometry_revision_confirmed:false,mounting_datums_verified:false,
+  physical_clearance_qualified:false,procurement_authorized:false,
+  fabrication_authorized:false
+ };
+ const ok=validateCadConversionReceipt(receipt,{
+  output_sha256:"d".repeat(64),output_bytes:2048});
+ assert.equal(ok.scale_m_per_source_mm,0.001);
+ assert.equal(ok.manufacturer_authenticity_qualified,false);
+ const bads=[
+  r=>r.output_glb_sha256="f".repeat(64),
+  r=>r.gltf_scene_units="mm",
+  r=>r.mm_to_gltf_m_scale=1,
+  r=>r.source_extents_mm=[40,18,12],
+  r=>r.gltf_sorted_extents_m=[0.012,0.02,0.4],
+  r=>r.fabrication_authorized=true,
+  r=>r.mounting_datums_verified=true,
+  r=>r.max_sorted_extent_error_mm=10
+ ];
+ for(const fn of bads){
+  const r=structuredClone(receipt);fn(r);
+  assert.throws(()=>validateCadConversionReceipt(r,{
+   output_sha256:"d".repeat(64),output_bytes:2048}),/CAD conversion receipt:/);
+ }
 });
