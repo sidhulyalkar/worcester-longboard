@@ -51,6 +51,7 @@ The phases are parallel: universal source/variant infrastructure underneath, spe
 | Domain | Critical catalog slots | Interfaces and non-automatic checks |
 |---|---|---|
 | Mountainboards and electric boards | Deck/donor, truck, hub/wheel, brake, drive, battery | Mounting pattern, axle stack, combined brake/drive sweep, electrical protection and real braking |
+| Skateboards and longboards | Deck, trucks, wheelset, bearing/riser hardware, optional electric system | Baseplate pattern, axle/bearing fit, wheelbite clearance and optional electrical safety |
 | Snowboards | Board, left/right boot fit, bindings, mounting disc/kit | Burton 2x4, 4x4, legacy 3D and Channel mount families; discs/screws/adapters; binding size and boot fit |
 | Alpine skis | Ski pair, boots, bindings, brakes | Boot-sole norm, binding acceptance, sole length, mounting zone and brake width; professional release and mounting tests |
 | Touring skis | Ski, boots, touring bindings, skins, crampons | Tech insert system, touring/downhill modes, boot norm, climbing attachment and separate release qualification |
@@ -100,8 +101,8 @@ Avoid one global “best” score. Carve or powered range are not comparable to 
 
 The file at catalog/outdoor_equipment_domains.v0.json is the first implementation slice, with:
 
-- 8 bounded equipment domains and their required and optional roles.
-- 15 typed, intentionally conservative interfaces.
+- 9 bounded equipment domains and their required and optional roles.
+- 17 typed, intentionally conservative interfaces.
 - Per-domain inputs, proposed viewer adapters, and qualification policies.
 - A read-only role mapping for every existing v1 component category.
 - No new sellable products, manufacturer SKUs, live prices, fit determinations or released authority.
