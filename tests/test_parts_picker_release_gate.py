@@ -6,7 +6,7 @@ import shutil
 from pathlib import Path
 
 from tools.check_parts_picker_release import (
-    ROOT, REQUIRED_REVIEW_CHECKS, evaluate
+    ROOT, REQUIRED_REVIEW_CHECKS, REQUIRED_BROWSER_CHECK_NAMES, evaluate
 )
 
 
@@ -15,7 +15,11 @@ def browser_pass(sha=None):
         "status": "PASS",
         "head_sha": sha,
         "checks": [
-            {"name": f"scenario {i}", "result": "PASS"} for i in range(8)
+            {"name": name, "result": "PASS"}
+            for name in sorted(REQUIRED_BROWSER_CHECK_NAMES)
+        ] + [
+            {"name": f"additional scenario {i}", "result": "PASS"}
+            for i in range(4)
         ],
         "viewport_widths": [390, 768, 1280, 1440],
     }
@@ -78,6 +82,15 @@ def test_incomplete_or_stale_manual_review_never_authorizes_merge():
     assert not result["candidate_merge_ready"]
 
     result = evaluate(ROOT, browser_report=browser_pass("c" * 40),
+                      manual_review=signoff(sha), head_sha=sha)
+    assert not result["candidate_merge_ready"]
+
+    bad_browser = browser_pass(sha)
+    bad_browser["checks"] = [
+        x for x in bad_browser["checks"]
+        if "actual local WebGL" not in x["name"]
+    ]
+    result = evaluate(ROOT, browser_report=bad_browser,
                       manual_review=signoff(sha), head_sha=sha)
     assert not result["candidate_merge_ready"]
 
