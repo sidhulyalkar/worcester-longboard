@@ -132,13 +132,11 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
               [x+side,y,0.03],[0,Math.PI/2,0]);
       }else if(role==="kit_child_deck_hardware"||
                role==="kit_child_truck_hardware"){
-        const span=role==="kit_child_deck_hardware"?0.42:0.53;
-        const length=role==="kit_child_deck_hardware"?0.48:0.38;
-        for(const y of [-2.17,2.17])for(const x of [-span,span]){
-          box(group,0.075,0.075,length,mat,x,y,-0.05);
-          add(group,new THREE.CylinderGeometry(0.12,0.12,0.07,12),
-            mat,[x,y,length/2]);
-        }
+        // ONE icon for a hardware *category*. Actual screw count is unknown.
+        // Multiple screw icons would visually invent a counted BOM.
+        box(group,0.075,0.075,0.46,mat,0,0,-0.05);
+        add(group,new THREE.CylinderGeometry(0.12,0.12,0.07,12),
+          mat,[0,0,0.2]);
       }
     }else if(part.group_id==="platform") {
       if(role==="ski_pair"){
