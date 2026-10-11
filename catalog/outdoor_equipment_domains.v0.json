@@ -303,7 +303,9 @@
         "battery",
         "charger",
         "protection",
-        "maintenance_tool"
+        "maintenance_tool",
+        "bracket_set",
+        "mounting_hardware"
       ],
       "interface_type_ids": [
         "skateboard_deck_to_truck",
