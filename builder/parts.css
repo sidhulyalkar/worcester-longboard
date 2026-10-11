@@ -123,3 +123,16 @@ main{max-width:1480px;padding:21px 25px 45px;margin:auto}.intro{display:grid;gri
 .cad-status{margin:6px 0 14px;font-size:11px;color:#b4d5dd;line-height:1.55}
 @media print{.cad-assembly-actions{display:none!important}
  .cad-status{color:#111!important}}
+
+
+/* Unqualified CAD inspector is opt-in and separate from the integrated board. */
+.cad-import-lab{border:1px solid #496574;border-radius:10px;background:#10252e;padding:12px;margin:6px 0 14px}
+.cad-import-lab summary{font-weight:700;font-size:12px;cursor:pointer}
+.cad-import-lab>p{color:var(--muted);font-size:11px;line-height:1.55}
+.cad-coverage-table{width:100%;min-width:470px;border-collapse:collapse;font-size:11px}
+.cad-coverage-table td,.cad-coverage-table th{padding:8px;border-bottom:1px solid #34505b;text-align:left}
+.cad-import-lab button{margin:10px 0;font-size:11px}
+.cad-inspect-label{display:block;font-size:12px;margin:12px 0 7px}
+.cad-file-inspector{height:300px;background:#0e1b25;border:1px solid #426275;border-radius:10px;overflow:hidden}
+.cad-file-inspector canvas{display:block;width:100%;height:100%}
+@media print{.cad-import-lab{display:none!important}}
