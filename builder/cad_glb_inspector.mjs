@@ -29,15 +29,17 @@ export async function createLocalCadInspector(host){
  const controls=new controlsMod.OrbitControls(camera,renderer.domElement);
  controls.enableDamping=true;controls.enablePan=true;
  const loader=new loaderMod.GLTFLoader();
- let model=null,frame=null,disposed=false,generation=0;
+ let model=null,frame=null,disposed=false,generation=0,settle=0;
  const schedule=()=>{
-  if(disposed||frame!==null)return;
-  frame=requestAnimationFrame(render);
+  if(disposed)return;
+  settle=18;
+  if(frame===null)frame=requestAnimationFrame(render);
  };
+ controls.addEventListener("change",schedule);
  function render(){
   frame=null;if(disposed||document.visibilityState==="hidden")return;
   controls.update();renderer.render(scene,camera);
-  if(controls.enableDamping)frame=requestAnimationFrame(render);
+  if(--settle>0&&frame===null)frame=requestAnimationFrame(render);
  }
  const resize=()=>{
   if(disposed)return;
