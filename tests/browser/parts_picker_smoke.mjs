@@ -135,12 +135,12 @@ async function main(){
   assert.equal(readiness.verified_mount_datums,0);
   assert.equal(readiness.clearance_status,"NOT_EVALUATED");
   assert.equal(readiness.additional_purchase_lines,0);
-  assert.equal(await page.locator("#picker-cad-maker-dimensions tr").count(),12);
+  assert.equal(await page.locator("#picker-cad-maker-dimensions tr").count(),17);
   await page.locator("#picker-cad-import-lab .cad-maker-evidence > summary").click();
   const makerDownload=page.waitForEvent("download");
   await page.locator("#picker-cad-maker-export").click();
   const makerReport=JSON.parse(await readFile(await (await makerDownload).path(),"utf8"));
-  assert.equal(makerReport.claims.length,12);
+  assert.equal(makerReport.claims.length,17);
   assert.equal(makerReport.claims.find(c=>c.label==="nominal_wheel_diameter").value_mm,105);
   assert.equal(makerReport.claims.find(c=>c.label==="template_along_holes").value_mm,53.975);
   assert.ok(makerReport.claims.every(c=>!c.usable_as_mounting_datum));
