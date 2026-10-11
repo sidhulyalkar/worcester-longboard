@@ -1,3 +1,5 @@
+> **Supplier/kit evidence correction (October 11, 2026):** Original maker pages for Loaded Tangent complete 85/105 variants advertise Paris V3 150 mm trucks, while the Skates USA seller page advertises Paris V2. These are **not currently a qualified identical hardware comparison**, even though the named wheel packages and listed prices match. The research UI now presents `INCLUSION_REVISION_CONFLICT_HOLD` and no comparable price gap. The separate `catalog/outdoor_complete_kit_claims.v1.json` records seven advertised, unreceived child categories per complete board. See [Loaded kit pilot](loaded_tangent_complete_kit_pilot_v1.md). Exact seller product revision/received counts remain blocked.
+
 # Worcester Parts Picker release candidate v1.4
 
 **Status: research-only release candidate. Do not merge, order, fabricate, perform electrical commissioning, or use as ski-binding installation instructions merely because CI is green.**
