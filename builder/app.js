@@ -1262,6 +1262,9 @@ function redrawExplodedAssembly(){
  $("#exploded-tree").querySelectorAll("[data-exploded-item]").forEach(button=>{
    button.setAttribute("aria-pressed",String(button.getAttribute("data-exploded-item")===selected.component_id));
  });
+ $("#exploded-tree").querySelectorAll("[data-exploded-group]").forEach(details=>{
+   if(details.dataset.explodedGroup===selected.group_id)details.open=true;
+ });
  const source=safeExplodedLink(selected.source_url);
  const donor=(graph.package_inclusion_hypotheses||[])
    .find(x=>x.container_component_id===selected.component_id);
@@ -1305,7 +1308,7 @@ function renderExplodedView(candidate){
  $("#exploded-tree").innerHTML=graph.groups.map(group=>{
    const nodes=graph.components.filter(x=>x.group_id===group.id);
    const open=nodes.some(x=>x.component_id===state.explodedSelectedPart);
-   return '<details'+(open?' open':'')+'><summary>'+
+   return '<details data-exploded-group="'+escapeHtml(group.id)+'"'+(open?' open':'')+'><summary>'+
      escapeHtml(group.label)+' <small>'+nodes.length+' reference'+(nodes.length===1?'':'s')+'</small></summary>'+
      '<div>'+nodes.map(node=>'<button class="exploded-part-btn" type="button" data-exploded-item="'+
        escapeHtml(node.component_id)+'" aria-pressed="'+(node.component_id===state.explodedSelectedPart?'true':'false')+'">'+
