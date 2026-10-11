@@ -2,7 +2,7 @@ import {validatePartsRegistry,buildPickerStudy} from "./parts_picker_engine.mjs"
 import {renderExplodedAssemblySvg} from "./exploded_renderer.mjs";
 import {validateSupplierObservations,auditMakerOrderUnits} from "./offer_qualification.mjs";
 import {validateRetailRegistry,validateBuildStudies,compareRetailOffers,
- composeResearchAlternatives} from "./retail_build_comparison.mjs";
+ researchRelatedSellerListings,composeResearchAlternatives} from "./retail_build_comparison.mjs";
 const $=selector=>document.querySelector(selector);
 const esc=x=>String(x??"").replaceAll("&","&amp;").replaceAll("<","&lt;")
  .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
@@ -263,7 +263,9 @@ function renderRetailMatches(){
   compareRetailOffers(state.retailCatalog,state.catalog,s.variant_id,{as_of:today}))
   .filter(x=>x.rows.length);
  const loose=state.domain==="alpine_ski"?
-  state.retailCatalog.offers.filter(x=>x.selected_variant_id===null):[];
+  state.study.selected_variants.filter(x=>x.slot==="ski_pair")
+   .flatMap(x=>researchRelatedSellerListings(
+    state.retailCatalog,state.catalog,x.product_id,{as_of:today}).rows):[];
  const sections=comparisons.map(x=>{
   const count=x.compared_merchants;
   return '<article class="retail-match"><h3>'+esc(x.product_name)+'</h3>'+
@@ -290,10 +292,10 @@ function renderRetailMatches(){
  });
  if(loose.length)sections.push('<article class="retail-match">'+
   '<h3>Related listings that must NOT be compared as an exact variant</h3>'+
-  '<p>These 2026 ski-only and ski-plus-binding bundles have different maker codes and package contents. Neither is confirmed against the selected ski length, boot or binding revision.</p>'+
+  '<p>These related family listings do not confirm the selected ski length, boot/binding revision or sellable package. Different ski-only and binding-bundle contents must NEVER be compared as the same offer.</p>'+
   loose.map(o=>{const url=cleanUrl(o.source_url);return '<p><strong>'+
-   esc(o.observed_setup)+'</strong> · USD '+o.listed_amount_usd.toFixed(2)+
-   ' historical page listing · <strong>ON HOLD</strong>'+
+   esc(o.description)+'</strong> · USD '+o.historical_page_amount_usd.toFixed(2)+
+   ' historical page listing · <strong>'+esc(o.state.replaceAll("_"," "))+'</strong>'+
    (url?' · <a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Inspect source ↗</a>':'')+
    '</p>';}).join("")+'</article>');
  host.innerHTML=sections.length?sections.join(""):
