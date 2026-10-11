@@ -7,6 +7,7 @@ import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {inspectGlbBytes} from "../builder/cad_glb_contract.mjs";
 import {validateCadAssetRegistry} from "../builder/cad_asset_registry.mjs";
+import {validateCadConversionReceipt} from "../builder/cad_conversion_receipt.mjs";
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 function args(argv){
  const out={};
@@ -29,27 +30,7 @@ async function main(){
  const receiptBytes=await readFile(path.resolve(a["conversion-receipt"]));
  if(receiptBytes.length>32768)throw Error("Conversion receipt too large");
  const receipt=JSON.parse(receiptBytes.toString("utf8"));
- const digest=x=>typeof x==="string"&&/^[0-9a-f]{64}$/.test(x);
- if(receipt?.schema_version!==1||receipt.scope!==
-  "STEP_TO_GLTF_CONVERSION_RECEIPT_NOT_MEASURED_FIT"||
-  receipt.output_glb_sha256!==hash||
-  !digest(receipt.source_step_sha256)||
-  receipt.source_cad_units!=="mm"||receipt.gltf_scene_units!=="m"||
-  receipt.mm_to_gltf_m_scale!==0.001||
-  receipt.output_glb_bytes!==bytes.length||
-  receipt.geometry_revision_confirmed!==false||
-  receipt.mounting_datums_verified!==false||
-  receipt.physical_clearance_qualified!==false||
-  receipt.procurement_authorized!==false||
-  receipt.fabrication_authorized!==false||
-  !Array.isArray(receipt.source_extents_mm)||
-  receipt.source_extents_mm.length!==3||
-  !receipt.source_extents_mm.every(x=>Number.isFinite(x)&&x>0&&x<10000)||
-  !Number.isFinite(receipt.max_sorted_extent_error_mm)||
-  receipt.max_sorted_extent_error_mm<0||
-  receipt.max_sorted_extent_error_mm>Math.max(
-   receipt.tessellation_tolerance_mm*0.1,0.02))
-  throw Error("Pinned millimeter-to-meter conversion receipt invalid or mismatched");
+ validateCadConversionReceipt(receipt,{output_sha256:hash,output_bytes:bytes.length});
  const receiptHash=createHash("sha256").update(receiptBytes).digest("hex");
  const regPath=path.join(root,"catalog/outdoor_cad_asset_registry.v1.json");
  const reg=JSON.parse(await readFile(regPath,"utf8"));
@@ -66,7 +47,9 @@ async function main(){
   origin:a.origin,evidence_date:a["evidence-date"],
   format:"glb",units:"mm",gltf_scene_units:"m",
   mm_to_gltf_m_scale:0.001,source_step_sha256:receipt.source_step_sha256,
-  conversion_receipt_sha256:receiptHash,sha256:hash,
+  conversion_receipt_sha256:receiptHash,
+  conversion_receipt_path:"/assets/cad/"+hash+".conversion.json",
+  sha256:hash,
   path:"/assets/cad/"+hash+".glb",byte_length:bytes.length,
   asset_revision_confirmed:false,verified_mount_datums:false,
   clearance_qualified:false,physical_fit_qualified:false,
@@ -79,6 +62,10 @@ async function main(){
  const target=path.join(root,"assets/cad",hash+".glb");
  await mkdir(path.dirname(target),{recursive:true});
  await copyFile(p,target);
+ const retainedReceipt=path.join(root,"assets/cad",hash+".conversion.json");
+ await writeFile(retainedReceipt,receiptBytes);
+ if(createHash("sha256").update(await readFile(retainedReceipt)).digest("hex")!==receiptHash)
+  throw Error("Stored conversion receipt SHA-256 mismatch");
  // Detect a changing input and refuse to record the wrong bytes.
  if(createHash("sha256").update(await readFile(target)).digest("hex")!==hash)
   throw Error("Staged asset hash mismatch");
