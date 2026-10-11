@@ -238,3 +238,10 @@ A new family should enter the platform in this order:
 10. Re-run catalog audit, Builder validation, engine parity, visual parity and the full repository suite.
 
 A vendor URL, good fit score, catalog inclusion, or visual rendering never creates procurement, fabrication, charging, public-use, dog-accompanied, or powered-operation authority.
+
+
+## Experimental multi-sport architecture (not active)
+
+The v1 catalog remains the sole live source for Board Builder. A separate **read-only** domain vocabulary for mountainboard, snowboard, alpine/touring skis, splitboard, surfboard, bicycle and camping shelter is defined in [Outdoor Equipment Platform Architecture](outdoor_equipment_platform_architecture_2026-10-10.md) and the [domain registry](../catalog/outdoor_equipment_domains.v0.json).
+
+This proposal does **not** enable products from those sports, grant variant compatibility, or change physical/procurement/powered authority. Cross-sport product graphs and runtime adapters must be independently implemented and parity-checked before launch.
