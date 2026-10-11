@@ -68,15 +68,31 @@
    </div>
   </section>
 
+  <section class="three-studies" id="picker-three-studies" aria-labelledby="picker-three-studies-heading">
+   <div class="panel-title"><div><p class="eyebrow">03 / DESIGN EXPLORER</p>
+    <h2 id="picker-three-studies-heading">Three genuinely different configurations</h2></div></div>
+   <p>These are design studies, not automatic size prescriptions. Click a configuration to load its exact referenced selections into the shared 2D / 3D assembly viewer. Foot and rider measurements affect review warnings without proving compatibility.</p>
+   <div class="fit-fields comparison-rider-fields">
+    <label>Rider mass (kg, optional)<input id="picker-mass" type="number" min="15" max="250" step="0.1" placeholder="Used for maker-range review"></label>
+   </div>
+   <div id="picker-study-cards" class="study-comparison-grid" aria-live="polite"></div>
+   <div id="picker-study-differences" class="study-differences" aria-live="polite"></div>
+  </section>
+  <section class="retail-compare" aria-labelledby="picker-retail-compare-heading">
+   <div class="panel-title"><div><p class="eyebrow">04 / LISTING EVIDENCE</p>
+    <h2 id="picker-retail-compare-heading">Compare published seller setups</h2></div></div>
+   <p>Only named, matching product configurations and package families are compared. A shared model name is not enough; prices are historical page observations, not verified shopping-cart amounts. Availability, shipping, returns and tax are unknown.</p>
+   <div id="picker-retail-results" aria-live="polite"></div>
+  </section>
   <section class="order-board">
-   <div class="panel-title"><div><p class="eyebrow">03 / PACKAGE AUDIT</p><h2>PC-builder-style ordering worklist</h2></div>
+   <div class="panel-title"><div><p class="eyebrow">05 / PACKAGE AUDIT</p><h2>PC-builder-style ordering worklist</h2></div>
     <div class="export-buttons"><button type="button" id="picker-demo">Load sample research setup</button><button type="button" id="picker-export-json">Export review JSON</button><button type="button" id="picker-export-csv">Export worklist CSV</button></div></div>
    <p>One selected family is not necessarily one purchasable SKU. A complete longboard may already contain parts that would otherwise be counted twice. A ski may be sold without bindings; ski mounting is a separate professional service. Every seller order quantity stays unknown until exact contents are checked.</p>
    <div id="picker-order-status" role="status" aria-live="polite" class="order-status"></div>
    <div class="table-scroll"><table id="picker-order-table"><thead><tr><th>System</th><th>Selection / source</th><th>Required</th><th>Seller quantity</th><th>Status</th></tr></thead><tbody id="picker-order-rows"></tbody></table></div>
    <section class="maker-unit-audit" aria-labelledby="maker-unit-audit-title">
     <div class="panel-title">
-     <div><p class="eyebrow">04 / MANUFACTURER PACK RECEIPTS</p>
+     <div><p class="eyebrow">06 / MANUFACTURER PACK RECEIPTS</p>
       <h3 id="maker-unit-audit-title">Why this exact quantity?</h3></div>
      <button type="button" id="picker-export-maker-audit">Export unit evidence JSON</button>
     </div>
@@ -90,11 +106,11 @@
   </section>
 
   <div class="lower-grid">
-   <section id="supplier-directory" class="reference-panel"><p class="eyebrow">04 / SOURCING</p><h2>Maker and specialist retailers</h2>
+   <section id="supplier-directory" class="reference-panel"><p class="eyebrow">07 / SOURCING</p><h2>Maker and specialist retailers</h2>
     <p>Curated starting points, not live stock feeds. Open the manufacturer first for exact size/revision evidence, then verify the matching retailer offer, shipped unit, shipping region, returns and mounting service.</p>
     <div id="picker-vendors" class="vendor-list"></div>
    </section>
-   <section class="reference-panel"><p class="eyebrow">05 / FABRICATION</p><h2>3D print it, or buy the real part?</h2>
+   <section class="reference-panel"><p class="eyebrow">08 / FABRICATION</p><h2>3D print it, or buy the real part?</h2>
     <p>Printing may suit custom storage, noncritical guards and visualization. No generic printed replacement is approved for ski release systems, snowboard retention, axles, brakes or battery safety hardware.</p>
     <div id="picker-print" class="print-list"></div>
    </section>

@@ -1,6 +1,8 @@
 import {validatePartsRegistry,buildPickerStudy} from "./parts_picker_engine.mjs";
 import {renderExplodedAssemblySvg} from "./exploded_renderer.mjs";
 import {validateSupplierObservations,auditMakerOrderUnits} from "./offer_qualification.mjs";
+import {validateRetailRegistry,validateBuildStudies,compareRetailOffers,
+ composeResearchAlternatives} from "./retail_build_comparison.mjs";
 const $=selector=>document.querySelector(selector);
 const esc=x=>String(x??"").replaceAll("&","&amp;").replaceAll("<","&lt;")
  .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
@@ -9,6 +11,7 @@ const cleanUrl=value=>{
  catch{return null;}
 };
 const state={catalog:null,offerObservations:null,offerAudit:null,
+ retailCatalog:null,studyCatalog:null,alternatives:null,
  domain:"alpine_ski",selections:{},study:null,
  mode:"2d",separation:72,selectedId:null,viewer:null,viewerPromise:null,
  search:""};
@@ -199,6 +202,93 @@ function renderMakerUnitAudit(){
    '<small>'+esc(x.review_actions?.[0]??"Stock, taxes, shipping and fit unverified")+'</small></td></tr>';
  }).join("");
 }
+
+function renderThreeStudies(){
+ const host=$("#picker-study-cards"),details=$("#picker-study-differences");
+ if(!state.studyCatalog||!state.retailCatalog||!state.study){
+  host.textContent="Build studies are not yet available.";details.textContent="";return;
+ }
+ const mass=$("#picker-mass").value||null;
+ state.alternatives=composeResearchAlternatives(state.catalog,state.studyCatalog,
+  state.offerObservations,state.retailCatalog,state.domain,{
+   as_of:new Date().toISOString().slice(0,10),
+   profile:{left_mondo_mm:$("#picker-left").value||null,
+    right_mondo_mm:$("#picker-right").value||null,mass_kg:mass}
+  });
+ host.innerHTML=state.alternatives.cards.map((card,i)=>{
+  const active=Object.keys(state.selections).length===Object.keys(card.selection).length&&
+   Object.entries(card.selection).every(([k,v])=>state.selections[k]===v);
+  const pct=card.indicative_published_dimensions.map(d=>
+   Object.entries(d.dimensions_mm).map(([key,val])=>esc(key.replaceAll("_"," "))+
+   ": "+esc(val)+" mm").join(" · ")).join(" / ");
+  const historical=Object.entries(card.historical_maker_subtotals).map(([currency,value])=>
+   esc(currency)+" "+value.toFixed(2)).join(", ")||"No eligible manufacturer price units";
+  return '<article class="study-card'+(active?' current-study':'')+'">'+
+   '<span class="study-number">RESEARCH '+(i+1)+' / 3</span>'+
+   '<h3>'+esc(card.title)+'</h3><p>'+esc(card.intent)+'</p>'+
+   (pct?'<p class="study-measure">'+pct+' (published dimensions, not CAD)</p>':'')+
+   '<div class="study-stats"><span>'+esc(card.variant_count)+' selected reference(s)</span>'+
+   '<span>'+esc(card.missing_required)+' missing required slot(s)</span>'+
+   '<span>'+esc(card.findings.length)+' compatibility/review findings</span></div>'+
+   '<p class="study-historical">Partial historic maker subtotal: '+historical+
+   ' · NOT build total</p>'+
+   '<p class="study-note">'+esc(card.notes.join("; "))+'</p>'+
+   '<button type="button" data-load-study="'+esc(card.id)+
+   '"'+(active?' aria-pressed="true"':' aria-pressed="false"')+'>'+
+   (active?'Currently inspecting':'Inspect this configuration')+'</button>'+
+   '</article>';
+ }).join("");
+ details.innerHTML='<strong>Source-aware differences:</strong> '+
+  state.alternatives.differences.map(d=>{
+   const a=state.alternatives.cards.find(x=>x.id===d.left)?.title;
+   const b=state.alternatives.cards.find(x=>x.id===d.right)?.title;
+   return '<span>'+esc(a)+' vs '+esc(b)+': '+esc(d.changed_slots.join(", "))+'</span>';
+  }).join("");
+}
+function renderRetailMatches(){
+ const host=$("#picker-retail-results");
+ if(!state.retailCatalog||!state.study){host.textContent="No seller references loaded.";return;}
+ const today=new Date().toISOString().slice(0,10);
+ const comparisons=state.study.selected_variants.map(s=>
+  compareRetailOffers(state.retailCatalog,state.catalog,s.variant_id,{as_of:today}))
+  .filter(x=>x.rows.length);
+ const loose=state.domain==="alpine_ski"?
+  state.retailCatalog.offers.filter(x=>x.selected_variant_id===null):[];
+ const sections=comparisons.map(x=>{
+  const count=x.compared_merchants;
+  return '<article class="retail-match"><h3>'+esc(x.product_name)+'</h3>'+
+   '<p class="'+(count>=2?"unit-reference":"unit-hold")+'">'+
+   esc(x.status.replaceAll("_"," "))+
+   '. Same published setup and package, NOT verified exact checkout SKU.</p>'+
+   '<div class="retail-offer-grid">'+x.rows.map(offer=>{
+    const url=cleanUrl(offer.source_url);
+    return '<div class="retail-offer">'+
+      '<strong>'+esc(offer.merchant_name)+'</strong>'+
+      '<p>'+esc(offer.setup)+'</p>'+
+      '<p class="retail-price">USD '+offer.displayed_amount_usd.toFixed(2)+
+      '<small> · observed '+esc(offer.observed_on)+'</small></p>'+
+      '<small>'+esc(offer.status.replaceAll("_"," "))+
+       ' · stock, delivery and order SKU not verified</small>'+
+      (url?'<p><a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">View seller listing ↗</a></p>':'')+
+     '</div>';
+   }).join("")+'</div>'+
+   (x.historical_listing_price_span_usd?
+    '<p class="retail-footnote">Published setup price gap USD '+
+     x.historical_listing_price_span_usd.gap.toFixed(2)+
+    '. The complete landed cost remains unknown.</p>':'')+
+   '</article>';
+ });
+ if(loose.length)sections.push('<article class="retail-match">'+
+  '<h3>Related listings that must NOT be compared as an exact variant</h3>'+
+  '<p>These 2026 ski-only and ski-plus-binding bundles have different maker codes and package contents. Neither is verified against the selected 157 cm research size or binding/boot specification.</p>'+
+  loose.map(o=>{const url=cleanUrl(o.source_url);return '<p><strong>'+
+   esc(o.observed_setup)+'</strong> · USD '+o.listed_amount_usd.toFixed(2)+
+   ' historical page listing · <strong>ON HOLD</strong>'+
+   (url?' · <a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Inspect source ↗</a>':'')+
+   '</p>';}).join("")+'</article>');
+ host.innerHTML=sections.length?sections.join(""):
+  '<p class="retail-none">No distinct seller sources with source-bounded option identifiers are available for this selection. No comparable offer or current cart total can be inferred.</p>';
+}
 function renderVendorDirectory(){
  const vendors=state.catalog.vendors.filter(x=>x.domains.includes(state.domain));
  $("#picker-vendors").innerHTML=vendors.map(v=>{
@@ -225,7 +315,8 @@ function refresh(){
    }});
   if(!state.study.graph.components.some(x=>x.component_id===state.selectedId))
    state.selectedId=state.study.graph.components[0]?.component_id??null;
-  renderSlots();renderOrder();renderMakerUnitAudit();renderVendorDirectory();renderTree();
+  renderSlots();renderOrder();renderMakerUnitAudit();renderThreeStudies();
+  renderRetailMatches();renderVendorDirectory();renderTree();
   if(state.selectedId)selectPart(state.selectedId);
   else $("#picker-component-detail").textContent="No part families selected.";
   redrawVisual();
@@ -307,6 +398,19 @@ function initEvents(){
  });
  $("#picker-left").addEventListener("input",refresh);
  $("#picker-right").addEventListener("input",refresh);
+ $("#picker-mass").addEventListener("input",refresh);
+ $("#picker-study-cards").addEventListener("click",event=>{
+  const choice=event.target.closest("[data-load-study]");
+  if(!choice)return;
+  const entry=state.studyCatalog.studies.find(x=>x.id===choice.dataset.loadStudy&&
+   x.domain_id===state.domain);
+  if(!entry)return;
+  state.selections={...entry.selections};
+  state.selectedId=null;
+  state.search="";
+  $("#picker-search").value="";
+  refresh();
+ });
  $("#picker-explode").addEventListener("input",e=>{state.separation=Number(e.target.value);redrawVisual();});
  $("#picker-3d").addEventListener("click",use3D);
  $("#picker-2d").addEventListener("click",()=>{fallbackTo2D();redrawVisual();});
@@ -328,15 +432,22 @@ function initEvents(){
 }
 async function main(){
  try{
-  const [res,obsRes]=await Promise.all([
+  const [res,obsRes,retailRes,studyRes]=await Promise.all([
    fetch("../catalog/outdoor_parts_picker.v1.json",{cache:"no-store"}),
-   fetch("../catalog/outdoor_supplier_observations.v1.json",{cache:"no-store"})
+   fetch("../catalog/outdoor_supplier_observations.v1.json",{cache:"no-store"}),
+   fetch("../catalog/outdoor_retail_comparisons.v1.json",{cache:"no-store"}),
+   fetch("../catalog/outdoor_build_studies.v1.json",{cache:"no-store"})
   ]);
-  if(!res.ok||!obsRes.ok)throw Error("Cannot load parts and maker observation registries");
+  if(!res.ok||!obsRes.ok||!retailRes.ok||!studyRes.ok)
+   throw Error("Cannot load all four source-bound parts, retailer and study registries");
   state.catalog=await res.json();
   state.offerObservations=await obsRes.json();
+  state.retailCatalog=await retailRes.json();
+  state.studyCatalog=await studyRes.json();
   const coverage=validatePartsRegistry(state.catalog);
   validateSupplierObservations(state.offerObservations,state.catalog);
+  validateRetailRegistry(state.retailCatalog,state.catalog);
+  validateBuildStudies(state.studyCatalog,state.catalog);
   $("#picker-coverage").innerHTML='<strong>'+coverage.product_families+' product families</strong> / '+
    coverage.variant_choices+' referenced choices<br>'+
    coverage.suppliers+' supplier directories · '+coverage.source_documents+' maker pages<br>'+

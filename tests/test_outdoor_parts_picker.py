@@ -95,3 +95,41 @@ def test_maker_unit_evidence_is_not_a_checkout_or_physical_release():
     assert '@media print' in css
     assert "Historical maker pack examples" in app
     assert 'No live stock' in app
+
+
+def test_three_configurations_and_matched_retailer_evidence_contracts():
+    root = Path(__file__).resolve().parents[1]
+    html = (root / "builder/parts.html").read_text()
+    app = (root / "builder/parts_picker_app.mjs").read_text()
+    viewer = (root / "builder/exploded_3d_viewer.mjs").read_text()
+    engine = (root / "builder/retail_build_comparison.mjs").read_text()
+    for id_ in ("picker-three-studies", "picker-study-cards",
+                "picker-study-differences", "picker-retail-results", "picker-mass"):
+        assert f'id="{id_}"' in html
+    assert "composeResearchAlternatives" in app
+    assert "compareRetailOffers" in app
+    assert "data-load-study" in app
+    assert "outdoor_build_studies.v1.json" in app
+    assert "outdoor_retail_comparisons.v1.json" in app
+    assert "visual_reference_claims" in viewer
+    assert "historical_listing_price_span_usd" in engine
+    assert "current_price_quote:null" in engine
+    assert "physical_fit_verified:false" in engine
+    assert "permit_inferred_inventory===false" in engine
+    assert "same selected" not in engine.lower() or "not" in engine.lower()
+    assert "No live stock" in app
+
+
+def test_retail_offers_are_distinct_from_ski_with_binding_bundles():
+    registry = json.loads((ROOT / "catalog/outdoor_retail_comparisons.v1.json").read_text())
+    studies = json.loads((ROOT / "catalog/outdoor_build_studies.v1.json").read_text())
+    assert len(registry["offers"]) >= 6
+    assert all(not x["checkout_eligible"] for x in registry["offers"])
+    assert all(not x["exact_checkout_variant_verified"] for x in registry["offers"])
+    atomic = [x for x in registry["offers"] if x["merchant_id"] == "skiessentials"]
+    assert len(atomic) == 2
+    assert all(x["selected_variant_id"] is None for x in atomic)
+    assert atomic[0]["observed_package_kind"] != atomic[1]["observed_package_kind"]
+    assert len(studies["studies"]) == 12
+    assert all(x["authority"] == "UNQUALIFIED_VISUAL_AND_SOURCING_STUDY"
+               for x in studies["studies"])

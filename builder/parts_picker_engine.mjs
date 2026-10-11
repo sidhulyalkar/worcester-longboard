@@ -259,6 +259,10 @@ export function buildPickerStudy(data,{domain_id,selections={},profile={}}={}){
   label:x.product.name+" · "+x.variant.label,
   source_url:sourceById.get(x.product.source_id).url,
   dimensions_mm:x.variant.dimensions_mm??null,
+  // Manufacturer-published complete-setup wheel diameter, not a wheel-clearance CAD claim.
+  visual_reference_claims:x.product.slot==="long_complete"?
+    {wheel_diameter_mm:x.product.interface_claims?.wheel_diameter_mm??null,
+     completeness:"MAKER_ADVERTISED_COMPLETE_NOT_RECEIPT"}:null,
   indicative_family_price:data.observed_listing_prices.find(p=>p.product_id===x.product.id)??null,
   inclusion_claim:x.product.inclusion_claim
  }))};
