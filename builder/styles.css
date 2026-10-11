@@ -995,3 +995,42 @@ button[data-compare][aria-pressed="true"] {border-color:var(--green);color:var(-
  .exploded-layout{grid-template-columns:1fr}.exploded-visual-wrap,.exploded-sidebar{
  break-inside:avoid;overflow:visible;background:#fff;color:#111}
  .exploded-toolbar,.exploded-view-actions{display:none}.exploded-worklist{display:block}}
+
+/* Atlas v1.1: GPU visualization is opt-in; SVG remains accessible and printable. */
+.exploded-mode{display:flex;gap:5px;align-items:center;flex-wrap:wrap;border:0;padding:0;margin:0}
+.exploded-mode legend{font-size:11px;color:var(--muted,#a5b7be);margin-bottom:3px}
+.exploded-mode button[aria-pressed="true"]{border-color:#85cce4;background:rgba(92,153,174,.19)}
+.exploded-visual[hidden],.exploded-visual-3d[hidden],
+.exploded-camera-controls[hidden],.exploded-3d-status[hidden]{display:none!important}
+.exploded-visual-3d{position:relative;width:100%;height:clamp(310px,46vw,580px);touch-action:none;overflow:hidden}
+.exploded-visual-3d canvas{display:block;width:100%;height:100%;outline-offset:-4px}
+.exploded-camera-controls{display:flex;gap:7px;flex-wrap:wrap;padding:10px 12px;border-top:1px solid #375467}
+.exploded-camera-controls button{font-size:12px;padding:6px 10px}
+.exploded-3d-status{font-size:12px;color:#e6c18b;padding:0 14px;margin:4px 0 10px;line-height:1.5}
+@media(max-width:540px){
+ .exploded-visual-3d{height:340px}
+ .exploded-mode{width:100%}
+ .exploded-mode button{min-height:40px}
+}
+@media print{
+ .exploded-visual-3d,.exploded-camera-controls,.exploded-3d-status{display:none!important}
+ .exploded-visual[hidden]{display:block!important}
+}
+
+/* Conservative asymmetric-foot board-sport study intake. */
+.sport-fit-lab{margin:15px 0;border:1px solid var(--line,#405566);border-radius:13px;padding:13px;background:rgba(115,160,180,.045)}
+.sport-fit-lab>summary{cursor:pointer;font-size:14px;font-weight:700}
+.sport-fit-lab>p{font-size:12px;line-height:1.55;color:var(--muted,#b3c5cc)}
+.sport-fit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:12px;margin:12px 0}
+.sport-fit-grid[hidden]{display:none!important}
+.sport-fit-grid label{display:grid;align-content:start;gap:5px;font-size:12px;color:var(--muted,#b3c5cc)}
+.sport-fit-grid input,.sport-fit-grid select{width:100%;min-width:0;color:var(--text,#e7f3f7);
+ background:var(--panel,#182630);border:1px solid var(--line,#445766);border-radius:8px;padding:9px}
+.sport-fit-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.sport-fit-actions button:disabled{opacity:.5;cursor:not-allowed}
+.sport-fit-results{padding:10px 12px;margin-top:11px;border:1px solid var(--line,#405566);border-radius:10px;font-size:12px;line-height:1.55}
+.sport-fit-results h4{margin:0 0 7px;color:#e9c08b}
+.sport-fit-results p{margin:5px 0}
+.sport-fit-results ul{padding-left:19px;margin-bottom:2px}
+.sport-fit-results li{margin:8px 0}
+@media print{.sport-fit-lab{break-inside:avoid}.sport-fit-actions{display:none}}
