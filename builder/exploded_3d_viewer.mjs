@@ -1,8 +1,11 @@
 // Optional orbitable 3D representation of the SAME source-aware assembly graph.
 // Three.js only loads when a user selects 3D; the semantic SVG remains the fallback.
 import {planExplodedScene} from "./exploded_scene_model.mjs";
+import {planCadDisplay} from "./complete_kit_cad_schema.mjs";
 const PALETTE={platform:0x496f89,mount:0xe9b475,ground:0x85bda0,
  rider:0xbca8e8,control:0xe79c94,power:0x9baef0,utility:0xc5c497};
+const KIT_PALETTE={deck:0x375d70,zee_brackets:0xd6a069,trucks:0x9eb4ba,
+ wheels:0x89b4a1,bearings:0xd8d0ba,deck_hardware:0xe3b779,truck_hardware:0xbda2d1};
 
 export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
   // Prefer an explicitly installed, pinned local Three.js package.
@@ -41,7 +44,7 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
   fill.position.set(-9,5,5);scene.add(fill);
   const grid=new THREE.GridHelper(20,20,0x3a5967,0x263d4a);
   grid.rotation.x=Math.PI/2;grid.position.z=-2.6;scene.add(grid);
-  let graph=null,plan=null,nodes=new Map(),selected=null,disposed=false;
+  let graph=null,plan=null,nodes=new Map(),selected=null,disposed=false,cadModel=null;
   let visualState=null,proportionsKey=null;
   let frame=null,settle=0,down=null;
   const raycaster=new THREE.Raycaster();
@@ -85,6 +88,76 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
   }
   function disc(group,mat,r=0.46,z=0) {
     add(group,new THREE.CylinderGeometry(r,r,0.13,28),mat,[0,0,z],[Math.PI/2,0,0]);
+  }
+  function createCadProxy(part,definition){
+    const group=new THREE.Group();
+    const mat=material(KIT_PALETTE[definition.role]??0xaac2c7);
+    const items=definition.instances;
+    const meshBatch=(geometry,els,rotation=[0,0,0])=>{
+      // Identical wheel/bearing primitives use one instanced draw call per
+      // geometry type rather than making a separate buffer for each child.
+      const batch=new THREE.InstancedMesh(geometry,mat,els.length);
+      const dummy=new THREE.Object3D();
+      for(let i=0;i<els.length;i++){
+        dummy.position.set(...els[i].at);
+        dummy.rotation.set(...rotation);
+        dummy.scale.set(1,1,1);dummy.updateMatrix();
+        batch.setMatrixAt(i,dummy.matrix);
+      }
+      batch.instanceMatrix.needsUpdate=true;
+      group.add(batch);
+    };
+    switch(definition.role){
+      case "deck":
+        for(const i of items){
+          const inner=new THREE.Group();inner.position.set(...i.at);
+          board(inner,mat,i.size[0],i.size[1]);
+          group.add(inner);
+        }
+        break;
+      case "zee_brackets":
+        for(const i of items){
+          const inner=new THREE.Group();inner.position.set(...i.at);
+          box(inner,1.65,0.36,0.11,mat,0,0,0);
+          for(const x of [-0.73,0.73])
+            box(inner,0.16,0.44,0.38,mat,x,0,-0.2);
+          group.add(inner);
+        }
+        break;
+      case "trucks":
+        for(const i of items){
+          const inner=new THREE.Group();inner.position.set(...i.at);
+          box(inner,3.02,0.12,0.15,mat);
+          box(inner,0.61,0.54,0.33,mat,0,0,0.17);
+          group.add(inner);
+        }
+        break;
+      case "wheels":{
+        const rad=items[0].radius;
+        meshBatch(new THREE.TorusGeometry(rad,0.12,10,28),items,
+          [0,Math.PI/2,0]);
+        meshBatch(new THREE.CylinderGeometry(rad*0.42,rad*0.42,0.32,18),
+          items,[0,0,Math.PI/2]);
+        break;
+      }
+      case "bearings":
+        meshBatch(new THREE.TorusGeometry(0.16,0.055,8,18),items,
+          [0,Math.PI/2,0]);
+        break;
+      case "deck_hardware":
+      case "truck_hardware":
+        // One floating legend-like symbol is visible only when separated.
+        // Its position is not a drilling location or screw count.
+        box(group,0.085,0.085,0.43,mat);
+        add(group,new THREE.CylinderGeometry(0.13,0.13,0.07,12),
+          mat,[0,0,0.24]);
+        break;
+      default:
+        throw Error("Unsupported CAD-display part role");
+    }
+    group.userData.partId=part.component_id;
+    group.userData.material=mat;
+    return group;
   }
   function createProxy(part,domain,proportions=null,pickerVariants=[]) {
     const group=new THREE.Group(),mat=material(PALETTE[part.group_id]||0xaac2c7);
@@ -245,14 +318,22 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
   }
   function moveParts(separation) {
     if(!graph)return;
-    plan=planExplodedScene(graph,{separation,selectedId:selected,visualState});
+    plan=cadModel?planCadDisplay(cadModel,separation,selected):
+      planExplodedScene(graph,{separation,selectedId:selected,visualState});
     for(const part of plan.parts){
       const node=nodes.get(part.component_id);
-      if(node)node.position.set(...part.position);
+      if(node){
+        node.position.set(...part.position);
+        node.visible=part.visible!==false;
+      }
     }
+    renderer.domElement.dataset.assemblySeparation=String(plan.separation_percent);
+    renderer.domElement.dataset.assemblyPose=
+      cadModel&&plan.separation_percent===0?"ASSEMBLED_VISUAL_STUDY":
+      cadModel?"EXPLODED_VISUAL_STUDY":"UNQUALIFIED_SEMANTIC_SCENE";
     schedule();
   }
-  function update(nextGraph,separation=78,selectedId=null,nextVisualState=null,pickerVariants=[]) {
+  function update(nextGraph,separation=78,selectedId=null,nextVisualState=null,pickerVariants=[],nextCad=null) {
     if(disposed)return;
     const proposed=planExplodedScene(nextGraph,{
       separation,selectedId,visualState:nextVisualState
@@ -261,16 +342,31 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
        pickerVariants.some(x=>!nextGraph.components.some(p=>p.component_id===x.variant_id)&&
          nextGraph.kit_parent_variant_id!==x.variant_id))
       throw Error("Picker visual variants must match current source-bound graph");
+    if(nextCad){
+      if(nextCad.scope!=="BROWSER_PARAMETRIC_CAD_DISPLAY_UNQUALIFIED"||
+         nextCad.selected_variant_id!==nextGraph.kit_parent_variant_id||
+         nextCad.children.length!==nextGraph.components.length||
+         nextCad.children.some((p,i)=>p.component_id!==nextGraph.components[i].component_id)||
+         Object.values(nextCad.authority).some(Boolean))
+        throw Error("CAD model cannot replace assembly with mismatched or approved parts");
+    }else if(nextGraph.kit_parent_variant_id){
+      throw Error("Complete kit display requires a validated parametric CAD schema");
+    }
     const key=JSON.stringify([proposed.reference_proportions,
-      pickerVariants.map(x=>[x.variant_id,x.dimensions_mm,x.visual_reference_claims])]);
+      pickerVariants.map(x=>[x.variant_id,x.dimensions_mm,x.visual_reference_claims]),
+      nextCad?.kit_id,nextCad?.published_dimensions_mm]);
     if(graph!==nextGraph||key!==proportionsKey){
       clearParts();graph=nextGraph;proportionsKey=key;
       for(const part of nextGraph.components){
-        const obj=createProxy(part,nextGraph.domain_id,proposed.reference_proportions,pickerVariants);
+        const def=nextCad?.children.find(p=>p.component_id===part.component_id);
+        const obj=nextCad?createCadProxy(part,def):
+          createProxy(part,nextGraph.domain_id,proposed.reference_proportions,pickerVariants);
         nodes.set(part.component_id,obj);root.add(obj);
       }
     }
-    visualState=nextVisualState;
+    cadModel=nextCad;visualState=nextVisualState;
+    renderer.domElement.dataset.cadSchemaScope=nextCad?.scope??"NONE";
+    renderer.domElement.dataset.kitVariantId=nextCad?.selected_variant_id??"";
     renderer.domElement.dataset.scenePartCount=String(nodes.size);
     renderer.domElement.dataset.scenePartIds=JSON.stringify([...nodes.keys()]);
     select(selectedId);moveParts(separation);
