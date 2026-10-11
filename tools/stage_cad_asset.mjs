@@ -33,7 +33,8 @@ async function main(){
  if(!kit.kits.some(x=>x.variant_id===a["kit-variant-id"]))
   throw Error("Kit identity must be an existing source-declared complete kit variant");
  const asset={
-  asset_id:a["kit-variant-id"]+"-"+a.role+"-"+hash.slice(0,12),
+  asset_id:"cad-"+createHash("sha256").update(a["kit-variant-id"]+":"+a.role+":"+hash)
+   .digest("hex").slice(0,32),
   kit_variant_id:a["kit-variant-id"],role:a.role,
   part_number:a["part-number"],revision:a.revision,
   source_url:a["source-url"],license:a.license,
