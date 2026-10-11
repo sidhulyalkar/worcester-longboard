@@ -124,10 +124,20 @@ def assess(root: Path = ROOT, *, as_of: str) -> dict:
     names = Counter(o["selected_variant_id"] for o in retail_options
                     if o.get("selected_variant_id") is not None
                     and 0 <= _age(today, o["observed_on"]) <= 30)
-    distinct_named_comparisons = sum(1 for variant, count in names.items()
-                                    if len({x["merchant_id"] for x in retail_options
-                                            if x.get("selected_variant_id") == variant
-                                            and 0 <= _age(today, x["observed_on"]) <= 30}) >= 2)
+    distinct_named_comparisons = 0
+    conflicting_inclusion_revisions = 0
+    for variant in names:
+        offers = [x for x in retail_options
+                  if x.get("selected_variant_id") == variant
+                  and 0 <= _age(today, x["observed_on"]) <= 30]
+        merchants = {x["merchant_id"] for x in offers}
+        revisions = {x.get("advertised_truck_revision_claim") for x in offers}
+        if len(merchants) < 2:
+            continue
+        if len(revisions) != 1:
+            conflicting_inclusion_revisions += 1
+        else:
+            distinct_named_comparisons += 1
     source_age = [_age(today, x["reviewed_on"]) for x in catalog["sources"]]
     expired = sum(1 for a in source_age if a < 0 or a > 30)
     offer_age = [_age(today, x["observed_on"]) for x in retail_options]
@@ -147,6 +157,12 @@ def assess(root: Path = ROOT, *, as_of: str) -> dict:
         {"priority": "P1", "code": "NO_SUCCESSFUL_WEBGL_QUALIFICATION",
          "owner": "experience", "next": "Human GPU/browser orbit, responsive, keyboard and touch signoff"},
     ]
+    if conflicting_inclusion_revisions:
+        blockers.append({
+            "priority": "P0", "code": "RETAILER_INCLUDED_TRUCK_REVISION_CONFLICT",
+            "owner": "sourcing",
+            "next": "Loaded current Paris V3 versus Skates USA Paris V2: verify seller shipped revision before equivalence",
+        })
     if expired:
         blockers.append({
             "priority": "P1", "code": "STALE_MANUFACTURER_REFERENCES",
@@ -170,6 +186,7 @@ def assess(root: Path = ROOT, *, as_of: str) -> dict:
             "retail_observations_total": len(retail_options),
             "retail_observations_within_30d": current_retail,
             "different_variant_comparisons_with_2_merchants": distinct_named_comparisons,
+            "named_variant_comparisons_blocked_by_inclusion_revision": conflicting_inclusion_revisions,
             "curated_unqualified_studies": len(builds["studies"]),
             "seller_exact_checkout_variants_qualified": 0,
             "physical_connections_qualified": 0,
