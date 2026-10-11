@@ -102,6 +102,25 @@ async function main(){
   note("Four sports render three cards, load source-bound assemblies and stay non-orderable");
   await page.locator("#picker-domain").selectOption("skateboard_longboard");
   await clickStudy(page,"long-rollover");
+  await page.locator("#picker-cad-import-lab summary").click();
+  assertBrowser((await page.locator("#picker-cad-readiness").innerText())
+   .includes("0/7 file-backed candidates"),"No CAD coverage hold");
+  assert.equal(await page.locator("#picker-cad-coverage-rows tr").count(),7);
+  assert.equal(await page.locator("#picker-cad-upload").isDisabled(),false);
+  const cadEvidenceDownload=page.waitForEvent("download");
+  await page.locator("#picker-cad-evidence-export").click();
+  const readiness=JSON.parse(await readFile(await (await cadEvidenceDownload).path(),"utf8"));
+  assert.equal(readiness.asset_candidates,0);
+  assert.equal(readiness.verified_mount_datums,0);
+  assert.equal(readiness.clearance_status,"NOT_EVALUATED");
+  assert.equal(readiness.additional_purchase_lines,0);
+  await page.locator("#picker-cad-upload").setInputFiles({
+   name:"tampered.glb",mimeType:"model/gltf-binary",
+   buffer:Buffer.from("not a valid GLB")});
+  assertBrowser((await page.locator("#picker-cad-inspect-status").innerText())
+   .includes("Local CAD file held:"),"Corrupt geometry not rejected");
+  assert.equal(await page.locator("#picker-cad-file-inspector").isHidden(),true);
+  note("CAD file coverage, unknown mounting datums, unqualified local GLB upload");
   assert.equal(await page.locator("#picker-kit-rows tr").count(),7,
    "Complete Loaded maker kit must expose seven source-listed child categories");
   assert.equal(await page.locator("#picker-explode").inputValue(),"0");
