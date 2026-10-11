@@ -200,7 +200,7 @@
               <button type="button" id="exploded-export-json">Export assembly graph</button>
             </div>
           </div>
-          <p class="section-copy">Separate the components to understand each system and its evidence gaps. Every silhouette and displacement is illustrative, not CAD, a verified parts count or installation instructions. Explore other board sports using explicitly unsourced conceptual recipes.</p>
+          <p class="section-copy">Separate components in the 2D diagram or orbit the graph-driven 3D study. Both use the same source identities. Geometry and separation remain unscaled proxies, not CAD, verified quantities or installation instructions. Cross-sport concepts remain clearly distinguished from manufacturer references.</p>
           <div class="exploded-toolbar">
             <label for="exploded-domain">Equipment system
               <select id="exploded-domain" aria-label="Exploded view equipment type"><option value="mountainboard">Selected mountainboard</option></select>
@@ -208,12 +208,25 @@
             <label for="exploded-amount">Assembly separation <output id="exploded-amount-value" for="exploded-amount">78%</output>
               <input id="exploded-amount" type="range" min="0" max="100" step="1" value="78">
             </label>
+            <fieldset class="exploded-mode" aria-label="Assembly visualization mode">
+              <legend>View</legend>
+              <button type="button" id="exploded-mode-2d" aria-pressed="true">2D diagram</button>
+              <button type="button" id="exploded-mode-3d" aria-pressed="false">Orbitable 3D</button>
+            </fieldset>
             <button type="button" id="exploded-reset">Reset view</button>
           </div>
           <div id="exploded-summary" class="exploded-summary" role="status" aria-live="polite"></div>
           <div class="exploded-layout">
             <div class="exploded-visual-wrap">
               <div id="exploded-visual" class="exploded-visual"></div>
+              <div id="exploded-visual-3d" class="exploded-visual-3d" hidden aria-label="Unscaled conceptual 3D assembly visualization"></div>
+              <div id="exploded-camera-controls" class="exploded-camera-controls" hidden role="group" aria-label="3D camera preset views">
+                <button type="button" data-exploded-camera="hero">Perspective</button>
+                <button type="button" data-exploded-camera="top">Top</button>
+                <button type="button" data-exploded-camera="side">Side</button>
+                <button type="button" data-exploded-camera="front">Front</button>
+              </div>
+              <p id="exploded-3d-status" class="exploded-3d-status" role="status" aria-live="polite" hidden>3D proportions and positions are unscaled proxies, not dimensions.</p>
               <p class="exploded-diagram-note">Illustrative positioning and quantities only. Unverified package contents and physical interfaces remain separate from design geometry.</p>
             </div>
             <div class="exploded-sidebar">
