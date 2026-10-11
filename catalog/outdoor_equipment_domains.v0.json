@@ -1,0 +1,576 @@
+{
+  "schema_version": 0,
+  "scope": "EXPERIMENTAL_DOMAIN_TAXONOMY_NO_PRODUCT_COMPATIBILITY_OR_PURCHASE_AUTHORITY",
+  "name": "Outdoor Equipment Platform: domain registry v0",
+  "description": "Additive, non-runtime schema pilot. Existing Board Builder remains v1 source of truth. No product, variant, listing, compatibility or load/release fact is established by this registry.",
+  "units": {
+    "length": "mm",
+    "mass": "kg",
+    "angle": "deg",
+    "energy": "Wh",
+    "currency": "ISO_4217_WITH_NATIVE_AMOUNT"
+  },
+  "shared_entity_kinds": [
+    "PRODUCT_FAMILY",
+    "PRODUCT_VARIANT",
+    "SELLABLE_PACKAGE",
+    "PACKAGE_CONTENTS_CLAIM",
+    "SUPPLIER_OFFER_SNAPSHOT",
+    "ENGINEERING_INTERFACE",
+    "MEASUREMENT_CLAIM",
+    "MANUFACTURER_DOCUMENT",
+    "ASSEMBLY_ARCHITECTURE",
+    "RIDER_MISSION",
+    "QUALIFICATION_RECEIPT"
+  ],
+  "claim_states": [
+    "UNSOURCED",
+    "SOURCE_REFERENCE",
+    "MAKER_DOCUMENTED_UNVERIFIED_REVISION",
+    "VARIANT_SPECIFIC_DOCUMENTED",
+    "MEASURE_FIRST",
+    "INCOMPATIBLE",
+    "UNKNOWN",
+    "INDEPENDENTLY_QUALIFIED"
+  ],
+  "interface_types": [
+    {
+      "id": "deck_to_truck_mount",
+      "domain": "mountainboard",
+      "representation": "typed_geometry",
+      "required_inputs": [
+        "bolt_pattern_mm",
+        "mounting_angle_deg",
+        "fastener_spec"
+      ],
+      "comparison": "MEASUREMENT_AND_REVISION_REQUIRED"
+    },
+    {
+      "id": "truck_to_hub_axle",
+      "domain": "mountainboard",
+      "representation": "typed_geometry",
+      "required_inputs": [
+        "axle_diameter_mm",
+        "bearing_bore_mm",
+        "axle_length_mm",
+        "spacer_stack_mm"
+      ],
+      "comparison": "MEASUREMENT_AND_REVISION_REQUIRED"
+    },
+    {
+      "id": "wheel_brake_drive_stack",
+      "domain": "mountainboard",
+      "representation": "multi_component_envelope",
+      "required_inputs": [
+        "wheel_offset_mm",
+        "brake_swept_volume",
+        "drive_swept_volume",
+        "retention_method"
+      ],
+      "comparison": "MULTI_COMPONENT_PHYSICAL_QUALIFICATION"
+    },
+    {
+      "id": "electrical_powertrain",
+      "domain": "mountainboard",
+      "representation": "system_safety",
+      "required_inputs": [
+        "pack_voltage_range_v",
+        "esc_rating",
+        "motor_rating",
+        "bms_spec",
+        "fuse_protection",
+        "charger_spec"
+      ],
+      "comparison": "SPECIALIST_SYSTEM_QUALIFICATION"
+    },
+    {
+      "id": "snowboard_binding_mount",
+      "domain": "snowboard",
+      "representation": "mount_family",
+      "required_inputs": [
+        "board_insert_pattern",
+        "binding_disc_system",
+        "fastener_spec"
+      ],
+      "comparison": "MAKER_VARIANT_AND_ADAPTER_REQUIRED"
+    },
+    {
+      "id": "snowboard_boot_to_binding",
+      "domain": "snowboard",
+      "representation": "fit_envelope",
+      "required_inputs": [
+        "boot_model_and_size",
+        "binding_model_and_size",
+        "retention_system"
+      ],
+      "comparison": "MODEL_SIZE_FIT_AND_MAKER_APPROVAL"
+    },
+    {
+      "id": "ski_boot_to_binding_release",
+      "domain": "alpine_ski",
+      "representation": "release_safety_system",
+      "required_inputs": [
+        "boot_sole_norm",
+        "boot_sole_length_mm",
+        "binding_accepted_norms",
+        "sole_category_letter",
+        "binding_release_range"
+      ],
+      "comparison": "PROFESSIONAL_INSPECTION_AND_RELEASE_TEST_REQUIRED"
+    },
+    {
+      "id": "ski_binding_to_ski_mount",
+      "domain": "alpine_ski",
+      "representation": "geometry_and_professional_mount",
+      "required_inputs": [
+        "ski_waist_width_mm",
+        "brake_clearance_mm",
+        "mounting_zone_spec",
+        "binding_drill_jig_spec"
+      ],
+      "comparison": "PROFESSIONAL_MOUNT_AND_CHECK_REQUIRED"
+    },
+    {
+      "id": "touring_tech_interface",
+      "domain": "touring_ski",
+      "representation": "release_and_touring_safety",
+      "required_inputs": [
+        "boot_insert_system",
+        "binding_tech_system",
+        "touring_mode",
+        "release_spec"
+      ],
+      "comparison": "PROFESSIONAL_INSPECTION_AND_RELEASE_TEST_REQUIRED"
+    },
+    {
+      "id": "splitboard_ride_tour_transition",
+      "domain": "splitboard",
+      "representation": "multi_mode_adapter_chain",
+      "required_inputs": [
+        "board_insert_pattern",
+        "puck_interface",
+        "binding_mount",
+        "touring_pivot_interface"
+      ],
+      "comparison": "MULTI_COMPONENT_MODE_QUALIFICATION"
+    },
+    {
+      "id": "surfboard_fin_box",
+      "domain": "surfboard",
+      "representation": "mount_family",
+      "required_inputs": [
+        "fin_box_standard",
+        "fin_base_standard",
+        "retention_mechanism"
+      ],
+      "comparison": "VARIANT_AND_ADAPTER_REQUIRED"
+    },
+    {
+      "id": "surfboard_leash_attachment",
+      "domain": "surfboard",
+      "representation": "fit_and_load",
+      "required_inputs": [
+        "board_leash_plug",
+        "leash_attachment",
+        "rated_use_context"
+      ],
+      "comparison": "MAKER_AND_LOAD_REVIEW_REQUIRED"
+    },
+    {
+      "id": "bicycle_frame_fork_wheel",
+      "domain": "bicycle",
+      "representation": "multi_component_geometry",
+      "required_inputs": [
+        "axle_standard",
+        "hub_spacing_mm",
+        "brake_rotor_mount",
+        "wheel_size_spec",
+        "tire_clearance_mm"
+      ],
+      "comparison": "MULTI_COMPONENT_PHYSICAL_QUALIFICATION"
+    },
+    {
+      "id": "bicycle_drivetrain",
+      "domain": "bicycle",
+      "representation": "multi_component_compatibility",
+      "required_inputs": [
+        "freehub_standard",
+        "chain_speed",
+        "cassette_range",
+        "derailleur_capacity",
+        "chainline_mm"
+      ],
+      "comparison": "MAKER_VARIANT_AND_MEASUREMENT_REQUIRED"
+    },
+    {
+      "id": "tent_pole_geometry",
+      "domain": "camping_shelter",
+      "representation": "typed_geometry",
+      "required_inputs": [
+        "shelter_model",
+        "pole_segment_geometry",
+        "attachment_spec"
+      ],
+      "comparison": "MAKER_VARIANT_AND_ADAPTER_REQUIRED"
+    }
+  ],
+  "domains": [
+    {
+      "id": "mountainboard",
+      "label": "Mountainboards and electric off-road boards",
+      "stage": "CURRENT_LEGACY_ADAPTER",
+      "required_roles": [
+        "deck_or_complete_board",
+        "terrain_interface",
+        "steering_or_truck",
+        "rider_retention"
+      ],
+      "optional_roles": [
+        "wheel",
+        "hub",
+        "brake",
+        "drive",
+        "motor",
+        "esc",
+        "battery",
+        "charger",
+        "protection",
+        "maintenance_tool"
+      ],
+      "interface_type_ids": [
+        "deck_to_truck_mount",
+        "truck_to_hub_axle",
+        "wheel_brake_drive_stack",
+        "electrical_powertrain"
+      ],
+      "mission_inputs": [
+        "rider_mass_kg",
+        "terrain",
+        "ride_style",
+        "distance_target_km",
+        "grade",
+        "budget",
+        "skill_level",
+        "stance_ergonomics"
+      ],
+      "visual_adapter": "BOARD_TWIN_V1",
+      "qualification_policy": "INDEPENDENT_BRAKING_MECHANICAL_AND_POWER_GATES",
+      "automatic_purchase_authority": false
+    },
+    {
+      "id": "snowboard",
+      "label": "Snowboards and bindings",
+      "stage": "PROPOSED",
+      "required_roles": [
+        "snowboard",
+        "boot",
+        "binding"
+      ],
+      "optional_roles": [
+        "mounting_disc",
+        "mounting_hardware",
+        "protection",
+        "maintenance_tool"
+      ],
+      "interface_type_ids": [
+        "snowboard_binding_mount",
+        "snowboard_boot_to_binding"
+      ],
+      "mission_inputs": [
+        "rider_mass_kg",
+        "boot_size_left",
+        "boot_size_right",
+        "riding_style",
+        "snow_conditions",
+        "terrain",
+        "ability",
+        "board_length_preference",
+        "budget"
+      ],
+      "visual_adapter": "SNOWBOARD_VIEWER_PROPOSED",
+      "qualification_policy": "MAKER_MOUNTING_AND_BOOT_BINDING_FIT_REVIEW",
+      "automatic_purchase_authority": false
+    },
+    {
+      "id": "alpine_ski",
+      "label": "Alpine ski equipment",
+      "stage": "PROPOSED",
+      "required_roles": [
+        "ski_pair",
+        "boot_pair",
+        "binding_pair"
+      ],
+      "optional_roles": [
+        "ski_brake",
+        "pole_pair",
+        "mounting_hardware",
+        "maintenance_tool"
+      ],
+      "interface_type_ids": [
+        "ski_boot_to_binding_release",
+        "ski_binding_to_ski_mount"
+      ],
+      "mission_inputs": [
+        "rider_mass_kg",
+        "rider_height_cm",
+        "boot_size_left",
+        "boot_size_right",
+        "boot_sole_length_mm",
+        "ability",
+        "terrain",
+        "skiing_style",
+        "snow_conditions",
+        "budget"
+      ],
+      "visual_adapter": "SKI_PAIR_VIEWER_PROPOSED",
+      "qualification_policy": "CERTIFIED_PROFESSIONAL_MOUNT_ADJUST_RELEASE_TEST",
+      "automatic_purchase_authority": false
+    },
+    {
+      "id": "touring_ski",
+      "label": "Backcountry touring ski equipment",
+      "stage": "FUTURE_ADAPTER",
+      "required_roles": [
+        "ski_pair",
+        "touring_boot_pair",
+        "touring_binding_pair",
+        "skin_pair"
+      ],
+      "optional_roles": [
+        "ski_crampon",
+        "pole_pair",
+        "avalanche_safety_kit"
+      ],
+      "interface_type_ids": [
+        "ski_boot_to_binding_release",
+        "ski_binding_to_ski_mount",
+        "touring_tech_interface"
+      ],
+      "mission_inputs": [
+        "rider_mass_kg",
+        "boot_sole_length_mm",
+        "uphill_priority",
+        "snow_conditions",
+        "terrain",
+        "ability",
+        "budget"
+      ],
+      "visual_adapter": "SKI_PAIR_VIEWER_PROPOSED",
+      "qualification_policy": "PROFESSIONAL_BINDING_RELEASE_AND_AVALANCHE_TRAINING_REQUIRED",
+      "automatic_purchase_authority": false
+    },
+    {
+      "id": "splitboard",
+      "label": "Splitboards and touring attachments",
+      "stage": "FUTURE_ADAPTER",
+      "required_roles": [
+        "splitboard",
+        "binding_pair",
+        "boot_pair",
+        "puck_or_mounting_kit",
+        "skin_pair"
+      ],
+      "optional_roles": [
+        "crampon_pair",
+        "pole_pair",
+        "avalanche_safety_kit"
+      ],
+      "interface_type_ids": [
+        "snowboard_boot_to_binding",
+        "splitboard_ride_tour_transition"
+      ],
+      "mission_inputs": [
+        "rider_mass_kg",
+        "boot_size_left",
+        "boot_size_right",
+        "uphill_priority",
+        "snow_conditions",
+        "terrain",
+        "ability",
+        "budget"
+      ],
+      "visual_adapter": "SPLITBOARD_MULTI_MODE_VIEWER_PROPOSED",
+      "qualification_policy": "MAKER_MODE_TRANSITION_AND_AVALANCHE_TRAINING_REQUIRED",
+      "automatic_purchase_authority": false
+    },
+    {
+      "id": "surfboard",
+      "label": "Surfboards and accessories",
+      "stage": "FUTURE_ADAPTER",
+      "required_roles": [
+        "surfboard",
+        "fin_set"
+      ],
+      "optional_roles": [
+        "leash",
+        "traction_pad",
+        "board_bag",
+        "wetsuit"
+      ],
+      "interface_type_ids": [
+        "surfboard_fin_box",
+        "surfboard_leash_attachment"
+      ],
+      "mission_inputs": [
+        "rider_mass_kg",
+        "wave_conditions",
+        "experience",
+        "maneuverability",
+        "board_volume_l",
+        "budget"
+      ],
+      "visual_adapter": "SURF_HULL_VIEWER_PROPOSED",
+      "qualification_policy": "MAKER_COMPONENT_FIT_AND_ENVIRONMENTAL_RISK_REVIEW",
+      "automatic_purchase_authority": false
+    },
+    {
+      "id": "bicycle",
+      "label": "Mountain and commuter bicycles",
+      "stage": "FUTURE_ADAPTER",
+      "required_roles": [
+        "frame",
+        "fork",
+        "wheelset",
+        "drivetrain",
+        "brake_system",
+        "cockpit"
+      ],
+      "optional_roles": [
+        "tire",
+        "saddle",
+        "pedals",
+        "lights",
+        "battery",
+        "motor",
+        "charger"
+      ],
+      "interface_type_ids": [
+        "bicycle_frame_fork_wheel",
+        "bicycle_drivetrain"
+      ],
+      "mission_inputs": [
+        "rider_mass_kg",
+        "rider_height_cm",
+        "inseam_mm",
+        "terrain",
+        "discipline",
+        "distance_target_km",
+        "budget"
+      ],
+      "visual_adapter": "BIKE_FRAME_VIEWER_PROPOSED",
+      "qualification_policy": "MECHANICAL_BRAKING_AND_POWER_GATES",
+      "automatic_purchase_authority": false
+    },
+    {
+      "id": "camping_shelter",
+      "label": "Camp shelters and replaceable parts",
+      "stage": "FUTURE_ADAPTER",
+      "required_roles": [
+        "shelter",
+        "pole_set"
+      ],
+      "optional_roles": [
+        "footprint",
+        "stake_set",
+        "guy_line",
+        "repair_kit"
+      ],
+      "interface_type_ids": [
+        "tent_pole_geometry"
+      ],
+      "mission_inputs": [
+        "party_size",
+        "weather_exposure",
+        "season_rating",
+        "mass_limit_kg",
+        "budget"
+      ],
+      "visual_adapter": "TENT_ENVELOPE_VIEWER_PROPOSED",
+      "qualification_policy": "MAKER_ASSEMBLY_AND_WEATHER_LOAD_REVIEW",
+      "automatic_purchase_authority": false
+    }
+  ],
+  "legacy_migration": {
+    "source_of_truth": "catalog/board_components.v1.json",
+    "policy": "READ_ONLY_MAPPING_NO_RUNTIME_CHANGE",
+    "mappings": [
+      {
+        "legacy_category": "base_board",
+        "new_entity_kind": "SELLABLE_PACKAGE",
+        "new_role": "deck_or_complete_board"
+      },
+      {
+        "legacy_category": "deck",
+        "new_entity_kind": "PRODUCT_VARIANT",
+        "new_role": "deck_or_complete_board"
+      },
+      {
+        "legacy_category": "truck",
+        "new_entity_kind": "PRODUCT_VARIANT",
+        "new_role": "steering_or_truck"
+      },
+      {
+        "legacy_category": "wheel",
+        "new_entity_kind": "PRODUCT_VARIANT",
+        "new_role": "terrain_interface"
+      },
+      {
+        "legacy_category": "hub",
+        "new_entity_kind": "PRODUCT_VARIANT",
+        "new_role": "hub"
+      },
+      {
+        "legacy_category": "brake",
+        "new_entity_kind": "PRODUCT_VARIANT",
+        "new_role": "brake"
+      },
+      {
+        "legacy_category": "drive",
+        "new_entity_kind": "PRODUCT_VARIANT",
+        "new_role": "drive"
+      },
+      {
+        "legacy_category": "motor",
+        "new_entity_kind": "PRODUCT_VARIANT",
+        "new_role": "motor"
+      },
+      {
+        "legacy_category": "battery",
+        "new_entity_kind": "PRODUCT_VARIANT",
+        "new_role": "battery"
+      },
+      {
+        "legacy_category": "esc",
+        "new_entity_kind": "PRODUCT_VARIANT",
+        "new_role": "esc"
+      },
+      {
+        "legacy_category": "axle",
+        "new_entity_kind": "PRODUCT_VARIANT",
+        "new_role": "steering_or_truck"
+      },
+      {
+        "legacy_category": "rider_interface",
+        "new_entity_kind": "PRODUCT_VARIANT",
+        "new_role": "rider_retention"
+      },
+      {
+        "legacy_category": "armor",
+        "new_entity_kind": "PRODUCT_VARIANT",
+        "new_role": "protection"
+      },
+      {
+        "legacy_category": "dock",
+        "new_entity_kind": "PRODUCT_VARIANT",
+        "new_role": "maintenance_tool"
+      }
+    ]
+  },
+  "authority": {
+    "procurement_authorized": false,
+    "fabrication_authorized": false,
+    "charging_authorized": false,
+    "powered_operation_authorized": false,
+    "generic_builder_may_promote_x1_authority": false
+  }
+}
