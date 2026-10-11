@@ -180,6 +180,42 @@ async function main(){
   assert.equal(survey.physical_clearances_verified,0);
   assert.equal(survey.procurement_authorized,false);
   assert.equal(survey.pairs[0].classification,"CANDIDATE_AABBS_SEPARATED");
+  assert.equal(await page.locator("#picker-cad-motion-export").isDisabled(),true);
+  const motionFixture={...metricFixture,motion:{
+   scope:"CANDIDATE_MOTION_RESEARCH_ONLY",
+   moving_part_id:"synthetic_truck",
+   stationary_part_ids:["synthetic_deck"],
+   axis_point_assembly_mm:[12,0,0],
+   axis_direction_assembly:[0,0,1],
+   angle_range_deg:[-30,30],sample_step_deg:10,uncertainty_mm:.25,
+   kinematics_physically_verified:false,dynamic_clearance_qualified:false,
+   contact_verified:false
+  }};
+  await page.locator("#picker-cad-metric-upload").setInputFiles({
+   name:"synthetic-candidate-motion.json",mimeType:"application/json",
+   buffer:Buffer.from(JSON.stringify(motionFixture))});
+  await page.waitForFunction(()=>document.querySelector("#picker-cad-motion-plot svg")&&
+   document.querySelector("#picker-cad-motion-status")?.textContent.includes("Candidate motion"),
+   null,{timeout:10000});
+  assertBrowser((await page.locator("#picker-cad-motion-plot").innerText())
+   .includes("NOT VERIFIED STEERING CLEARANCE"),"Unqualified motion plot missing");
+  const motionDownload=page.waitForEvent("download");
+  await page.locator("#picker-cad-motion-export").click();
+  const motion=JSON.parse(await readFile(await (await motionDownload).path(),"utf8"));
+  assert.equal(motion.sample_count,7);
+  assert.equal(motion.pair_count,1);
+  assert.equal(motion.physical_clearances_verified,0);
+  assert.equal(motion.between_samples_checked,false);
+  assert.equal(motion.procurement_authorized,false);
+  const tamperedMotion=structuredClone(motionFixture);
+  tamperedMotion.motion.dynamic_clearance_qualified=true;
+  await page.locator("#picker-cad-metric-upload").setInputFiles({
+   name:"forged-motion.json",mimeType:"application/json",
+   buffer:Buffer.from(JSON.stringify(tamperedMotion))});
+  await page.waitForFunction(()=>document.querySelector("#picker-cad-metric-status")
+   ?.textContent.includes("Metric survey held:"),null,{timeout:10000});
+  assert.equal(await page.locator("#picker-cad-motion-export").isDisabled(),true);
+  note("Candidate steering sweep is bounded, exportable and never claims safe clearance");
   note("Manufacturer stencil, 105mm source identity and fail-closed metric candidate analyzer");
   await page.locator("#picker-cad-upload").setInputFiles({
    name:"tampered.glb",mimeType:"model/gltf-binary",
