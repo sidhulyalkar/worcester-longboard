@@ -78,20 +78,29 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
   function disc(group,mat,r=0.46,z=0) {
     add(group,new THREE.CylinderGeometry(r,r,0.13,28),mat,[0,0,z],[Math.PI/2,0,0]);
   }
-  function createProxy(part,domain,proportions=null) {
+  function createProxy(part,domain,proportions=null,pickerVariants=[]) {
     const group=new THREE.Group(),mat=material(PALETTE[part.group_id]||0xaac2c7);
     const lengthScale=proportions?.deck_length_ratio??1;
     const widthScale=proportions?.deck_width_ratio??1;
     const wheelScale=proportions?.wheel_diameter_ratio??1;
+    const variant=pickerVariants.find(x=>x.variant_id===part.component_id);
+    const dimensions=variant?.dimensions_mm??null;
+    const boardLengthScale=dimensions?.length_mm?
+      Math.max(0.6,Math.min(1.5,dimensions.length_mm/
+      (domain==="alpine_ski"?1650:domain==="snowboard"?1500:915))):1;
+    const boardWidthScale=dimensions?.waist_mm?
+      Math.max(0.65,Math.min(1.5,dimensions.waist_mm/
+      (domain==="alpine_ski"?94:250))):1;
     const role=part.role;
     if(part.group_id==="platform") {
       if(role==="ski_pair"){
-        board(group,mat,0.48,8.5,-0.47);board(group,mat,0.48,8.5,0.47);
+        board(group,mat,0.48*boardWidthScale,8.5*boardLengthScale,-0.47);
+        board(group,mat,0.48*boardWidthScale,8.5*boardLengthScale,0.47);
       }else if(role==="splitboard"){
         board(group,mat,1,7.8,-0.55);board(group,mat,1,7.8,0.55);
       }else if(role==="surfboard")board(group,mat,2.35,8.2);
-      else board(group,mat,(domain==="skateboard_longboard"?1.7:2.25)*widthScale,
-                 (domain==="snowboard"?8.0:7.2)*lengthScale);
+      else board(group,mat,(domain==="skateboard_longboard"?1.7:2.25)*widthScale*boardWidthScale,
+                 (domain==="snowboard"?8.0:7.2)*lengthScale*boardLengthScale);
     }else if(part.group_id==="ground") {
       if(role==="fin_set"){
         box(group,0.11,0.55,0.85,mat,-0.5,0,0.25);
@@ -107,7 +116,13 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
         for(const x of [-1.15,1.15])for(const y of [-2.2,2.2])wheel(group,mat,x,y,0.46*wheelScale);
       }
     }else if(part.group_id==="mount") {
-      if(role==="mounting_disc"||role==="puck_or_mounting_kit"||role==="touring_pivot"){
+      if(role==="binding_pair" && domain==="alpine_ski"){
+        for(const x of [-0.47,0.47]){
+          box(group,0.35,1.65,0.16,mat,x,0,0);
+          box(group,0.5,0.38,0.38,mat,x,0.65,0.25);
+          box(group,0.5,0.48,0.45,mat,x,-0.62,0.28);
+        }
+      }else if(role==="mounting_disc"||role==="puck_or_mounting_kit"||role==="touring_pivot"){
         for(const y of [-1.4,1.4]){
           add(group,new THREE.CylinderGeometry(0.52,0.52,0.15,30),
               mat,[0,y,0],[Math.PI/2,0,0]);
@@ -124,7 +139,17 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
       }
     }else if(part.group_id==="rider") {
       if(role==="griptape"||role==="traction_pad")board(group,mat,1.85,6.1);
-      else for(const y of [-1.4,1.4]){
+      else if(role==="boot_pair" && domain==="alpine_ski"){
+        // Ski boot silhouette: separate toe shell, heel and rising cuff per ski.
+        // Relative sizes are illustrative and not shell/BLS fit measurements.
+        for(const x of [-0.47,0.47]){
+          box(group,0.47,1.5,0.23,mat,x,0,0.12);
+          box(group,0.5,0.9,0.68,mat,x,-0.3,0.48);
+          box(group,0.54,0.57,1.0,mat,x,-0.57,1.16);
+          box(group,0.5,0.09,0.12,mat,x,-0.33,1.38);
+          box(group,0.5,0.09,0.12,mat,x,-0.75,0.95);
+        }
+      }else for(const y of [-1.4,1.4]){
         box(group,1.38,0.95,0.17,mat,0,y,0);
         box(group,0.85,0.55,0.84,mat,0,y+0.12,0.42);
         box(group,1.22,0.15,0.22,mat,0,y-0.34,0.35);
@@ -169,16 +194,19 @@ export async function createExploded3DViewer(host,{onSelect=()=>{}}={}) {
     }
     schedule();
   }
-  function update(nextGraph,separation=78,selectedId=null,nextVisualState=null) {
+  function update(nextGraph,separation=78,selectedId=null,nextVisualState=null,pickerVariants=[]) {
     if(disposed)return;
     const proposed=planExplodedScene(nextGraph,{
       separation,selectedId,visualState:nextVisualState
     });
-    const key=JSON.stringify(proposed.reference_proportions);
+    if(!Array.isArray(pickerVariants) ||
+       pickerVariants.some(x=>!nextGraph.components.some(p=>p.component_id===x.variant_id)))
+      throw Error("Picker visual variants must match current source-bound graph");
+    const key=JSON.stringify([proposed.reference_proportions,pickerVariants.map(x=>[x.variant_id,x.dimensions_mm])]);
     if(graph!==nextGraph||key!==proportionsKey){
       clearParts();graph=nextGraph;proportionsKey=key;
       for(const part of nextGraph.components){
-        const obj=createProxy(part,nextGraph.domain_id,proposed.reference_proportions);
+        const obj=createProxy(part,nextGraph.domain_id,proposed.reference_proportions,pickerVariants);
         nodes.set(part.component_id,obj);root.add(obj);
       }
     }
