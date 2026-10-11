@@ -124,3 +124,15 @@ test("board design engine and Build Passport are bitwise unchanged by replay",()
  for(const candidate of orig.candidates.slice(0,4))
   assert.deepEqual(buildBuildPassport(candidate,bundle),buildBuildPassport(candidate,replayBundle));
 });
+
+test("seller snapshot must have real date, HTTPS without credentials, and price cannot be silently altered",()=>{
+ const changed=structuredClone(catalog);
+ changed.components[0].source.url="https://user:secret@www.mbs.com/product";
+ assert.ok(!make(changed).supplier_offer_references.some(x=>x.variant_id==="variant:mountainboard:DONOR-COMP95"));
+ changed.components[0].source.url="https://www.mbs.com/product";
+ changed.components[0].source.as_of="2026-02-30";
+ assert.ok(!make(changed).supplier_offer_references.some(x=>x.variant_id==="variant:mountainboard:DONOR-COMP95"));
+ const report=make();
+ report.legacy_catalog_snapshot.components[0].price.unit_price_usd=0.01;
+ assert.throws(()=>replayLegacyBoardCatalog(report),/stale graph snapshot/);
+});
