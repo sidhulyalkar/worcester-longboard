@@ -56,8 +56,14 @@
      <div id="picker-visual-3d" hidden aria-label="3D illustrative exploded assembly"></div>
     </div>
     <p id="picker-rendered-scene-status" class="visual-scene-status" aria-live="polite">Assembly uses unmeasured reference geometry. Child categories are research only.</p>
-    <p class="visual-caption" id="picker-view-note">3D parts are procedurally drawn visual proxies. Published ski lengths and board waist ratios can inform their relative shapes, but fastener positions, tolerances, boot shells and mounting clearances are not measured CAD.</p>
+    <p class="visual-caption" id="picker-view-note">For complete longboards, one parametric display schema powers the integrated and exploded 2D/3D board. Published dimensions appear separately from inferred visual placements. Mounts, tolerances, fastener patterns and clearances are NOT manufacturer CAD or physical approvals.</p>
     <div class="view-controls">
+     <div class="cad-assembly-actions" role="group" aria-label="Parametric board configuration">
+      <button type="button" id="picker-assemble" aria-pressed="false">Assemble complete board</button>
+      <button type="button" id="picker-separate" aria-pressed="false">Explode into components</button>
+      <button type="button" id="picker-cad-export" disabled>Export parametric CAD display schema</button>
+     </div>
+     <p id="picker-cad-status" class="cad-status" role="status" aria-live="polite">No source-matched parametric complete-board model yet.</p>
      <label for="picker-explode">Explode assembly <output id="picker-explode-output" for="picker-explode">72%</output></label>
      <input type="range" min="0" max="100" value="72" id="picker-explode">
      <div id="picker-camera-controls" class="camera-controls" hidden role="group" aria-label="3D camera views">
