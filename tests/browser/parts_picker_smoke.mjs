@@ -108,6 +108,14 @@ async function main(){
    "Source-bound tree must expose seven separately selectable kit components");
   assert.equal(await page.locator("#picker-visual-svg [data-exploded-part]").count(),7,
    "2D visual must contain seven independently explodable kit components");
+  const inspectButton=page.locator("#picker-kit-rows [data-kit-inspect]").nth(2);
+  const inspectId=await inspectButton.getAttribute("data-kit-inspect");
+  await inspectButton.click();
+  assert.equal(await page.locator("#picker-part-tree [aria-pressed=true]")
+    .getAttribute("data-picker-part"),inspectId);
+  assertBrowser((await page.locator("#picker-component-detail").innerText())
+   .includes("not a standalone seller order line"),
+   "Kit ledger selection failed to explain that children are not new purchases");
   assertBrowser((await page.locator("#picker-rendered-scene-status").innerText())
    .includes("0 received/verified pieces"),"3D falsely claims a received kit");
   const kit105=await page.locator("#picker-kit-summary").innerText();
