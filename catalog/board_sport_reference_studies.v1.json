@@ -1,0 +1,565 @@
+{
+  "schema_version": 1,
+  "scope": "SOURCE_REFERENCED_BOARD_SPORT_STUDIES_NOT_VERIFIED_FIT_OR_CHECKOUT",
+  "reviewed_as_of": "2026-10-10",
+  "note": "Manufacturer catalog/family and offered complete-kit descriptions, not independently witnessed shipped contents, exact sized variants, assembly instruction or current inventory. Component rows explicitly distinguish maker reference from unsupported boot fit placeholders.",
+  "sources": [
+    {
+      "id": "loaded-tangent",
+      "title": "Loaded Tangent Standard Complete, 105mm Dad Bod option",
+      "domain": "loadedboards.com",
+      "url": "https://www.loadedboards.com/products/tangent-longboard-skateboard",
+      "claim": "Maker lists complete deck, Zee brackets, Paris V3 150 mm 50-degree trucks, 105 mm Dad Bod wheels, Jehu V2 bearings and mounting hardware; selected vendor product option is a reference, not a shipped-inventory receipt"
+    },
+    {
+      "id": "loaded-omakase",
+      "title": "Loaded Omakase Standard Complete",
+      "domain": "loadedboards.com",
+      "url": "https://www.loadedboards.com/products/omakase-longboard-skateboard",
+      "claim": "Maker lists Omakase deck, Paris 165 mm V3 trucks, Orangatang 75 mm In Heat wheels, Orangatang Nipple bushings, Jehu V2 bearings, Paris risers and hardware"
+    },
+    {
+      "id": "burton-custom",
+      "title": "Burton Custom Camber 2027 product family",
+      "domain": "burton.com",
+      "url": "https://www.burton.com/en-us/products/mens-burton-custom-camber-snowboard-106881",
+      "claim": "Burton labels Custom Camber 2027 The Channel mount; multiple sizes and colors exist"
+    },
+    {
+      "id": "burton-good-company",
+      "title": "Burton Good Company Camber 2027",
+      "domain": "burton.com",
+      "url": "https://www.burton.com/en-us/products/burton-good-company-camber-snowboard-235951",
+      "claim": "Burton labels 2027 Good Company The Channel mount; size/color remain unselected"
+    },
+    {
+      "id": "burton-process",
+      "title": "Burton Process Camber 2027",
+      "domain": "burton.com",
+      "url": "https://www.burton.com/en-us/products/mens-burton-process-camber-snowboard-106921",
+      "claim": "Burton labels Process 2027 The Channel mount"
+    },
+    {
+      "id": "burton-mission",
+      "title": "Burton Mission Re:Flex 2027 snowboard bindings",
+      "domain": "burton.com",
+      "url": "https://www.burton.com/en-us/products/mens-burton-mission-re-flex-snowboard-bindings-105461",
+      "claim": "Burton identifies Re:Flex mounting; actual exact binding size, discs, screws, boots and revision remain unknown"
+    },
+    {
+      "id": "burton-cartel",
+      "title": "Burton Cartel Re:Flex 2027 snowboard bindings",
+      "domain": "burton.com",
+      "url": "https://www.burton.com/en-us/products/mens-burton-cartel-re-flex-snowboard-bindings-105391",
+      "claim": "Burton identifies Re:Flex mounting and 3D adapter caveat"
+    },
+    {
+      "id": "burton-stepon",
+      "title": "Burton Step On Re:Flex 2027 bindings",
+      "domain": "burton.com",
+      "url": "https://www.burton.com/en-us/products/mens-burton-step-on-re-flex-snowboard-bindings-172831",
+      "claim": "Burton explicitly states only compatible with Step On boots, exact size matched separately"
+    },
+    {
+      "id": "burton-combo-disc",
+      "title": "Burton Re:Flex Combo Disc manufacturer listing",
+      "domain": "burton.com",
+      "url": "https://www.burton.com/en-us/products/burton-re-flex-combo-disc-229011",
+      "claim": "Listed for Re:Flex bindings and The Channel or 4x4 boards; included hardware and physical revision not inferred"
+    },
+    {
+      "id": "burton-reflex-overview",
+      "title": "Burton Re:Flex mounting-system overview",
+      "domain": "burton.com",
+      "url": "https://www.burton.com/en-us/blogs/the-burton-blog/burton-reflex-bindings-overview",
+      "claim": "Maker states Re:Flex needs appropriate discs for 2x4/4x4/3D/Channel; 3D discs are separate and old Channel M5 hardware differs"
+    }
+  ],
+  "studies": [
+    {
+      "id": "source-loaded-tangent-complete",
+      "domain_id": "skateboard_longboard",
+      "label": "Loaded Tangent complete reference",
+      "source_state": "MAKER_PRODUCT_FAMILY_OR_COMPLETE_OFFER_REFERENCE",
+      "components": [
+        {
+          "component_id": "REF-TANGENT-DECK",
+          "label": "Loaded Tangent deck",
+          "role": "deck",
+          "manufacturer": "Loaded",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.loadedboards.com/products/tangent-longboard-skateboard",
+          "source_id": "loaded-tangent",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "REF-TANGENT-ZEE",
+          "label": "Loaded Zee bracket system",
+          "role": "bracket_set",
+          "manufacturer": "Loaded",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.loadedboards.com/products/tangent-longboard-skateboard",
+          "source_id": "loaded-tangent",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "REF-TANGENT-TRUCK",
+          "label": "Paris V3 150mm 50° trucks (listed option)",
+          "role": "truck_pair",
+          "manufacturer": "Paris",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.loadedboards.com/products/tangent-longboard-skateboard",
+          "source_id": "loaded-tangent",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "REF-TANGENT-WHEEL",
+          "label": "Orangatang 105mm Dad Bod 77a wheels",
+          "role": "wheelset",
+          "manufacturer": "Orangatang",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.loadedboards.com/products/tangent-longboard-skateboard",
+          "source_id": "loaded-tangent",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "REF-TANGENT-BEARING",
+          "label": "Loaded Jehu V2 bearings",
+          "role": "bearing_set",
+          "manufacturer": "Loaded",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.loadedboards.com/products/tangent-longboard-skateboard",
+          "source_id": "loaded-tangent",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "REF-TANGENT-HARDWARE",
+          "label": "Loaded countersunk / button-head mount hardware",
+          "role": "mounting_hardware",
+          "manufacturer": "Loaded",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.loadedboards.com/products/tangent-longboard-skateboard",
+          "source_id": "loaded-tangent",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        }
+      ],
+      "advertised_contents": [
+        "deck",
+        "bracket_set",
+        "truck_pair",
+        "wheelset",
+        "bearing_set",
+        "mounting_hardware"
+      ],
+      "known_mount_lookups": null,
+      "additional_checks": [
+        "Verify selected complete product option and maker revision",
+        "Count shipped bearings, brackets and fasteners before any fit decisions",
+        "Do not interchange this bracket mounting system with another deck by nominal sizing alone"
+      ],
+      "manufacturer_variant_selected": false,
+      "actually_received_contents_verified": false,
+      "checkout_authorized": false,
+      "note": "Existing maker product page facts describe only advertised family/complete option, not delivered parts, fit approval or exact sized variant."
+    },
+    {
+      "id": "source-loaded-omakase-complete",
+      "domain_id": "skateboard_longboard",
+      "label": "Loaded Omakase complete reference",
+      "source_state": "MAKER_PRODUCT_FAMILY_OR_COMPLETE_OFFER_REFERENCE",
+      "components": [
+        {
+          "component_id": "REF-OMAKASE-DECK",
+          "label": "Loaded Omakase deck",
+          "role": "deck",
+          "manufacturer": "Loaded",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.loadedboards.com/products/omakase-longboard-skateboard",
+          "source_id": "loaded-omakase",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "REF-OMAKASE-TRUCK",
+          "label": "Paris V3 165mm 50° truck setup",
+          "role": "truck_pair",
+          "manufacturer": "Paris",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.loadedboards.com/products/omakase-longboard-skateboard",
+          "source_id": "loaded-omakase",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "REF-OMAKASE-WHEEL",
+          "label": "Orangatang 75mm In Heat wheels",
+          "role": "wheelset",
+          "manufacturer": "Orangatang",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.loadedboards.com/products/omakase-longboard-skateboard",
+          "source_id": "loaded-omakase",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "REF-OMAKASE-BEARING",
+          "label": "Loaded Jehu V2 bearings",
+          "role": "bearing_set",
+          "manufacturer": "Loaded",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.loadedboards.com/products/omakase-longboard-skateboard",
+          "source_id": "loaded-omakase",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "REF-OMAKASE-BUSHING",
+          "label": "Orangatang Nipple bushing reference",
+          "role": "bushing_set",
+          "manufacturer": "Orangatang",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.loadedboards.com/products/omakase-longboard-skateboard",
+          "source_id": "loaded-omakase",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "REF-OMAKASE-RISER",
+          "label": "Paris 1/4-inch riser reference",
+          "role": "riser_set",
+          "manufacturer": "Paris",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.loadedboards.com/products/omakase-longboard-skateboard",
+          "source_id": "loaded-omakase",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "REF-OMAKASE-HARDWARE",
+          "label": "Loaded mounting hardware reference",
+          "role": "mounting_hardware",
+          "manufacturer": "Loaded",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.loadedboards.com/products/omakase-longboard-skateboard",
+          "source_id": "loaded-omakase",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        }
+      ],
+      "advertised_contents": [
+        "deck",
+        "truck_pair",
+        "wheelset",
+        "bearing_set",
+        "bushing_set",
+        "riser_set",
+        "mounting_hardware"
+      ],
+      "known_mount_lookups": null,
+      "additional_checks": [
+        "Verify actual advertised option and wheelbase positions",
+        "Confirm truck/riser hardware and wheel clearance on received deck",
+        "This is a complete-board source description, not individual replacement fit proof"
+      ],
+      "manufacturer_variant_selected": false,
+      "actually_received_contents_verified": false,
+      "checkout_authorized": false,
+      "note": "Existing maker product page facts describe only advertised family/complete option, not delivered parts, fit approval or exact sized variant."
+    },
+    {
+      "id": "source-burton-custom-mission",
+      "domain_id": "snowboard",
+      "label": "Burton Custom + Mission Re:Flex reference",
+      "source_state": "MAKER_PRODUCT_FAMILY_OR_COMPLETE_OFFER_REFERENCE",
+      "components": [
+        {
+          "component_id": "source-burton-custom-mission-BOARD",
+          "label": "Custom Camber 2027",
+          "role": "snowboard",
+          "manufacturer": "Burton",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.burton.com/en-us/products/mens-burton-custom-camber-snowboard-106881",
+          "source_id": "burton-custom",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "source-burton-custom-mission-BINDINGS",
+          "label": "Mission Re:Flex 2027",
+          "role": "binding_pair",
+          "manufacturer": "Burton",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.burton.com/en-us/products/mens-burton-mission-re-flex-snowboard-bindings-105461",
+          "source_id": "burton-mission",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "source-burton-custom-mission-DISC",
+          "label": "Burton Re:Flex Combo Disc family",
+          "role": "mounting_disc",
+          "manufacturer": "Burton",
+          "sku": "229011",
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.burton.com/en-us/products/burton-re-flex-combo-disc-229011",
+          "source_id": "burton-combo-disc",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "source-burton-custom-mission-BOOTS",
+          "label": "Unknown matched snowboard boot pair",
+          "role": "boot_pair",
+          "manufacturer": null,
+          "sku": null,
+          "source_kind": "fit_placeholder",
+          "source_url": null,
+          "source_id": null,
+          "source_as_of": null,
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "FIT_PLACEHOLDER_NO_SOURCE"
+        }
+      ],
+      "advertised_contents": [],
+      "known_mount_lookups": {
+        "board_mount": "CHANNEL_M6_REFERENCE",
+        "binding_mount": "REFLEX",
+        "disc_family": "BURTON_REFLEX_COMBO",
+        "boot_retention": "STRAP"
+      },
+      "additional_checks": [
+        "Channel and Re:Flex product-family documentation supports an adapter search, not exact installed hardware fit",
+        "Select actual binding size and exact boot pair before evaluating fit",
+        "Verify strap boot/binding size and model",
+        "Validate M6 Channel hardware and model/year-specific instructions with exact received components"
+      ],
+      "manufacturer_variant_selected": false,
+      "actually_received_contents_verified": false,
+      "checkout_authorized": false,
+      "note": "Existing maker product page facts describe only advertised family/complete option, not delivered parts, fit approval or exact sized variant."
+    },
+    {
+      "id": "source-burton-goodcompany-cartel",
+      "domain_id": "snowboard",
+      "label": "Burton Good Company + Cartel Re:Flex reference",
+      "source_state": "MAKER_PRODUCT_FAMILY_OR_COMPLETE_OFFER_REFERENCE",
+      "components": [
+        {
+          "component_id": "source-burton-goodcompany-cartel-BOARD",
+          "label": "Good Company Camber 2027",
+          "role": "snowboard",
+          "manufacturer": "Burton",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.burton.com/en-us/products/burton-good-company-camber-snowboard-235951",
+          "source_id": "burton-good-company",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "source-burton-goodcompany-cartel-BINDINGS",
+          "label": "Cartel Re:Flex 2027",
+          "role": "binding_pair",
+          "manufacturer": "Burton",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.burton.com/en-us/products/mens-burton-cartel-re-flex-snowboard-bindings-105391",
+          "source_id": "burton-cartel",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "source-burton-goodcompany-cartel-DISC",
+          "label": "Burton Re:Flex Combo Disc family",
+          "role": "mounting_disc",
+          "manufacturer": "Burton",
+          "sku": "229011",
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.burton.com/en-us/products/burton-re-flex-combo-disc-229011",
+          "source_id": "burton-combo-disc",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "source-burton-goodcompany-cartel-BOOTS",
+          "label": "Unknown matched snowboard boot pair",
+          "role": "boot_pair",
+          "manufacturer": null,
+          "sku": null,
+          "source_kind": "fit_placeholder",
+          "source_url": null,
+          "source_id": null,
+          "source_as_of": null,
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "FIT_PLACEHOLDER_NO_SOURCE"
+        }
+      ],
+      "advertised_contents": [],
+      "known_mount_lookups": {
+        "board_mount": "CHANNEL_M6_REFERENCE",
+        "binding_mount": "REFLEX",
+        "disc_family": "BURTON_REFLEX_COMBO",
+        "boot_retention": "STRAP"
+      },
+      "additional_checks": [
+        "Channel and Re:Flex product-family documentation supports an adapter search, not exact installed hardware fit",
+        "Select actual binding size and exact boot pair before evaluating fit",
+        "Verify strap boot/binding size and model",
+        "Validate M6 Channel hardware and model/year-specific instructions with exact received components"
+      ],
+      "manufacturer_variant_selected": false,
+      "actually_received_contents_verified": false,
+      "checkout_authorized": false,
+      "note": "Existing maker product page facts describe only advertised family/complete option, not delivered parts, fit approval or exact sized variant."
+    },
+    {
+      "id": "source-burton-process-stepon",
+      "domain_id": "snowboard",
+      "label": "Burton Process + Step On Re:Flex reference",
+      "source_state": "MAKER_PRODUCT_FAMILY_OR_COMPLETE_OFFER_REFERENCE",
+      "components": [
+        {
+          "component_id": "source-burton-process-stepon-BOARD",
+          "label": "Process Camber 2027",
+          "role": "snowboard",
+          "manufacturer": "Burton",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.burton.com/en-us/products/mens-burton-process-camber-snowboard-106921",
+          "source_id": "burton-process",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "source-burton-process-stepon-BINDINGS",
+          "label": "Step On Re:Flex 2027",
+          "role": "binding_pair",
+          "manufacturer": "Burton",
+          "sku": null,
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.burton.com/en-us/products/mens-burton-step-on-re-flex-snowboard-bindings-172831",
+          "source_id": "burton-stepon",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "source-burton-process-stepon-DISC",
+          "label": "Burton Re:Flex Combo Disc family",
+          "role": "mounting_disc",
+          "manufacturer": "Burton",
+          "sku": "229011",
+          "source_kind": "manufacturer_reference",
+          "source_url": "https://www.burton.com/en-us/products/burton-re-flex-combo-disc-229011",
+          "source_id": "burton-combo-disc",
+          "source_as_of": "2026-10-10",
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "MAKER_LISTING_REFERENCE_UNVERIFIED_PHYSICAL_VARIANT"
+        },
+        {
+          "component_id": "source-burton-process-stepon-BOOTS",
+          "label": "Unknown correctly sized Step On boot pair",
+          "role": "boot_pair",
+          "manufacturer": null,
+          "sku": null,
+          "source_kind": "fit_placeholder",
+          "source_url": null,
+          "source_id": null,
+          "source_as_of": null,
+          "quantity_verified": null,
+          "exact_received_revision_verified": false,
+          "source_claim_status": "FIT_PLACEHOLDER_NO_SOURCE"
+        }
+      ],
+      "advertised_contents": [],
+      "known_mount_lookups": {
+        "board_mount": "CHANNEL_M6_REFERENCE",
+        "binding_mount": "REFLEX",
+        "disc_family": "BURTON_REFLEX_COMBO",
+        "boot_retention": "STEP_ON_ONLY"
+      },
+      "additional_checks": [
+        "Channel and Re:Flex product-family documentation supports an adapter search, not exact installed hardware fit",
+        "Select actual binding size and exact boot pair before evaluating fit",
+        "Step On bindings MUST have matching Step On boots; none selected",
+        "Validate M6 Channel hardware and model/year-specific instructions with exact received components"
+      ],
+      "manufacturer_variant_selected": false,
+      "actually_received_contents_verified": false,
+      "checkout_authorized": false,
+      "note": "Existing maker product page facts describe only advertised family/complete option, not delivered parts, fit approval or exact sized variant."
+    }
+  ],
+  "authority": {
+    "procurement_authorized": false,
+    "fabrication_authorized": false,
+    "charging_authorized": false,
+    "powered_operation_authorized": false,
+    "generic_builder_may_promote_x1_authority": false
+  }
+}
