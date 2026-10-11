@@ -12,3 +12,20 @@ main{max-width:1480px;padding:21px 25px 45px;margin:auto}.intro{display:grid;gri
 @media(max-width:1030px){.workspace{grid-template-columns:1fr}.configuration{max-height:none}.intro{grid-template-columns:1fr}.intro-stats{padding:12px}.lower-grid{grid-template-columns:1fr}}
 @media(max-width:600px){main{padding:12px}.topbar{padding:14px;align-items:flex-start;flex-direction:column}.topbar nav{gap:12px}.configuration,.preview,.order-board,.reference-panel{padding:12px;border-radius:12px}.panel-title{gap:10px}h1{font-size:29px}.mode-toggle{width:100%}.mode-toggle button{flex:1}#picker-visual-3d{height:355px}.fit-fields{grid-template-columns:1fr}.picker-part-tree{grid-template-columns:1fr}.export-buttons button{flex:1}}
 @media print{body{color:#111;background:#fff}.topbar nav,.configuration,.mode-toggle,.view-controls,.export-buttons,.lower-grid,#picker-visual-3d,footer{display:none!important}.intro,.workspace,.preview{display:block}.intro .caution,.order-status{background:#fff;color:#111;border-color:#777}.workspace,.order-board,.preview{background:#fff;color:#111;border:0}.assembly-canvas #picker-visual-svg{display:block!important}.assembly-canvas{border:0}.order-board table{min-width:0}.table-scroll{overflow:visible}.order-board th,.order-board td{color:#111}.picker-findings{break-before:auto}}
+
+/* Maker listing quantity evidence: historical, explicitly not a purchase cart. */
+.maker-unit-audit{border:1px solid #46616c;border-radius:12px;margin-top:18px;padding:15px;background:#13242e}
+.maker-unit-audit .eyebrow{margin:0}
+.maker-unit-audit h3{font-size:17px;margin:6px 0}
+.maker-unit-audit>p{font-size:12px;color:var(--muted);line-height:1.6}
+.maker-audit-summary{display:flex;flex-wrap:wrap;gap:9px;padding:12px 0;color:#e6c18b;font-size:12px}
+.maker-audit-summary span{border:1px solid #665942;border-radius:8px;padding:7px 10px}
+.maker-audit-table{min-width:810px}
+.maker-audit-table th,.maker-audit-table td{font-size:11px}
+.maker-audit-table td a{overflow-wrap:anywhere}
+.maker-audit-table .source-part-code{font-weight:700;color:#cce8f0}
+.maker-audit-table .unit-hold{color:#ebb59f;font-weight:700}
+.maker-audit-table .unit-reference{color:#aad1b2;font-weight:700}
+@media(max-width:600px){.maker-unit-audit{padding:10px}.maker-unit-audit .panel-title button{width:100%}}
+@media print{.maker-unit-audit{background:white;border:1px solid #999;color:#111}
+.maker-unit-audit>p,.maker-audit-summary,.maker-audit-table td{color:#111}}
