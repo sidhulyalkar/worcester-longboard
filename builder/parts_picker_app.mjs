@@ -3,6 +3,7 @@ import {renderExplodedAssemblySvg} from "./exploded_renderer.mjs";
 import {validateSupplierObservations,auditMakerOrderUnits} from "./offer_qualification.mjs";
 import {validateRetailRegistry,validateBuildStudies,compareRetailOffers,
  researchRelatedSellerListings,composeResearchAlternatives} from "./retail_build_comparison.mjs";
+import {validateMakerKitClaims,auditCompleteKitClaim} from "./complete_kit_closure.mjs";
 const $=selector=>document.querySelector(selector);
 const esc=x=>String(x??"").replaceAll("&","&amp;").replaceAll("<","&lt;")
  .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
@@ -11,7 +12,7 @@ const cleanUrl=value=>{
  catch{return null;}
 };
 const state={catalog:null,offerObservations:null,offerAudit:null,
- retailCatalog:null,studyCatalog:null,alternatives:null,
+ retailCatalog:null,studyCatalog:null,alternatives:null,kitClaims:null,kitAudit:null,
  domain:"alpine_ski",selections:{},study:null,
  mode:"2d",separation:72,selectedId:null,viewer:null,viewerPromise:null,
  search:""};
@@ -121,6 +122,7 @@ function exportWorklist(format){
  if(format==="json")return download("worcester-parts-research-"+state.domain+".json",
   JSON.stringify({report:state.study.report,source_bound_variants:state.study.selected_variants,
     maker_unit_observations:state.offerAudit,
+    complete_kit_claim_audit:state.kitAudit,
    visual_geometry:"UNSCALED_PROXY_NOT_MEASURED_CAD"},null,2)+"\n","application/json");
  const headers=["Sport","Slot","Variant ID","Requirement","Status",
   "Actual supplier order units","Historical maker pack examples","Maker code","Notes"];
@@ -135,6 +137,40 @@ function exportWorklist(format){
  })];
  download("worcester-parts-worklist-"+state.domain+".csv",
   rows.map(row=>row.map(quoteCsv).join(",")).join("\n")+"\n","text/csv;charset=utf-8");
+}
+function renderCompleteKitClosure(){
+ const host=$("#picker-kit-summary"),body=$("#picker-kit-rows"),unknowns=$("#picker-kit-unknowns");
+ if(!state.kitClaims||!state.study){host.textContent="No complete-kit maker claims loaded.";return;}
+ const asOf=new Date().toISOString().slice(0,10);
+ const result=auditCompleteKitClaim(state.study,state.kitClaims,state.catalog,
+   state.retailCatalog,{as_of:asOf});
+ state.kitAudit=result;
+ const exportButton=$("#picker-export-kit");
+ exportButton.disabled=result.rows.length===0;
+ if(!result.rows.length){
+  host.textContent="This is a modular or other-sport study; no maker complete-package child list is asserted.";
+  body.replaceChildren();unknowns.replaceChildren();return;
+ }
+ host.innerHTML='<strong>'+esc(result.status.replaceAll("_"," "))+'</strong>'+
+  ' · '+result.children_source_claimed+' advertised component categories in ONE maker kit'+
+  ' · 0 verified received components · 0 separate child purchases · exact seller kit contents UNKNOWN'+
+  (result.inclusion_conflict?'<p class="kit-conflict"><strong>Physical package mismatch!</strong> '+
+    esc(result.inclusion_conflict.explanation)+'</p>':'')+
+  '<p><small>Kit reference '+esc(result.kit_id)+'. Source revision and individual fastener counts require inspection.</small></p>';
+ body.innerHTML=result.rows.map(r=>{
+  const url=cleanUrl(r.source_url);
+  return '<tr><td><strong>'+esc(r.label)+'</strong><small>'+esc(r.child_id)+'</small></td>'+
+   '<td>'+esc(r.expected_assembly_units??"UNKNOWN")+
+   '<small>'+esc(r.expectation_basis.replaceAll("_"," "))+'</small></td>'+
+   '<td>'+esc(r.source_claim)+'</td>'+
+   '<td><strong>UNKNOWN</strong><small>Not physically received</small></td>'+
+   '<td>'+esc(r.status.replaceAll("_"," "))+
+   (url?'<small><a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Manufacturer kit contents ↗</a></small>':'')+
+   '</td></tr>';
+ }).join("");
+ unknowns.innerHTML='<h3>Receiving and assembly unknowns</h3><ul>'+
+   result.known_unknowns.map(s=>'<li>'+esc(s)+'</li>').join("")+'</ul>'+
+   '<p>Current 3D rendering is an illustrative one-piece complete-board proxy. These seven child claims are not yet individually measured or explodable. See kit identifiers in the research JSON export.</p>';
 }
 function renderOrder(){
  const report=state.study.report;
@@ -332,7 +368,7 @@ function refresh(){
   if(!state.study.graph.components.some(x=>x.component_id===state.selectedId))
    state.selectedId=state.study.graph.components[0]?.component_id??null;
   renderSlots();renderOrder();renderMakerUnitAudit();renderThreeStudies();
-  renderRetailMatches();renderVendorDirectory();renderTree();
+  renderRetailMatches();renderCompleteKitClosure();renderVendorDirectory();renderTree();
   if(state.selectedId)selectPart(state.selectedId);
   else $("#picker-component-detail").textContent="No part families selected.";
   redrawVisual();
@@ -441,6 +477,11 @@ function initEvents(){
  $("#picker-demo").addEventListener("click",loadDemo);
  $("#picker-export-json").addEventListener("click",()=>exportWorklist("json"));
  $("#picker-export-csv").addEventListener("click",()=>exportWorklist("csv"));
+ $("#picker-export-kit").addEventListener("click",()=>{
+  if(state.kitAudit?.rows?.length)download("worcester-kit-inclusion-"+state.domain+".json",
+   JSON.stringify(state.kitAudit,null,2)+"
+","application/json");
+ });
  $("#picker-export-maker-audit").addEventListener("click",()=>{
   if(state.offerAudit)download("worcester-maker-unit-evidence-"+state.domain+".json",
    JSON.stringify(state.offerAudit,null,2)+"\n","application/json");
@@ -448,22 +489,25 @@ function initEvents(){
 }
 async function main(){
  try{
-  const [res,obsRes,retailRes,studyRes]=await Promise.all([
+  const [res,obsRes,retailRes,studyRes,kitRes]=await Promise.all([
    fetch("../catalog/outdoor_parts_picker.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_supplier_observations.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_retail_comparisons.v1.json",{cache:"no-store"}),
-   fetch("../catalog/outdoor_build_studies.v1.json",{cache:"no-store"})
+   fetch("../catalog/outdoor_build_studies.v1.json",{cache:"no-store"}),
+   fetch("../catalog/outdoor_complete_kit_claims.v1.json",{cache:"no-store"})
   ]);
-  if(!res.ok||!obsRes.ok||!retailRes.ok||!studyRes.ok)
+  if(!res.ok||!obsRes.ok||!retailRes.ok||!studyRes.ok||!kitRes.ok)
    throw Error("Cannot load all four source-bound parts, retailer and study registries");
   state.catalog=await res.json();
   state.offerObservations=await obsRes.json();
   state.retailCatalog=await retailRes.json();
   state.studyCatalog=await studyRes.json();
+  state.kitClaims=await kitRes.json();
   const coverage=validatePartsRegistry(state.catalog);
   validateSupplierObservations(state.offerObservations,state.catalog);
   validateRetailRegistry(state.retailCatalog,state.catalog);
   validateBuildStudies(state.studyCatalog,state.catalog);
+  validateMakerKitClaims(state.kitClaims,state.catalog);
   $("#picker-coverage").innerHTML='<strong>'+coverage.product_families+' product families</strong> / '+
    coverage.variant_choices+' referenced choices<br>'+
    coverage.suppliers+' supplier directories · '+coverage.source_documents+' maker pages<br>'+
