@@ -95,7 +95,7 @@ test("unsupported parts, mutated sample SKUs and duplicate BOM fail closed",()=>
  assert.throws(()=>build(c),/Unknown catalog/);
  const concept=structuredClone(recipes.examples[0]);
  concept.components[0].sku="fraudulent";
- assert.throws(()=>build(concept),/exact source-bound recipe/);
+ assert.throws(()=>build(concept),/exact reviewed registry/);
  const unrecognized=structuredClone(recipes);
  unrecognized.groups[0].roles.push("truck");
  assert.throws(()=>buildAssemblyGraph(selected("brake_first_trail_core"),unrecognized,bundle.catalog,bundle.packageInclusions),/Ambiguous assembly role/);
