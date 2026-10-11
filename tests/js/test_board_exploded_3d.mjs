@@ -5,6 +5,8 @@ import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {buildAssemblyGraph} from "../../builder/assembly_graph.mjs";
 import {planExplodedScene,SCENE_SCOPE} from "../../builder/exploded_scene_model.mjs";
+import {generateBoardDesignSpace} from "../../builder/platform_engine.mjs";
+import {visualStateFromCandidate} from "../../builder/visual_state.mjs";
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"../..");
 const read=p=>JSON.parse(fs.readFileSync(path.join(root,p),"utf8"));
 const recipes=read("catalog/outdoor_assembly_recipes.v1.json");
@@ -59,4 +61,34 @@ test("separation clamps and unsupported groups are rejected",()=>{
  const broken=structuredClone(graph);
  broken.groups.push({...broken.groups[0],id:"unregistered"});
  assert.throws(()=>planExplodedScene(broken),/group/);
+});
+
+test("candidate reference proportions vary by selected visual envelope without dimensional qualification",()=>{
+ const bundle={
+  questionnaire:read("configurator/questionnaire.v1.json"),
+  rules:read("configurator/rules.v1.json"),
+  catalog:read("catalog/board_components.v1.json"),
+  architectures:read("configurator/architectures.v1.json"),
+  compatibility:read("configurator/compatibility_rules.v1.json"),
+  swapSlots:read("configurator/swap_slots.v1.json"),
+  geometry:read("catalog/board_geometry.v1.json"),
+  composer:read("configurator/composer.v1.json"),
+  catalogHealth:read("catalog/catalog_health.v1.json"),
+  packageInclusions:read("catalog/board_package_inclusions.v1.json")
+ };
+ const candidates=generateBoardDesignSpace(read("configurator/examples/trail_rider_profile.json"),bundle).candidates;
+ assert.ok(candidates.length>=2);
+ const observed=new Set();
+ for(const candidate of candidates){
+  const graph=buildAssemblyGraph(candidate,recipes,bundle.catalog,bundle.packageInclusions);
+  const visual=visualStateFromCandidate(candidate,bundle.geometry,bundle.catalog);
+  const plan=planExplodedScene(graph,{visualState:visual});
+  assert.equal(plan.reference_proportions.reference_deck_id,visual.deck.id);
+  assert.equal(plan.reference_proportions.exact_component_geometry_verified,false);
+  assert.equal(plan.physical_fit_verified,false);
+  assert.equal(plan.parts.every(x=>x.metric_dimensions_mm===null),true);
+  assert.throws(()=>planExplodedScene(graph,{visualState:{...visual,subject_id:"other-candidate"}}),/must match/);
+  observed.add(plan.reference_proportions.deck_length_ratio);
+ }
+ assert.ok(observed.size>=2,"catalog design space should include distinct deck proportions");
 });
