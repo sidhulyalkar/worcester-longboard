@@ -11,13 +11,38 @@ const vectors = Object.freeze({
 const clamp = (n, fallback=78) => Number.isFinite(Number(n))
   ? Math.max(0, Math.min(100, Number(n))) : fallback;
 
-export function planExplodedScene(graph, {separation=78, selectedId=null}={}) {
+
+function referenceProportions(graph, visualState){
+ if(visualState===null)return null;
+ if(graph.domain_id!=="mountainboard" ||
+    visualState?.scope!=="candidate_preview" ||
+    visualState.subject_id!==graph.subject_id)
+  throw new Error("Reference proportions must match the selected mountainboard candidate");
+ const length=Number(visualState.deck?.length_mm);
+ const width=Number(visualState.deck?.width_mm);
+ const diameter=visualState.wheel?.visible===true?
+  Number(visualState.wheel.diameter_mm):null;
+ if(!Number.isFinite(length)||length<500||length>1600||
+    !Number.isFinite(width)||width<100||width>500||
+    (diameter!==null&&(!Number.isFinite(diameter)||diameter<40||diameter>400)))
+  throw new Error("Missing or invalid visual-reference envelope");
+ return {
+  source:"BOARD_BUILDER_REFERENCE_ENVELOPE_NOT_MEASURED_ASSEMBLY",
+  deck_length_ratio:length/950,deck_width_ratio:width/251,
+  wheel_diameter_ratio:diameter===null?null:diameter/203.2,
+  reference_deck_id:visualState.deck.id,
+  reference_geometry_state:visualState.deck.evidence_state||"UNKNOWN",
+  exact_component_geometry_verified:false
+ };
+}
+export function planExplodedScene(graph, {separation=78, selectedId=null, visualState=null}={}) {
   if (graph?.scope !== "UNQUALIFIED_SEMANTIC_ASSEMBLY_EXPLODED_VIEW" ||
       !Array.isArray(graph.components) || !Array.isArray(graph.groups) ||
       !graph.components.length ||
       graph.safety?.physical_qualification !== "NOT_QUALIFIED" ||
       !graph.authority || Object.values(graph.authority).some(Boolean))
     throw new Error("3D viewer requires an unqualified, authority-locked assembly graph");
+  const proportions=referenceProportions(graph,visualState);
   const groupIds = new Set(graph.groups.map(g=>g.id));
   if (groupIds.size !== graph.groups.length ||
       [...groupIds].some(id=>!Object.hasOwn(vectors,id)))
@@ -53,7 +78,8 @@ export function planExplodedScene(graph, {separation=78, selectedId=null}={}) {
     schema_version:1, scope:SCENE_SCOPE, basis:BASIS,
     subject_id:graph.subject_id, domain_id:graph.domain_id,
     separation_percent:clamp(separation), selected_id:ids.has(selectedId)?selectedId:null,
-    parts:positions, physical_fit_verified:false, physical_release_authorized:false,
+    parts:positions, reference_proportions:proportions,
+    physical_fit_verified:false, physical_release_authorized:false,
     quantity_verified:false, units:"ARBITRARY_VISUAL_UNITS",
     safety_note:"All shapes, part sizes and placements are illustrative. No dimensions or fastener locations have been qualified."
   };
