@@ -4,6 +4,7 @@ import {validateSupplierObservations,auditMakerOrderUnits} from "./offer_qualifi
 import {validateRetailRegistry,validateBuildStudies,compareRetailOffers,
  researchRelatedSellerListings,composeResearchAlternatives} from "./retail_build_comparison.mjs";
 import {validateMakerKitClaims,auditCompleteKitClaim} from "./complete_kit_closure.mjs";
+import {buildCompleteKitVisualGraph} from "./complete_kit_visual_graph.mjs";
 const $=selector=>document.querySelector(selector);
 const esc=x=>String(x??"").replaceAll("&","&amp;").replaceAll("<","&lt;")
  .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
@@ -12,11 +13,12 @@ const cleanUrl=value=>{
  catch{return null;}
 };
 const state={catalog:null,offerObservations:null,offerAudit:null,
- retailCatalog:null,studyCatalog:null,alternatives:null,kitClaims:null,kitAudit:null,
+ retailCatalog:null,studyCatalog:null,alternatives:null,kitClaims:null,kitAudit:null,visualGraph:null,
  domain:"alpine_ski",selections:{},study:null,
  mode:"2d",separation:72,selectedId:null,viewer:null,viewerPromise:null,
  search:""};
 const sourceFor=id=>state.catalog.sources.find(s=>s.id===id);
+const currentGraph=()=>state.visualGraph??state.study?.graph;
 const productsFor=slot=>state.catalog.products.filter(p=>p.domain_id===state.domain&&p.slot===slot);
 function slotOptions(slot){
  let html='<option value="">Unselected / check exact variant</option>';
@@ -62,7 +64,7 @@ function renderSlots(){
  }).join("");
 }
 function renderTree(){
- const graph=state.study.graph;
+ const graph=currentGraph();
  $("#picker-part-tree").innerHTML=graph.groups.map(g=>{
   const items=graph.components.filter(c=>c.group_id===g.id);
   return '<div><strong>'+esc(g.label)+'</strong><div>'+
@@ -72,21 +74,28 @@ function renderTree(){
  }).join("");
 }
 function selectPart(id){
- if(!state.study.graph.components.some(x=>x.component_id===id))return;
+ const graph=currentGraph();
+ if(!graph?.components.some(x=>x.component_id===id))return;
  state.selectedId=id;
  $("#picker-part-tree").querySelectorAll("[data-picker-part]").forEach(b=>{
   b.setAttribute("aria-pressed",String(b.dataset.pickerPart===id));
  });
- const c=state.study.graph.components.find(x=>x.component_id===id);
+ const c=graph.components.find(x=>x.component_id===id);
  const selected=state.study.selected_variants.find(x=>x.variant_id===id);
  const link=cleanUrl(c.source_url);
  const dims=selected?.dimensions_mm?
   Object.entries(selected.dimensions_mm).map(([k,v])=>esc(k.replaceAll("_"," "))+": "+esc(v)+" mm").join(" · "):
   "Exact dimensions not supplied";
+ const kitPart=c.role?.startsWith("kit_child_");
+ const kitNote=kitPart?
+  '<p><strong>One included-kit research component, not a standalone seller order line.</strong> '+
+  'Expected assembly units: '+esc(c.expected_assembly_units??"UNKNOWN")+
+  ' · manufacturer-advertised claim: '+esc(c.maker_advertised_child_claim)+
+  '. <strong>Actual contents, mounting geometry and fit NOT VERIFIED.</strong></p>':'';
  $("#picker-component-detail").innerHTML='<p><strong>'+esc(c.label)+'</strong></p>'+
   '<p>System: '+esc(c.group_id)+'. Maker: '+esc(c.manufacturer||"Not selected")+
   '. Variant revision / physical interface: <strong>NOT QUALIFIED</strong>.</p>'+
-  '<p>Published product envelope (not CAD): '+dims+'</p>'+
+  '<p>Published product envelope (not CAD): '+dims+'</p>'+kitNote+
   (selected?.inclusion_claim?.length?'<p>Package evidence: '+esc(selected.inclusion_claim.join("; "))+
    '. Contents as received are still unverified.</p>':'')+
   (link?'<p><a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">View original maker reference ↗</a></p>':
@@ -94,7 +103,7 @@ function selectPart(id){
  redrawVisual();
 }
 function redrawVisual(){
- const graph=state.study?.graph;
+ const graph=currentGraph();
  if(!graph)return;
  const host=$("#picker-visual-svg");
  host.innerHTML=renderExplodedAssemblySvg(graph,{explode:state.separation,
@@ -121,6 +130,7 @@ function exportWorklist(format){
  if(!state.study)return;
  if(format==="json")return download("worcester-parts-research-"+state.domain+".json",
   JSON.stringify({report:state.study.report,source_bound_variants:state.study.selected_variants,
+    display_graph:currentGraph(),
     maker_unit_observations:state.offerAudit,
     complete_kit_claim_audit:state.kitAudit,
    visual_geometry:"UNSCALED_PROXY_NOT_MEASURED_CAD"},null,2)+"\n","application/json");
@@ -145,6 +155,7 @@ function renderCompleteKitClosure(){
  const result=auditCompleteKitClaim(state.study,state.kitClaims,state.catalog,
    state.retailCatalog,{as_of:asOf});
  state.kitAudit=result;
+ state.visualGraph=buildCompleteKitVisualGraph(state.study,result);
  const exportButton=$("#picker-export-kit");
  exportButton.disabled=result.rows.length===0;
  if(!result.rows.length){
@@ -170,7 +181,7 @@ function renderCompleteKitClosure(){
  }).join("");
  unknowns.innerHTML='<h3>Receiving and assembly unknowns</h3><ul>'+
    result.known_unknowns.map(s=>'<li>'+esc(s)+'</li>').join("")+'</ul>'+
-   '<p>Current 3D rendering is an illustrative one-piece complete-board proxy. These seven child claims are not yet individually measured or explodable. See kit identifiers in the research JSON export.</p>';
+   '<p>Each manufacturer-advertised component category now has its own selectable, explodable 2D/3D visual proxy. No shape, position, mate or fastener pattern is measured CAD. All seven stable child IDs are included in the review JSON export.</p>';
 }
 function renderOrder(){
  const report=state.study.report;
@@ -365,10 +376,12 @@ function refresh(){
     left_mondo_mm:$("#picker-left").value||null,
     right_mondo_mm:$("#picker-right").value||null
    }});
-  if(!state.study.graph.components.some(x=>x.component_id===state.selectedId))
-   state.selectedId=state.study.graph.components[0]?.component_id??null;
   renderSlots();renderOrder();renderMakerUnitAudit();renderThreeStudies();
-  renderRetailMatches();renderCompleteKitClosure();renderVendorDirectory();renderTree();
+  renderRetailMatches();renderCompleteKitClosure();renderVendorDirectory();
+  const active=currentGraph();
+  if(!active.components.some(x=>x.component_id===state.selectedId))
+   state.selectedId=active.components[0]?.component_id??null;
+  renderTree();
   if(state.selectedId)selectPart(state.selectedId);
   else $("#picker-component-detail").textContent="No part families selected.";
   redrawVisual();
