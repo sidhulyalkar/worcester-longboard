@@ -1,3 +1,5 @@
+> **Review correction, October 11, 2026:** The earlier two named retailer wheel-setup correspondences are **not two qualified comparable packages**. The manufacturer lists Paris V3 trucks but the Skates USA retailer listing states Paris V2; both comparisons now remain on hold. The pilot distinguishes 14 maker-advertised unreceived child claims (7 per kit) and zero physically verified seller package contents. See [Loaded kit pilot](loaded_tangent_complete_kit_pilot_v1.md).
+
 # Worcester critical review and 2026-10-11 development roadmap
 
 **Scope:** Based on draft PRs #110–#114, maker/retail/source registries, active Builder issues #94–#97 and outdoor catalog #106, plus X1 fit/chassis issues #2, #25 and #37.
