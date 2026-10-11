@@ -21,6 +21,25 @@ function hull(domain){
 function symbol(node,domain){
  const role=node.role,grp=node.group_id,col=colors[grp]||"#a7ced7";
  const style='fill="none" stroke="'+col+'" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"';
+ if(role.startsWith("kit_child_")){
+  // Each source-named category gets an independent schematic silhouette.
+  if(role==="kit_child_deck")return hull("skateboard_longboard");
+  if(role==="kit_child_zee_brackets")
+   return '<path d="M-49 -21H-27V21H27V-21H49M-45 8H45" '+style+'/>';
+  if(role==="kit_child_trucks")
+   return '<path d="M-62 0H62M-40 -18L-14 5 0 20 14 5 40 -18" '+style+
+     '/><circle cx="-57" r="8" '+style+'/><circle cx="57" r="8" '+style+'/>';
+  if(role==="kit_child_wheels")
+   return [-35,35].map(x=>[-24,24].map(y=>
+    '<circle cx="'+x+'" cy="'+y+'" r="19" '+style+
+    '/><circle cx="'+x+'" cy="'+y+'" r="9" '+style+'/>').join("")).join("");
+  if(role==="kit_child_bearings")
+   return [-40,0,40].map(x=>'<circle cx="'+x+'" r="13" '+style+
+    '/><circle cx="'+x+'" r="5" '+style+'/>').join("");
+  if(role==="kit_child_deck_hardware"||role==="kit_child_truck_hardware")
+   return [-36,-12,12,36].map(x=>'<path d="M'+x+' -25V23" '+style+
+    '/><circle cx="'+x+'" cy="-27" r="8" '+style+'/>').join("");
+ }
  if(grp==="platform")return hull(domain);
  if(grp==="mount"){
   if(["puck_or_mounting_kit","mounting_disc","touring_pivot"].includes(role))
