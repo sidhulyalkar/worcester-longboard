@@ -10,13 +10,15 @@ const meanings=new Set(["PUBLISHED_OVERALL_ENVELOPE",
  "PUBLISHED_SYSTEM_RELATION_NOT_ASSEMBLY_DATUM",
  "PUBLISHED_APPROXIMATE_SYSTEM_EFFECT",
  "DIY_TEMPLATE_NOMINAL_HOLE_SPACING",
- "PUBLISHED_NOMINAL_WHEEL_DIAMETER"]);
+ "PUBLISHED_NOMINAL_WHEEL_DIAMETER",
+ "PUBLISHED_PRODUCT_DIMENSION_NOT_MATING_DATUM"]);
 const check=(ok,msg)=>{if(!ok)throw Error("CAD dimensional evidence: "+msg);};
 const keys=(obj,arr)=>obj&&typeof obj==="object"&&!Array.isArray(obj)&&
  Object.keys(obj).sort().join("|")===arr.slice().sort().join("|");
 const validUrl=s=>{
  try{const u=new URL(s);return u.protocol==="https:"&&!u.username&&!u.password&&
- (u.hostname==="www.loadedboards.com"||u.hostname==="cdn.shopify.com");}
+ ["www.loadedboards.com","cdn.shopify.com","www.paristruckco.com",
+  "www.orangatangwheels.com"].includes(u.hostname);}
  catch{return false;}
 };
 export function validateCadDimensionalEvidence(data){
