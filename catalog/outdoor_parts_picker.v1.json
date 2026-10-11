@@ -1,0 +1,1334 @@
+{
+  "schema_version": 1,
+  "scope": "EVIDENCE_AWARE_OUTDOOR_PARTS_RESEARCH_NO_CHECKOUT",
+  "as_of": "2026-10-10",
+  "policy": {
+    "live_inventory": false,
+    "offer_prices_live": false,
+    "exact_cart_authorized": false,
+    "consumer_mounted_ski_bindings": false,
+    "physical_fit_qualified": false,
+    "three_d_meshes_measured": false
+  },
+  "domains": [
+    {
+      "id": "alpine_ski",
+      "label": "Alpine skis",
+      "coverage": "MAKER_SEEDED_RESEARCH"
+    },
+    {
+      "id": "snowboard",
+      "label": "Snowboard",
+      "coverage": "MAKER_SEEDED_RESEARCH"
+    },
+    {
+      "id": "skateboard_longboard",
+      "label": "Longboard",
+      "coverage": "MAKER_SEEDED_RESEARCH"
+    },
+    {
+      "id": "mountainboard",
+      "label": "Mountainboard",
+      "coverage": "MAKER_SEEDED_RESEARCH"
+    },
+    {
+      "id": "splitboard",
+      "label": "splitboard",
+      "coverage": "TAXONOMY_ONLY_NO_ORDERABLE_VARIANTS"
+    },
+    {
+      "id": "surfboard",
+      "label": "surfboard",
+      "coverage": "TAXONOMY_ONLY_NO_ORDERABLE_VARIANTS"
+    },
+    {
+      "id": "kiteboard",
+      "label": "kiteboard",
+      "coverage": "TAXONOMY_ONLY_NO_ORDERABLE_VARIANTS"
+    },
+    {
+      "id": "wakeboard",
+      "label": "wakeboard",
+      "coverage": "TAXONOMY_ONLY_NO_ORDERABLE_VARIANTS"
+    },
+    {
+      "id": "snowshoe",
+      "label": "snowshoe",
+      "coverage": "TAXONOMY_ONLY_NO_ORDERABLE_VARIANTS"
+    }
+  ],
+  "assembly_templates": [
+    {
+      "domain_id": "alpine_ski",
+      "slots": [
+        {
+          "id": "ski_pair",
+          "label": "Skis, exact length/waist",
+          "needed": "One manufacturer-confirmed pair",
+          "status": "REQUIRED"
+        },
+        {
+          "id": "ski_binding",
+          "label": "Ski bindings, sole norm and brake",
+          "needed": "Correct manufacturer-confirmed pair and brake",
+          "status": "REQUIRED_PRO_INSTALL"
+        },
+        {
+          "id": "ski_boot",
+          "label": "Ski boots, left/right fit",
+          "needed": "Fitted left and right boots; exact BSL",
+          "status": "REQUIRED_PRO_FIT"
+        },
+        {
+          "id": "ski_poles",
+          "label": "Ski poles",
+          "needed": "One length-qualified pair",
+          "status": "OPTIONAL"
+        },
+        {
+          "id": "ski_service",
+          "label": "Mount, inspect and release-test",
+          "needed": "Qualified professional service",
+          "status": "REQUIRED_PRO_INSTALL"
+        }
+      ]
+    },
+    {
+      "domain_id": "snowboard",
+      "slots": [
+        {
+          "id": "snowboard",
+          "label": "Snowboard and length/width",
+          "needed": "One exact-size board",
+          "status": "REQUIRED"
+        },
+        {
+          "id": "snow_binding",
+          "label": "Binding pair and mounting family",
+          "needed": "One matched pair",
+          "status": "REQUIRED"
+        },
+        {
+          "id": "snow_boot",
+          "label": "Snowboard boots, both feet",
+          "needed": "Individually fitting matched pair",
+          "status": "REQUIRED"
+        },
+        {
+          "id": "snow_hardware",
+          "label": "Discs / channel bolts and inserts",
+          "needed": "Revision-specific hardware; included contents must be checked",
+          "status": "REQUIRED_REVIEW"
+        }
+      ]
+    },
+    {
+      "domain_id": "skateboard_longboard",
+      "slots": [
+        {
+          "id": "long_complete",
+          "label": "Complete longboard OR individual assemblies",
+          "needed": "One complete package or fully specified separate components",
+          "status": "ALTERNATIVE"
+        },
+        {
+          "id": "long_deck",
+          "label": "Deck / brackets if not complete",
+          "needed": "One matched platform",
+          "status": "ALTERNATIVE"
+        },
+        {
+          "id": "long_trucks",
+          "label": "Truck pair",
+          "needed": "Paired trucks compatible with deck",
+          "status": "CONDITIONAL"
+        },
+        {
+          "id": "long_wheels",
+          "label": "Wheel set",
+          "needed": "Four wheels and compatible bearings",
+          "status": "CONDITIONAL"
+        },
+        {
+          "id": "long_hardware",
+          "label": "Bearings / bushings / bolts",
+          "needed": "Package-specific, length-confirmed hardware",
+          "status": "CONDITIONAL"
+        }
+      ]
+    },
+    {
+      "domain_id": "mountainboard",
+      "slots": [
+        {
+          "id": "mt_deck",
+          "label": "Mountainboard deck",
+          "needed": "Deck, tested mounting pattern",
+          "status": "REQUIRED"
+        },
+        {
+          "id": "mt_trucks",
+          "label": "Truck pair",
+          "needed": "Matched axle length and truck family",
+          "status": "REQUIRED"
+        },
+        {
+          "id": "mt_wheels",
+          "label": "Tires, hubs and bearings",
+          "needed": "Four assemblies; verify number of seller units",
+          "status": "REQUIRED"
+        },
+        {
+          "id": "mt_bindings",
+          "label": "Foot straps / binding system",
+          "needed": "Rider-specific pair and mount hardware",
+          "status": "REQUIRED_REVIEW"
+        },
+        {
+          "id": "mt_brake",
+          "label": "Brakes",
+          "needed": "Optional, reviewed for exact axle/hub combination",
+          "status": "OPTIONAL_REVIEW"
+        },
+        {
+          "id": "mt_power",
+          "label": "Electric power conversion",
+          "needed": "Separate electrical/safety engineering review",
+          "status": "PROHIBITED_AUTO_ASSEMBLY"
+        }
+      ]
+    }
+  ],
+  "vendors": [
+    {
+      "id": "salomon",
+      "name": "Salomon",
+      "url": "https://www.salomon.com/en-us/c/sports/alpine-skiing/skis",
+      "kind": "manufacturer",
+      "domains": [
+        "alpine_ski"
+      ],
+      "notes": "Official product/pack contents and length variants, not live cart verification.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    },
+    {
+      "id": "atomic",
+      "name": "Atomic",
+      "url": "https://www.atomic.com/en-us",
+      "kind": "manufacturer",
+      "domains": [
+        "alpine_ski"
+      ],
+      "notes": "Technical length/sidecut datasheets for selected models.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    },
+    {
+      "id": "tyrolia",
+      "name": "Tyrolia",
+      "url": "https://www.tyrolia.com/en_NA/compatibility",
+      "kind": "manufacturer",
+      "domains": [
+        "alpine_ski"
+      ],
+      "notes": "Manufacturer binding-sole compatibility; technician verification required.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    },
+    {
+      "id": "burton",
+      "name": "Burton",
+      "url": "https://www.burton.com/en-us/pages/size-charts",
+      "kind": "manufacturer",
+      "domains": [
+        "snowboard"
+      ],
+      "notes": "Official Channel, snowboard dimensions and boot-binding charts.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    },
+    {
+      "id": "loaded",
+      "name": "Loaded Boards",
+      "url": "https://www.loadedboards.com/collections/tangent-collection",
+      "kind": "manufacturer",
+      "domains": [
+        "skateboard_longboard"
+      ],
+      "notes": "Official complete/deck-package content and component choices.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    },
+    {
+      "id": "mbs",
+      "name": "MBS",
+      "url": "https://www.mbs.com/shop/parts",
+      "kind": "manufacturer",
+      "domains": [
+        "mountainboard"
+      ],
+      "notes": "Official replacement-part categories and individual-vs-set labels.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    },
+    {
+      "id": "evo",
+      "name": "evo",
+      "url": "https://www.evo.com/",
+      "kind": "specialist_retailer",
+      "domains": [
+        "alpine_ski",
+        "snowboard"
+      ],
+      "notes": "Ski mounting and boot services; terms/availability must be checked at checkout.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    },
+    {
+      "id": "powder7",
+      "name": "Powder7",
+      "url": "https://www.powder7.com/",
+      "kind": "specialist_retailer",
+      "domains": [
+        "alpine_ski"
+      ],
+      "notes": "Ski/binding listings, often demo inventory. Mounting voids standard returns on new skis.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    },
+    {
+      "id": "skiessentials",
+      "name": "SkiEssentials",
+      "url": "https://www.skiessentials.com/",
+      "kind": "specialist_retailer",
+      "domains": [
+        "alpine_ski",
+        "snowboard"
+      ],
+      "notes": "Offers ski/binding bundles and shop mounting, verify exact inclusions.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    },
+    {
+      "id": "rei",
+      "name": "REI",
+      "url": "https://www.rei.com/",
+      "kind": "specialist_retailer",
+      "domains": [
+        "alpine_ski",
+        "snowboard"
+      ],
+      "notes": "Retailer for gear and local services; confirm exact shop service before order.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    },
+    {
+      "id": "backcountry",
+      "name": "Backcountry",
+      "url": "https://www.backcountry.com/",
+      "kind": "specialist_retailer",
+      "domains": [
+        "alpine_ski",
+        "snowboard"
+      ],
+      "notes": "Model offerings need exact year, color, size and seller-unit checking.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    },
+    {
+      "id": "skimo",
+      "name": "Skimo Co",
+      "url": "https://skimo.co/",
+      "kind": "specialist_retailer",
+      "domains": [
+        "alpine_ski",
+        "splitboard"
+      ],
+      "notes": "Touring binding parts and service manuals; touring compatibility separate.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    },
+    {
+      "id": "trampa",
+      "name": "TRAMPA",
+      "url": "https://trampaboards.com/",
+      "kind": "manufacturer",
+      "domains": [
+        "mountainboard"
+      ],
+      "notes": "Off-road decks, trucks and drive hardware; physical fit unreviewed.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    },
+    {
+      "id": "orangatang",
+      "name": "Orangatang",
+      "url": "https://www.orangatangwheels.com/",
+      "kind": "manufacturer",
+      "domains": [
+        "skateboard_longboard"
+      ],
+      "notes": "Longboard wheels and bushings, exact axle/bearing fit to be confirmed.",
+      "stock_verified": false,
+      "returns_terms_currently_verified": false
+    }
+  ],
+  "sources": [
+    {
+      "id": "atomic-bent90",
+      "url": "https://www.atomic.com/en-us/products/bent-90-aa7367-202600",
+      "source_kind": "manufacturer_page",
+      "reviewed_on": "2026-10-10",
+      "summary": "Bent 90 model: lengths 157/166/175/184 cm and 90 mm waist at inspected size table.",
+      "revision_fingerprint": null
+    },
+    {
+      "id": "salomon-qst94",
+      "url": "https://www.salomon.com/en-us/product/qst-94-black-li8314",
+      "source_kind": "manufacturer_page",
+      "reviewed_on": "2026-10-10",
+      "summary": "QST 94 black: published 156/164/172/180/188 cm sizes, 94 mm waist; pack says skis only.",
+      "revision_fingerprint": null
+    },
+    {
+      "id": "salomon-alpha130",
+      "url": "https://www.salomon.com/en-us/product/s-pro-alpha-c-boa-130-li1353/L45419800",
+      "source_kind": "manufacturer_page",
+      "reviewed_on": "2026-10-10",
+      "summary": "S/PRO ALPHA C BOA 130: published factory ISO 5355 alpine pads and optional GripWalk change; exact selected size unverified.",
+      "revision_fingerprint": null
+    },
+    {
+      "id": "salomon-alpha100",
+      "url": "https://www.salomon.com/en-us/product/s-pro-alpha-c-boa-100-li1357",
+      "source_kind": "manufacturer_page",
+      "reviewed_on": "2026-10-10",
+      "summary": "S/PRO ALPHA C BOA 100 boot family, exact sole configuration and sizes unverified.",
+      "revision_fingerprint": null
+    },
+    {
+      "id": "tyrolia-compat",
+      "url": "https://www.tyrolia.com/en_NA/compatibility",
+      "source_kind": "manufacturer_page",
+      "reviewed_on": "2026-10-10",
+      "summary": "Official sole/binding logo interpretations GW/GW CA/MN/PIN and requirement for technician adjustments.",
+      "revision_fingerprint": null
+    },
+    {
+      "id": "burton-goodcompany",
+      "url": "https://www.burton.com/en-us/products/burton-good-company-camber-snowboard-235951?color=A03&regionSelector=true",
+      "source_kind": "manufacturer_page",
+      "reviewed_on": "2026-10-10",
+      "summary": "2027 Good Company Channel board, published size-dependent waist and weight range.",
+      "revision_fingerprint": null
+    },
+    {
+      "id": "burton-stepon",
+      "url": "https://www.burton.com/en-us/products/mens-burton-step-on-re-flex-snowboard-bindings-172831",
+      "source_kind": "manufacturer_page",
+      "reviewed_on": "2026-10-10",
+      "summary": "2027 Step On Re:Flex requires Step On boots, published binding-size chart and disc family caveats.",
+      "revision_fingerprint": null
+    },
+    {
+      "id": "burton-size",
+      "url": "https://www.burton.com/en-us/pages/size-charts",
+      "source_kind": "manufacturer_page",
+      "reviewed_on": "2026-10-10",
+      "summary": "Manufacturer Step On boot/binding Mondo size bands, separate men's/women's systems.",
+      "revision_fingerprint": null
+    },
+    {
+      "id": "burton-mission",
+      "url": "https://www.burton.com/en-us/collections/mens-snowboard-bindings",
+      "source_kind": "manufacturer_page",
+      "reviewed_on": "2026-10-10",
+      "summary": "2027 Mission bindings and other mounting families; exact variant contents not independently verified.",
+      "revision_fingerprint": null
+    },
+    {
+      "id": "loaded-tangent",
+      "url": "https://www.loadedboards.com/products/tangent-longboard-skateboard",
+      "source_kind": "manufacturer_page",
+      "reviewed_on": "2026-10-10",
+      "summary": "Loaded complete Tangent official 105mm Dad Bod, Paris V3, Zee brackets, Jehu bearings, listed hardware.",
+      "revision_fingerprint": null
+    },
+    {
+      "id": "loaded-tangent-caguama",
+      "url": "https://www.loadedboards.com/products/tangent-caguama-complete",
+      "source_kind": "manufacturer_page",
+      "reviewed_on": "2026-10-10",
+      "summary": "Loaded complete Tangent Caguama 85 mm setup with published package contents.",
+      "revision_fingerprint": null
+    },
+    {
+      "id": "loaded-tangent-deck",
+      "url": "https://www.loadedboards.com/products/tangent-deck-with-brackets",
+      "source_kind": "manufacturer_page",
+      "reviewed_on": "2026-10-10",
+      "summary": "Loaded Tangent deck and Zee-bracket offering, distinct from a complete.",
+      "revision_fingerprint": null
+    },
+    {
+      "id": "mbs-parts",
+      "url": "https://www.mbs.com/shop/parts",
+      "source_kind": "manufacturer_page",
+      "reviewed_on": "2026-10-10",
+      "summary": "MBS catalogs Comp 95 decks, F5 bindings pairs, Matrix III per truck, hub each, belts and brake systems.",
+      "revision_fingerprint": null
+    },
+    {
+      "id": "mbs-agent",
+      "url": "https://www.mbs.com/shop/p/10412",
+      "source_kind": "manufacturer_page",
+      "reviewed_on": "2026-10-10",
+      "summary": "MBS Agent AIR manufacturer reference: 102 cm deck, 200x50 mm tires, Matrix III trucks.",
+      "revision_fingerprint": null
+    },
+    {
+      "id": "evo-services",
+      "url": "https://www.evo.com/pages/evo-shop-services",
+      "source_kind": "manufacturer_page",
+      "reviewed_on": "2026-10-10",
+      "summary": "evo published professional ski mounting and binding-calibration service.",
+      "revision_fingerprint": null
+    }
+  ],
+  "products": [
+    {
+      "id": "atomic-bent90",
+      "domain_id": "alpine_ski",
+      "slot": "ski_pair",
+      "brand": "Atomic",
+      "name": "Bent 90",
+      "source_id": "atomic-bent90",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "label": "157 cm",
+          "dimensions_mm": {
+            "length_mm": 1570,
+            "waist_mm": 90
+          },
+          "id": "atomic-bent90-157-cm",
+          "manufacturer_sku": null
+        },
+        {
+          "label": "166 cm",
+          "dimensions_mm": {
+            "length_mm": 1660,
+            "waist_mm": 90
+          },
+          "id": "atomic-bent90-166-cm",
+          "manufacturer_sku": null
+        },
+        {
+          "label": "175 cm",
+          "dimensions_mm": {
+            "length_mm": 1750,
+            "waist_mm": 90
+          },
+          "id": "atomic-bent90-175-cm",
+          "manufacturer_sku": null
+        },
+        {
+          "label": "184 cm",
+          "dimensions_mm": {
+            "length_mm": 1840,
+            "waist_mm": 90
+          },
+          "id": "atomic-bent90-184-cm",
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "ski_mount": "UNVERIFIED_FLAT_SKI"
+      },
+      "inclusion_claim": [
+        "Ski product family; packaged pair count must be verified"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "salomon-qst94",
+      "domain_id": "alpine_ski",
+      "slot": "ski_pair",
+      "brand": "Salomon",
+      "name": "QST 94 Black",
+      "source_id": "salomon-qst94",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "label": "156 cm",
+          "dimensions_mm": {
+            "length_mm": 1560,
+            "waist_mm": 94
+          },
+          "id": "salomon-qst94-156-cm",
+          "manufacturer_sku": null
+        },
+        {
+          "label": "164 cm",
+          "dimensions_mm": {
+            "length_mm": 1640,
+            "waist_mm": 94
+          },
+          "id": "salomon-qst94-164-cm",
+          "manufacturer_sku": null
+        },
+        {
+          "label": "172 cm",
+          "dimensions_mm": {
+            "length_mm": 1720,
+            "waist_mm": 94
+          },
+          "id": "salomon-qst94-172-cm",
+          "manufacturer_sku": null
+        },
+        {
+          "label": "180 cm",
+          "dimensions_mm": {
+            "length_mm": 1800,
+            "waist_mm": 94
+          },
+          "id": "salomon-qst94-180-cm",
+          "manufacturer_sku": null
+        },
+        {
+          "label": "188 cm",
+          "dimensions_mm": {
+            "length_mm": 1880,
+            "waist_mm": 94
+          },
+          "id": "salomon-qst94-188-cm",
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "ski_mount": "UNVERIFIED_FLAT_SKI"
+      },
+      "inclusion_claim": [
+        "Manufacturer says skis only; binding absent"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "tyrolia-mn-ref",
+      "domain_id": "alpine_ski",
+      "slot": "ski_binding",
+      "brand": "Tyrolia",
+      "name": "Multinorm binding family reference",
+      "source_id": "tyrolia-compat",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "tyrolia-mn-ref-Unspecified model / brake",
+          "label": "Unspecified model / brake",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "binding_norm_family": "MN_REFERENCE",
+        "accepted_boot_norms": [
+          "ISO_5355_ADULT",
+          "ISO_23223_GRIPWALK",
+          "ISO_9523_TOURING"
+        ]
+      },
+      "inclusion_claim": [
+        "Representative family guide, NOT a priced specific binding SKU"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "tyrolia-gw-ref",
+      "domain_id": "alpine_ski",
+      "slot": "ski_binding",
+      "brand": "Tyrolia",
+      "name": "GW adult binding family reference",
+      "source_id": "tyrolia-compat",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "tyrolia-gw-ref-Unspecified model / brake",
+          "label": "Unspecified model / brake",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "binding_norm_family": "GW_ADULT_REFERENCE",
+        "accepted_boot_norms": [
+          "ISO_5355_ADULT",
+          "ISO_23223_GRIPWALK"
+        ]
+      },
+      "inclusion_claim": [
+        "Representative family guide; no exact binding product offered"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "salomon-alpha130",
+      "domain_id": "alpine_ski",
+      "slot": "ski_boot",
+      "brand": "Salomon",
+      "name": "S/Pro Alpha C BOA 130",
+      "source_id": "salomon-alpha130",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "salomon-alpha130-Size to be fitted",
+          "label": "Size to be fitted",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "boot_sole_norm": "ISO_5355_ADULT_FROM_MAKER_TEXT",
+        "boot_sole_change_requires_professional": true
+      },
+      "inclusion_claim": [
+        "Manufacturer-referenced boot family; sole configuration must be confirmed on actual pair"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "salomon-alpha100",
+      "domain_id": "alpine_ski",
+      "slot": "ski_boot",
+      "brand": "Salomon",
+      "name": "S/Pro Alpha C BOA 100",
+      "source_id": "salomon-alpha100",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "salomon-alpha100-Size and sole unknown",
+          "label": "Size and sole unknown",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "boot_sole_norm": "UNKNOWN"
+      },
+      "inclusion_claim": [
+        "Boot model family only, size and sole not qualified"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "burton-goodcompany",
+      "domain_id": "snowboard",
+      "slot": "snowboard",
+      "brand": "Burton",
+      "name": "Good Company Camber 2027",
+      "source_id": "burton-goodcompany",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "label": "145 cm",
+          "dimensions_mm": {
+            "length_mm": 1450,
+            "waist_mm": 245
+          },
+          "rider_mass_band_kg": [
+            45,
+            68
+          ],
+          "id": "burton-goodcompany-145-cm",
+          "manufacturer_sku": null
+        },
+        {
+          "label": "148 cm",
+          "dimensions_mm": {
+            "length_mm": 1480,
+            "waist_mm": 248
+          },
+          "rider_mass_band_kg": [
+            45,
+            68
+          ],
+          "id": "burton-goodcompany-148-cm",
+          "manufacturer_sku": null
+        },
+        {
+          "label": "152 cm",
+          "dimensions_mm": {
+            "length_mm": 1520,
+            "waist_mm": 250
+          },
+          "rider_mass_band_kg": [
+            54,
+            82
+          ],
+          "id": "burton-goodcompany-152-cm",
+          "manufacturer_sku": null
+        },
+        {
+          "label": "155 cm",
+          "dimensions_mm": {
+            "length_mm": 1550,
+            "waist_mm": 252
+          },
+          "rider_mass_band_kg": [
+            54,
+            82
+          ],
+          "id": "burton-goodcompany-155-cm",
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "board_mount": "CHANNEL_M6_REFERENCE"
+      },
+      "inclusion_claim": [
+        "Board-only offering; discs/bolts/binding not assumed included"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "burton-stepon",
+      "domain_id": "snowboard",
+      "slot": "snow_binding",
+      "brand": "Burton",
+      "name": "Step On Re:Flex 2027 (men's size chart)",
+      "source_id": "burton-stepon",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "burton-stepon-S",
+          "label": "S",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        },
+        {
+          "id": "burton-stepon-M",
+          "label": "M",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        },
+        {
+          "id": "burton-stepon-L",
+          "label": "L",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        },
+        {
+          "id": "burton-stepon-XL",
+          "label": "XL",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "binding_mount": "REFLEX",
+        "boot_retention": "STEP_ON_ONLY",
+        "disc_family": "BURTON_REFLEX_COMBO",
+        "size_family": "MENS_STEP_ON"
+      },
+      "inclusion_claim": [
+        "Binding family only; exact included mounting disc/bolts must be checked"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "burton-mission",
+      "domain_id": "snowboard",
+      "slot": "snow_binding",
+      "brand": "Burton",
+      "name": "Mission bindings 2027",
+      "source_id": "burton-mission",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "burton-mission-Size not selected",
+          "label": "Size not selected",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "binding_mount": "REFLEX",
+        "boot_retention": "STRAP",
+        "disc_family": "UNKNOWN"
+      },
+      "inclusion_claim": [
+        "Source confirms product family, NOT exact binding size or mounting disc package"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "burton-stepon-boot-ref",
+      "domain_id": "snowboard",
+      "slot": "snow_boot",
+      "brand": "Burton",
+      "name": "Step On boot family (fit separately)",
+      "source_id": "burton-size",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "burton-stepon-boot-ref-Unselected men's model and Mondo",
+          "label": "Unselected men's model and Mondo",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "boot_retention": "STEP_ON_ONLY",
+        "size_family": "MENS_STEP_ON"
+      },
+      "inclusion_claim": [
+        "Size-chart reference only, not a selected buyable boot SKU"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "burton-strap-boot-ref",
+      "domain_id": "snowboard",
+      "slot": "snow_boot",
+      "brand": "Burton",
+      "name": "Conventional snowboard boot family",
+      "source_id": "burton-size",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "burton-strap-boot-ref-Unselected model and size",
+          "label": "Unselected model and size",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "boot_retention": "STRAP"
+      },
+      "inclusion_claim": [
+        "Boot fit/last and binding size require maker-specific match"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "burton-channel-hardware",
+      "domain_id": "snowboard",
+      "slot": "snow_hardware",
+      "brand": "Burton",
+      "name": "Channel mounting hardware research",
+      "source_id": "burton-stepon",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "burton-channel-hardware-Revision-specific bolts/disc unknown",
+          "label": "Revision-specific bolts/disc unknown",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "mounting_hardware": "UNKNOWN_EXACT_REVISION"
+      },
+      "inclusion_claim": [
+        "Do not assume hardware is included in a board or binding box"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "loaded-tangent-complete",
+      "domain_id": "skateboard_longboard",
+      "slot": "long_complete",
+      "brand": "Loaded",
+      "name": "Tangent Standard Complete, 105mm",
+      "source_id": "loaded-tangent",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "loaded-tangent-complete-105 mm Dad Bod 77a",
+          "label": "105 mm Dad Bod 77a",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "wheel_diameter_mm": 105,
+        "mount": "DOUBLE_DROP_BRACKET_REFERENCE"
+      },
+      "inclusion_claim": [
+        "Manufacturer lists deck, Zee brackets, Paris V3 150mm trucks, 4 wheels, Jehu bearings and two hardware sets"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "loaded-tangent-caguama",
+      "domain_id": "skateboard_longboard",
+      "slot": "long_complete",
+      "brand": "Loaded",
+      "name": "Tangent Caguama Complete, 85mm",
+      "source_id": "loaded-tangent-caguama",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "loaded-tangent-caguama-85 mm Caguama 80a",
+          "label": "85 mm Caguama 80a",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "wheel_diameter_mm": 85,
+        "mount": "DOUBLE_DROP_BRACKET_REFERENCE"
+      },
+      "inclusion_claim": [
+        "Manufacturer lists complete kit, not identical to 105 mm option"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "loaded-tangent-deck",
+      "domain_id": "skateboard_longboard",
+      "slot": "long_deck",
+      "brand": "Loaded",
+      "name": "Tangent Deck with Brackets",
+      "source_id": "loaded-tangent-deck",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "loaded-tangent-deck-Deck + Zee brackets",
+          "label": "Deck + Zee brackets",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "mount": "DOUBLE_DROP_BRACKET_REFERENCE"
+      },
+      "inclusion_claim": [
+        "Deck and bracket package, not a complete wheel/truck kit"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "loaded-tangent-trucks-ref",
+      "domain_id": "skateboard_longboard",
+      "slot": "long_trucks",
+      "brand": "Paris",
+      "name": "Paris V3 150 mm 50° (Tangent complete reference)",
+      "source_id": "loaded-tangent",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "loaded-tangent-trucks-ref-150mm reference",
+          "label": "150mm reference",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "truck_hanger_mm": 150
+      },
+      "inclusion_claim": [
+        "Shown in complete assembly; standalone purchase quantity and availability not asserted"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "loaded-dadbod-ref",
+      "domain_id": "skateboard_longboard",
+      "slot": "long_wheels",
+      "brand": "Orangatang",
+      "name": "Dad Bod 105mm 77a (Tangent reference)",
+      "source_id": "loaded-tangent",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "loaded-dadbod-ref-105 mm 77a",
+          "label": "105 mm 77a",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "wheel_diameter_mm": 105
+      },
+      "inclusion_claim": [
+        "Shown as complete wheel set, seller pack quantity unverified for standalone wheel listings"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "mbs-comp95",
+      "domain_id": "mountainboard",
+      "slot": "mt_deck",
+      "brand": "MBS",
+      "name": "Comp 95 deck",
+      "source_id": "mbs-parts",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "mbs-comp95-95 cm deck family",
+          "label": "95 cm deck family",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "deck_length_mm": 950
+      },
+      "inclusion_claim": [
+        "Deck reference only, verify exact SKU/revision and mounting pattern"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "mbs-matrix3",
+      "domain_id": "mountainboard",
+      "slot": "mt_trucks",
+      "brand": "MBS",
+      "name": "Matrix III trucks (each)",
+      "source_id": "mbs-parts",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "mbs-matrix3-400 mm / 50 mm axle",
+          "label": "400 mm / 50 mm axle",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        },
+        {
+          "id": "mbs-matrix3-420 mm / 70 mm axle",
+          "label": "420 mm / 70 mm axle",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "axle_variant_required": true
+      },
+      "inclusion_claim": [
+        "Manufacturer shop lists trucks individually (ea.); a complete pair may require two separately purchased items"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "mbs-rockstar",
+      "domain_id": "mountainboard",
+      "slot": "mt_wheels",
+      "brand": "MBS",
+      "name": "Rockstar II hub and tire family",
+      "source_id": "mbs-parts",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "mbs-rockstar-8-inch tire with hub selection unknown",
+          "label": "8-inch tire with hub selection unknown",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "tire_hub_axle": "UNVERIFIED"
+      },
+      "inclusion_claim": [
+        "MBS lists many hubs each, bearings in sets; four-wheel build requires actual kit reconciliation"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "mbs-f5",
+      "domain_id": "mountainboard",
+      "slot": "mt_bindings",
+      "brand": "MBS",
+      "name": "F5 binding pair",
+      "source_id": "mbs-parts",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "mbs-f5-F5 family",
+          "label": "F5 family",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "foot_retention": "STRAP"
+      },
+      "inclusion_claim": [
+        "Manufacturer lists bindings as pairs; may not include heel straps or all mounting hardware"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "mbs-brake",
+      "domain_id": "mountainboard",
+      "slot": "mt_brake",
+      "brand": "MBS",
+      "name": "MBS brake system reference",
+      "source_id": "mbs-parts",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "mbs-brake-Hardware and rotor revision unknown",
+          "label": "Hardware and rotor revision unknown",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "axle_hub_fit": "UNKNOWN"
+      },
+      "inclusion_claim": [
+        "Brake system and rotor hardware can be separate products; never automatically pair"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    },
+    {
+      "id": "mbs-electric",
+      "domain_id": "mountainboard",
+      "slot": "mt_power",
+      "brand": "MBS",
+      "name": "Agent electric conversion family",
+      "source_id": "mbs-agent",
+      "revision_status": "FAMILY_OR_SIZE_REFERENCE_NOT_SKU_CONFIRMED",
+      "received_or_package_count_verified": false,
+      "complete_mounting_hardware_verified": false,
+      "supplier_order_unit_verified": false,
+      "checkout_eligible": false,
+      "variants": [
+        {
+          "id": "mbs-electric-Unqualified powertrain study",
+          "label": "Unqualified powertrain study",
+          "dimensions_mm": null,
+          "manufacturer_sku": null
+        }
+      ],
+      "interface_claims": {
+        "pack_esc_charger_fit": "UNQUALIFIED"
+      },
+      "inclusion_claim": [
+        "Electric system demands separate protective/electrical/charging qualification; not an automatic shopping kit"
+      ],
+      "print_safety": "FACTORY_ONLY"
+    }
+  ],
+  "print_guidance": [
+    {
+      "id": "storage-rack",
+      "label": "Wall rack / ski pole organizer",
+      "classification": "NON_LOAD_BEARING_ACCESSORY_REVIEW",
+      "notes": "May prototype once wall anchors and carried load are separately rated. Printed hooks not assumed to safely support heavy equipment."
+    },
+    {
+      "id": "binding-alignment-template",
+      "label": "Paper/CAD reference visualization templates",
+      "classification": "DISPLAY_ONLY",
+      "notes": "Do not drill, mount or align ski release bindings using consumer-printed jigs; qualified shop required."
+    },
+    {
+      "id": "boot-dryer-stand",
+      "label": "Ventilated boot-drying stand",
+      "classification": "CONDITIONAL_ACCESSORY_REVIEW",
+      "notes": "Avoid heated/electrified designs without electrical, heat/flammability and material testing."
+    },
+    {
+      "id": "fender",
+      "label": "Nonstructural wheel splash guard",
+      "classification": "CONDITIONAL_ACCESSORY_REVIEW",
+      "notes": "Verify wheel/truck/steering clearance at full articulation; printed part must not interfere with brakes."
+    },
+    {
+      "id": "critical-hardware",
+      "label": "Ski binding mounts, release internals, snowboard retention, truck axles, brake, battery enclosures",
+      "classification": "DO_NOT_SUBSTITUTE_WITH_GENERIC_FDM_PRINT",
+      "notes": "Safety-critical primary load/retention/electrical parts require manufacturer-qualified components and testing, not a generic printed replacement."
+    }
+  ]
+}
