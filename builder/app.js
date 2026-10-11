@@ -1251,7 +1251,10 @@ function redrawExplodedAssembly(){
    explode:state.explodedAmount,selectedId:selected.component_id});
  $("#exploded-amount-value").textContent=state.explodedAmount+"%";
  if(state.explodedDisplayMode==="3d" && state.exploded3DViewer){
-  state.exploded3DViewer.update(graph,state.explodedAmount,selected.component_id);
+  const candidate=state.result?.candidates.find(x=>x.id===graph.subject_id);
+  const visual=graph.domain_id==="mountainboard"&&candidate?
+   candidateVisualState(candidate):null;
+  state.exploded3DViewer.update(graph,state.explodedAmount,selected.component_id,visual);
  }
  $("#exploded-visual").querySelectorAll("[data-exploded-part]").forEach(node=>{
    node.addEventListener("click",()=>{
