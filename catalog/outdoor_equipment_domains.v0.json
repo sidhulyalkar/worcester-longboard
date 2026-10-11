@@ -30,8 +30,7 @@
     "VARIANT_SPECIFIC_DOCUMENTED",
     "MEASURE_FIRST",
     "INCOMPATIBLE",
-    "UNKNOWN",
-    "INDEPENDENTLY_QUALIFIED"
+    "UNKNOWN"
   ],
   "interface_types": [
     {
@@ -235,7 +234,8 @@
         "battery",
         "charger",
         "protection",
-        "maintenance_tool"
+        "maintenance_tool",
+        "axle"
       ],
       "interface_type_ids": [
         "deck_to_truck_mount",
@@ -312,7 +312,7 @@
       ],
       "mission_inputs": [
         "rider_mass_kg",
-        "rider_height_cm",
+        "rider_height_mm",
         "boot_size_left",
         "boot_size_right",
         "boot_sole_length_mm",
@@ -450,7 +450,7 @@
       ],
       "mission_inputs": [
         "rider_mass_kg",
-        "rider_height_cm",
+        "rider_height_mm",
         "inseam_mm",
         "terrain",
         "discipline",
@@ -547,7 +547,7 @@
       {
         "legacy_category": "axle",
         "new_entity_kind": "PRODUCT_VARIANT",
-        "new_role": "steering_or_truck"
+        "new_role": "axle"
       },
       {
         "legacy_category": "rider_interface",
