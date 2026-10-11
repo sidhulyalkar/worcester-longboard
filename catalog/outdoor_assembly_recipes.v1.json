@@ -1,0 +1,516 @@
+{
+  "schema_version": 1,
+  "scope": "CONCEPTUAL_ASSEMBLY_VISUALIZATION_NOT_PHYSICAL_INSTRUCTIONS",
+  "note": "Semantic role grouping and illustrative exploded offsets only. Placement, scale, counts and connections are NOT physical geometry, verified assembly quantities or mounting instructions.",
+  "groups": [
+    {
+      "id": "platform",
+      "label": "Riding platform",
+      "roles": [
+        "base_board",
+        "deck",
+        "snowboard",
+        "ski_pair",
+        "splitboard",
+        "surfboard",
+        "frame"
+      ],
+      "vector": [
+        0,
+        0
+      ],
+      "shape": "platform"
+    },
+    {
+      "id": "mount",
+      "label": "Mounting and steering",
+      "roles": [
+        "truck",
+        "axle",
+        "riser_set",
+        "hardware",
+        "mounting_disc",
+        "puck_or_mounting_kit",
+        "touring_pivot",
+        "truck_pair"
+      ],
+      "vector": [
+        -1.18,
+        0.92
+      ],
+      "shape": "mount"
+    },
+    {
+      "id": "ground",
+      "label": "Terrain contact",
+      "roles": [
+        "wheel",
+        "hub",
+        "wheelset",
+        "fin_set",
+        "skin_pair",
+        "ski_brake"
+      ],
+      "vector": [
+        1.18,
+        0.95
+      ],
+      "shape": "wheel"
+    },
+    {
+      "id": "rider",
+      "label": "Rider interface",
+      "roles": [
+        "rider_interface",
+        "binding",
+        "binding_pair",
+        "boot",
+        "boot_pair",
+        "touring_binding_pair",
+        "touring_boot_pair",
+        "griptape",
+        "traction_pad"
+      ],
+      "vector": [
+        0,
+        -1.22
+      ],
+      "shape": "binding"
+    },
+    {
+      "id": "control",
+      "label": "Braking and propulsion",
+      "roles": [
+        "brake",
+        "drive",
+        "motor",
+        "drivetrain",
+        "brake_system"
+      ],
+      "vector": [
+        1.55,
+        -0.45
+      ],
+      "shape": "control"
+    },
+    {
+      "id": "power",
+      "label": "Energy and controls",
+      "roles": [
+        "esc",
+        "battery",
+        "charger"
+      ],
+      "vector": [
+        -1.55,
+        -0.45
+      ],
+      "shape": "power"
+    },
+    {
+      "id": "utility",
+      "label": "Protection and accessories",
+      "roles": [
+        "armor",
+        "dock",
+        "protection",
+        "maintenance_tool",
+        "leash",
+        "pole_pair",
+        "crampon_pair",
+        "avalanche_safety_kit",
+        "stake_set",
+        "pole_set",
+        "footprint",
+        "shelter"
+      ],
+      "vector": [
+        0,
+        1.55
+      ],
+      "shape": "utility"
+    }
+  ],
+  "domains": [
+    {
+      "id": "mountainboard",
+      "label": "Mountainboard / electric trail board",
+      "source": "LIVE_EXISTING_BOARD_CANDIDATE",
+      "example_id": null,
+      "important_checks": [
+        "Exact deck and truck mount dimensions",
+        "Wheel/hub/axle, brake and drive swept-volume coexistence",
+        "Manufacturer revision and supplier kit quantities",
+        "Battery, charger, brakes and electronics need independent qualification"
+      ]
+    },
+    {
+      "id": "skateboard_longboard",
+      "label": "Longboard / skateboard concept",
+      "source": "UNSOURCED_ILLUSTRATIVE_CONCEPT",
+      "example_id": "concept-longboard",
+      "important_checks": [
+        "Deck and truck baseplate mounting pattern",
+        "Wheelbite clearance through steering sweep",
+        "Axle/bearing retention and wheel offset",
+        "Grip tape, risers and hardware sizing"
+      ]
+    },
+    {
+      "id": "snowboard",
+      "label": "Snowboard concept",
+      "source": "UNSOURCED_ILLUSTRATIVE_CONCEPT",
+      "example_id": "concept-snowboard",
+      "important_checks": [
+        "Board insert or Channel mounting system",
+        "Binding discs or model-specific adapter and fasteners",
+        "Left and right boot/binding fit",
+        "Stance angles and width must be assessed independently"
+      ]
+    },
+    {
+      "id": "alpine_ski",
+      "label": "Alpine ski pair concept",
+      "source": "UNSOURCED_ILLUSTRATIVE_CONCEPT",
+      "example_id": "concept-alpine-ski",
+      "important_checks": [
+        "Boot sole standard and boot sole length",
+        "Binding maker/variant compatibility",
+        "Mount points and brake width",
+        "Qualified shop mounting, adjustment and release testing"
+      ]
+    },
+    {
+      "id": "splitboard",
+      "label": "Splitboard two-mode concept",
+      "source": "UNSOURCED_ILLUSTRATIVE_CONCEPT",
+      "example_id": "concept-splitboard",
+      "important_checks": [
+        "Touring pivots, ride-mode pucks and binding adapter family",
+        "Boot and binding fit",
+        "Climbing skin attachment and board length",
+        "Mode switching and avalanche-terrain training/safety gear"
+      ]
+    },
+    {
+      "id": "surfboard",
+      "label": "Surfboard concept",
+      "source": "UNSOURCED_ILLUSTRATIVE_CONCEPT",
+      "example_id": "concept-surfboard",
+      "important_checks": [
+        "Fin box and fin base standard when fins are used",
+        "Leash attachment and intended wave use",
+        "Actual hull volume and dimensions",
+        "Board condition and accessory mounting"
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "id": "concept-longboard",
+      "domain_id": "skateboard_longboard",
+      "label": "Commuter / carving longboard · schematic",
+      "components": [
+        {
+          "component_id": "DEMO-LB-DECK",
+          "label": "Deck shape study",
+          "role": "deck",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-LB-TRUCKS",
+          "label": "Truck-pair interface study",
+          "role": "truck_pair",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-LB-WHEELS",
+          "label": "Wheelset envelope study",
+          "role": "wheelset",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-LB-RISERS",
+          "label": "Mounting riser / bolt stack study",
+          "role": "riser_set",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-LB-GRIP",
+          "label": "Grip surface study",
+          "role": "griptape",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        }
+      ]
+    },
+    {
+      "id": "concept-snowboard",
+      "domain_id": "snowboard",
+      "label": "All-mountain snowboard · schematic",
+      "components": [
+        {
+          "component_id": "DEMO-SN-BOARD",
+          "label": "Snowboard insert / Channel study",
+          "role": "snowboard",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-SN-BIND",
+          "label": "Binding pair study",
+          "role": "binding_pair",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-SN-BOOT",
+          "label": "Boot fit envelope study",
+          "role": "boot_pair",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-SN-DISC",
+          "label": "Disc and fastener adapter study",
+          "role": "mounting_disc",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        }
+      ]
+    },
+    {
+      "id": "concept-alpine-ski",
+      "domain_id": "alpine_ski",
+      "label": "All-mountain alpine ski pair · schematic",
+      "components": [
+        {
+          "component_id": "DEMO-SKI-PAIR",
+          "label": "Ski pair / mount-zone study",
+          "role": "ski_pair",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-SKI-BIND",
+          "label": "Alpine binding pair study",
+          "role": "binding_pair",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-SKI-BOOT",
+          "label": "Boot sole / length study",
+          "role": "boot_pair",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-SKI-BRAKE",
+          "label": "Brake clearance study",
+          "role": "ski_brake",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-SKI-POLES",
+          "label": "Pole pair accessory",
+          "role": "pole_pair",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        }
+      ]
+    },
+    {
+      "id": "concept-splitboard",
+      "domain_id": "splitboard",
+      "label": "Backcountry splitboard · schematic",
+      "components": [
+        {
+          "component_id": "DEMO-SPLIT-BOARD",
+          "label": "Splitboard halves / interface study",
+          "role": "splitboard",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-SPLIT-BIND",
+          "label": "Mode-switch binding pair",
+          "role": "binding_pair",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-SPLIT-PUCK",
+          "label": "Ride-mode pucks / plate study",
+          "role": "puck_or_mounting_kit",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-SPLIT-TOUR",
+          "label": "Touring pivot attachment study",
+          "role": "touring_pivot",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-SPLIT-BOOT",
+          "label": "Boot fit envelope study",
+          "role": "boot_pair",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-SPLIT-SKIN",
+          "label": "Climbing skin pair study",
+          "role": "skin_pair",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        }
+      ]
+    },
+    {
+      "id": "concept-surfboard",
+      "domain_id": "surfboard",
+      "label": "Surfboard + optional fins · schematic",
+      "components": [
+        {
+          "component_id": "DEMO-SURF-HULL",
+          "label": "Surfboard hull / volume study",
+          "role": "surfboard",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-SURF-FINS",
+          "label": "Optional fin-box / fin study",
+          "role": "fin_set",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-SURF-LEASH",
+          "label": "Leash / attachment study",
+          "role": "leash",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        },
+        {
+          "component_id": "DEMO-SURF-PAD",
+          "label": "Optional traction pad study",
+          "role": "traction_pad",
+          "manufacturer": null,
+          "sku": null,
+          "source_url": null,
+          "source_kind": "illustrative_concept",
+          "price": null,
+          "quantity_verified": null
+        }
+      ]
+    }
+  ],
+  "authority": {
+    "procurement_authorized": false,
+    "fabrication_authorized": false,
+    "charging_authorized": false,
+    "powered_operation_authorized": false,
+    "generic_builder_may_promote_x1_authority": false
+  }
+}

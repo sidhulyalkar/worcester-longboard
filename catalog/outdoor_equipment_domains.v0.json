@@ -330,10 +330,12 @@
       "stage": "PROPOSED",
       "required_roles": [
         "snowboard",
-        "boot",
-        "binding"
+        "boot_pair",
+        "binding_pair"
       ],
       "optional_roles": [
+        "boot",
+        "binding",
         "mounting_disc",
         "mounting_hardware",
         "protection",
@@ -441,7 +443,8 @@
         "binding_pair",
         "boot_pair",
         "puck_or_mounting_kit",
-        "skin_pair"
+        "skin_pair",
+        "touring_pivot"
       ],
       "optional_roles": [
         "crampon_pair",
