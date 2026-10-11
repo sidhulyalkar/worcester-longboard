@@ -2,14 +2,14 @@
   "schema_version": 1,
   "scope": "HISTORICAL_RETAIL_SETUP_COMPARISONS_NO_CHECKOUT",
   "reviewed_on": "2026-10-10",
-  "disclaimer": "Published offer pages are research captures, not live quotes. Item and option details must be reconfirmed at seller checkout; availability, region, taxes, shipping and mounting services are unverified.",
+  "disclaimer": "Published offer pages are research captures, not live quotes. Item and option details must be reconfirmed at seller checkout; availability, region, taxes, shipping and mounting services are unverified. Retailer descriptions currently conflict on Paris V2 vs V3 truck revision for Tangent complete setups; compare named variants for research but do not claim equivalent shipped assemblies.",
   "offers": [
     {
       "id": "loaded-105-direct",
       "merchant_id": "loaded",
       "selected_variant_id": "loaded-tangent-complete-105 mm Dad Bod 77a",
       "product_id": "loaded-tangent-complete",
-      "observed_setup": "Loaded Tangent Standard Complete / Orangatang Dad Bod 105 mm 77a blue",
+      "observed_setup": "Loaded Tangent Standard Complete / Orangatang Dad Bod 105 mm 77a blue / advertised Paris V3 150 mm 50° trucks (polished)",
       "maker_setup_signature": "LOADED_TANGENT_STD_DADBOD105_BLUE77A",
       "observed_package_kind": "COMPLETE_LONGBOARD",
       "pack_count": 1,
@@ -25,14 +25,15 @@
       "shipping_total_verified": false,
       "manufacturer_exact_revision_qualified": false,
       "checkout_eligible": false,
-      "related_product_family_id": null
+      "related_product_family_id": null,
+      "advertised_truck_revision_claim": "PARIS_V3_150MM_50_POLISHED"
     },
     {
       "id": "loaded-105-skatesusa",
       "merchant_id": "skatesusa",
       "selected_variant_id": "loaded-tangent-complete-105 mm Dad Bod 77a",
       "product_id": "loaded-tangent-complete",
-      "observed_setup": "Loaded Tangent Complete / Orangatang Dad Bod 105mm 77a Blue",
+      "observed_setup": "Loaded Tangent Complete / Orangatang Dad Bod 105mm 77a Blue / advertised Paris V2 150 mm 50° trucks (raw)",
       "maker_setup_signature": "LOADED_TANGENT_STD_DADBOD105_BLUE77A",
       "observed_package_kind": "COMPLETE_LONGBOARD",
       "pack_count": 1,
@@ -48,14 +49,15 @@
       "shipping_total_verified": false,
       "manufacturer_exact_revision_qualified": false,
       "checkout_eligible": false,
-      "related_product_family_id": null
+      "related_product_family_id": null,
+      "advertised_truck_revision_claim": "PARIS_V2_150MM_50_RAW"
     },
     {
       "id": "loaded-85-direct",
       "merchant_id": "loaded",
       "selected_variant_id": "loaded-tangent-caguama-85 mm Caguama 80a",
       "product_id": "loaded-tangent-caguama",
-      "observed_setup": "Loaded Tangent Caguama Complete / Orangatang Caguama 85 mm 80a orange",
+      "observed_setup": "Loaded Tangent Caguama Complete / Orangatang Caguama 85 mm 80a orange / advertised Paris V3 150 mm 50° trucks (polished)",
       "maker_setup_signature": "LOADED_TANGENT_CAGUAMA85_ORANGE80A",
       "observed_package_kind": "COMPLETE_LONGBOARD",
       "pack_count": 1,
@@ -71,14 +73,15 @@
       "shipping_total_verified": false,
       "manufacturer_exact_revision_qualified": false,
       "checkout_eligible": false,
-      "related_product_family_id": null
+      "related_product_family_id": null,
+      "advertised_truck_revision_claim": "PARIS_V3_150MM_50_POLISHED"
     },
     {
       "id": "loaded-85-skatesusa",
       "merchant_id": "skatesusa",
       "selected_variant_id": "loaded-tangent-caguama-85 mm Caguama 80a",
       "product_id": "loaded-tangent-caguama",
-      "observed_setup": "Loaded Tangent Complete / Orangatang Caguama 85mm 80a Orange",
+      "observed_setup": "Loaded Tangent Complete / Orangatang Caguama 85mm 80a Orange / advertised Paris V2 150 mm 50° trucks (raw)",
       "maker_setup_signature": "LOADED_TANGENT_CAGUAMA85_ORANGE80A",
       "observed_package_kind": "COMPLETE_LONGBOARD",
       "pack_count": 1,
@@ -94,7 +97,8 @@
       "shipping_total_verified": false,
       "manufacturer_exact_revision_qualified": false,
       "checkout_eligible": false,
-      "related_product_family_id": null
+      "related_product_family_id": null,
+      "advertised_truck_revision_claim": "PARIS_V2_150MM_50_RAW"
     },
     {
       "id": "atomic-2026-skiessentials-flat",
@@ -117,7 +121,8 @@
       "shipping_total_verified": false,
       "manufacturer_exact_revision_qualified": false,
       "checkout_eligible": false,
-      "related_product_family_id": "atomic-bent90"
+      "related_product_family_id": "atomic-bent90",
+      "advertised_truck_revision_claim": null
     },
     {
       "id": "atomic-2026-skiessentials-marker-bundle",
@@ -140,7 +145,8 @@
       "shipping_total_verified": false,
       "manufacturer_exact_revision_qualified": false,
       "checkout_eligible": false,
-      "related_product_family_id": "atomic-bent90"
+      "related_product_family_id": "atomic-bent90",
+      "advertised_truck_revision_claim": null
     }
   ],
   "merchants": [
@@ -169,7 +175,8 @@
     "match_requires_same_package_kind": true,
     "match_requires_same_selected_variant": true,
     "permit_checkout": false,
-    "permit_inferred_inventory": false
+    "permit_inferred_inventory": false,
+    "require_identical_included_truck_revision": true
   },
   "authority": {
     "procurement_authorized": false,
