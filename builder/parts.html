@@ -17,7 +17,7 @@
    <div><p class="eyebrow">CATALOG COMPOSER / EXPERIMENTAL</p>
     <h1>Build the entire setup, not just the board.</h1>
     <p>Compare documented ski, boot, binding and deck families in a shared 3D assembly. Every selection carries manufacturer evidence, unresolved fit checks, and a shopping worklist that distinguishes a complete kit from missing hardware.</p>
-    <p class="caution"><strong>Research only.</strong> No live stock, checkout, confirmed seller pack quantities or verified physical mount. Ski bindings require professional mounting and release testing.</p>
+    <p class="caution"><strong>Research only.</strong> No live stock, checkout-confirmed package contents or verified physical mount. Ski bindings require professional mounting and release testing.</p>
    </div>
    <aside class="intro-stats" id="picker-coverage" role="status" aria-live="polite">Loading maker-referenced equipment catalog…</aside>
   </section>
@@ -73,7 +73,9 @@
     <h2 id="picker-three-studies-heading">Three genuinely different configurations</h2></div></div>
    <p>These are design studies, not automatic size prescriptions. Click a configuration to load its exact referenced selections into the shared 2D / 3D assembly viewer. Foot and rider measurements affect review warnings without proving compatibility.</p>
    <div class="fit-fields comparison-rider-fields">
-    <label>Rider mass (kg, optional)<input id="picker-mass" type="number" min="15" max="250" step="0.1" placeholder="Used for maker-range review"></label>
+    <label for="picker-mass">Rider mass (kg, optional)</label>
+    <input id="picker-mass" type="number" min="15" max="250" step="0.1" placeholder="Used for maker-range review">
+    <p id="picker-mass-validation" class="picker-input-validation" role="status" aria-live="polite"></p>
    </div>
    <div id="picker-study-cards" class="study-comparison-grid" aria-live="polite"></div>
    <div id="picker-study-differences" class="study-differences" aria-live="polite"></div>
