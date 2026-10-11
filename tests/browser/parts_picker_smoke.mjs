@@ -104,6 +104,12 @@ async function main(){
   await clickStudy(page,"long-rollover");
   assert.equal(await page.locator("#picker-kit-rows tr").count(),7,
    "Complete Loaded maker kit must expose seven source-listed child categories");
+  assert.equal(await page.locator("#picker-explode").inputValue(),"0");
+  assert.equal(await page.locator("#picker-assemble").getAttribute("aria-pressed"),"true");
+  assertBrowser((await page.locator("#picker-visual-svg").innerText()).includes(
+   "INTEGRATED BOARD"),"Complete board not visibly assembled by default");
+  assertBrowser((await page.locator("#picker-cad-status").innerText())
+   .includes("normalized schematic"),"Unmeasured CAD semantics missing");
   assert.equal(await page.locator("#picker-part-tree [data-picker-part]").count(),7,
    "Source-bound tree must expose seven separately selectable kit components");
   assert.equal(await page.locator("#picker-visual-svg [data-exploded-part]").count(),7,
@@ -117,7 +123,7 @@ async function main(){
    .includes("not a standalone seller order line"),
    "Kit ledger selection failed to explain that children are not new purchases");
   assertBrowser((await page.locator("#picker-rendered-scene-status").innerText())
-   .includes("0 received/verified pieces"),"3D falsely claims a received kit");
+   .includes("0 measured mounts or received pieces"),"3D falsely claims a received kit");
   const kit105=await page.locator("#picker-kit-summary").innerText();
   assertBrowser(kit105.includes("SELLER PACKAGE REVISION CONFLICT HOLD")&&
     kit105.includes("0 verified received components")&&
@@ -137,6 +143,17 @@ async function main(){
   assert.equal(fullPacket.display_graph.kit_parent_variant_id,kitPacket.variant_id);
   assert.equal(fullPacket.report.qualified_supplier_order_lines,0);
   assert.equal(fullPacket.display_graph.completeness.physical_connections_qualified,0);
+  assert.equal(fullPacket.parametric_cad_display.child_count,7);
+  assert.equal(fullPacket.parametric_cad_display.published_dimensions_mm.wheel_diameter,105);
+  assert.equal(fullPacket.parametric_cad_display.physical_mates_verified,0);
+  const cadEvent=page.waitForEvent("download");
+  await page.locator("#picker-cad-export").click();
+  const schema=JSON.parse(await readFile(await (await cadEvent).path(),"utf8"));
+  assert.equal(schema.scope,"BROWSER_PARAMETRIC_CAD_DISPLAY_UNQUALIFIED");
+  assert.equal(schema.published_dimensions_mm.complete_length,914);
+  assert.equal(schema.children.length,7);
+  assert.equal(schema.authority.fabrication_authorized,false);
+  assert.ok(schema.children.every(x=>x.true_mount_datum_mm===null));
   let retail=await page.locator("#picker-retail-results").innerText();
   assertBrowser(retail.includes("Loaded Boards")&&retail.includes("Skates USA"),
    "105 mm setup must compare two merchants");
@@ -159,6 +176,7 @@ async function main(){
   assertBrowser(retail.includes("364.00"),"85 mm offer price not visible");
   assertBrowser(!retail.includes("424.00"),"85 mm selection leaked 105 mm retailer offer");
   note("Retail offers distinguish 85/105 mm named setups and disclaim checkout identity");
+  assert.equal(await page.locator("#picker-explode").inputValue(),"0");
   const visual85=await page.locator("#picker-visual-svg [data-exploded-part]")
     .evaluateAll(els=>els.map(x=>x.getAttribute("data-exploded-part")));
   assertBrowser(visual85.every(id=>id.includes("caguama85")),
@@ -175,6 +193,15 @@ async function main(){
     "No successful WebGL context with seven maker source-named children");
   assertBrowser((await canvas.getAttribute("data-scene-part-ids")).includes("caguama85"),
     "Canvas painted incorrect source kit");
+  assert.equal(await canvas.getAttribute("data-assembly-pose"),"ASSEMBLED_VISUAL_STUDY");
+  assert.equal(await canvas.getAttribute("data-assembly-separation"),"0");
+  assert.equal(await canvas.getAttribute("data-cad-schema-scope"),
+   "BROWSER_PARAMETRIC_CAD_DISPLAY_UNQUALIFIED");
+  await screenshot(page,"integrated-board-parametric-cad-webgl");
+  await page.locator("#picker-separate").click();
+  assert.equal(await canvas.getAttribute("data-assembly-pose"),"EXPLODED_VISUAL_STUDY");
+  assert.equal(await canvas.getAttribute("data-assembly-separation"),"100");
+  assert.equal(await page.locator("#picker-separate").getAttribute("aria-pressed"),"true");
   await page.locator('#picker-camera-controls [data-camera="top"]').click();
   assert.equal(await canvas.getAttribute("data-camera-preset"),"top");
   await page.locator('#picker-part-tree [data-picker-part]').nth(3).click();
@@ -187,7 +214,13 @@ async function main(){
   assertBrowser((await page.locator("#picker-explode-output").innerText()).includes("100"),
     "Exploded slider failed to update real WebGL scene");
   await screenshot(page,"longboard-kit-seven-part-live-webgl");
+  await page.locator("#picker-assemble").click();
+  assert.equal(await canvas.getAttribute("data-assembly-pose"),"ASSEMBLED_VISUAL_STUDY");
+  assert.equal(await canvas.getAttribute("data-assembly-separation"),"0");
   await page.locator("#picker-2d").click();
+  assertBrowser((await page.locator("#picker-visual-svg").innerText())
+   .includes("INTEGRATED BOARD"),"SVG and WebGL assembled states diverged");
+  note("Parametric complete board assembles and explodes in actual WebGL, SVG and source-locked exports");
   note("Seven child IDs render in actual local WebGL, camera and keyboard selection work");
   await page.locator("#picker-domain").selectOption("alpine_ski");
   await clickStudy(page,"ski-playful-short");
