@@ -825,7 +825,7 @@ function initEvents(){
   const packet=state.captureObservations??
    newCadFieldNotebook(state.cadModel.selected_variant_id,state.captureRequirements);
   download("worcester-cad-unreviewed-field-log-"+state.domain+".json",
-   JSON.stringify(packet,null,2)+"\\n","application/json");
+   JSON.stringify(packet,null,2)+"\n","application/json");
  });
  $("#picker-cad-capture-template").addEventListener("click",()=>{
   if(!state.cadModel)return;
