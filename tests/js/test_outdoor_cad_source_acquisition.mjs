@@ -36,6 +36,7 @@ test("official seven-role source inquiries exclude unrelated maker-published fil
  assert.ok(research.manufacturer_request_packets.every(r=>r.message.includes(
   "express written permissions")));
  assert.equal(research.qualified_models,0);
+ assert.equal(research.file_backed_unqualified_candidates,0);
  assert.equal(research.physical_mates_verified,0);
  assert.equal(research.additional_purchase_lines,0);
  assert.ok(research.excluded_artifacts.every(r=>
@@ -69,6 +70,8 @@ test("forge-resistant official source references and license policy",()=>{
   x=>x.roles[0].approved_mounting_datums=1,
   x=>x.roles[0].extra_order_lines=1,
   x=>x.roles[0].source_pages[0].url="javascript:alert(1)",
+  x=>x.roles[0].source_pages[0].url="https://forged-loadedboards.com/model.step",
+  x=>x.roles[2].manufacturer_url="https://phishing.example/steer",
   x=>x.roles[0].source_pages[0].variants=[x.kit_variant_ids[0]],
   x=>x.roles[3].source_pages[0].variants=[x.kit_variant_ids[0],x.kit_variant_ids[1]],
   x=>x.related_public_artifacts[0].exact_structural_part_cad=true,
