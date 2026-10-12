@@ -15,6 +15,7 @@ import {evaluateMetricFixture} from "./cad_metric_workbench.mjs";
 import {sampleCandidateMotionSweep,renderCandidateMotionSvg}
  from "./cad_candidate_motion.mjs";
 import {makeSyntheticCandidateMotionFixture} from "./cad_demo_fixture.mjs";
+import {compileCandidateMetricScene} from "./cad_candidate_scene.mjs";
 const $=selector=>document.querySelector(selector);
 const esc=x=>String(x??"").replaceAll("&","&amp;").replaceAll("<","&lt;")
  .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
@@ -25,7 +26,7 @@ const cleanUrl=value=>{
 const state={catalog:null,offerObservations:null,offerAudit:null,
  retailCatalog:null,studyCatalog:null,alternatives:null,kitClaims:null,kitAudit:null,visualGraph:null,
  cadRecipe:null,cadModel:null,cadRegistry:null,cadReadiness:null,
- cadInspector:null,inspectedKit:null,dimensionalEvidence:null,publishedCad:null,metricResult:null,motionResult:null,
+ cadInspector:null,inspectedKit:null,dimensionalEvidence:null,publishedCad:null,metricResult:null,motionResult:null,sceneFixture:null,sceneEpoch:0,sceneViewer:null,sceneViewerPromise:null,
  domain:"skateboard_longboard",selections:{},study:null,
  mode:"2d",separation:0,selectedId:null,viewer:null,viewerPromise:null,
  search:""};
@@ -233,7 +234,11 @@ function renderCompleteKitClosure(){
  }
  renderCadAssetReadiness();
  renderCadMakerDimensions();
- state.metricResult=null;state.motionResult=null;
+ state.metricResult=null;state.motionResult=null;state.sceneFixture=null;
+ state.sceneEpoch++;
+ $("#picker-cad-scene-panel").hidden=true;
+ $("#picker-cad-scene-angle").disabled=true;
+ $("#picker-cad-scene-angle").value="0";
  $("#picker-cad-metric-export").disabled=true;
  $("#picker-cad-motion-export").disabled=true;
  $("#picker-cad-motion-plot").replaceChildren();
@@ -592,8 +597,52 @@ function initEvents(){
   if(state.metricResult)download("worcester-metric-candidate-"+state.domain+".json",
    JSON.stringify(state.metricResult,null,2)+"\n","application/json");
  });
+ async function redrawCandidate3D(){
+  const fixture=state.sceneFixture,kit=state.cadModel;
+  if(!fixture||!kit)return;
+  const version=state.sceneEpoch;
+  const slider=$("#picker-cad-scene-angle");
+  const selected=Math.min(Number(slider.value)||0,
+   state.motionResult?.sample_count-1??0);
+  let snapshot;
+  try{snapshot=compileCandidateMetricScene(fixture,{
+   expected_variant_id:kit.selected_variant_id,sample_index:selected});
+  }catch(error){
+   $("#picker-cad-scene-status").textContent="Candidate visualization held: "+error.message;
+   return;
+  }
+  $("#picker-cad-scene-panel").hidden=false;
+  slider.max=String(snapshot.sample_count-1);
+  slider.disabled=snapshot.sample_count<=1;
+  $("#picker-cad-scene-angle-output").textContent=snapshot.angle_deg+"°";
+  $("#picker-cad-scene-status").textContent=
+   (snapshot.fixture_type==="SYNTHETIC_NUMERICAL_DEMO_NOT_REAL_ASSEMBLY"?
+    "SYNTHETIC numerical example · ":"Unverified candidate survey · ")+
+   snapshot.possible_overlap_pairs+" possible box-overlap pair(s) at "+
+   snapshot.angle_deg+"° · physical clearance UNKNOWN";
+  try{
+   if(!state.sceneViewerPromise)
+    state.sceneViewerPromise=import("./cad_candidate_viewer.mjs")
+     .then(module=>module.createCandidateMetricViewer($("#picker-cad-scene-view")));
+   const viewer=await state.sceneViewerPromise;
+   if(version!==state.sceneEpoch||kit!==state.cadModel)return;
+   state.sceneViewer=viewer;
+   viewer.update(snapshot);
+  }catch(error){
+   if(version!==state.sceneEpoch)return;
+   state.sceneViewerPromise=null;state.sceneViewer=null;
+   $("#picker-cad-scene-status").textContent=
+    "3D WebGL unavailable: "+error.message+
+    ". The source data, SVG sample chart and export remain available.";
+  }
+ }
+ $("#picker-cad-scene-angle").addEventListener("input",()=>{void redrawCandidate3D();});
  const clearCandidate=()=>{
-  state.metricResult=null;state.motionResult=null;
+  state.metricResult=null;state.motionResult=null;state.sceneFixture=null;
+  state.sceneEpoch++;
+  $("#picker-cad-scene-panel").hidden=true;
+  $("#picker-cad-scene-angle").value="0";
+  $("#picker-cad-scene-angle").disabled=true;
   $("#picker-cad-metric-export").disabled=true;
   $("#picker-cad-motion-export").disabled=true;
   $("#picker-cad-metric-results").replaceChildren();
@@ -609,6 +658,8 @@ function initEvents(){
    if(kitId!==state.cadModel?.kit_id||variant!==state.cadModel?.selected_variant_id)
     throw Error("kit selection changed during calculation");
    state.metricResult=result;state.motionResult=motion;
+   state.sceneFixture=input;
+   $("#picker-cad-scene-angle").value="0";
    $("#picker-cad-metric-export").disabled=false;
    $("#picker-cad-motion-export").disabled=!motion;
    $("#picker-cad-motion-status").textContent=motion?
@@ -618,6 +669,7 @@ function initEvents(){
     " pairs show possible AABB overlap · physical clearance UNKNOWN":
     "No optional motion block in survey JSON · steering and wheel-bite clearance UNKNOWN.";
    $("#picker-cad-motion-plot").innerHTML=motion?renderCandidateMotionSvg(motion):"";
+   void redrawCandidate3D();
    status.textContent=(synthetic?"SYNTHETIC, NOT MANUFACTURER GEOMETRY · ":"")+
     result.candidate_pairs_checked+" candidate pair(s) · "+
     result.possible_overlap_pairs+" potential AABB overlap(s) · "+
