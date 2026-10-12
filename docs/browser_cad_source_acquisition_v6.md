@@ -39,6 +39,19 @@ Both excluded artifacts are represented as research links with explicit `exact_s
 5. Inspect candidate GLBs in the **isolated** viewer, then collect independent mounting measurements using [CAD Twin v5 field campaign](browser_cad_capture_campaign_v5.md). Neither one promotes physical engineering authority on its own.
 6. Perform a separate reviewed, revision-specific real assembly and tolerance/dynamic clearance analysis. Resolve seller truck V2/V3 discrepancy and actual received components before any physical fabrication or checkout gate can change.
 
+### Pinned CAD receipt verification
+
+A registered candidate is not shown in the isolated GLB inspector merely because its manifest names a source or declares millimeters. On **Inspect pinned GLB**, the browser now:
+
+1. Fetches only the pinned content-addressed local `/assets/cad/<GLB_SHA>.glb` and its matching `.conversion.json` receipt (32 KB maximum).
+2. Computes and checks **two independent SHA-256 values** against the registry, compares the STEP source digest to the receipt, and validates the explicit `mm → m` conversion and limited source/model extents.
+3. Runs bounded GLB preflight, decodes the actual mesh in the isolated WebGL viewport, and cross-checks **its rendered scene bounding extents** against the conversion receipt's sorted glTF-meter envelope within declared tessellation tolerance.
+4. Hides and releases the candidate viewer if the receipt is missing, either digest differs, the model is malformed or its rendered dimensions conflict with the receipt. The seven-component primary study stays rendered and no new order lines appear.
+
+This is **reproducible file integrity**, not verification that the manufacturer authored the STEP, that every CAD surface is accurate, or that the physical assembly fits. We still need independent revision verification and actual measured mounting datums. Locally uploaded, unregistered GLBs remain isolated previews with unknown physical scale and never pass through source-backed intake.
+
+The Chromium test exercises the real pinned-file flow with intercept-injected **synthetic** geometry and valid receipts, then deliberately tampers with the receipt to prove a fail-closed viewer. The regular registry remains empty and no synthetic test file is published to users.
+
 ### Regression coverage
 
 ```bash
