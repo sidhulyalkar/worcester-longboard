@@ -21,8 +21,7 @@ import {compileCandidateMetricScene} from "./cad_candidate_scene.mjs";
 import {validateCadCaptureRequirements,planCadCaptureCampaign,
  blankCadFieldObservations,validateCadFieldObservations}
  from "./cad_capture_campaign.mjs";
-import {makeCadFieldNotebookRecord,upsertCadFieldNotebook,
- removeCadFieldNotebookRecord,newCadFieldNotebook}
+import {upsertCadFieldNotebook,removeCadFieldNotebookRecord,newCadFieldNotebook}
  from "./cad_field_notebook.mjs";
 import {validateCadSourceLeadbook,buildCadSourceAcquisition}
  from "./cad_source_acquisition.mjs";
@@ -220,6 +219,7 @@ function renderCadCaptureCampaign(){
  status.textContent=active?
   report.missing_evidence+"/"+report.task_count+" evidence tasks open · "+
   report.reported_unreviewed+" field-reported (NOT reviewed) · "+
+  report.structured_readings_unreviewed+" numeric readings (UNREVIEWED) · "+
   report.interfaces.length+" interface reviews blocked · "+
   "0 independently verified datums · 0 physical fit approvals":
   "No selected complete kit. No manufacturer geometry or physical approvals inferred.";
@@ -238,7 +238,14 @@ function renderCadCaptureCampaign(){
    tasks.map(t=>'<li><strong>'+esc(t.task_id.replaceAll("-"," "))+
     '</strong> · '+esc(t.required_method.replaceAll("_"," "))+
     ' · '+esc(t.status.replaceAll("_"," "))+
-    '<p>'+esc(t.instruction)+'</p><button type="button" data-cad-field-task="'+
+    '<p>'+esc(t.instruction)+'</p>'+
+    (t.field_observation?.measurements_mm?.length?
+     '<p class="cad-field-preview">'+t.field_observation.measurements_mm.map(m=>
+      esc(m.feature_id)+": "+esc(m.kind==="SCALAR"?m.value_mm:
+       m.value_mm.join(", "))+" mm"+(m.frame_label?
+        " · operator frame "+esc(m.frame_label):"")).join("; ")+
+      " · UNREVIEWED</p>":"")+
+    '<button type="button" data-cad-field-task="'+
     esc(t.task_id)+'">Record / edit field evidence</button></li>').join("")+
    '</ol></details>';
  });
