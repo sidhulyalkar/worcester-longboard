@@ -603,7 +603,7 @@ function initEvents(){
   const version=state.sceneEpoch;
   const slider=$("#picker-cad-scene-angle");
   const selected=Math.min(Number(slider.value)||0,
-   state.motionResult?.sample_count-1??0);
+   (state.motionResult?.sample_count??1)-1);
   let snapshot;
   try{snapshot=compileCandidateMetricScene(fixture,{
    expected_variant_id:kit.selected_variant_id,sample_index:selected});
