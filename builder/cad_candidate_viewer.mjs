@@ -96,7 +96,6 @@ export async function createCandidateMetricViewer(host){
     group.userData.fill=material;group.userData.partId=p.id;
     nodes.set(p.id,group);root.add(group);
    }
-   const initial=new THREE.Box3().setFromObject(root);
    const overall=model.parts.map(p=>p.sampled_world_bounds_mm);
    const min=[0,1,2].map(i=>Math.min(...overall.map(b=>b.min_mm[i])));
    const max=[0,1,2].map(i=>Math.max(...overall.map(b=>b.max_mm[i])));
@@ -126,8 +125,12 @@ export async function createCandidateMetricViewer(host){
   if(model.axis_point_mm&&model.axis_direction){
    const direction=new THREE.Vector3(...model.axis_direction).normalize();
    const radius=Math.max(4,...model.parts.flatMap(p=>p.dimensions_mm));
-   axis=new THREE.ArrowHelper(direction,new THREE.Vector3(...model.axis_point_mm),
-    radius*1.2,0xf1d39c,radius*.18,radius*.1);
+   const pivot=new THREE.Vector3(...model.axis_point_mm);
+   const points=[
+    pivot.clone().addScaledVector(direction,-radius*.6),
+    pivot.clone().addScaledVector(direction,radius*.6)];
+   axis=new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),
+    new THREE.LineBasicMaterial({color:0xf1d39c}));
    root.add(axis);
   }
   renderer.domElement.dataset.kitVariantId=model.kit_variant_id;
