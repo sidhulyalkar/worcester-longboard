@@ -9,6 +9,7 @@ import {validateKitCadRecipe,compileCompleteKitCadDisplay} from "./complete_kit_
 import {renderCompleteKitCadSvg} from "./complete_kit_cad_svg.mjs";
 import {validateCadAssetRegistry,planCadAssetReadiness} from "./cad_asset_registry.mjs";
 import {inspectGlbBytes} from "./cad_glb_contract.mjs";
+import {verifyPinnedCadCandidate} from "./cad_pinned_receipt_check.mjs";
 import {validateCadDimensionalEvidence,planCadPublishedDimensions}
  from "./cad_dimension_evidence.mjs";
 import {evaluateMetricFixture} from "./cad_metric_workbench.mjs";
@@ -851,7 +852,10 @@ function initEvents(){
    a=>a.asset_id===button.dataset.cadAsset&&
    a.kit_variant_id===state.cadModel?.selected_variant_id);
   if(!candidate)return;
-  const currentKit=state.cadModel.kit_id,status=$("#picker-cad-inspect-status");
+  const currentKit=state.cadModel.kit_id;
+  const variant=state.cadModel.selected_variant_id;
+  const status=$("#picker-cad-inspect-status");
+  $("#picker-cad-file-inspector").hidden=true;
   try{
    status.textContent="Verifying pinned geometry digest for "+candidate.asset_id+"…";
    const response=await fetch(candidate.path,{cache:"no-store"});
@@ -860,22 +864,31 @@ function initEvents(){
    if(blob.size!==candidate.byte_length||blob.size>25000000)
     throw Error("pinned file size mismatch");
    const bytes=await blob.arrayBuffer();
-   const hash=Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256",bytes)))
-    .map(x=>x.toString(16).padStart(2,"0")).join("");
-   if(hash!==candidate.sha256)throw Error("SHA-256 mismatch; source asset not displayed");
+   const receiptResponse=await fetch(candidate.conversion_receipt_path,{cache:"no-store"});
+   if(!receiptResponse.ok)throw Error("pinned STEP conversion receipt unavailable");
+   const receiptBlob=await receiptResponse.blob();
+   if(receiptBlob.size<20||receiptBlob.size>32768)
+    throw Error("conversion receipt exceeds audit budget");
+   const checked=await verifyPinnedCadCandidate(candidate,bytes,
+    await receiptBlob.arrayBuffer());
+   if(currentKit!==state.cadModel?.kit_id||
+    variant!==state.cadModel?.selected_variant_id)
+    throw Error("kit changed during receipt verification");
    inspectGlbBytes(bytes);
    const host=$("#picker-cad-file-inspector");
    if(!state.cadInspector)
     state.cadInspector=await import("./cad_glb_inspector.mjs")
      .then(x=>x.createLocalCadInspector(host));
-   if(currentKit!==state.cadModel?.kit_id)
+   if(currentKit!==state.cadModel?.kit_id||
+    variant!==state.cadModel?.selected_variant_id)
     throw Error("kit changed during loading");
    const result=await state.cadInspector.load(bytes);
    if(!result)return;
    host.hidden=false;
-   status.textContent="Pinned, digest-verified "+candidate.origin+" candidate "+
+   status.textContent="Pinned GLB + conversion receipt hashes verified; "+
+    candidate.origin+" candidate "+
     candidate.part_number+" · "+candidate.revision+": "+
-    result.mesh_count+" mesh(es), glTF scene meters; physical source scale NOT VERIFIED. "+
+    result.mesh_count+" mesh(es), glTF meters from recorded 0.001 conversion; STEP authenticity NOT VERIFIED. "+
     "No verified datums, assembly mating, clearances or purchasing approval.";
   }catch(error){
    status.textContent="Candidate CAD held: "+error.message+
