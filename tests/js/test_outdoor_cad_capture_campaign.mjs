@@ -24,9 +24,10 @@ const build=name=>{
  return {cad:compileCompleteKitCadDisplay(study,audit,kit,recipe),audit};
 };
 const sample=(task_id,date="2026-10-12")=>({
- task_id,method:"METRIC_MEASUREMENT",part_revision:"RECORDED_ONLY_UNCONFIRMED",
+ task_id,method:task_id==="truck-seller-revision"?
+  "REVISION_RECONCILIATION":"METRIC_MEASUREMENT",part_revision:"RECORDED_ONLY_UNCONFIRMED",
  evidence_url:"https://example.com/research/photo-or-paper-not-independent",
- recorded_on:date,uncertainty_mm:0.1,
+ recorded_on:date,uncertainty_mm:task_id==="truck-seller-revision"?null:0.1,
  note:"Operator claims this measurement was taken but no independent review occurred.",
  source_sha256:null
 });
@@ -81,6 +82,8 @@ test("field observations are traceable but never independently verified",()=>{
  assert.equal(report.independently_verified,0);
  assert.equal(report.physical_mates_verified,0);
  assert.equal(report.roles.find(r=>r.role==="trucks").revision_confirmed,false);
+ assert.match(report.tasks.find(t=>t.task_id==="truck-seller-revision")
+  .field_observation.note,/unreviewed sample|Operator claims/);
  assert.equal(report.tasks.find(t=>t.task_id==="truck-seller-revision").status,
   "FIELD_REPORTED_NOT_INDEPENDENTLY_VERIFIED");
  assert.ok(report.interfaces.every(i=>i.physical_fit_qualified===false));
@@ -101,6 +104,8 @@ test("forged safety flags, wrong units, bad evidence and duplicates all fail clo
   d=>d.records[0].recorded_on="2026-02-30",
   d=>d.records[0].evidence_url="javascript:alert(1)",
   d=>d.records[0].source_sha256="bogus",
+  d=>d.records[0].method="RECEIVING_AUDIT",
+  d=>d.records[0].uncertainty_mm=null,
   d=>d.records[0].physical_fit_qualified=true,
   d=>d.records[0].note="short",
   d=>d.records[0].part_revision=" "
