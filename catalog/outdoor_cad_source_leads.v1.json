@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "scope": "SOURCE_LEADS_NOT_VERIFIED_COMPONENT_CAD",
+  "reviewed_on": "2026-10-12",
+  "kit_variant_ids": [
+    "loaded-tangent-complete-105 mm Dad Bod 77a",
+    "loaded-tangent-caguama-85 mm Caguama 80a"
+  ],
+  "roles": [
+    {
+      "role": "deck",
+      "manufacturer": "Loaded Boards",
+      "manufacturer_url": "https://www.loadedboards.com/",
+      "source_pages": [
+        {
+          "url": "https://www.loadedboards.com/products/tangent-deck-with-brackets",
+          "variants": [
+            "loaded-tangent-complete-105 mm Dad Bod 77a",
+            "loaded-tangent-caguama-85 mm Caguama 80a"
+          ]
+        }
+      ],
+      "requested_cad_formats": [
+        "STEP",
+        "GLB"
+      ],
+      "requested_geometry": "The actual revision-specific Tangent deck shell, attachment hole locations, local axes and mating planes, with manufacturing unit declaration and rights to display a derivative 3D preview.",
+      "source_geometry_verified": false,
+      "exact_revision_confirmed": false,
+      "redistribution_rights": "NOT_GRANTED_OR_DOCUMENTED",
+      "approved_mounting_datums": 0,
+      "extra_order_lines": 0
+    },
+    {
+      "role": "zee_brackets",
+      "manufacturer": "Loaded Boards",
+      "manufacturer_url": "https://www.loadedboards.com/",
+      "source_pages": [
+        {
+          "url": "https://www.loadedboards.com/products/zee-bracket",
+          "variants": [
+            "loaded-tangent-complete-105 mm Dad Bod 77a",
+            "loaded-tangent-caguama-85 mm Caguama 80a"
+          ]
+        }
+      ],
+      "requested_cad_formats": [
+        "STEP",
+        "GLB"
+      ],
+      "requested_geometry": "The structural Zee Bracket (both physical instances, orientation/handedness) with hole locations, contact planes, and documentation distinguishing it from the optional printable tail nub.",
+      "source_geometry_verified": false,
+      "exact_revision_confirmed": false,
+      "redistribution_rights": "NOT_GRANTED_OR_DOCUMENTED",
+      "approved_mounting_datums": 0,
+      "extra_order_lines": 0
+    },
+    {
+      "role": "trucks",
+      "manufacturer": "Paris Truck Co",
+      "manufacturer_url": "https://www.paristruckco.com/",
+      "source_pages": [
+        {
+          "url": "https://www.paristruckco.com/products/v3-150mm-50-polished",
+          "variants": [
+            "loaded-tangent-complete-105 mm Dad Bod 77a",
+            "loaded-tangent-caguama-85 mm Caguama 80a"
+          ]
+        }
+      ],
+      "requested_cad_formats": [
+        "STEP",
+        "GLB"
+      ],
+      "requested_geometry": "The actual received Paris 150 mm 50-degree truck revision, baseplate and hanger STEP files, axle/kingpin/pivot datums and bushing articulation assumptions. Resolve seller V2 versus maker V3 first.",
+      "source_geometry_verified": false,
+      "exact_revision_confirmed": false,
+      "redistribution_rights": "NOT_GRANTED_OR_DOCUMENTED",
+      "approved_mounting_datums": 0,
+      "extra_order_lines": 0
+    },
+    {
+      "role": "wheels",
+      "manufacturer": "Orangatang Wheels",
+      "manufacturer_url": "https://www.orangatangwheels.com/",
+      "source_pages": [
+        {
+          "url": "https://www.orangatangwheels.com/products/dad-bod-105mm-longboard-wheel",
+          "variants": [
+            "loaded-tangent-complete-105 mm Dad Bod 77a"
+          ]
+        },
+        {
+          "url": "https://www.orangatangwheels.com/products/caguama-85mm-longboard-wheel",
+          "variants": [
+            "loaded-tangent-caguama-85 mm Caguama 80a"
+          ]
+        }
+      ],
+      "requested_cad_formats": [
+        "STEP",
+        "GLB"
+      ],
+      "requested_geometry": "The exact 105 mm Dad Bod or 85 mm Caguama wheel profile/core and bearing seats, offset and local mounting axes; specify exact ordered durometer and variant.",
+      "source_geometry_verified": false,
+      "exact_revision_confirmed": false,
+      "redistribution_rights": "NOT_GRANTED_OR_DOCUMENTED",
+      "approved_mounting_datums": 0,
+      "extra_order_lines": 0
+    },
+    {
+      "role": "bearings",
+      "manufacturer": "Loaded Boards",
+      "manufacturer_url": "https://www.loadedboards.com/",
+      "source_pages": [
+        {
+          "url": "https://www.loadedboards.com/collections/parts",
+          "variants": [
+            "loaded-tangent-complete-105 mm Dad Bod 77a",
+            "loaded-tangent-caguama-85 mm Caguama 80a"
+          ]
+        }
+      ],
+      "requested_cad_formats": [
+        "STEP",
+        "GLB"
+      ],
+      "requested_geometry": "The received JEHU V2 bearing geometry including extended inner races, inner/outer diameters and actual wheel-core interface. Do not assume additional spacers are required.",
+      "source_geometry_verified": false,
+      "exact_revision_confirmed": false,
+      "redistribution_rights": "NOT_GRANTED_OR_DOCUMENTED",
+      "approved_mounting_datums": 0,
+      "extra_order_lines": 0
+    },
+    {
+      "role": "deck_hardware",
+      "manufacturer": "Loaded Boards",
+      "manufacturer_url": "https://www.loadedboards.com/",
+      "source_pages": [
+        {
+          "url": "https://www.loadedboards.com/products/countersunk-hardware",
+          "variants": [
+            "loaded-tangent-complete-105 mm Dad Bod 77a",
+            "loaded-tangent-caguama-85 mm Caguama 80a"
+          ]
+        }
+      ],
+      "requested_cad_formats": [
+        "STEP",
+        "GLB"
+      ],
+      "requested_geometry": "The exact countersunk 1.25-inch deck hardware bolt/head/thread geometry and received package count, with fit tolerances and reusable geometry permission.",
+      "source_geometry_verified": false,
+      "exact_revision_confirmed": false,
+      "redistribution_rights": "NOT_GRANTED_OR_DOCUMENTED",
+      "approved_mounting_datums": 0,
+      "extra_order_lines": 0
+    },
+    {
+      "role": "truck_hardware",
+      "manufacturer": "Loaded Boards",
+      "manufacturer_url": "https://www.loadedboards.com/",
+      "source_pages": [
+        {
+          "url": "https://www.loadedboards.com/products/button-head-hardware",
+          "variants": [
+            "loaded-tangent-complete-105 mm Dad Bod 77a",
+            "loaded-tangent-caguama-85 mm Caguama 80a"
+          ]
+        }
+      ],
+      "requested_cad_formats": [
+        "STEP",
+        "GLB"
+      ],
+      "requested_geometry": "The exact 1-inch button-head truck hardware dimensions, confirmed package and optional washer selection, with threads, head and fastener clearance details.",
+      "source_geometry_verified": false,
+      "exact_revision_confirmed": false,
+      "redistribution_rights": "NOT_GRANTED_OR_DOCUMENTED",
+      "approved_mounting_datums": 0,
+      "extra_order_lines": 0
+    }
+  ],
+  "related_public_artifacts": [
+    {
+      "id": "zee-diy-cutting-pdf",
+      "label": "Zee Bracket DIY cutting stencil PDF",
+      "source_url": "https://cdn.shopify.com/s/files/1/0092/1085/5524/files/Loaded-Zee-Bracket-template.pdf?v=1688582078",
+      "classification": "DIY_DRAWING_NOT_3D_SOLID",
+      "related_role": "zee_brackets",
+      "exact_structural_part_cad": false,
+      "redistribution_authorized": false,
+      "note": "Maker-hosted drill/cutting reference. Does not encode Zee Bracket 3D surfaces, tolerances or the assembled Tangent mounts."
+    },
+    {
+      "id": "zee-optional-tail-nub-stl",
+      "label": "Optional printable tail nub STL announcement",
+      "source_url": "https://www.loadedboards.com/products/zee-bracket",
+      "classification": "OPTIONAL_ACCESSORY_NOT_SEVEN_PART_ASSEMBLY",
+      "related_role": "zee_brackets",
+      "exact_structural_part_cad": false,
+      "redistribution_authorized": false,
+      "note": "Maker page offers optional 3D printed accessory, not the load-bearing Zee Bracket; not included in the seven main assembly categories."
+    }
+  ],
+  "authority": {
+    "cad_geometry_authenticated": false,
+    "physical_fit_qualified": false,
+    "procurement_authorized": false,
+    "fabrication_authorized": false,
+    "additional_purchase_lines": 0
+  }
+}

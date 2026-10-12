@@ -37,7 +37,8 @@ export function validateRetailRegistry(data,catalog){
  assert(policy.max_age_days===30&&policy.match_requires_same_setup_signature===true&&
   policy.match_requires_same_package_kind===true&&
   policy.match_requires_same_selected_variant===true&&
-  policy.permit_checkout===false&&policy.permit_inferred_inventory===false,
+  policy.permit_checkout===false&&policy.permit_inferred_inventory===false&&
+  policy.require_identical_included_truck_revision===true,
   "retail comparison policy was weakened");
  dateOf(data.reviewed_on);
  uniq(data.merchants,x=>x.id);
@@ -78,6 +79,13 @@ export function validateRetailRegistry(data,catalog){
     "unsupported or fractional seller package count");
   const match=offer.selected_variant_id===null?null:variants.get(offer.selected_variant_id);
   if(match){
+   const matchTruck=/advertised Paris V(2|3) 150 mm 50° trucks \((raw|polished)\)/.exec(offer.observed_setup);
+   assert(matchTruck!==null&&
+    offer.advertised_truck_revision_claim===
+      "PARIS_V"+matchTruck[1]+"_150MM_50_"+matchTruck[2].toUpperCase(),
+    "advertised physical truck revision must be explicit and match seller page capture");
+   assert(offer.related_product_family_id===null,
+    "size-matched offer must not also carry unresolved family relation");
    assert(offer.product_id===match.product.id&&
     match.product.domain_id==="skateboard_longboard"&&match.product.slot==="long_complete"&&
     offer.option_selection_verified_on_page===true&&offer.pack_count===1&&
@@ -85,23 +93,30 @@ export function validateRetailRegistry(data,catalog){
     "listed setup does not match a known selected complete research option");
   }else{
    assert(offer.product_id===null&&offer.selected_variant_id===null&&
-    offer.option_selection_verified_on_page===false,
+    offer.option_selection_verified_on_page===false&&
+    offer.advertised_truck_revision_claim===null,
     "unqualified variant may not inherit a matched seller setup");
+   const related=catalog.products.find(x=>x.id===offer.related_product_family_id);
+   assert(related&&related.domain_id==="alpine_ski"&&related.slot==="ski_pair"&&
+    offer.observed_setup.toLowerCase().includes(related.brand.toLowerCase())&&
+    offer.observed_setup.toLowerCase().includes(related.name.toLowerCase()),
+    "unselected retailer bundle lacks evidence for a matching product family");
   }
   dateOf(offer.observed_on);
   keys.push([offer.merchant_id,offer.selected_variant_id??"unselected",
     offer.maker_setup_signature,offer.observed_package_kind].join("|"));
  }
  uniq(keys,x=>x);
- // Each product's selected variant must imply a single coherent published setup
- // across merchants. Conflicting wheel size / package strings cannot match by price.
+ // A selected wheel setup must identify the same maker wheel/board and package
+ // role, but seller-advertised truck revisions may disagree. Such conflicting
+ // offers are retained as evidence and DISQUALIFIED from direct price ranking.
  const named=new Map();
  for(const o of data.offers.filter(x=>x.selected_variant_id)){
   const key=o.selected_variant_id;
-  const signature=o.maker_setup_signature+"|"+o.observed_package_kind+"|"+o.pack_count;
-  assert(!named.has(key)||named.get(key)===signature,
+  const common=o.maker_setup_signature+"|"+o.observed_package_kind+"|"+o.pack_count;
+  assert(!named.has(key)||named.get(key)===common,
    "contradictory wheel/setup package under a selected variant");
-  named.set(key,signature);
+  named.set(key,common);
  }
  return {offers:data.offers.length,merchants:data.merchants.length,
   comparison_status:"HISTORICAL_UNVERIFIED_SETUP_ONLY",checkout_authorized:false};
@@ -120,26 +135,68 @@ export function compareRetailOffers(data,catalog,variantId,{as_of=data.reviewed_
    source_url:o.source_url,setup:o.observed_setup,package:o.observed_package_kind,
    observed_on:o.observed_on,days_old:days,displayed_amount_usd:o.listed_amount_usd,
    included_seller_pack_count:o.pack_count,
+   advertised_truck_revision_claim:o.advertised_truck_revision_claim,
    status:valid?"PUBLISHED_SETUP_REFERENCE":"EXPIRED_OR_FUTURE_HOLD",
-   valid_for_historical_comparison:valid,
+   dated_page_reference:valid,
+   valid_for_historical_comparison:false,
    exact_checkout_variant_verified:false,stock_verified:false,shipping_verified:false,
    total_with_tax_and_shipping:null};
  });
- const active=rows.filter(x=>x.valid_for_historical_comparison);
+ const active=rows.filter(x=>x.dated_page_reference);
+ const claimSignatures=new Map(active.map(x=>[x.id,
+  x.package+"|"+x.included_seller_pack_count+"|"+x.advertised_truck_revision_claim]));
+ const families=new Set(active.map(x=>claimSignatures.get(x.id)));
+ const conflict=active.length>1&&families.size>1;
+ // Only a single uniform set of advertised kit revisions could become a
+ // comparable named configuration. This is still NOT an exact seller SKU/quote.
  const merchants=new Set(active.map(x=>x.merchant_id));
- const comparable=active.length>=2&&merchants.size>=2;
+ const comparable=active.length>=2&&merchants.size>=2&&!conflict;
+ for(const row of rows){
+  row.valid_for_historical_comparison=comparable&&row.dated_page_reference;
+  if(row.dated_page_reference&&conflict)row.status="INCLUSION_REVISION_CONFLICT_HOLD";
+ }
  const sorted=active.slice().sort((a,b)=>a.displayed_amount_usd-b.displayed_amount_usd||
   a.merchant_name.localeCompare(b.merchant_name));
  return {schema_version:1,scope:"PUBLISHED_MATCHED_SETUP_PRICE_REFERENCE_ONLY",
   variant_id:variantId,product_name:product.product.name,as_of,rows,
-  status:comparable?"PUBLISHED_SETUP_COMPARISON_REVIEW":"SINGLE_OR_STALE_SOURCE_HOLD",
-  compared_merchants:merchants.size,
+  status:conflict?"INCLUSION_REVISION_CONFLICT_HOLD":
+    comparable?"PUBLISHED_SETUP_COMPARISON_REVIEW":"SINGLE_OR_STALE_SOURCE_HOLD",
+  conflict:conflict?{code:"INCLUDED_TRUCK_REVISION_MISMATCH",
+   affected_fields:["advertised_truck_revision_claim"],
+   explanation:"These named wheel setups advertise different Paris truck revisions. Exact shipped packages and compatible mechanical assemblies are not established."}:null,
+  compared_merchants:comparable?merchants.size:0,
   historical_listing_price_span_usd:comparable?{
    min:sorted[0].displayed_amount_usd,max:sorted.at(-1).displayed_amount_usd,
    gap:Math.round(100*(sorted.at(-1).displayed_amount_usd-sorted[0].displayed_amount_usd))/100
   }:null,
   current_price_quote:null,live_inventory_checked:false,orderable:false,
   taxes_shipping_and_returns_verified:false,exact_seller_sku_verified:false,
+  authority:{...AUTH}};
+}
+// Related seller pages are RESEARCH ONLY. A family relationship NEVER grants
+// selected size, maker revision, package equality, seller SKU or live stock.
+export function researchRelatedSellerListings(data,catalog,familyId,
+ {as_of=data.reviewed_on}={}){
+ validateRetailRegistry(data,catalog);dateOf(as_of);
+ const family=catalog.products.find(x=>x.id===familyId);
+ assert(family&&family.domain_id==="alpine_ski"&&family.slot==="ski_pair",
+  "related listing lookup requires a known alpine ski family");
+ const rows=data.offers.filter(x=>x.related_product_family_id===familyId)
+  .map(o=>{
+   const days=age(o.observed_on,as_of);
+   return {id:o.id,merchant_id:o.merchant_id,
+    merchant_name:data.merchants.find(x=>x.id===o.merchant_id).brand,
+    description:o.observed_setup,source_url:o.source_url,
+    seller_catalog_family_code:o.seller_variant_sku,
+    historical_page_amount_usd:o.listed_amount_usd,observed_on:o.observed_on,
+    state:days<0||days>data.comparison_policy.max_age_days?
+      "EXPIRED_OR_FUTURE_REVIEW":"RELATED_FAMILY_ONLY_NOT_VARIANT_MATCH",
+    exact_variant_verified:false,package_equivalence_verified:false,
+    retailer_order_authorized:false,live_stock_verified:false
+   };
+  });
+ return {scope:"RELATED_RETAIL_FAMILY_EVIDENCE_NOT_COMPARABLE",
+  family_id:familyId,rows,selected_size_quoted:false,checkout_eligible:false,
   authority:{...AUTH}};
 }
 export function validateBuildStudies(data,catalog){

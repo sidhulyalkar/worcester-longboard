@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "scope": "CAD_METROLOGY_REQUIREMENTS_NOT_ENGINEERING_APPROVAL",
+  "authority": {
+    "procurement_authorized": false,
+    "fabrication_authorized": false,
+    "physical_fit_qualified": false
+  },
+  "requirements": [
+    {
+      "role": "deck",
+      "tasks": [
+        {
+          "task_id": "deck-source-geometry",
+          "priority": 1,
+          "required_method": "CAD_SOURCE",
+          "instruction": "Obtain exact Tangent deck STEP/mesh and publication permission; confirm it describes this received revision."
+        },
+        {
+          "task_id": "deck-hole-centers",
+          "priority": 1,
+          "required_method": "METRIC_MEASUREMENT",
+          "instruction": "Measure all bracket/deck hole centers, coordinate frame, edge distances and drilling uncertainty on the actual revision."
+        },
+        {
+          "task_id": "deck-contact-planes",
+          "priority": 1,
+          "required_method": "METRIC_MEASUREMENT",
+          "instruction": "Survey deck and bracket mating surfaces, thickness and countersinks in a consistent local frame."
+        },
+        {
+          "task_id": "deck-loaded-deflection",
+          "priority": 2,
+          "required_method": "PHYSICAL_TEST",
+          "instruction": "Record the loaded deck deformation envelope and measurement method for realistic ground and wheel clearance."
+        }
+      ]
+    },
+    {
+      "role": "zee_brackets",
+      "tasks": [
+        {
+          "task_id": "bracket-source-geometry",
+          "priority": 1,
+          "required_method": "CAD_SOURCE",
+          "instruction": "Obtain licensed revision-specific Zee Bracket solid geometry or independently acquire a calibrated scan."
+        },
+        {
+          "task_id": "bracket-hole-interfaces",
+          "priority": 1,
+          "required_method": "METRIC_MEASUREMENT",
+          "instruction": "Survey deck-side and truck-side threaded/through holes, centerlines, countersink surfaces and local orientation."
+        },
+        {
+          "task_id": "bracket-rigid-poses",
+          "priority": 1,
+          "required_method": "METRIC_MEASUREMENT",
+          "instruction": "Locate independent fiducials on both bracket instances and record handedness and contact planes."
+        }
+      ]
+    },
+    {
+      "role": "trucks",
+      "tasks": [
+        {
+          "task_id": "truck-seller-revision",
+          "priority": 1,
+          "required_method": "REVISION_RECONCILIATION",
+          "instruction": "Resolve seller V2 versus maker V3 listing against invoice, packaging, and inspected truck baseplates before making any revision claims."
+        },
+        {
+          "task_id": "truck-source-geometry",
+          "priority": 1,
+          "required_method": "CAD_SOURCE",
+          "instruction": "Obtain licensed 3D geometry of exact Paris variant and its baseplate, hanger, bushings and kingpin."
+        },
+        {
+          "task_id": "truck-baseplate-holes",
+          "priority": 1,
+          "required_method": "METRIC_MEASUREMENT",
+          "instruction": "Survey actual truck baseplate mounting hole centers and contact plane relative to selected bracket."
+        },
+        {
+          "task_id": "truck-pivot-motion",
+          "priority": 1,
+          "required_method": "PHYSICAL_TEST",
+          "instruction": "Measure steering articulation, axle travel, full-stop envelope and bushing compression on the received revision."
+        }
+      ]
+    },
+    {
+      "role": "wheels",
+      "tasks": [
+        {
+          "task_id": "wheel-source-geometry",
+          "priority": 1,
+          "required_method": "CAD_SOURCE",
+          "instruction": "Acquire exact wheel core plus outer profile, or perform calibrated measurements of the received 85 mm or 105 mm variant."
+        },
+        {
+          "task_id": "wheel-core-bearing-seats",
+          "priority": 1,
+          "required_method": "METRIC_MEASUREMENT",
+          "instruction": "Measure the wheel bearing bores, depths, spacers and wheel/axle offsets, with side-by-side actual wheel samples."
+        },
+        {
+          "task_id": "wheel-tire-profile",
+          "priority": 2,
+          "required_method": "METRIC_MEASUREMENT",
+          "instruction": "Measure diameter, width and actual surface profile including any runout and relevant uncertainty."
+        }
+      ]
+    },
+    {
+      "role": "bearings",
+      "tasks": [
+        {
+          "task_id": "bearing-geometry",
+          "priority": 1,
+          "required_method": "METRIC_MEASUREMENT",
+          "instruction": "Measure exact bearing inner/outer diameters, width, race alignment and spacer stack from received JEHU V2 pieces."
+        },
+        {
+          "task_id": "bearing-source-revision",
+          "priority": 2,
+          "required_method": "REVISION_RECONCILIATION",
+          "instruction": "Reconcile exact bearing maker version and received count against complete kit and any axle spacers."
+        }
+      ]
+    },
+    {
+      "role": "deck_hardware",
+      "tasks": [
+        {
+          "task_id": "deck-fastener-count",
+          "priority": 1,
+          "required_method": "RECEIVING_AUDIT",
+          "instruction": "Reconcile physical fastener count and package revision against maker advertised kit, without creating separate orders."
+        },
+        {
+          "task_id": "deck-fastener-engagement",
+          "priority": 1,
+          "required_method": "METRIC_MEASUREMENT",
+          "instruction": "Record fastener length, head profile, thread and engagement through the observed deck/bracket stack."
+        }
+      ]
+    },
+    {
+      "role": "truck_hardware",
+      "tasks": [
+        {
+          "task_id": "truck-fastener-count",
+          "priority": 1,
+          "required_method": "RECEIVING_AUDIT",
+          "instruction": "Reconcile received truck hardware and washers/lock nuts against source claims and actual truck revisions."
+        },
+        {
+          "task_id": "truck-fastener-engagement",
+          "priority": 1,
+          "required_method": "METRIC_MEASUREMENT",
+          "instruction": "Measure baseplate hardware, bolt protrusion, wrench clearance and thread engagement at the actual bracket interface."
+        }
+      ]
+    }
+  ],
+  "interfaces": [
+    {
+      "id": "deck-to-bracket",
+      "roles": [
+        "deck",
+        "zee_brackets"
+      ],
+      "priority": 1,
+      "check": "Aligned hole centers, mounting planes, countersink shape, fastener reach and bracket handedness"
+    },
+    {
+      "id": "bracket-to-truck",
+      "roles": [
+        "zee_brackets",
+        "trucks"
+      ],
+      "priority": 1,
+      "check": "Actual Paris baseplate revision, hole/face alignment and bracket orientation"
+    },
+    {
+      "id": "truck-to-wheel",
+      "roles": [
+        "trucks",
+        "wheels",
+        "bearings"
+      ],
+      "priority": 1,
+      "check": "Axle diameter, spacer order, bearing seats, wheel offset and nut engagement"
+    },
+    {
+      "id": "loaded-wheelbite",
+      "roles": [
+        "deck",
+        "zee_brackets",
+        "trucks",
+        "wheels"
+      ],
+      "priority": 1,
+      "check": "Dynamic wheel-to-deck and bracket clearance at worst-case steering, suspension/bushing loads and deck deflection"
+    },
+    {
+      "id": "deck-fastener-stack",
+      "roles": [
+        "deck",
+        "zee_brackets",
+        "deck_hardware"
+      ],
+      "priority": 1,
+      "check": "Deck/bracket screw engagement, countersink fit and interference"
+    },
+    {
+      "id": "truck-fastener-stack",
+      "roles": [
+        "zee_brackets",
+        "trucks",
+        "truck_hardware"
+      ],
+      "priority": 1,
+      "check": "Baseplate bolt/head protrusion, threads and available tool clearance"
+    },
+    {
+      "id": "ride-height-stack",
+      "roles": [
+        "deck",
+        "zee_brackets",
+        "trucks",
+        "wheels",
+        "bearings"
+      ],
+      "priority": 2,
+      "check": "Loaded ground clearance and obstacle margins with wheel compression"
+    }
+  ]
+}

@@ -1,3 +1,5 @@
+> **Correction, October 11, 2026:** The retailer comparison has been tightened. Loaded currently advertises Paris V3 trucks while Skates USA lists Paris V2 trucks in the named Tangent complete. These are NOT confirmed identical packages. The live code now shows `INCLUSION_REVISION_CONFLICT_HOLD`, no cross-seller equal-kit price gap, and seven maker-advertised yet unreceived child claims. See [Loaded complete-kit pilot](loaded_tangent_complete_kit_pilot_v1.md).
+
 # Outdoor Parts Picker v1.3: retail setup comparison and three research configurations
 
 ## Status

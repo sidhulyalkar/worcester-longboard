@@ -6,6 +6,9 @@
  <meta name="description" content="Evidence-aware ski, snowboard, longboard and mountainboard parts research with 3D assembly previews and unverified order worklists.">
  <title>Worcester · Outdoor Parts Picker</title>
  <link rel="stylesheet" href="./parts.css">
+ <!-- Optional source-pinned local Three.js modules. The source-aware SVG works
+      without node_modules, WebGL or any third-party CDN access. -->
+ <script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js"}}</script>
 </head>
 <body>
  <header class="topbar">
@@ -17,7 +20,7 @@
    <div><p class="eyebrow">CATALOG COMPOSER / EXPERIMENTAL</p>
     <h1>Build the entire setup, not just the board.</h1>
     <p>Compare documented ski, boot, binding and deck families in a shared 3D assembly. Every selection carries manufacturer evidence, unresolved fit checks, and a shopping worklist that distinguishes a complete kit from missing hardware.</p>
-    <p class="caution"><strong>Research only.</strong> No live stock, checkout, confirmed seller pack quantities or verified physical mount. Ski bindings require professional mounting and release testing.</p>
+    <p class="caution"><strong>Research only.</strong> No live stock, checkout-confirmed package contents or verified physical mount. Ski bindings require professional mounting and release testing.</p>
    </div>
    <aside class="intro-stats" id="picker-coverage" role="status" aria-live="polite">Loading maker-referenced equipment catalog…</aside>
   </section>
@@ -29,7 +32,7 @@
     <select id="picker-domain">
      <option value="alpine_ski">Alpine ski · source study</option>
      <option value="snowboard">Snowboard · source study</option>
-     <option value="skateboard_longboard">Longboard · source study</option>
+     <option value="skateboard_longboard" selected>Longboard · integrated assembly study</option>
      <option value="mountainboard">Mountainboard · source study</option>
     </select>
     <label for="picker-search" class="formlabel">Search maker families</label>
@@ -52,14 +55,153 @@
      <div id="picker-visual-svg" aria-label="Interactive source-linked schematic assembly"></div>
      <div id="picker-visual-3d" hidden aria-label="3D illustrative exploded assembly"></div>
     </div>
-    <p class="visual-caption" id="picker-view-note">3D parts are procedurally drawn visual proxies. Published ski lengths and board waist ratios can inform their relative shapes, but fastener positions, tolerances, boot shells and mounting clearances are not measured CAD.</p>
+    <p id="picker-rendered-scene-status" class="visual-scene-status" aria-live="polite">Assembly uses unmeasured reference geometry. Child categories are research only.</p>
+    <p class="visual-caption" id="picker-view-note">For complete longboards, one parametric display schema powers the integrated and exploded 2D/3D board. Published dimensions appear separately from inferred visual placements. Mounts, tolerances, fastener patterns and clearances are not measured or manufacturer CAD, and are not physical approvals.</p>
     <div class="view-controls">
-     <label for="picker-explode">Explode assembly <output id="picker-explode-output" for="picker-explode">72%</output></label>
-     <input type="range" min="0" max="100" value="72" id="picker-explode">
+     <div class="cad-assembly-actions" role="group" aria-label="Parametric board configuration">
+      <button type="button" id="picker-assemble" aria-pressed="false">Assemble complete board</button>
+      <button type="button" id="picker-separate" aria-pressed="false">Explode into components</button>
+      <button type="button" id="picker-cad-export" disabled>Export parametric CAD display schema</button>
+     </div>
+     <p id="picker-cad-status" class="cad-status" role="status" aria-live="polite">No source-matched parametric complete-board model yet.</p>
+     <label for="picker-explode">Explode assembly <output id="picker-explode-output" for="picker-explode">0%</output></label>
+     <input type="range" min="0" max="100" value="0" id="picker-explode">
      <div id="picker-camera-controls" class="camera-controls" hidden role="group" aria-label="3D camera views">
       <button data-camera="hero">Perspective</button><button data-camera="top">Top</button><button data-camera="side">Side</button><button data-camera="front">Front</button>
      </div>
     </div>
+    <details class="cad-import-lab" id="picker-cad-import-lab">
+     <summary>CAD asset laboratory · exact revisions, GLB inspection and evidence gaps</summary>
+     <p>The integrated board remains above. Inspect imported geometry in a separate viewport: a local GLB supplies no trustworthy mounting datum or physical units. Convert STEP to a self-contained GLB offline, recording units, revision, rights and SHA-256 before a source-backed asset can be registered.</p>
+     <p id="picker-cad-readiness" role="status" aria-live="polite">Checking exact-revision CAD coverage…</p>
+     <div class="table-scroll"><table class="cad-coverage-table"><thead><tr><th>Assembly category</th><th>File-backed geometry</th><th>Mounting datum</th></tr></thead><tbody id="picker-cad-coverage-rows"></tbody></table></div>
+     <details class="cad-maker-evidence">
+      <summary>Manufacturer dimensions and original drawings (not mating datums)</summary>
+      <p>Publicly stated envelopes and DIY stencil dimensions are presented as claims, never used to scale or position the assembled meshes. No tolerance, truck V2/V3 revision or received-part metrology is established.</p>
+      <div class="table-scroll"><table class="cad-coverage-table"><thead><tr><th>Component</th><th>Maker claim</th><th>Dimension</th><th>Evidence</th></tr></thead>
+       <tbody id="picker-cad-maker-dimensions"></tbody></table></div>
+      <button type="button" id="picker-cad-maker-export" disabled>Export maker dimension provenance</button>
+     </details>
+     <details class="cad-source-acquisition">
+      <summary>Source acquisition · OEM geometry requests and public file exclusions</summary>
+      <p>Official product pages are acquisition leads, not downloadable verified STEP/GLB models. The published Zee Bracket cutting PDF and optional tail nub STL are not structural component CAD.</p>
+      <p id="picker-cad-source-status" role="status" aria-live="polite">Checking maker geometry sourcing…</p>
+      <div id="picker-cad-source-roles" class="cad-source-roles"></div>
+      <div id="picker-cad-source-exclusions" class="cad-source-exclusions"></div>
+      <button type="button" id="picker-cad-source-export" disabled>Export seven-part sourcing report</button>
+      <button type="button" id="picker-cad-source-requests" disabled>Download manufacturer request messages</button>
+     </details>
+     <details class="cad-capture-campaign">
+      <summary>Measurement campaign · seven-part sourcing and interface checklist</summary>
+      <p>Collect manufacturer files, exact revisions, receiving observations and real dimension receipts before qualifying a mechanical assembly. Uploaded field observations are unreviewed reports, not verified CAD or permission to fabricate.</p>
+      <p id="picker-cad-capture-status" role="status" aria-live="polite">Checking metrology requirements…</p>
+      <details class="cad-field-notebook" id="picker-cad-field-notebook">
+       <summary>Field notebook · enter an observed part, dimension or XYZ measurement</summary>
+       <p>Only enter readings you actually obtained. These remain local in this tab until exported. All entries are <strong>operator-reported, not independently verified</strong>, and cannot qualify mechanical fit, purchasing or fabrication.</p>
+       <form id="picker-cad-field-form" class="cad-field-form">
+        <label for="picker-cad-field-task">Evidence task and exact part role
+         <select id="picker-cad-field-task" name="task_id" required disabled><option value="">Select a measurement task…</option></select>
+        </label>
+        <p id="picker-cad-field-guidance" class="cad-field-hint">Select an evidence task to see the required method and instructions.</p>
+        <div class="cad-field-columns">
+         <label for="picker-cad-field-revision">Observed part revision (unconfirmed until independently checked)
+          <input id="picker-cad-field-revision" name="part_revision" type="text" maxlength="120" required placeholder="Packaging, engraving or document revision">
+         </label>
+         <label for="picker-cad-field-date">Date actually recorded
+          <input id="picker-cad-field-date" name="recorded_on" type="date" required>
+         </label>
+         <label for="picker-cad-field-url">HTTPS evidence reference
+          <input id="picker-cad-field-url" name="evidence_url" type="url" maxlength="512" required placeholder="https://…photo, drawing, report or measurement log">
+         </label>
+        </div>
+        <fieldset id="picker-cad-field-metric" hidden>
+         <legend>Operator-reported metric reading, never a validated assembly datum</legend>
+         <div class="cad-field-columns">
+          <label for="picker-cad-field-feature">Feature identifier, e.g. front-left-hole or bearing-outer-diameter
+           <input name="feature_id" id="picker-cad-field-feature" maxlength="90" placeholder="front-left-hole">
+          </label>
+          <label for="picker-cad-field-kind">Measured quantity kind
+           <select name="reading_kind" id="picker-cad-field-kind">
+            <option value="SCALAR">Scalar length/diameter in mm</option>
+            <option value="POINT_3D">Point XYZ in mm (local unverified frame)</option>
+           </select>
+          </label>
+          <label for="picker-cad-field-uncertainty">Measurement uncertainty in mm, greater than zero
+           <input name="uncertainty_mm" id="picker-cad-field-uncertainty" type="number" step="any" min="0.000001" max="10" placeholder="0.1">
+          </label>
+         </div>
+         <div id="picker-cad-field-scalar">
+          <label for="picker-cad-field-scalar-value">Observed scalar value, mm
+           <input name="scalar_value" id="picker-cad-field-scalar-value" type="number" step="any" min="0" max="10000" placeholder="53.975">
+          </label>
+         </div>
+         <div id="picker-cad-field-point" hidden>
+          <div class="cad-field-columns">
+           <label for="picker-cad-field-x">X (mm)<input name="point_x" id="picker-cad-field-x" type="number" step="any" min="-10000" max="10000"></label>
+           <label for="picker-cad-field-y">Y (mm)<input name="point_y" id="picker-cad-field-y" type="number" step="any" min="-10000" max="10000"></label>
+           <label for="picker-cad-field-z">Z (mm)<input name="point_z" id="picker-cad-field-z" type="number" step="any" min="-10000" max="10000"></label>
+          </div>
+          <label for="picker-cad-field-frame">Coordinate frame or datum origin label (not independently verified)
+           <input name="frame_label" id="picker-cad-field-frame" maxlength="120" placeholder="operator-origin at left front mount">
+          </label>
+         </div>
+         <label class="cad-field-checkbox"><input type="checkbox" name="append_reading" id="picker-cad-field-append"> Add this distinct reading to the existing task (requires identical revision, source, date, note and uncertainty)</label>
+        </fieldset>
+        <fieldset id="picker-cad-field-cadsource" hidden>
+         <legend>Original model file provenance</legend>
+         <label for="picker-cad-field-sha">SHA-256 of the original source file (64 lowercase hex characters)
+          <input id="picker-cad-field-sha" name="source_sha256" type="text" minlength="64" maxlength="64" pattern="[a-f0-9]{64}" spellcheck="false" placeholder="Full original source digest">
+         </label>
+        </fieldset>
+        <label for="picker-cad-field-note">Detailed recording conditions, method and limitations (12–800 characters)
+         <textarea id="picker-cad-field-note" name="note" maxlength="800" minlength="12" rows="3" required placeholder="What did you inspect or measure, how, and what remains uncertain?"></textarea>
+        </label>
+        <p id="picker-cad-field-existing" class="cad-field-hint">No task selected.</p>
+        <div class="cad-capture-actions">
+         <button type="submit" id="picker-cad-field-save" disabled>Save unreviewed observation</button>
+         <button type="button" id="picker-cad-field-remove" disabled>Remove selected task record</button>
+         <button type="button" id="picker-cad-field-export" disabled>Export complete field log JSON</button>
+        </div>
+        <p id="picker-cad-field-status" role="status" aria-live="polite">No physical measurement has been independently verified.</p>
+       </form>
+      </details>
+      <div id="picker-cad-capture-tasks" class="cad-capture-tasks"></div>
+      <div id="picker-cad-capture-interfaces" class="cad-capture-interfaces"></div>
+      <div class="cad-capture-actions">
+       <button type="button" id="picker-cad-capture-template" disabled>Export field evidence template</button>
+       <label class="cad-inspect-label" for="picker-cad-capture-upload">Import unreviewed observation JSON (64 KB maximum)</label>
+       <input type="file" id="picker-cad-capture-upload" accept=".json,application/json" disabled>
+       <button type="button" id="picker-cad-capture-export" disabled>Export metrology gap report</button>
+      </div>
+     </details>
+     <details class="cad-metric-lab">
+      <summary>Metric datum alignment and collision broad-phase (research sandbox)</summary>
+      <p>Upload a small, source-documented survey JSON for the selected kit. The solver uses three or more matched landmarks to compute rigid transforms and evaluates axis-aligned bounding-box separation. Results never establish physical fit, steering clearance, engineering tolerances or product readiness. The procedural board above is unchanged.</p>
+      <label class="cad-inspect-label" for="picker-cad-metric-upload">Candidate metrology fixture JSON (up to 64 KB)</label>
+      <input id="picker-cad-metric-upload" type="file" accept=".json,application/json" disabled>
+      <button type="button" id="picker-cad-motion-demo" disabled>Run synthetic steering example</button>
+      <p id="picker-cad-metric-status" role="status" aria-live="polite">No independent survey provided; 0 physical clearances verified.</p>
+      <div id="picker-cad-metric-results" class="cad-metric-results"></div>
+      <button type="button" id="picker-cad-metric-export" disabled>Export candidate broad-phase report</button>
+      <div class="cad-motion-lab" aria-label="Candidate steering motion study">
+       <p id="picker-cad-motion-status" role="status" aria-live="polite">No optional motion study loaded. Steering and wheel-bite clearance UNKNOWN.</p>
+       <div id="picker-cad-motion-plot" class="cad-motion-plot"></div>
+       <section id="picker-cad-scene-panel" class="cad-scene-panel" hidden>
+        <p>3D candidate envelopes: synthetic or unverified survey data, not manufacturer CAD</p>
+        <div id="picker-cad-scene-view" class="cad-candidate-viewport"></div>
+        <label for="picker-cad-scene-angle">Selected sample <output id="picker-cad-scene-angle-output">0°</output></label>
+        <input type="range" id="picker-cad-scene-angle" min="0" max="0" value="0" step="1" disabled>
+        <p id="picker-cad-scene-status" role="status" aria-live="polite">Physical clearance unverified.</p>
+       </section>
+       <button type="button" id="picker-cad-motion-export" disabled>Export candidate motion samples</button>
+      </div>
+     </details>
+     <button type="button" id="picker-cad-evidence-export" disabled>Export CAD readiness evidence</button>
+     <label class="cad-inspect-label" for="picker-cad-upload">Inspect a local GLB for the selected assembly category (25 MB max)</label>
+     <input id="picker-cad-upload" type="file" accept=".glb,model/gltf-binary" disabled>
+     <p id="picker-cad-inspect-status" role="status" aria-live="polite">No GLB inspected. Complete board above is an unmeasured procedural reference.</p>
+     <div id="picker-cad-file-inspector" class="cad-file-inspector" hidden></div>
+    </details>
     <div class="selected-panel">
      <h3>Selected source reference</h3>
      <div id="picker-component-detail">Choose a part from the assembly or the equipment list.</div>
@@ -73,7 +215,9 @@
     <h2 id="picker-three-studies-heading">Three genuinely different configurations</h2></div></div>
    <p>These are design studies, not automatic size prescriptions. Click a configuration to load its exact referenced selections into the shared 2D / 3D assembly viewer. Foot and rider measurements affect review warnings without proving compatibility.</p>
    <div class="fit-fields comparison-rider-fields">
-    <label>Rider mass (kg, optional)<input id="picker-mass" type="number" min="15" max="250" step="0.1" placeholder="Used for maker-range review"></label>
+    <label for="picker-mass">Rider mass (kg, optional)</label>
+    <input id="picker-mass" type="number" min="15" max="250" step="0.1" placeholder="Used for maker-range review">
+    <p id="picker-mass-validation" class="picker-input-validation" role="status" aria-live="polite"></p>
    </div>
    <div id="picker-study-cards" class="study-comparison-grid" aria-live="polite"></div>
    <div id="picker-study-differences" class="study-differences" aria-live="polite"></div>
@@ -84,15 +228,29 @@
    <p>Only named, matching product configurations and package families are compared. A shared model name is not enough; prices are historical page observations, not verified shopping-cart amounts. Availability, shipping, returns and tax are unknown.</p>
    <div id="picker-retail-results" aria-live="polite"></div>
   </section>
+  <section class="kit-closure" id="picker-kit-closure" aria-labelledby="picker-kit-heading">
+   <div class="panel-title">
+    <div><p class="eyebrow">05 / COMPLETE KIT RECEIPT</p>
+     <h2 id="picker-kit-heading">What's inside one complete board?</h2></div>
+    <button id="picker-export-kit" type="button" disabled>Export kit inclusion research JSON</button>
+   </div>
+   <p>One advertised seller package can contain many physical components. This lists manufacturer-claimed inclusions separately from assembly-count expectations and actual shipped contents. It does not add seven separate products to the cart or imply a measured assembly.</p>
+   <div id="picker-kit-summary" role="status" aria-live="polite">Choose a complete longboard to inspect its advertised component claims.</div>
+   <div class="table-scroll"><table class="kit-closure-table">
+    <thead><tr><th>Component / stable ID</th><th>Expected assembly units</th><th>Maker's inclusion claim</th><th>Units received</th><th>Status / original source</th></tr></thead>
+    <tbody id="picker-kit-rows"></tbody>
+   </table></div>
+   <div id="picker-kit-unknowns" class="kit-closure-unknowns"></div>
+  </section>
   <section class="order-board">
-   <div class="panel-title"><div><p class="eyebrow">05 / PACKAGE AUDIT</p><h2>PC-builder-style ordering worklist</h2></div>
+   <div class="panel-title"><div><p class="eyebrow">06 / PACKAGE AUDIT</p><h2>PC-builder-style ordering worklist</h2></div>
     <div class="export-buttons"><button type="button" id="picker-demo">Load sample research setup</button><button type="button" id="picker-export-json">Export review JSON</button><button type="button" id="picker-export-csv">Export worklist CSV</button></div></div>
    <p>One selected family is not necessarily one purchasable SKU. A complete longboard may already contain parts that would otherwise be counted twice. A ski may be sold without bindings; ski mounting is a separate professional service. Every seller order quantity stays unknown until exact contents are checked.</p>
    <div id="picker-order-status" role="status" aria-live="polite" class="order-status"></div>
    <div class="table-scroll"><table id="picker-order-table"><thead><tr><th>System</th><th>Selection / source</th><th>Required</th><th>Seller quantity</th><th>Status</th></tr></thead><tbody id="picker-order-rows"></tbody></table></div>
    <section class="maker-unit-audit" aria-labelledby="maker-unit-audit-title">
     <div class="panel-title">
-     <div><p class="eyebrow">06 / MANUFACTURER PACK RECEIPTS</p>
+     <div><p class="eyebrow">07 / MANUFACTURER PACK RECEIPTS</p>
       <h3 id="maker-unit-audit-title">Why this exact quantity?</h3></div>
      <button type="button" id="picker-export-maker-audit">Export unit evidence JSON</button>
     </div>

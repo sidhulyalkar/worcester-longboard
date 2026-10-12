@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {validateRetailRegistry,compareRetailOffers,validateBuildStudies,
- composeResearchAlternatives} from "../../builder/retail_build_comparison.mjs";
+ researchRelatedSellerListings,composeResearchAlternatives} from "../../builder/retail_build_comparison.mjs";
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"../..");
 const read=s=>JSON.parse(fs.readFileSync(path.join(root,s),"utf8"));
 const catalog=read("catalog/outdoor_parts_picker.v1.json");
@@ -19,12 +19,15 @@ test("retail registry only permits dated evidence with registered hosts and expl
  assert.equal(validateBuildStudies(studies,catalog).studies,12);
  assert.ok(Object.values(studies.authority).every(x=>x===false));
 });
-test("two merchants can be compared ONLY for the same documented 105 mm setup",()=>{
+test("V2 versus V3 trucks hold the apparently matched 105 mm wheel setup",()=>{
  const result=compareRetailOffers(retail,catalog,variant("loaded-tangent-complete"));
  assert.equal(result.rows.length,2);
- assert.equal(result.compared_merchants,2);
- assert.equal(result.status,"PUBLISHED_SETUP_COMPARISON_REVIEW");
- assert.deepEqual(result.historical_listing_price_span_usd,{min:424,max:424,gap:0});
+ assert.equal(result.compared_merchants,0);
+ assert.equal(result.status,"INCLUSION_REVISION_CONFLICT_HOLD");
+ assert.equal(result.conflict.code,"INCLUDED_TRUCK_REVISION_MISMATCH");
+ assert.equal(result.historical_listing_price_span_usd,null);
+ assert.ok(result.rows.some(x=>x.advertised_truck_revision_claim.includes("V2")));
+ assert.ok(result.rows.some(x=>x.advertised_truck_revision_claim.includes("V3")));
  assert.equal(result.current_price_quote,null);assert.equal(result.orderable,false);
  assert.ok(result.rows.every(x=>!x.stock_verified&&!x.shipping_verified));
 });
@@ -32,7 +35,8 @@ test("85 mm Caguama setup is not falsely compared with 105 mm Dad Bod",()=>{
  const r=compareRetailOffers(retail,catalog,variant("loaded-tangent-caguama"));
  assert.equal(r.rows.length,2);
  assert.equal(r.rows[0].displayed_amount_usd,364);
- assert.equal(r.historical_listing_price_span_usd.gap,0);
+ assert.equal(r.status,"INCLUSION_REVISION_CONFLICT_HOLD");
+ assert.equal(r.historical_listing_price_span_usd,null);
  assert.equal(r.rows.some(x=>x.setup.includes("105mm")),false);
 });
 test("different 2026 ski-only and ski-plus-binding bundles are excluded from setup comparisons",()=>{
@@ -66,7 +70,7 @@ test("three research studies per sport preserve separate selections and source-b
  assert.ok(mt.cards.some(x=>x.selection.mt_trucks==="mbs-cnc420-12307"));
  assert.ok(mt.cards.every(x=>x.compatibility_status!=="INCOMPATIBLE_REFERENCE"));
  const long=composeResearchAlternatives(catalog,studies,supplier,retail,"skateboard_longboard");
- assert.equal(long.cards.filter(x=>x.source_coverage===2).length,2);
+ assert.equal(long.cards.filter(x=>x.source_coverage===2).length,0);
 });
 test("weight prompts only produce advisory manufacturer range review, not an automatic size choice",()=>{
  const out=composeResearchAlternatives(catalog,studies,supplier,retail,"snowboard",{profile:{mass_kg:105}});
@@ -93,7 +97,14 @@ test("adversarial seller identity, mismatched package, and fake privileges fail 
   x=>x.offers.push({...x.offers[0]}),
   x=>x.comparison_policy.permit_checkout=true,
   x=>x.authority.procurement_authorized=true,
-  x=>x.offers[0].seller_variant_sku="FAKE-SELLER-OPTION"
+  x=>x.offers[0].seller_variant_sku="FAKE-SELLER-OPTION",
+  x=>x.offers[0].advertised_truck_revision_claim="PARIS_V2_150MM_50_RAW",
+  x=>x.offers[0].observed_setup=x.offers[0].observed_setup.replace("V3","V2"),
+  x=>x.comparison_policy.require_identical_included_truck_revision=false,
+  x=>x.offers[0].related_product_family_id="atomic-bent90",
+  x=>x.offers[4].related_product_family_id="salomon-qst94",
+  x=>x.offers[4].related_product_family_id="bogus-family",
+  x=>x.offers[4].related_product_family_id=null
  ];
  changes.forEach((fn,i)=>assert.throws(()=>validateRetailRegistry(mutate(fn),catalog),
   /Outdoor comparisons:/,"retailer tamper case "+i));
@@ -110,4 +121,36 @@ test("duplicate builds, unfamiliar variants and unsafe status cannot be silently
  ];
  changes.forEach((fn,i)=>assert.throws(()=>validateBuildStudies(mutate(fn),catalog),
   /Outdoor comparisons:|Parts Picker:/,"study tamper case "+i));
+});
+
+test("alpine retailer bundles only appear with related ski model, never all skis",()=>{
+ const atomic=researchRelatedSellerListings(retail,catalog,"atomic-bent90");
+ assert.equal(atomic.rows.length,2);
+ assert.ok(atomic.rows.every(x=>x.description.includes("Atomic Bent 90")));
+ assert.equal(atomic.selected_size_quoted,false);
+ assert.equal(atomic.checkout_eligible,false);
+ const salomon=researchRelatedSellerListings(retail,catalog,"salomon-qst94");
+ assert.deepEqual(salomon.rows,[]);
+ const expired=researchRelatedSellerListings(retail,catalog,"atomic-bent90",
+   {as_of:"2026-11-11"});
+ assert.ok(expired.rows.every(x=>x.state==="EXPIRED_OR_FUTURE_REVIEW"));
+ assert.throws(()=>researchRelatedSellerListings(retail,catalog,"none"),
+   /known alpine ski family/);
+});
+
+test("the same published wheel setup is comparable only if independent seller kit revision claims agree",()=>{
+ const consensus=structuredClone(retail);
+ for(const o of consensus.offers.filter(x=>x.merchant_id==="skatesusa"&&
+    x.selected_variant_id)){
+  o.advertised_truck_revision_claim="PARIS_V3_150MM_50_POLISHED";
+  o.observed_setup=o.observed_setup.replace("Paris V2", "Paris V3")
+    .replace("(raw)","(polished)");
+ }
+ assert.equal(compareRetailOffers(consensus,catalog,
+   variant("loaded-tangent-complete")).status,"PUBLISHED_SETUP_COMPARISON_REVIEW");
+ assert.equal(compareRetailOffers(consensus,catalog,
+   variant("loaded-tangent-complete")).compared_merchants,2);
+ // Research-level comparison STILL cannot promise shipped items or order.
+ assert.equal(compareRetailOffers(consensus,catalog,
+   variant("loaded-tangent-complete")).orderable,false);
 });

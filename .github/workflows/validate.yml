@@ -51,6 +51,10 @@ jobs:
           node --check builder/parts_picker_app.mjs
           node --check builder/offer_qualification.mjs
           node --check builder/retail_build_comparison.mjs
+          node --check builder/complete_kit_closure.mjs
+          node --check builder/complete_kit_visual_graph.mjs
+          node --check builder/complete_kit_cad_schema.mjs
+          node --check builder/complete_kit_cad_svg.mjs
           node --check builder/snowboard_mount_reference.mjs
           node --check tools/generate_snowboard_mount_checks.mjs
           node --check tools/generate_exploded_assembly_graphs.mjs
@@ -74,10 +78,14 @@ jobs:
           node --check tools/render_board_candidate_previews.mjs
           node --check tools/evaluate_board_swap.mjs
       - name: Test browser Board Builder engines, composer and visuals
-        run: node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_catalog_composer.mjs tests/js/test_board_evidence_explorer.mjs tests/js/test_board_comparison.mjs tests/js/test_board_diversity.mjs tests/js/test_board_feasibility.mjs tests/js/test_board_build_passport.mjs tests/js/test_board_assembly_inventory.mjs tests/js/test_board_evidence_notebook.mjs tests/js/test_outdoor_catalog_graph.mjs tests/js/test_board_exploded_assembly.mjs tests/js/test_board_exploded_3d.mjs tests/js/test_board_sport_source_studies.mjs tests/js/test_board_sport_fit_intake.mjs tests/js/test_outdoor_parts_picker.mjs tests/js/test_outdoor_supplier_audit.mjs tests/js/test_outdoor_retail_build_comparisons.mjs tests/js/test_board_receiving_reconciliation.mjs tests/js/test_board_builder_swap_lab.mjs tests/js/test_board_builder_visuals.mjs tests/js/test_board_ride_brief.mjs tests/js/test_board_conversation_state.mjs
+        run: node --test tests/js/test_board_builder_engine.mjs tests/js/test_board_catalog_composer.mjs tests/js/test_board_evidence_explorer.mjs tests/js/test_board_comparison.mjs tests/js/test_board_diversity.mjs tests/js/test_board_feasibility.mjs tests/js/test_board_build_passport.mjs tests/js/test_board_assembly_inventory.mjs tests/js/test_board_evidence_notebook.mjs tests/js/test_outdoor_catalog_graph.mjs tests/js/test_board_exploded_assembly.mjs tests/js/test_board_exploded_3d.mjs tests/js/test_board_sport_source_studies.mjs tests/js/test_board_sport_fit_intake.mjs tests/js/test_outdoor_parts_picker.mjs tests/js/test_outdoor_supplier_audit.mjs tests/js/test_outdoor_retail_build_comparisons.mjs tests/js/test_outdoor_complete_kit_closure.mjs tests/js/test_outdoor_complete_kit_visual_graph.mjs tests/js/test_outdoor_complete_kit_cad_schema.mjs tests/js/test_outdoor_cad_assets.mjs tests/js/test_outdoor_cad_metric_workbench.mjs tests/js/test_outdoor_cad_candidate_motion.mjs tests/js/test_outdoor_cad_candidate_scene.mjs tests/js/test_outdoor_cad_capture_campaign.mjs tests/js/test_outdoor_cad_field_notebook.mjs tests/js/test_outdoor_cad_source_acquisition.mjs tests/js/test_outdoor_cad_pinned_receipt.mjs tests/js/test_board_receiving_reconciliation.mjs tests/js/test_board_builder_swap_lab.mjs tests/js/test_board_builder_visuals.mjs tests/js/test_board_ride_brief.mjs tests/js/test_board_conversation_state.mjs
       - run: python -m pytest -q tests
       - name: Validate Board Builder catalog and authority boundary
         run: python tools/validate_board_builder.py
+      - name: Check Parts Picker release preview safety contract
+        run: python tools/check_parts_picker_release.py --mode preview
+      - name: Audit Parts Picker measured product readiness and source freshness
+        run: python tools/audit_parts_picker_readiness.py --as-of "$(date -u +%F)" --out /tmp/parts-picker-readiness.json
       - name: Audit multi-vendor catalog provenance and source health
         run: |
           python tools/audit_board_catalog.py \

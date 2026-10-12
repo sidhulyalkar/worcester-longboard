@@ -1,0 +1,57 @@
+name: Parts Picker Chromium Release Gate
+
+on:
+  push:
+    paths:
+      - 'builder/**'
+      - 'catalog/outdoor_*.json'
+      - 'tests/browser/**'
+      - 'tests/js/test_outdoor_*.mjs'
+      - '.github/workflows/parts-picker-browser-qa.yml'
+      - 'docs/parts_picker_release_candidate_v14.md'
+  pull_request:
+    paths:
+      - 'builder/**'
+      - 'catalog/outdoor_*.json'
+      - 'tests/browser/**'
+      - 'tests/js/test_outdoor_*.mjs'
+      - '.github/workflows/parts-picker-browser-qa.yml'
+      - 'docs/parts_picker_release_candidate_v14.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: parts-picker-browser-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  chromium-parts-picker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned Playwright and Chromium
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 three@0.180.0
+          npx playwright install --with-deps chromium
+      - name: Run actual browser release gate and responsive snapshots
+        env:
+          PARTS_BROWSER_ARTIFACTS: ${{ runner.temp }}/parts-picker-browser-artifacts
+          PARTS_BROWSER_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node tests/browser/parts_picker_smoke.mjs
+      - name: Upload source-aware browser QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: parts-picker-browser-${{ github.run_id }}
+          path: ${{ runner.temp }}/parts-picker-browser-artifacts
+          retention-days: 14
+          if-no-files-found: warn

@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "scope": "MAKER_PUBLISHED_DIMENSIONS_NOT_MEASURED_ASSEMBLY_CAD",
+  "reviewed_on": "2026-10-11",
+  "authority": {
+    "metric_mates_verified": false,
+    "physical_clearances_verified": false,
+    "procurement_authorized": false,
+    "fabrication_authorized": false
+  },
+  "references": [
+    {
+      "id": "loaded-tangent-complete-envelope",
+      "roles": [
+        "deck"
+      ],
+      "applies_to": [
+        "loaded-tangent-complete-105 mm Dad Bod 77a",
+        "loaded-tangent-caguama-85 mm Caguama 80a"
+      ],
+      "source_url": "https://www.loadedboards.com/products/tangent-deck-with-brackets",
+      "source_type": "MAKER_PRODUCT_SPECIFICATION",
+      "note": "Overall complete deck WITH brackets, not the bare deck envelope or a mount-point datum.",
+      "claims": [
+        {
+          "name": "complete_length",
+          "value_mm": 914,
+          "meaning": "PUBLISHED_OVERALL_ENVELOPE"
+        },
+        {
+          "name": "complete_width",
+          "value_mm": 248,
+          "meaning": "PUBLISHED_OVERALL_ENVELOPE"
+        },
+        {
+          "name": "complete_wheelbase",
+          "value_mm": 746,
+          "meaning": "PUBLISHED_COMPLETE_WHEELBASE_NOT_AXLE_DATUM"
+        },
+        {
+          "name": "bare_deck_wheelbase",
+          "value_mm": 514,
+          "meaning": "PUBLISHED_BARE_DECK_WHEELBASE_NOT_HOLE_POSITION"
+        }
+      ]
+    },
+    {
+      "id": "loaded-zee-bracket-envelope",
+      "roles": [
+        "zee_brackets"
+      ],
+      "applies_to": [
+        "loaded-tangent-complete-105 mm Dad Bod 77a",
+        "loaded-tangent-caguama-85 mm Caguama 80a"
+      ],
+      "source_url": "https://www.loadedboards.com/products/zee-bracket",
+      "source_type": "MAKER_PRODUCT_SPECIFICATION",
+      "note": "General Zee Bracket family spec, not scan of exact received bracket; family sizing only.",
+      "claims": [
+        {
+          "name": "length",
+          "value_mm": 210,
+          "meaning": "PUBLISHED_APPROXIMATE_PART_ENVELOPE"
+        },
+        {
+          "name": "width",
+          "value_mm": 82.6,
+          "meaning": "PUBLISHED_APPROXIMATE_PART_ENVELOPE"
+        },
+        {
+          "name": "height",
+          "value_mm": 57.2,
+          "meaning": "PUBLISHED_APPROXIMATE_PART_ENVELOPE"
+        },
+        {
+          "name": "added_wheelbase",
+          "value_mm": 235,
+          "meaning": "PUBLISHED_SYSTEM_RELATION_NOT_ASSEMBLY_DATUM"
+        },
+        {
+          "name": "nominal_ride_height_drop",
+          "value_mm": 38,
+          "meaning": "PUBLISHED_APPROXIMATE_SYSTEM_EFFECT"
+        }
+      ]
+    },
+    {
+      "id": "loaded-zee-bracket-diy-template",
+      "roles": [
+        "zee_brackets"
+      ],
+      "applies_to": [
+        "loaded-tangent-complete-105 mm Dad Bod 77a",
+        "loaded-tangent-caguama-85 mm Caguama 80a"
+      ],
+      "source_url": "https://cdn.shopify.com/s/files/1/0092/1085/5524/files/Loaded-Zee-Bracket-template.pdf?v=1688582078",
+      "source_type": "MAKER_DIY_TEMPLATE",
+      "note": "DIY cutting stencil: 1.625 x 2.125 in nominal rectangular hole spacing and 16/23 degree trim guidance. This is NOT a measured loaded Tangent or Zee-to-truck mating datum. Do not machine a received kit using this without verification.",
+      "claims": [
+        {
+          "name": "template_across_holes",
+          "value_mm": 41.275,
+          "meaning": "DIY_TEMPLATE_NOMINAL_HOLE_SPACING"
+        },
+        {
+          "name": "template_along_holes",
+          "value_mm": 53.975,
+          "meaning": "DIY_TEMPLATE_NOMINAL_HOLE_SPACING"
+        }
+      ]
+    },
+    {
+      "id": "loaded-85-caguama-diameter",
+      "roles": [
+        "wheels"
+      ],
+      "applies_to": [
+        "loaded-tangent-caguama-85 mm Caguama 80a"
+      ],
+      "source_url": "https://www.loadedboards.com/products/tangent-longboard-skateboard",
+      "source_type": "MAKER_PRODUCT_SPECIFICATION",
+      "note": "Advertised wheel size, not actual received diameters or complete wheel/hub/axle fit.",
+      "claims": [
+        {
+          "name": "nominal_wheel_diameter",
+          "value_mm": 85,
+          "meaning": "PUBLISHED_NOMINAL_WHEEL_DIAMETER"
+        }
+      ]
+    },
+    {
+      "id": "loaded-105-dadbod-diameter",
+      "roles": [
+        "wheels"
+      ],
+      "applies_to": [
+        "loaded-tangent-complete-105 mm Dad Bod 77a"
+      ],
+      "source_url": "https://www.loadedboards.com/products/tangent-longboard-skateboard",
+      "source_type": "MAKER_PRODUCT_SPECIFICATION",
+      "note": "Advertised wheel size, not actual received diameters or complete wheel/hub/axle fit.",
+      "claims": [
+        {
+          "name": "nominal_wheel_diameter",
+          "value_mm": 105,
+          "meaning": "PUBLISHED_NOMINAL_WHEEL_DIAMETER"
+        }
+      ]
+    },
+    {
+      "id": "paris-v3-150mm-polished-dimensions",
+      "roles": [
+        "trucks"
+      ],
+      "applies_to": [
+        "loaded-tangent-complete-105 mm Dad Bod 77a",
+        "loaded-tangent-caguama-85 mm Caguama 80a"
+      ],
+      "source_url": "https://www.paristruckco.com/products/v3-150mm-50-polished",
+      "source_type": "MAKER_PRODUCT_SPECIFICATION",
+      "note": "Official Paris V3 product-family measurements only. Seller may ship V2; physical revision, mounting holes, hanger steering trajectory and truck geometry unverified.",
+      "claims": [
+        {
+          "name": "hanger_width",
+          "value_mm": 150,
+          "meaning": "PUBLISHED_PRODUCT_DIMENSION_NOT_MATING_DATUM"
+        },
+        {
+          "name": "axle_width",
+          "value_mm": 215,
+          "meaning": "PUBLISHED_PRODUCT_DIMENSION_NOT_MATING_DATUM"
+        },
+        {
+          "name": "axle_height",
+          "value_mm": 65,
+          "meaning": "PUBLISHED_PRODUCT_DIMENSION_NOT_MATING_DATUM"
+        }
+      ]
+    },
+    {
+      "id": "orangatang-dad-bod-105mm-width",
+      "roles": [
+        "wheels"
+      ],
+      "applies_to": [
+        "loaded-tangent-complete-105 mm Dad Bod 77a"
+      ],
+      "source_url": "https://www.orangatangwheels.com/products/dad-bod-105mm-longboard-wheel",
+      "source_type": "MAKER_PRODUCT_SPECIFICATION",
+      "note": "Official width and nominal contact patch claims for 105mm Dad Bod wheel family. No bore, bearing-seat, wheel offset or deck-clearance datum verified.",
+      "claims": [
+        {
+          "name": "wheel_width",
+          "value_mm": 62,
+          "meaning": "PUBLISHED_PRODUCT_DIMENSION_NOT_MATING_DATUM"
+        },
+        {
+          "name": "contact_patch_width",
+          "value_mm": 57,
+          "meaning": "PUBLISHED_PRODUCT_DIMENSION_NOT_MATING_DATUM"
+        }
+      ]
+    },
+    {
+      "id": "orangatang-caguama-85mm-width",
+      "roles": [
+        "wheels"
+      ],
+      "applies_to": [
+        "loaded-tangent-caguama-85 mm Caguama 80a"
+      ],
+      "source_url": "https://www.orangatangwheels.com/products/caguama-85mm-longboard-wheel",
+      "source_type": "MAKER_PRODUCT_SPECIFICATION",
+      "note": "Official width and nominal contact patch claims for 85mm Caguama wheel family. No bore, bearing-seat, wheel offset or deck-clearance datum verified.",
+      "claims": [
+        {
+          "name": "wheel_width",
+          "value_mm": 58.5,
+          "meaning": "PUBLISHED_PRODUCT_DIMENSION_NOT_MATING_DATUM"
+        },
+        {
+          "name": "contact_patch_width",
+          "value_mm": 56,
+          "meaning": "PUBLISHED_PRODUCT_DIMENSION_NOT_MATING_DATUM"
+        }
+      ]
+    }
+  ]
+}

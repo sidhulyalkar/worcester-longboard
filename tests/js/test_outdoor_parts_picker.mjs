@@ -131,3 +131,11 @@ test("dated indicative maker prices cannot turn into a BOM/order total",()=>{
  bad.observed_listing_prices[0].source_id="other-source";
  assert.throws(()=>validatePartsRegistry(bad),/orphan or mismatched/);
 });
+
+test("cross-family variant ID collisions fail before any source/order or 3D study",()=>{
+ const bad=structuredClone(catalog);
+ bad.products[1].variants[0].id=bad.products[0].variants[0].id;
+ assert.throws(()=>validatePartsRegistry(bad),/duplicate IDs/);
+ assert.throws(()=>buildPickerStudy(bad,{domain_id:"alpine_ski"}),
+  /duplicate IDs/);
+});

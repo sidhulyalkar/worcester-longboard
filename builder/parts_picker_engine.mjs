@@ -70,6 +70,9 @@ export function validatePartsRegistry(data){
    }
   }
  }
+ // Catalog variant references must identify exactly one product globally, not
+ // merely within each family. Cross-family collisions corrupt seller/3D matching.
+ unique(data.products.flatMap(x=>x.variants),x=>x.id);
  const productById=new Map(data.products.map(x=>[x.id,x]));
  const vendorById=new Map(data.vendors.map(x=>[x.id,x]));
  unique(data.observed_listing_prices,x=>x.product_id);
