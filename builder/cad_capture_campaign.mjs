@@ -72,7 +72,9 @@ export function validateCadFieldObservations(observations,requirements,variant){
  check(Array.isArray(observations.records)&&
   observations.records.length<=required_task_count,
   "observation collection too large");
- const taskIds=new Set(requirements.requirements.flatMap(r=>r.tasks.map(t=>t.task_id)));
+ const taskMethods=new Map(requirements.requirements.flatMap(r=>
+  r.tasks.map(t=>[t.task_id,t.required_method])));
+ const taskIds=new Set(taskMethods.keys());
  const observed=new Set();
  for(const rec of observations.records){
   check(isObj(rec)&&Object.keys(rec).sort().join("|")===
@@ -82,7 +84,8 @@ export function validateCadFieldObservations(observations,requirements,variant){
   check(taskIds.has(rec.task_id)&&!observed.has(rec.task_id),
    "unknown or duplicate task ID");
   observed.add(rec.task_id);
-  check(methods.includes(rec.method)&&noControl(rec.part_revision)&&
+  check(methods.includes(rec.method)&&rec.method===taskMethods.get(rec.task_id)&&
+   noControl(rec.part_revision)&&
    rec.part_revision.length<=120&&url(rec.evidence_url)&&
    date(rec.recorded_on)&&
    (rec.uncertainty_mm===null||
@@ -90,7 +93,9 @@ export function validateCadFieldObservations(observations,requirements,variant){
      rec.uncertainty_mm>0&&rec.uncertainty_mm<=10))&&
    typeof rec.note==="string"&&rec.note.length>=12&&rec.note.length<=800&&
    (rec.source_sha256===null||
-    (typeof rec.source_sha256==="string"&&/^[a-f0-9]{64}$/.test(rec.source_sha256))),
+    (typeof rec.source_sha256==="string"&&/^[a-f0-9]{64}$/.test(rec.source_sha256)))&&
+   (rec.method!=="METRIC_MEASUREMENT"||rec.uncertainty_mm!==null)&&
+   (rec.method!=="CAD_SOURCE"||rec.source_sha256!==null),
    "field evidence needs explicit dated HTTPS pointer, revision, method and uncertainty");
  }
  return {submitted_unreviewed:observed.size,independently_verified:0,
@@ -124,7 +129,8 @@ export function planCadCaptureCampaign(cad,requirements,makerDimensions,
     "FIELD_REPORTED_NOT_INDEPENDENTLY_VERIFIED":"EVIDENCE_REQUIRED",
     field_observation:rec?{method:rec.method,part_revision:rec.part_revision,
      evidence_url:rec.evidence_url,recorded_on:rec.recorded_on,
-     uncertainty_mm:rec.uncertainty_mm,source_sha256:rec.source_sha256}:null,
+     uncertainty_mm:rec.uncertainty_mm,source_sha256:rec.source_sha256,
+     note:rec.note}:null,
     engineering_verified:false};
   });
   rolesOut.push({role:req.role,asset_candidate_id:asset?.asset_id??null,
