@@ -16,6 +16,9 @@ import {sampleCandidateMotionSweep,renderCandidateMotionSvg}
  from "./cad_candidate_motion.mjs";
 import {makeSyntheticCandidateMotionFixture} from "./cad_demo_fixture.mjs";
 import {compileCandidateMetricScene} from "./cad_candidate_scene.mjs";
+import {validateCadCaptureRequirements,planCadCaptureCampaign,
+ blankCadFieldObservations,validateCadFieldObservations}
+ from "./cad_capture_campaign.mjs";
 const $=selector=>document.querySelector(selector);
 const esc=x=>String(x??"").replaceAll("&","&amp;").replaceAll("<","&lt;")
  .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
@@ -26,7 +29,7 @@ const cleanUrl=value=>{
 const state={catalog:null,offerObservations:null,offerAudit:null,
  retailCatalog:null,studyCatalog:null,alternatives:null,kitClaims:null,kitAudit:null,visualGraph:null,
  cadRecipe:null,cadModel:null,cadRegistry:null,cadReadiness:null,
- cadInspector:null,inspectedKit:null,dimensionalEvidence:null,publishedCad:null,metricResult:null,motionResult:null,sceneFixture:null,sceneEpoch:0,sceneViewer:null,sceneViewerPromise:null,
+ cadInspector:null,inspectedKit:null,dimensionalEvidence:null,publishedCad:null,metricResult:null,motionResult:null,sceneFixture:null,sceneEpoch:0,sceneViewer:null,sceneViewerPromise:null,captureRequirements:null,captureObservations:null,captureReport:null,captureVariant:null,
  domain:"skateboard_longboard",selections:{},study:null,
  mode:"2d",separation:0,selectedId:null,viewer:null,viewerPromise:null,
  search:""};
@@ -163,6 +166,49 @@ function renderCadMakerDimensions(){
    '<small>'+esc(c.source_note)+'</small></td></tr>';
  }).join("");
 }
+function renderCadCaptureCampaign(){
+ const variant=state.cadModel?.selected_variant_id??null;
+ if(state.captureVariant!==variant){
+  state.captureObservations=null;state.captureVariant=variant;
+  $("#picker-cad-capture-upload").value="";
+ }
+ const report=state.captureReport=planCadCaptureCampaign(
+  state.cadModel,state.captureRequirements,state.dimensionalEvidence,
+  state.cadRegistry,{observations:state.captureObservations,kitAudit:state.kitAudit});
+ const active=!!state.cadModel;
+ for(const id of ["picker-cad-capture-template","picker-cad-capture-upload",
+  "picker-cad-capture-export"])$("#"+id).disabled=!active;
+ const status=$("#picker-cad-capture-status");
+ status.textContent=active?
+  report.missing_evidence+"/"+report.task_count+" evidence tasks open · "+
+  report.reported_unreviewed+" field-reported (NOT reviewed) · "+
+  report.interfaces.length+" interface reviews blocked · "+
+  "0 independently verified datums · 0 physical fit approvals":
+  "No selected complete kit. No manufacturer geometry or physical approvals inferred.";
+ const taskGroups=report.roles.map(r=>{
+  const tasks=report.tasks.filter(t=>t.role===r.role);
+  const links=r.source_reference_urls.map(url=>{
+   const safe=cleanUrl(url);
+   return safe?'<a target="_blank" rel="noopener noreferrer" href="'+
+    esc(safe)+'">Maker source ↗</a>':"";
+  }).join(" ");
+  return '<details class="cad-capture-role"><summary>'+
+   esc(r.role.replaceAll("_"," "))+" · "+
+   r.tasks_missing+" open / "+tasks.length+" tasks"+
+   (r.tasks_reported_unreviewed?" · "+r.tasks_reported_unreviewed+" reported":"")+
+   '</summary><p>'+links+'</p><ol>'+
+   tasks.map(t=>'<li><strong>'+esc(t.task_id.replaceAll("-"," "))+
+    '</strong> · '+esc(t.required_method.replaceAll("_"," "))+
+    ' · '+esc(t.status.replaceAll("_"," "))+
+    '<p>'+esc(t.instruction)+'</p></li>').join("")+
+   '</ol></details>';
+ });
+ $("#picker-cad-capture-tasks").innerHTML=taskGroups.join("");
+ $("#picker-cad-capture-interfaces").innerHTML=report.interfaces.length?
+  '<p><strong>Physical interface checks requiring independent review</strong></p><ol>'+
+  report.interfaces.map(i=>'<li><strong>'+esc(i.id.replaceAll("-"," "))+
+   '</strong>: '+esc(i.check)+' · NOT VERIFIED</li>').join("")+'</ol>':"";
+}
 function renderCadAssetReadiness(){
  const report=state.cadReadiness=planCadAssetReadiness(state.cadModel,state.cadRegistry);
  $("#picker-cad-evidence-export").disabled=!state.cadModel;
@@ -234,6 +280,7 @@ function renderCompleteKitClosure(){
  }
  renderCadAssetReadiness();
  renderCadMakerDimensions();
+ renderCadCaptureCampaign();
  state.metricResult=null;state.motionResult=null;state.sceneFixture=null;
  state.sceneEpoch++;
  $("#picker-cad-scene-panel").hidden=true;
@@ -585,6 +632,38 @@ function initEvents(){
  $("#picker-separate").addEventListener("click",()=>{
   state.separation=100;$("#picker-explode").value="100";redrawVisual();
  });
+ $("#picker-cad-capture-template").addEventListener("click",()=>{
+  if(!state.cadModel)return;
+  download("worcester-cad-field-template-"+state.domain+".json",
+   JSON.stringify(blankCadFieldObservations(state.cadModel.selected_variant_id),
+    null,2)+"\n","application/json");
+ });
+ $("#picker-cad-capture-export").addEventListener("click",()=>{
+  if(state.captureReport)download("worcester-cad-metrology-gaps-"+state.domain+".json",
+   JSON.stringify(state.captureReport,null,2)+"\n","application/json");
+ });
+ $("#picker-cad-capture-upload").addEventListener("change",async event=>{
+  const file=event.target.files?.[0];if(!file)return;
+  const variant=state.cadModel?.selected_variant_id;
+  state.captureObservations=null;
+  try{
+   if(!variant||file.size>65536||file.size<20)
+    throw Error("Exact kit and observation JSON of up to 64 KB required");
+   const input=JSON.parse(await file.text());
+   validateCadFieldObservations(input,state.captureRequirements,variant);
+   if(variant!==state.cadModel?.selected_variant_id)
+    throw Error("The selected kit changed during observation import");
+   state.captureObservations=input;
+   renderCadCaptureCampaign();
+  }catch(err){
+   if(variant===state.cadModel?.selected_variant_id){
+    renderCadCaptureCampaign();
+    $("#picker-cad-capture-status").textContent=
+     "Observation packet held: "+err.message+
+     " · all physical approvals remain blocked.";
+   }
+  }finally{event.target.value="";}
+ });
  $("#picker-cad-maker-export").addEventListener("click",()=>{
   if(state.publishedCad)download("worcester-maker-dimensions-"+state.domain+".json",
    JSON.stringify(state.publishedCad,null,2)+"\n","application/json");
@@ -822,7 +901,7 @@ function initEvents(){
 }
 async function main(){
  try{
-  const [res,obsRes,retailRes,studyRes,kitRes,cadRes,assetsRes,dimsRes]=await Promise.all([
+  const [res,obsRes,retailRes,studyRes,kitRes,cadRes,assetsRes,dimsRes,captureRes]=await Promise.all([
    fetch("../catalog/outdoor_parts_picker.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_supplier_observations.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_retail_comparisons.v1.json",{cache:"no-store"}),
@@ -830,9 +909,10 @@ async function main(){
    fetch("../catalog/outdoor_complete_kit_claims.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_complete_kit_cad_recipes.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_cad_asset_registry.v1.json",{cache:"no-store"}),
-   fetch("../catalog/outdoor_cad_dimensional_evidence.v1.json",{cache:"no-store"})
+   fetch("../catalog/outdoor_cad_dimensional_evidence.v1.json",{cache:"no-store"}),
+   fetch("../catalog/outdoor_cad_capture_requirements.v1.json",{cache:"no-store"})
   ]);
-  if(!res.ok||!obsRes.ok||!retailRes.ok||!studyRes.ok||!kitRes.ok||!cadRes.ok||!assetsRes.ok||!dimsRes.ok)
+  if(!res.ok||!obsRes.ok||!retailRes.ok||!studyRes.ok||!kitRes.ok||!cadRes.ok||!assetsRes.ok||!dimsRes.ok||!captureRes.ok)
    throw Error("Cannot load all four source-bound parts, retailer and study registries");
   state.catalog=await res.json();
   state.offerObservations=await obsRes.json();
@@ -842,9 +922,11 @@ async function main(){
   state.cadRecipe=await cadRes.json();
   state.cadRegistry=await assetsRes.json();
   state.dimensionalEvidence=await dimsRes.json();
+  state.captureRequirements=await captureRes.json();
   validateKitCadRecipe(state.cadRecipe);
   validateCadAssetRegistry(state.cadRegistry);
   validateCadDimensionalEvidence(state.dimensionalEvidence);
+  validateCadCaptureRequirements(state.captureRequirements);
   const coverage=validatePartsRegistry(state.catalog);
   validateSupplierObservations(state.offerObservations,state.catalog);
   validateRetailRegistry(state.retailCatalog,state.catalog);
