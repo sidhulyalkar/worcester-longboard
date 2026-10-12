@@ -82,6 +82,19 @@
        <tbody id="picker-cad-maker-dimensions"></tbody></table></div>
       <button type="button" id="picker-cad-maker-export" disabled>Export maker dimension provenance</button>
      </details>
+     <details class="cad-capture-campaign">
+      <summary>Measurement campaign · seven-part sourcing and interface checklist</summary>
+      <p>Collect manufacturer files, exact revisions, receiving observations and real dimension receipts before qualifying a mechanical assembly. Uploaded field observations are unreviewed reports, not verified CAD or permission to fabricate.</p>
+      <p id="picker-cad-capture-status" role="status" aria-live="polite">Checking metrology requirements…</p>
+      <div id="picker-cad-capture-tasks" class="cad-capture-tasks"></div>
+      <div id="picker-cad-capture-interfaces" class="cad-capture-interfaces"></div>
+      <div class="cad-capture-actions">
+       <button type="button" id="picker-cad-capture-template" disabled>Export field evidence template</button>
+       <label class="cad-inspect-label" for="picker-cad-capture-upload">Import unreviewed observation JSON (64 KB maximum)</label>
+       <input type="file" id="picker-cad-capture-upload" accept=".json,application/json" disabled>
+       <button type="button" id="picker-cad-capture-export" disabled>Export metrology gap report</button>
+      </div>
+     </details>
      <details class="cad-metric-lab">
       <summary>Metric datum alignment and collision broad-phase (research sandbox)</summary>
       <p>Upload a small, source-documented survey JSON for the selected kit. The solver uses three or more matched landmarks to compute rigid transforms and evaluates axis-aligned bounding-box separation. Results never establish physical fit, steering clearance, engineering tolerances or product readiness. The procedural board above is unchanged.</p>
