@@ -31,7 +31,7 @@ export async function createCandidateMetricViewer(host){
  const edgeGeometry=new THREE.EdgesGeometry(baseGeometry);
  const edges=new THREE.LineBasicMaterial({color:0xc1dce5,transparent:true,opacity:0.85});
  const nodes=new Map();
- let frame=null,settle=0,disposed=false,geometryKey=null,axis=null;
+ let frame=null,settle=0,disposed=false,geometryKey=null,viewKey=null,axis=null;
  function schedule(){
   if(disposed)return;
   settle=18;
@@ -96,11 +96,17 @@ export async function createCandidateMetricViewer(host){
     group.userData.fill=material;group.userData.partId=p.id;
     nodes.set(p.id,group);root.add(group);
    }
-   const overall=model.parts.map(p=>p.sampled_world_bounds_mm);
-   const min=[0,1,2].map(i=>Math.min(...overall.map(b=>b.min_mm[i])));
-   const max=[0,1,2].map(i=>Math.max(...overall.map(b=>b.max_mm[i])));
-   const center=new THREE.Vector3(...min.map((v,i)=>(v+max[i])/2));
-   const radius=Math.max(new THREE.Vector3(...max.map((v,i)=>v-min[i])).length(),8);
+  }
+  const b=model.view_bounds_mm;
+  if(!b||b.min_mm?.length!==3||b.max_mm?.length!==3||
+     ![...b.min_mm,...b.max_mm].every(Number.isFinite))
+   throw Error("Candidate 3D requires bounded survey view coordinates");
+  const fitKey=JSON.stringify([model.kit_variant_id,newKey,b]);
+  if(viewKey!==fitKey){
+   viewKey=fitKey;
+   const center=new THREE.Vector3(...b.min_mm.map((v,i)=>(v+b.max_mm[i])/2));
+   const radius=Math.max(new THREE.Vector3(...b.min_mm.map((v,i)=>
+    b.max_mm[i]-v)).length(),8);
    controls.target.copy(center);
    camera.position.copy(center).add(new THREE.Vector3(radius*1.2,radius*1.3,radius*1.5));
    camera.near=Math.max(radius/10000,0.001);
