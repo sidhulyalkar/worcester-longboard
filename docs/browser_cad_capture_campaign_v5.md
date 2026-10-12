@@ -35,7 +35,7 @@ Seven review edges keep separate requirements for deck-to-bracket, bracket-to-tr
      "source_sha256": null
    }
    ```
-5. **Import observation JSON** (64 KB maximum). The app checks all known task IDs, unique records, exact maker variant, recognized method, source URL, date validity, finite positive measurement uncertainty or null, and non-forged authority. No sensitive photos or files are uploaded to a server by the app; the chosen local JSON is evaluated in the browser. Source links remain supplied references only.
+5. **Import observation JSON** (64 KB maximum). The app checks all known task IDs, unique records, exact maker variant, the **specific method required by that task**, dated HTTPS evidence, and no forged approvals. A `METRIC_MEASUREMENT` requires a stated positive `uncertainty_mm` and a `CAD_SOURCE` claim requires a 64-hex-character SHA-256 digest; other methods may use `null` where appropriate. No sensitive photos or files are uploaded to a server by the app; the chosen local JSON is evaluated in the browser. Source links remain supplied references only.
 6. **Export metrology gap report** to preserve 20 per-task statuses, original manufacturer source links, reported items and seven remaining independent interface reviews.
 
 The displayed status `FIELD_REPORTED_NOT_INDEPENDENTLY_VERIFIED` means the operator **submitted a claim**, not that the geometry, measurement method, photo, instrument calibration, supplier revision, or real-world part is verified. Neither a submitted source URL nor a hash authorizes fabrication. On kit switch, stale observations are cleared. A malformed, cross-kit or unsafe packet is rejected, and prior unreviewed evidence is discarded, without altering CAD views or purchasing state.
