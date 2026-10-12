@@ -43,6 +43,21 @@ export function compileCandidateMetricScene(fixture,{
  const axis=sweep?fixture.motion.axis_direction_assembly:null;
  const axisRot=sweep?axisRotation(axis,angle_deg*Math.PI/180):null;
  const pivot=sweep?fixture.motion.axis_point_assembly_mm:null;
+ const fullSweepPoints=[];
+ for(const [i,p] of fixture.parts.entries()){
+  const pose=base.parts[i].candidate_pose;
+  const initial=corners(p.local_bounds_mm).map(point=>
+   transform(pose.rotation_rows,pose.translation_mm,point));
+  if(sweep&&p.id===fixture.motion.moving_part_id){
+   for(const angle of sweep.tested_angles_deg){
+    const r=axisRotation(axis,angle*Math.PI/180);
+    for(const point of initial){
+     fullSweepPoints.push(add(pivot,r.map(row=>dot(row,sub(point,pivot)))));
+    }
+   }
+  }else fullSweepPoints.push(...initial);
+ }
+ const view_bounds_mm=axisAlignedBounds(fullSweepPoints);
  const parts=base.parts.map((b,i)=>{
   const p=fixture.parts[i];
   check(p.id===b.id,"candidate part identity mismatch");
@@ -80,7 +95,7 @@ export function compileCandidateMetricScene(fixture,{
  return {scope:"ISOLATED_CANDIDATE_ENVELOPES_NOT_VERIFIED_CAD",
   kit_variant_id:fixture.kit_variant_id,
   fixture_type:fixture.fixture_type??"UNVERIFIED_SURVEY_INPUT",
-  coordinate_units:"mm",angle_deg,sample_index,sample_count:max,
+  coordinate_units:"mm",view_bounds_mm,angle_deg,sample_index,sample_count:max,
   moving_part_id:sweep?.pairs[0]?.moving_part_id??null,
   axis_point_mm:pivot,axis_direction:axis,
   parts:parts.map(p=>({...p,potential_overlap_at_sample:suspect.has(p.id)})),
