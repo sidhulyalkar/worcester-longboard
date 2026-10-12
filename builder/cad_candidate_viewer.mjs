@@ -51,10 +51,20 @@ export async function createCandidateMetricViewer(host){
   camera.aspect=w/h;camera.updateProjectionMatrix();schedule();
  }
  const observer=new ResizeObserver(resize);observer.observe(host);
+ function releaseAxis(){
+  if(!axis)return;
+  root.remove(axis);
+  axis.traverse(obj=>{
+   obj.geometry?.dispose?.();
+   if(Array.isArray(obj.material))for(const mat of obj.material)mat?.dispose?.();
+   else obj.material?.dispose?.();
+  });
+  axis=null;
+ }
  function clear(){
   for(const object of nodes.values())object.userData.fill.dispose();
   nodes.clear();
-  if(axis){root.remove(axis);axis.dispose?.();axis=null;}
+  releaseAxis();
   root.clear();
   geometryKey=null;
  }
@@ -112,7 +122,7 @@ export async function createCandidateMetricViewer(host){
     p.potential_overlap_at_sample?0xe8a176:
     p.is_moving?0x83c8db:0xa4b5c6);
   }
-  if(axis){root.remove(axis);axis.dispose?.();axis=null;}
+  releaseAxis();
   if(model.axis_point_mm&&model.axis_direction){
    const direction=new THREE.Vector3(...model.axis_direction).normalize();
    const radius=Math.max(4,...model.parts.flatMap(p=>p.dimensions_mm));
