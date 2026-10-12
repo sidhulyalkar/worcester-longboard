@@ -186,6 +186,69 @@ async function main(){
   assert.equal(captureBefore.interfaces.length,7);
   assert.equal(captureBefore.seller_revision_conflict_unresolved,true);
   assert.equal(captureBefore.independently_verified,0);
+  await page.locator("#picker-cad-field-notebook > summary").click();
+  await page.locator("#picker-cad-field-task").selectOption("deck-hole-centers");
+  await page.locator("#picker-cad-field-revision").fill("Observed packaging only, revision unconfirmed");
+  await page.locator("#picker-cad-field-date").fill("2026-10-12");
+  await page.locator("#picker-cad-field-url").fill("https://example.org/operator-deck-caliper");
+  await page.locator("#picker-cad-field-feature").fill("front-left-hole");
+  await page.locator("#picker-cad-field-scalar-value").fill("53.975");
+  await page.locator("#picker-cad-field-uncertainty").fill("0.12");
+  await page.locator("#picker-cad-field-note").fill(
+   "Synthetic operator-reported scalar for QA only; no hardware inspected or independently qualified.");
+  await page.locator("#picker-cad-field-save").click();
+  assertBrowser((await page.locator("#picker-cad-capture-status").innerText())
+   .includes("1 numeric readings (UNREVIEWED)"),
+   "Structured scalar observation must be reported but not approved");
+  const scalarLogDownload=page.waitForEvent("download");
+  await page.locator("#picker-cad-field-export").click();
+  const scalarLog=JSON.parse(await readFile(await (await scalarLogDownload).path(),"utf8"));
+  assert.equal(scalarLog.records.length,1);
+  assert.equal(scalarLog.records[0].measurements_mm[0].value_mm,53.975);
+  assert.equal(scalarLog.authority.physical_fit_qualified,false);
+  await page.locator("#picker-cad-field-kind").selectOption("POINT_3D");
+  await page.locator("#picker-cad-field-append").check();
+  await page.locator("#picker-cad-field-feature").fill("front-right-hole");
+  await page.locator("#picker-cad-field-x").fill("-5.25");
+  await page.locator("#picker-cad-field-y").fill("0");
+  await page.locator("#picker-cad-field-z").fill("12.4");
+  await page.locator("#picker-cad-field-frame").fill("Synthetic arbitrary operator deck frame");
+  await page.locator("#picker-cad-field-save").click();
+  const pointsDownload=page.waitForEvent("download");
+  await page.locator("#picker-cad-field-export").click();
+  const withPoints=JSON.parse(await readFile(await (await pointsDownload).path(),"utf8"));
+  assert.equal(withPoints.records[0].measurements_mm.length,2);
+  assert.deepEqual(withPoints.records[0].measurements_mm[1].value_mm,[-5.25,0,12.4]);
+  assert.equal(withPoints.records[0].measurements_mm[1].frame_label,
+   "Synthetic arbitrary operator deck frame");
+  assertBrowser((await page.locator("#picker-cad-capture-status").innerText())
+   .includes("2 numeric readings (UNREVIEWED)"),
+   "XYZ point must not be certified as an aligned mounting datum");
+  await page.locator("#picker-cad-field-task").selectOption("truck-seller-revision");
+  await page.locator("#picker-cad-field-revision").fill("Operator claims seller V2, still unconfirmed");
+  await page.locator("#picker-cad-field-url").fill("https://example.org/unreviewed-revision-claim");
+  await page.locator("#picker-cad-field-note").fill(
+   "Synthetic seller revision discrepancy report, not a real received-part inspection.");
+  await page.locator("#picker-cad-field-save").click();
+  assertBrowser((await page.locator("#picker-cad-capture-status").innerText())
+   .includes("2 field-reported (NOT reviewed)"),
+   "Nonmetric revision report must remain unreviewed");
+  const completeLogDownload=page.waitForEvent("download");
+  await page.locator("#picker-cad-field-export").click();
+  const completeLog=JSON.parse(await readFile(
+   await (await completeLogDownload).path(),"utf8"));
+  assert.equal(completeLog.records.length,2);
+  assert.equal(completeLog.records.find(x=>x.task_id==="truck-seller-revision")
+   .measurements_mm,undefined);
+  await page.locator("#picker-cad-field-remove").click();
+  assertBrowser((await page.locator("#picker-cad-capture-status").innerText())
+   .includes("1 field-reported (NOT reviewed)"),
+   "Removing one task must not affect the remaining unreviewed measurements");
+  await page.locator("#picker-cad-capture-upload").setInputFiles({
+   name:"native-form-roundtrip.json",mimeType:"application/json",
+   buffer:Buffer.from(JSON.stringify(completeLog))});
+  await page.waitForFunction(()=>document.querySelector("#picker-cad-capture-status")
+   ?.textContent.includes("2 field-reported (NOT reviewed)"),null,{timeout:10000});
   const claimedField={...fieldTemplate,records:[{
    task_id:"truck-seller-revision",method:"REVISION_RECONCILIATION",
    part_revision:"OPERATOR_REPORT_NOT_CONFIRMED",
