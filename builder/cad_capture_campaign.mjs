@@ -103,6 +103,7 @@ export function validateCadFieldObservations(observations,requirements,variant){
  const taskIds=new Set(taskMethods.keys());
  const observed=new Set();
  for(const rec of observations.records){
+  check(isObj(rec),"observation record must be a plain object");
   const required=["task_id","method","part_revision","evidence_url","recorded_on",
    "uncertainty_mm","note","source_sha256"].sort().join("|");
   const keys=Object.keys(rec).filter(k=>k!=="measurements_mm").sort().join("|");
