@@ -19,6 +19,8 @@ import {compileCandidateMetricScene} from "./cad_candidate_scene.mjs";
 import {validateCadCaptureRequirements,planCadCaptureCampaign,
  blankCadFieldObservations,validateCadFieldObservations}
  from "./cad_capture_campaign.mjs";
+import {validateCadSourceLeadbook,buildCadSourceAcquisition}
+ from "./cad_source_acquisition.mjs";
 const $=selector=>document.querySelector(selector);
 const esc=x=>String(x??"").replaceAll("&","&amp;").replaceAll("<","&lt;")
  .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
@@ -29,7 +31,7 @@ const cleanUrl=value=>{
 const state={catalog:null,offerObservations:null,offerAudit:null,
  retailCatalog:null,studyCatalog:null,alternatives:null,kitClaims:null,kitAudit:null,visualGraph:null,
  cadRecipe:null,cadModel:null,cadRegistry:null,cadReadiness:null,
- cadInspector:null,inspectedKit:null,dimensionalEvidence:null,publishedCad:null,metricResult:null,motionResult:null,sceneFixture:null,sceneEpoch:0,sceneViewer:null,sceneViewerPromise:null,captureRequirements:null,captureObservations:null,captureReport:null,captureVariant:null,
+ cadInspector:null,inspectedKit:null,dimensionalEvidence:null,publishedCad:null,metricResult:null,motionResult:null,sceneFixture:null,sceneEpoch:0,sceneViewer:null,sceneViewerPromise:null,captureRequirements:null,captureObservations:null,captureReport:null,captureVariant:null,sourceLeadbook:null,sourceAcquisition:null,
  domain:"skateboard_longboard",selections:{},study:null,
  mode:"2d",separation:0,selectedId:null,viewer:null,viewerPromise:null,
  search:""};
@@ -166,6 +168,37 @@ function renderCadMakerDimensions(){
    '<small>'+esc(c.source_note)+'</small></td></tr>';
  }).join("");
 }
+function renderCadSourceAcquisition(){
+ const report=state.sourceAcquisition=buildCadSourceAcquisition(
+  state.cadModel,state.sourceLeadbook,state.cadRegistry);
+ const active=!!state.cadModel;
+ $("#picker-cad-source-export").disabled=!active;
+ $("#picker-cad-source-requests").disabled=!active;
+ $("#picker-cad-source-status").textContent=active?
+  report.pending_structural_geometry+"/7 part categories still need licensed CAD · "+
+  report.manufacturer_request_packets.length+" manufacturer inquiry packets · "+
+  "0 verified mechanical mates or purchases":
+  "No complete kit selected. Manufacturer sourcing does not qualify geometry.";
+ $("#picker-cad-source-roles").innerHTML=report.rows.map(r=>{
+  const url=cleanUrl(r.source_url);
+  return '<div class="cad-source-role"><strong>'+
+   esc(r.role.replaceAll("_"," "))+'</strong> · '+esc(r.manufacturer)+
+   '<p>'+esc(r.cad_status.replaceAll("_"," "))+
+   ' · revision UNCONFIRMED · publication rights NOT GRANTED</p>'+
+   (url?'<a href="'+esc(url)+'" rel="noopener noreferrer" target="_blank">Manufacturer source ↗</a>':"")+
+   '<p>'+esc(r.required_geometry)+'</p></div>';
+ }).join("");
+ $("#picker-cad-source-exclusions").innerHTML=report.excluded_artifacts.length?
+  '<p><strong>Published files excluded from the seven structural CAD parts</strong></p>'+
+  report.excluded_artifacts.map(a=>{
+   const url=cleanUrl(a.source_url);
+   return '<div><strong>'+esc(a.label)+'</strong> · '+
+    esc(a.classification.replaceAll("_"," "))+
+    ' · not the structural part model. '+
+    (url?'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">Original ↗</a>':"")+
+    '<p>'+esc(a.note)+'</p></div>';
+  }).join(""):"";
+}
 function renderCadCaptureCampaign(){
  const variant=state.cadModel?.selected_variant_id??null;
  if(state.captureVariant!==variant){
@@ -280,6 +313,7 @@ function renderCompleteKitClosure(){
  }
  renderCadAssetReadiness();
  renderCadMakerDimensions();
+ renderCadSourceAcquisition();
  renderCadCaptureCampaign();
  state.metricResult=null;state.motionResult=null;state.sceneFixture=null;
  state.sceneEpoch++;
@@ -632,6 +666,19 @@ function initEvents(){
  $("#picker-separate").addEventListener("click",()=>{
   state.separation=100;$("#picker-explode").value="100";redrawVisual();
  });
+ $("#picker-cad-source-export").addEventListener("click",()=>{
+  if(state.sourceAcquisition)download("worcester-cad-official-source-leads-"+state.domain+".json",
+   JSON.stringify(state.sourceAcquisition,null,2)+"\n","application/json");
+ });
+ $("#picker-cad-source-requests").addEventListener("click",()=>{
+  const packets=state.sourceAcquisition?.manufacturer_request_packets;
+  if(!packets?.length)return;
+  const content=packets.map(x=>
+   "## "+x.manufacturer+"\nSubject: "+x.subject+"\n\n"+x.message).join("\n\n---\n\n");
+  download("worcester-cad-manufacturer-requests-"+state.domain+".md",
+   "# CAD file inquiry drafts · UNVERIFIED source research\n\n"+content+"\n",
+   "text/markdown");
+ });
  $("#picker-cad-capture-template").addEventListener("click",()=>{
   if(!state.cadModel)return;
   download("worcester-cad-field-template-"+state.domain+".json",
@@ -901,7 +948,7 @@ function initEvents(){
 }
 async function main(){
  try{
-  const [res,obsRes,retailRes,studyRes,kitRes,cadRes,assetsRes,dimsRes,captureRes]=await Promise.all([
+  const [res,obsRes,retailRes,studyRes,kitRes,cadRes,assetsRes,dimsRes,captureRes,sourceRes]=await Promise.all([
    fetch("../catalog/outdoor_parts_picker.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_supplier_observations.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_retail_comparisons.v1.json",{cache:"no-store"}),
@@ -910,9 +957,10 @@ async function main(){
    fetch("../catalog/outdoor_complete_kit_cad_recipes.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_cad_asset_registry.v1.json",{cache:"no-store"}),
    fetch("../catalog/outdoor_cad_dimensional_evidence.v1.json",{cache:"no-store"}),
-   fetch("../catalog/outdoor_cad_capture_requirements.v1.json",{cache:"no-store"})
+   fetch("../catalog/outdoor_cad_capture_requirements.v1.json",{cache:"no-store"}),
+   fetch("../catalog/outdoor_cad_source_leads.v1.json",{cache:"no-store"})
   ]);
-  if(!res.ok||!obsRes.ok||!retailRes.ok||!studyRes.ok||!kitRes.ok||!cadRes.ok||!assetsRes.ok||!dimsRes.ok||!captureRes.ok)
+  if(!res.ok||!obsRes.ok||!retailRes.ok||!studyRes.ok||!kitRes.ok||!cadRes.ok||!assetsRes.ok||!dimsRes.ok||!captureRes.ok||!sourceRes.ok)
    throw Error("Cannot load all four source-bound parts, retailer and study registries");
   state.catalog=await res.json();
   state.offerObservations=await obsRes.json();
@@ -923,10 +971,12 @@ async function main(){
   state.cadRegistry=await assetsRes.json();
   state.dimensionalEvidence=await dimsRes.json();
   state.captureRequirements=await captureRes.json();
+  state.sourceLeadbook=await sourceRes.json();
   validateKitCadRecipe(state.cadRecipe);
   validateCadAssetRegistry(state.cadRegistry);
   validateCadDimensionalEvidence(state.dimensionalEvidence);
   validateCadCaptureRequirements(state.captureRequirements);
+  validateCadSourceLeadbook(state.sourceLeadbook);
   const coverage=validatePartsRegistry(state.catalog);
   validateSupplierObservations(state.offerObservations,state.catalog);
   validateRetailRegistry(state.retailCatalog,state.catalog);
