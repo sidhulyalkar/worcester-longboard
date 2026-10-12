@@ -9,7 +9,8 @@ import {validateKitCadRecipe,compileCompleteKitCadDisplay} from "./complete_kit_
 import {renderCompleteKitCadSvg} from "./complete_kit_cad_svg.mjs";
 import {validateCadAssetRegistry,planCadAssetReadiness} from "./cad_asset_registry.mjs";
 import {inspectGlbBytes} from "./cad_glb_contract.mjs";
-import {verifyPinnedCadCandidate} from "./cad_pinned_receipt_check.mjs";
+import {verifyPinnedCadCandidate,verifyPinnedCadSceneExtents}
+ from "./cad_pinned_receipt_check.mjs";
 import {validateCadDimensionalEvidence,planCadPublishedDimensions}
  from "./cad_dimension_evidence.mjs";
 import {evaluateMetricFixture} from "./cad_metric_workbench.mjs";
@@ -869,7 +870,7 @@ function initEvents(){
    const receiptBlob=await receiptResponse.blob();
    if(receiptBlob.size<20||receiptBlob.size>32768)
     throw Error("conversion receipt exceeds audit budget");
-   await verifyPinnedCadCandidate(candidate,bytes,
+   const audited=await verifyPinnedCadCandidate(candidate,bytes,
     await receiptBlob.arrayBuffer());
    if(currentKit!==state.cadModel?.kit_id||
     variant!==state.cadModel?.selected_variant_id)
@@ -884,13 +885,19 @@ function initEvents(){
     throw Error("kit changed during loading");
    const result=await state.cadInspector.load(bytes);
    if(!result)return;
+   verifyPinnedCadSceneExtents(audited,result.bounds_in_file_units);
+   if(currentKit!==state.cadModel?.kit_id||
+    variant!==state.cadModel?.selected_variant_id)
+    throw Error("kit switched during GLB decoding");
    host.hidden=false;
-   status.textContent="Pinned GLB + conversion receipt hashes verified; "+
+   status.textContent="Pinned GLB, receipt hashes and visible model extents agree; "+
     candidate.origin+" candidate "+
     candidate.part_number+" · "+candidate.revision+": "+
     result.mesh_count+" mesh(es), glTF meters from recorded 0.001 conversion; STEP authenticity NOT VERIFIED. "+
     "No verified datums, assembly mating, clearances or purchasing approval.";
   }catch(error){
+   $("#picker-cad-file-inspector").hidden=true;
+   state.cadInspector?.dispose();state.cadInspector=null;
    status.textContent="Candidate CAD held: "+error.message+
     ". The assembled schematic remains available.";
   }
