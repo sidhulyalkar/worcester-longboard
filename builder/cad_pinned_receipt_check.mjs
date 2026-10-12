@@ -43,7 +43,28 @@ export async function verifyPinnedCadCandidate(candidate,glb,receiptData,{
   conversion_receipt_sha256:actualReceipt,
   original_step_sha256:verified.source_step_sha256,
   scale_m_per_source_mm:verified.scale_m_per_source_mm,
+  expected_sorted_gltf_extents_m:receipt.gltf_sorted_extents_m,
+  bbox_comparison_tolerance_mm:Math.max(receipt.tessellation_tolerance_mm*0.1,0.02),
   manufacturer_authenticity_qualified:false,
   source_revision_qualified:false,mounting_datums_qualified:false,
   physical_clearance_qualified:false,purchase_authorized:false};
+}
+
+export function verifyPinnedCadSceneExtents(checked,sceneBounds){
+ const numbers=sceneBounds&&[sceneBounds.x,sceneBounds.y,sceneBounds.z];
+ if(checked?.scope!=="HASH_AND_SCALE_RECEIPT_MATCH_NOT_OEM_APPROVAL"||
+  !Array.isArray(checked.expected_sorted_gltf_extents_m)||
+  checked.expected_sorted_gltf_extents_m.length!==3||
+  !numbers?.every(n=>typeof n==="number"&&Number.isFinite(n)&&n>0&&n<=10))
+  hold("scene extent audit needs nondegenerate glTF-meter bounds");
+ const found=[...numbers].sort((a,b)=>a-b);
+ const err=Math.max(...found.map((n,i)=>Math.abs(
+  n-checked.expected_sorted_gltf_extents_m[i])*1000));
+ if(err>checked.bbox_comparison_tolerance_mm)
+  hold("loaded 3D mesh dimensions differ from hashed STEP conversion receipt");
+ return {scope:"VISIBLE_GLB_EXTENTS_AGREE_WITH_RECEIPT_NOT_FIT",
+  max_sorted_extent_difference_mm:err,
+  tolerance_mm:checked.bbox_comparison_tolerance_mm,
+  manufacturer_authenticity_qualified:false,physical_clearance_qualified:false,
+  fabrication_authorized:false};
 }
