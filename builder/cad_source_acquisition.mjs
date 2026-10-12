@@ -10,6 +10,15 @@ const https=x=>{try{const u=new URL(x);return u.protocol==="https:"&&
 const text=x=>typeof x==="string"&&x.trim()===x&&
  x.length>=4&&x.length<=800&&![...x].some(ch=>ch.charCodeAt(0)<32);
 const id=x=>typeof x==="string"&&/^[a-z][a-z0-9-]{5,99}$/.test(x);
+const officialHost=(url,manufacturer)=>{
+ try{
+  const host=new URL(url).hostname;
+  const suffix=manufacturer==="Loaded Boards"?"loadedboards.com":
+   manufacturer==="Paris Truck Co"?"paristruckco.com":
+   manufacturer==="Orangatang Wheels"?"orangatangwheels.com":null;
+  return !!suffix&&(host===suffix||host==="www."+suffix);
+ }catch{return false;}
+};
 const digest=x=>typeof x==="string"&&/^[a-f0-9]{64}$/.test(x);
 export function validateCadSourceLeadbook(book){
  check(book?.schema_version===1&&book.scope==="SOURCE_LEADS_NOT_VERIFIED_COMPONENT_CAD"&&
@@ -31,7 +40,8 @@ export function validateCadSourceLeadbook(book){
  for(let i=0;i<roles.length;i++){
   const r=book.roles[i];
   check(r?.role===roles[i]&&text(r.manufacturer)&&
-   https(r.manufacturer_url)&&text(r.requested_geometry)&&
+   https(r.manufacturer_url)&&officialHost(r.manufacturer_url,r.manufacturer)&&
+   text(r.requested_geometry)&&
    r.requested_geometry.length>=40&&
    Array.isArray(r.requested_cad_formats)&&
    r.requested_cad_formats.join("|")==="STEP|GLB"&&
@@ -44,7 +54,8 @@ export function validateCadSourceLeadbook(book){
    r.source_pages.length<=2,"source pages required");
   const seen=new Set();
   for(const page of r.source_pages){
-   check(https(page.url)&&Array.isArray(page.variants)&&
+   check(https(page.url)&&officialHost(page.url,r.manufacturer)&&
+    Array.isArray(page.variants)&&
     page.variants.length>=1&&page.variants.length<=2,
     "need exact variants and legitimate HTTPS source URL");
    for(const variant of page.variants){
@@ -130,7 +141,8 @@ export function buildCadSourceAcquisition(cad,book,assetRegistry){
  return {scope:"SOURCE_ACQUISITION_RESEARCH_NOT_ASSEMBLY_FIT",
   kit_variant_id:variant,rows,excluded_artifacts,manufacturer_request_packets,
   source_leads:rows.length,qualified_models:0,
-  pending_structural_geometry:rows.filter(r=>!r.asset_candidate_id).length,
+  pending_structural_geometry:rows.length,
+  file_backed_unqualified_candidates:rows.filter(r=>r.asset_candidate_id).length,
   physical_mates_verified:0,physical_clearances_verified:0,
   fabrication_authorized:false,procurement_authorized:false,
   additional_purchase_lines:0};
