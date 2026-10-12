@@ -170,3 +170,22 @@ main{max-width:1480px;padding:21px 25px 45px;margin:auto}.intro{display:grid;gri
  outline:3px solid #e9c08f;outline-offset:2px}
 .cad-capture-actions input{font-size:11px;max-width:100%}
 @media print{.cad-capture-actions{display:none!important}}
+
+/* Public manufacturer CAD leads only, not engineering authority. */
+.cad-source-acquisition{border:1px solid #365567;background:#122832;
+ padding:12px;border-radius:10px;margin:10px 0}
+.cad-source-acquisition>p{font-size:11px;line-height:1.5;color:#acc9d1}
+.cad-source-roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));
+ gap:8px;margin-top:12px}
+.cad-source-role{padding:10px;border:1px solid #3e5e6d;border-radius:8px;
+ background:#193440;font-size:11px;min-width:0;line-height:1.5}
+.cad-source-role strong{text-transform:capitalize}
+.cad-source-role p{color:#b7d1d8;margin:5px 0;overflow-wrap:anywhere}
+.cad-source-role a,.cad-source-exclusions a{color:#b5deed;overflow-wrap:anywhere}
+.cad-source-exclusions{margin:12px 0;border-top:1px solid #496574;
+ font-size:11px;line-height:1.6}
+.cad-source-exclusions>div{padding:9px 0;border-bottom:1px solid #304b58}
+.cad-source-exclusions p{margin:3px 0 6px;color:#a5c2ca}
+.cad-source-acquisition button{padding:8px 12px;margin:5px 7px 5px 0}
+.cad-source-acquisition button:focus-visible{outline:3px solid #e4bd8c;outline-offset:3px}
+@media print{.cad-source-acquisition button{display:none!important}}
