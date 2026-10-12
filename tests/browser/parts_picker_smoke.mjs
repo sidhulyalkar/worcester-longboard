@@ -144,6 +144,57 @@ async function main(){
   assert.equal(makerReport.claims.find(c=>c.label==="nominal_wheel_diameter").value_mm,105);
   assert.equal(makerReport.claims.find(c=>c.label==="template_along_holes").value_mm,53.975);
   assert.ok(makerReport.claims.every(c=>!c.usable_as_mounting_datum));
+  await page.locator("#picker-cad-import-lab .cad-capture-campaign > summary").click();
+  assert.equal(await page.locator("#picker-cad-capture-tasks .cad-capture-role").count(),7);
+  assert.equal(await page.locator("#picker-cad-capture-interfaces li").count(),7);
+  assertBrowser((await page.locator("#picker-cad-capture-status").innerText())
+   .includes("20/20 evidence tasks open"),"Initial unmeasured survey tasks must be fully open");
+  const fieldTemplateDownload=page.waitForEvent("download");
+  await page.locator("#picker-cad-capture-template").click();
+  const fieldTemplate=JSON.parse(await readFile(await (await fieldTemplateDownload).path(),"utf8"));
+  assert.equal(fieldTemplate.scope,"UNREVIEWED_CAD_FIELD_OBSERVATIONS");
+  assert.equal(fieldTemplate.kit_variant_id,readiness.selected_variant_id);
+  assert.deepEqual(fieldTemplate.records,[]);
+  const reportDownload=page.waitForEvent("download");
+  await page.locator("#picker-cad-capture-export").click();
+  const captureBefore=JSON.parse(await readFile(await (await reportDownload).path(),"utf8"));
+  assert.equal(captureBefore.task_count,20);
+  assert.equal(captureBefore.interfaces.length,7);
+  assert.equal(captureBefore.seller_revision_conflict_unresolved,true);
+  assert.equal(captureBefore.independently_verified,0);
+  const claimedField={...fieldTemplate,records:[{
+   task_id:"truck-seller-revision",method:"REVISION_RECONCILIATION",
+   part_revision:"OPERATOR_REPORT_NOT_CONFIRMED",
+   evidence_url:"https://example.com/unreviewed-field-note",
+   recorded_on:"2026-10-12",uncertainty_mm:null,
+   note:"An unreviewed sample receipt, not actual inspected hardware.",
+   source_sha256:null
+  }]};
+  await page.locator("#picker-cad-capture-upload").setInputFiles({
+   name:"field-report.json",mimeType:"application/json",
+   buffer:Buffer.from(JSON.stringify(claimedField))});
+  await page.waitForFunction(()=>document.querySelector("#picker-cad-capture-status")
+   ?.textContent.includes("1 field-reported (NOT reviewed)"),null,{timeout:10000});
+  const capturedDownload=page.waitForEvent("download");
+  await page.locator("#picker-cad-capture-export").click();
+  const captureAfter=JSON.parse(await readFile(await (await capturedDownload).path(),"utf8"));
+  assert.equal(captureAfter.missing_evidence,19);
+  assert.equal(captureAfter.reported_unreviewed,1);
+  assert.equal(captureAfter.independently_verified,0);
+  assert.equal(captureAfter.physical_mates_verified,0);
+  assert.equal(captureAfter.additional_purchase_lines,0);
+  const forgedField=structuredClone(claimedField);
+  forgedField.authority.fabrication_authorized=true;
+  await page.locator("#picker-cad-capture-upload").setInputFiles({
+   name:"forged-approval.json",mimeType:"application/json",
+   buffer:Buffer.from(JSON.stringify(forgedField))});
+  await page.waitForFunction(()=>document.querySelector("#picker-cad-capture-status")
+   ?.textContent.includes("Observation packet held:"),null,{timeout:10000});
+  const clearedDownload=page.waitForEvent("download");
+  await page.locator("#picker-cad-capture-export").click();
+  assert.equal(JSON.parse(await readFile(await (await clearedDownload).path(),"utf8"))
+   .reported_unreviewed,0);
+  note("CAD field campaign keeps 20 measurements unapproved, rejects forged reports and exports exact-kit source checklist");
   await page.locator("#picker-cad-import-lab .cad-metric-lab > summary").click();
   const fakePart=(id,offset)=>({
    id,source_url:"https://example.com/synthetic-not-cad",revision:"synthetic-only",
@@ -348,6 +399,14 @@ async function main(){
    "Mismatched retailer packages must not show an equal-price comparison");
   await clickStudy(page,"long-nimble");
   assert.equal(await page.locator("#picker-kit-rows tr").count(),7);
+  assert.equal(await page.locator("#picker-cad-capture-tasks .cad-capture-role").count(),7);
+  assertBrowser((await page.locator("#picker-cad-capture-status").innerText())
+   .includes("20/20 evidence tasks open"),"Kit switch should reset measurement evidence");
+  const capture85Download=page.waitForEvent("download");
+  await page.locator("#picker-cad-capture-template").click();
+  const capture85Template=JSON.parse(await readFile(await (await capture85Download).path(),"utf8"));
+  assert.notEqual(capture85Template.kit_variant_id,fieldTemplate.kit_variant_id);
+  assert.deepEqual(capture85Template.records,[]);
   const kit85=await page.locator("#picker-kit-summary").innerText();
   assertBrowser(kit85.includes("loaded-tangent-caguama85")&&
     !kit85.includes("loaded-tangent-dadbod105"),
