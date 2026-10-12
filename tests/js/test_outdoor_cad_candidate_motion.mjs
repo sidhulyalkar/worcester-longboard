@@ -51,6 +51,12 @@ test("discrete candidate steering sweep flags overlaps but never reports physica
  assert.match(svg,/NOT VERIFIED STEERING CLEARANCE/);
  assert.match(svg,/Orange dots represent possible box overlaps/);
  assert.match(svg,/viewBox="0 0 760 260"/);
+ const selected=renderCandidateMotionSvg(report,{selectedIndex:3});
+ assert.match(selected,/stroke="#ffffff" stroke-width="2"/);
+ assert.match(selected,/stroke-dasharray="3 3"/);
+ assert.notEqual(svg,selected);
+ assert.throws(()=>renderCandidateMotionSvg(report,{selectedIndex:-1}),/selected sample/);
+ assert.throws(()=>renderCandidateMotionSvg(report,{selectedIndex:7}),/selected sample/);
 });
 test("candidate motion is exact-kit-scoped with bounded angles, uncertainty, and part IDs",()=>{
  const base=make();
