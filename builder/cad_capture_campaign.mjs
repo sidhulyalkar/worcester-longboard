@@ -26,7 +26,8 @@ export function validateCadCaptureRequirements(schema){
   "must enumerate exact seven maker assembly roles");
  const taskIds=new Set();
  for(const group of schema.requirements)for(const t of group.tasks){
-  check(lowerId(t.task_id)&&!taskIds.has(t.task_id)&&
+  check(Object.keys(t).sort().join("|")==="instruction|priority|required_method|task_id"&&
+   lowerId(t.task_id)&&!taskIds.has(t.task_id)&&
    methods.includes(t.required_method)&&
    Number.isInteger(t.priority)&&t.priority>=1&&t.priority<=3&&
    noControl(t.instruction)&&t.instruction.length>=25,
@@ -37,7 +38,8 @@ export function validateCadCaptureRequirements(schema){
   schema.interfaces.length<=24,"interface review matrix missing");
  const interfaceIds=new Set();
  for(const x of schema.interfaces){
-  check(lowerId(x.id)&&!interfaceIds.has(x.id)&&
+  check(Object.keys(x).sort().join("|")==="check|id|priority|roles"&&
+   lowerId(x.id)&&!interfaceIds.has(x.id)&&
    Array.isArray(x.roles)&&x.roles.length>=2&&x.roles.length<=7&&
    x.roles.every(y=>roles.includes(y))&&
    new Set(x.roles).size===x.roles.length&&
