@@ -95,6 +95,76 @@
       <summary>Measurement campaign · seven-part sourcing and interface checklist</summary>
       <p>Collect manufacturer files, exact revisions, receiving observations and real dimension receipts before qualifying a mechanical assembly. Uploaded field observations are unreviewed reports, not verified CAD or permission to fabricate.</p>
       <p id="picker-cad-capture-status" role="status" aria-live="polite">Checking metrology requirements…</p>
+      <details class="cad-field-notebook" id="picker-cad-field-notebook">
+       <summary>Field notebook · enter an observed part, dimension or XYZ measurement</summary>
+       <p>Only enter readings you actually obtained. These remain local in this tab until exported. All entries are <strong>operator-reported, not independently verified</strong>, and cannot qualify mechanical fit, purchasing or fabrication.</p>
+       <form id="picker-cad-field-form" class="cad-field-form">
+        <label for="picker-cad-field-task">Evidence task and exact part role
+         <select id="picker-cad-field-task" name="task_id" required disabled><option value="">Select a measurement task…</option></select>
+        </label>
+        <p id="picker-cad-field-guidance" class="cad-field-hint">Select an evidence task to see the required method and instructions.</p>
+        <div class="cad-field-columns">
+         <label for="picker-cad-field-revision">Observed part revision (unconfirmed until independently checked)
+          <input id="picker-cad-field-revision" name="part_revision" type="text" maxlength="120" required placeholder="Packaging, engraving or document revision">
+         </label>
+         <label for="picker-cad-field-date">Date actually recorded
+          <input id="picker-cad-field-date" name="recorded_on" type="date" required>
+         </label>
+         <label for="picker-cad-field-url">HTTPS evidence reference
+          <input id="picker-cad-field-url" name="evidence_url" type="url" maxlength="512" required placeholder="https://…photo, drawing, report or measurement log">
+         </label>
+        </div>
+        <fieldset id="picker-cad-field-metric" hidden>
+         <legend>Operator-reported metric reading, never a validated assembly datum</legend>
+         <div class="cad-field-columns">
+          <label for="picker-cad-field-feature">Feature identifier, e.g. front-left-hole or bearing-outer-diameter
+           <input name="feature_id" id="picker-cad-field-feature" maxlength="90" placeholder="front-left-hole">
+          </label>
+          <label for="picker-cad-field-kind">Measured quantity kind
+           <select name="reading_kind" id="picker-cad-field-kind">
+            <option value="SCALAR">Scalar length/diameter in mm</option>
+            <option value="POINT_3D">Point XYZ in mm (local unverified frame)</option>
+           </select>
+          </label>
+          <label for="picker-cad-field-uncertainty">Measurement uncertainty in mm, greater than zero
+           <input name="uncertainty_mm" id="picker-cad-field-uncertainty" type="number" step="any" min="0.000001" max="10" placeholder="0.1">
+          </label>
+         </div>
+         <div id="picker-cad-field-scalar">
+          <label for="picker-cad-field-scalar-value">Observed scalar value, mm
+           <input name="scalar_value" id="picker-cad-field-scalar-value" type="number" step="any" min="0" max="10000" placeholder="53.975">
+          </label>
+         </div>
+         <div id="picker-cad-field-point" hidden>
+          <div class="cad-field-columns">
+           <label for="picker-cad-field-x">X (mm)<input name="point_x" id="picker-cad-field-x" type="number" step="any" min="-10000" max="10000"></label>
+           <label for="picker-cad-field-y">Y (mm)<input name="point_y" id="picker-cad-field-y" type="number" step="any" min="-10000" max="10000"></label>
+           <label for="picker-cad-field-z">Z (mm)<input name="point_z" id="picker-cad-field-z" type="number" step="any" min="-10000" max="10000"></label>
+          </div>
+          <label for="picker-cad-field-frame">Coordinate frame or datum origin label (not independently verified)
+           <input name="frame_label" id="picker-cad-field-frame" maxlength="120" placeholder="operator-origin at left front mount">
+          </label>
+         </div>
+         <label class="cad-field-checkbox"><input type="checkbox" name="append_reading" id="picker-cad-field-append"> Add this distinct reading to the existing task (requires identical revision, source, date, note and uncertainty)</label>
+        </fieldset>
+        <fieldset id="picker-cad-field-cadsource" hidden>
+         <legend>Original model file provenance</legend>
+         <label for="picker-cad-field-sha">SHA-256 of the original source file (64 lowercase hex characters)
+          <input id="picker-cad-field-sha" name="source_sha256" type="text" minlength="64" maxlength="64" pattern="[a-f0-9]{64}" spellcheck="false" placeholder="Full original source digest">
+         </label>
+        </fieldset>
+        <label for="picker-cad-field-note">Detailed recording conditions, method and limitations (12–800 characters)
+         <textarea id="picker-cad-field-note" name="note" maxlength="800" minlength="12" rows="3" required placeholder="What did you inspect or measure, how, and what remains uncertain?"></textarea>
+        </label>
+        <p id="picker-cad-field-existing" class="cad-field-hint">No task selected.</p>
+        <div class="cad-capture-actions">
+         <button type="submit" id="picker-cad-field-save" disabled>Save unreviewed observation</button>
+         <button type="button" id="picker-cad-field-remove" disabled>Remove selected task record</button>
+         <button type="button" id="picker-cad-field-export" disabled>Export complete field log JSON</button>
+        </div>
+        <p id="picker-cad-field-status" role="status" aria-live="polite">No physical measurement has been independently verified.</p>
+       </form>
+      </details>
       <div id="picker-cad-capture-tasks" class="cad-capture-tasks"></div>
       <div id="picker-cad-capture-interfaces" class="cad-capture-interfaces"></div>
       <div class="cad-capture-actions">
