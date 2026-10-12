@@ -88,27 +88,33 @@ export function sampleCandidateMotionSweep(fixture,{expected_variant_id=null}={}
   physical_fit_qualified:false,procurement_authorized:false,fabrication_authorized:false,
   interpretation:"Sampled boxes with unverified kinematics, not validated geometry or continuous clearance."};
 }
-export function renderCandidateMotionSvg(sweep){
+export function renderCandidateMotionSvg(sweep,{selectedIndex=0}={}){
  chk(sweep?.scope==="SAMPLED_CANDIDATE_AABB_SWEEP_NO_PHYSICAL_CLEARANCE"&&
   sweep.physical_clearances_verified===0&&
   Array.isArray(sweep.pairs)&&sweep.pairs.length===sweep.pair_count,
   "candidate-only motion plot required");
+ chk(Number.isInteger(selectedIndex)&&selectedIndex>=0&&
+  selectedIndex<sweep.sample_count,"selected sample out of range");
  const [lo,hi]=sweep.angle_range_deg;
  const x=a=>(40+682*(a-lo)/(hi-lo)).toFixed(2);
  const rows=sweep.pairs.map((pair,i)=>{
   const y=57+(i+.5)*140/sweep.pairs.length;
   return '<text x="40" y="'+(y-12).toFixed(2)+'" fill="#e8f2f7" font-size="11">'+
    'Candidate pair '+(i+1)+': '+pair.possible_overlap_samples+
-   ' possible overlap samples</text>'+pair.samples.map(s=>
+   ' possible overlap samples</text>'+pair.samples.map((s,j)=>
    '<circle cx="'+x(s.angle_deg)+'" cy="'+y.toFixed(2)+
    '" r="'+(s.classification==="POSSIBLE_OVERLAP_REQUIRES_NARROW_PHASE"?6:4)+
    '" fill="'+(s.classification==="POSSIBLE_OVERLAP_REQUIRES_NARROW_PHASE"?
-    "#e9ac7b":"#88c2bc")+'"/>').join("");
+    "#e9ac7b":"#88c2bc")+'" stroke="'+(j===selectedIndex?"#ffffff":"none")+
+    '" stroke-width="'+(j===selectedIndex?2:0)+'"/>').join("");
  }).join("");
  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 260" role="img" '+
   'aria-label="Unverified candidate motion sweep. Orange dots represent possible box overlaps; there is no confirmed clearance or contact." style="display:block;width:100%;height:auto">'+
   '<rect width="760" height="260" rx="9" fill="#10232c"/>'+
   '<text x="35" y="26" font-size="13" fill="#e9f4f7">CANDIDATE SWEEP · NOT VERIFIED STEERING CLEARANCE</text>'+
+  '<line x1="'+x(sweep.tested_angles_deg[selectedIndex])+
+   '" y1="37" x2="'+x(sweep.tested_angles_deg[selectedIndex])+
+   '" y2="215" stroke="#f8e6c4" stroke-dasharray="3 3" opacity=".72"/>'+
   rows+'<line x1="40" y1="215" x2="722" y2="215" stroke="#95afbd"/>'+
   '<text x="40" y="235" font-size="11" fill="#bdd7e0">'+lo+'°</text>'+
   '<text x="722" y="235" font-size="11" text-anchor="end" fill="#bdd7e0">'+hi+'°</text>'+
