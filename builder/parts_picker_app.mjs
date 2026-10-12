@@ -869,7 +869,7 @@ function initEvents(){
    const receiptBlob=await receiptResponse.blob();
    if(receiptBlob.size<20||receiptBlob.size>32768)
     throw Error("conversion receipt exceeds audit budget");
-   const checked=await verifyPinnedCadCandidate(candidate,bytes,
+   await verifyPinnedCadCandidate(candidate,bytes,
     await receiptBlob.arrayBuffer());
    if(currentKit!==state.cadModel?.kit_id||
     variant!==state.cadModel?.selected_variant_id)
