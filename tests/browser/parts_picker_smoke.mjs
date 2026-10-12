@@ -171,11 +171,16 @@ async function main(){
   assert.equal(await candidateCanvas.getAttribute("data-physical-clearances-verified"),"0");
   assert.equal(await candidateCanvas.getAttribute("data-manufacturer-cad-loaded"),"false");
   assert.equal(await page.locator("#picker-cad-scene-angle").getAttribute("max"),"6");
+  const initialMarker=await page.locator('#picker-cad-motion-plot circle[stroke="#ffffff"]')
+   .first().getAttribute("cx");
   await page.locator("#picker-cad-scene-angle").focus();
   await page.locator("#picker-cad-scene-angle").press("End");
   await page.waitForFunction(()=>document.querySelector("#picker-cad-scene-view canvas")
    ?.dataset.sampleIndex==="6",null,{timeout:10000});
   assert.equal(await page.locator("#picker-cad-scene-angle-output").innerText(),"45°");
+  const finalMarker=await page.locator('#picker-cad-motion-plot circle[stroke="#ffffff"]')
+   .first().getAttribute("cx");
+  assert.notEqual(initialMarker,finalMarker,"2D motion plot did not track the 3D sample");
   await page.locator("#picker-cad-scene-angle").press("Home");
   await page.waitForFunction(()=>document.querySelector("#picker-cad-scene-view canvas")
    ?.dataset.sampleIndex==="0",null,{timeout:10000});
