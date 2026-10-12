@@ -615,6 +615,9 @@ function initEvents(){
   slider.max=String(snapshot.sample_count-1);
   slider.disabled=snapshot.sample_count<=1;
   $("#picker-cad-scene-angle-output").textContent=snapshot.angle_deg+"°";
+  if(state.motionResult)
+   $("#picker-cad-motion-plot").innerHTML=renderCandidateMotionSvg(state.motionResult,
+    {selectedIndex:selected});
   $("#picker-cad-scene-status").textContent=
    (snapshot.fixture_type==="SYNTHETIC_NUMERICAL_DEMO_NOT_REAL_ASSEMBLY"?
     "SYNTHETIC numerical example · ":"Unverified candidate survey · ")+
