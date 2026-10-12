@@ -161,6 +161,27 @@ async function main(){
   assertBrowser((await page.locator("#picker-cad-metric-status").innerText())
    .includes("SYNTHETIC, NOT MANUFACTURER GEOMETRY"),
    "Synthetic demonstration was falsely promoted to measured geometry");
+  await page.waitForFunction(()=>{
+   const canvas=document.querySelector("#picker-cad-scene-view canvas");
+   return canvas?.dataset.candidatePartCount==="2"&&canvas?.dataset.sampleIndex==="0";
+  },null,{timeout:30000});
+  const candidateCanvas=page.locator("#picker-cad-scene-view canvas");
+  assert.equal(await candidateCanvas.getAttribute("data-scope"),
+   "CANDIDATE_METRIC_BOXES_UNVERIFIED");
+  assert.equal(await candidateCanvas.getAttribute("data-physical-clearances-verified"),"0");
+  assert.equal(await candidateCanvas.getAttribute("data-manufacturer-cad-loaded"),"false");
+  assert.equal(await page.locator("#picker-cad-scene-angle").getAttribute("max"),"6");
+  await page.locator("#picker-cad-scene-angle").focus();
+  await page.locator("#picker-cad-scene-angle").press("End");
+  await page.waitForFunction(()=>document.querySelector("#picker-cad-scene-view canvas")
+   ?.dataset.sampleIndex==="6",null,{timeout:10000});
+  assert.equal(await page.locator("#picker-cad-scene-angle-output").innerText(),"45°");
+  await page.locator("#picker-cad-scene-angle").press("Home");
+  await page.waitForFunction(()=>document.querySelector("#picker-cad-scene-view canvas")
+   ?.dataset.sampleIndex==="0",null,{timeout:10000});
+  assert.equal(await page.locator("#picker-visual-svg [data-exploded-part]").count(),7,
+   "Candidate 3D displaced the source-bound board");
+  await screenshot(page,"cad-synthetic-candidate-envelopes-3d");
   const demoExport=page.waitForEvent("download");
   await page.locator("#picker-cad-motion-export").click();
   const demo=JSON.parse(await readFile(await (await demoExport).path(),"utf8"));
@@ -194,6 +215,9 @@ async function main(){
   assert.equal(survey.physical_clearances_verified,0);
   assert.equal(survey.procurement_authorized,false);
   assert.equal(survey.pairs[0].classification,"CANDIDATE_AABBS_SEPARATED");
+  assert.equal(await page.locator("#picker-cad-scene-angle").isDisabled(),true,
+   "Static survey should not permit fabricated steering poses");
+  assert.equal(await candidateCanvas.getAttribute("data-sample-index"),"0");
   assert.equal(await page.locator("#picker-cad-motion-export").isDisabled(),true);
   const motionFixture={...metricFixture,motion:{
    scope:"CANDIDATE_MOTION_RESEARCH_ONLY",
@@ -228,6 +252,8 @@ async function main(){
    buffer:Buffer.from(JSON.stringify(tamperedMotion))});
   await page.waitForFunction(()=>document.querySelector("#picker-cad-metric-status")
    ?.textContent.includes("Metric survey held:"),null,{timeout:10000});
+  assert.equal(await page.locator("#picker-cad-scene-panel").isHidden(),true,
+   "Tampered survey left stale 3D evidence visible");
   assert.equal(await page.locator("#picker-cad-motion-export").isDisabled(),true);
   note("Candidate steering sweep is bounded, exportable and never claims safe clearance");
   note("Manufacturer stencil, 105mm source identity and fail-closed metric candidate analyzer");
