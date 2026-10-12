@@ -4,6 +4,7 @@
 //      npx playwright install chromium
 //      node tests/browser/parts_picker_smoke.mjs
 import assert from "node:assert/strict";
+import {createHash} from "node:crypto";
 import {spawn} from "node:child_process";
 import {mkdtemp,mkdir,readFile,writeFile} from "node:fs/promises";
 import path from "node:path";
@@ -68,13 +69,14 @@ async function clickStudy(page,id){
   "Study update status missing");
 }
 
-function syntheticLocalGlb(){
+function syntheticLocalGlb(metric=false){
  // Explicitly test-only mesh, not Loaded/Paris geometry or an approved component.
- const vertices=new Float32Array([0,0,0,1,0,0,0,1,0]);
+ const vertices=new Float32Array(metric?[0,0,0,.04,.02,.012,0,.02,0]:
+  [0,0,0,1,0,0,0,1,0]);
  const payload={asset:{version:"2.0"},buffers:[{byteLength:36}],
   bufferViews:[{buffer:0,byteOffset:0,byteLength:36}],
   accessors:[{bufferView:0,componentType:5126,count:3,type:"VEC3",
-   min:[0,0,0],max:[1,1,0]}],
+   min:[0,0,0],max:metric?[.04,.02,.012]:[1,1,0]}],
   meshes:[{primitives:[{attributes:{POSITION:0}}]}],
   nodes:[{mesh:0}],scenes:[{nodes:[0]}],scene:0};
  const bytes=Buffer.from(JSON.stringify(payload));
@@ -573,6 +575,69 @@ async function main(){
   noErrors();
   await desktop.close();
 
+  // Fully synthetic intercepted registry: neither OEM geometry nor a real catalog asset.
+  const sha=b=>createHash("sha256").update(b).digest("hex");
+  const glb=syntheticLocalGlb(true),glbSha=sha(glb),stepSha="f".repeat(64);
+  const receipt={
+   schema_version:1,scope:"STEP_TO_GLTF_CONVERSION_RECEIPT_NOT_MEASURED_FIT",
+   source_step_sha256:stepSha,output_glb_sha256:glbSha,
+   source_cad_units:"mm",gltf_scene_units:"m",mm_to_gltf_m_scale:.001,
+   source_step_bytes:8192,output_glb_bytes:glb.length,
+   source_bounds_mm:[[0,0,0],[40,20,12]],source_extents_mm:[40,20,12],
+   gltf_sorted_extents_m:[.012,.02,.04],max_sorted_extent_error_mm:0,
+   tessellation_tolerance_mm:.2,angular_tolerance_rad:.15,
+   geometry_revision_confirmed:false,mounting_datums_verified:false,
+   physical_clearance_qualified:false,procurement_authorized:false,
+   fabrication_authorized:false
+  };
+  const receiptBytes=Buffer.from(JSON.stringify(receipt));
+  const fake={
+   asset_id:"cad-synthetic-browser-test",
+   kit_variant_id:"loaded-tangent-complete-105 mm Dad Bod 77a",role:"deck",
+   part_number:"SYNTHETIC-TEST-ONLY",revision:"NOT-OEM",origin:"INDEPENDENTLY_MEASURED",
+   source_url:"https://example.com/unverified-synthetic",license:"TEST_ONLY_NO_REDISTRIBUTION",
+   evidence_date:"2026-10-12",format:"glb",units:"mm",gltf_scene_units:"m",
+   mm_to_gltf_m_scale:.001,source_step_sha256:stepSha,
+   conversion_receipt_sha256:sha(receiptBytes),
+   conversion_receipt_path:"/assets/cad/"+glbSha+".conversion.json",
+   sha256:glbSha,path:"/assets/cad/"+glbSha+".glb",byte_length:glb.length,
+   asset_revision_confirmed:false,verified_mount_datums:false,
+   clearance_qualified:false,physical_fit_qualified:false,
+   preview_pose_authority:"NONE",actual_received_units:null,
+   separate_order_lines:0,metric_assembly_transform:null,mount_datums_mm:null
+  };
+  const registry=JSON.parse(await readFile(
+   path.join(root,"catalog/outdoor_cad_asset_registry.v1.json"),"utf8"));
+  registry.assets.push(fake);
+  const pinnedContext=await browser.newContext({viewport:{width:1280,height:800}});
+  const pinnedPage=await pinnedContext.newPage();
+  const pinnedErrors=await browserErrors(pinnedPage,"pinned receipt experiment");
+  await pinnedPage.route("**/catalog/outdoor_cad_asset_registry.v1.json",route=>
+   route.fulfill({status:200,contentType:"application/json",body:JSON.stringify(registry)}));
+  await pinnedPage.route("**/assets/cad/"+glbSha+".glb",route=>
+   route.fulfill({status:200,contentType:"model/gltf-binary",body:glb}));
+  const receiptRoute="**/assets/cad/"+glbSha+".conversion.json";
+  await pinnedPage.route(receiptRoute,route=>route.fulfill({
+   status:200,contentType:"application/json",body:receiptBytes}));
+  await initialized(pinnedPage);
+  await pinnedPage.locator("#picker-cad-import-lab > summary").click();
+  assert.equal(await pinnedPage.locator("[data-cad-asset]").count(),1);
+  await pinnedPage.locator("[data-cad-asset]").click();
+  await pinnedPage.waitForFunction(()=>document.querySelector("#picker-cad-inspect-status")
+   ?.textContent.includes("visible model extents agree"),null,{timeout:30000});
+  assert.equal(await pinnedPage.locator("#picker-cad-file-inspector canvas")
+   .getAttribute("data-fit-authority"),"NONE");
+  await pinnedPage.unroute(receiptRoute);
+  await pinnedPage.route(receiptRoute,route=>route.fulfill({
+   status:200,contentType:"application/json",
+   body:Buffer.from(JSON.stringify({...receipt,source_step_sha256:"e".repeat(64)}))}));
+  await pinnedPage.locator("[data-cad-asset]").click();
+  await pinnedPage.waitForFunction(()=>document.querySelector("#picker-cad-inspect-status")
+   ?.textContent.includes("Candidate CAD held:"),null,{timeout:10000});
+  assert.equal(await pinnedPage.locator("#picker-cad-file-inspector").isHidden(),true);
+  assert.equal(await pinnedPage.locator("#picker-visual-svg [data-exploded-part]").count(),7);
+  pinnedErrors();await pinnedContext.close();
+  note("Chromium pinned synthetic GLB requires dual hashes and visible dimensions; tampered receipt held");
   for(const vp of [{width:390,height:844,name:"mobile-390"},
                    {width:768,height:1024,name:"tablet-768"},
                    {width:1280,height:800,name:"desktop-1280"}]){
