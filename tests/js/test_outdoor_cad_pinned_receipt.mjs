@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {createHash,webcrypto} from "node:crypto";
-import {verifyPinnedCadCandidate} from "../../builder/cad_pinned_receipt_check.mjs";
+import {verifyPinnedCadCandidate,verifyPinnedCadSceneExtents}
+ from "../../builder/cad_pinned_receipt_check.mjs";
 const hash=b=>createHash("sha256").update(b).digest("hex");
 function fixture(){
  const glb=Buffer.alloc(48,1);glb.write("glTF",0);
@@ -41,6 +42,11 @@ test("both pinned byte digests and mm to glTF meter receipt must match",async()=
  assert.equal(data.mounting_datums_qualified,false);
  assert.equal(data.physical_clearance_qualified,false);
  assert.equal(data.purchase_authorized,false);
+ const match=verifyPinnedCadSceneExtents(data,{x:.04,y:.02,z:.012});
+ assert.equal(match.scope,"VISIBLE_GLB_EXTENTS_AGREE_WITH_RECEIPT_NOT_FIT");
+ assert.equal(match.physical_clearance_qualified,false);
+ assert.throws(()=>verifyPinnedCadSceneExtents(data,{x:.04,y:.02,z:.013}),/loaded 3D mesh dimensions differ/);
+ assert.throws(()=>verifyPinnedCadSceneExtents(data,{x:.04,y:.02,z:0}),/nondegenerate/);
 });
 test("tampered geometry, receipt, source digest, path and forged approval are held",async()=>{
  const mutate=[
