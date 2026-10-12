@@ -21,6 +21,9 @@ import {compileCandidateMetricScene} from "./cad_candidate_scene.mjs";
 import {validateCadCaptureRequirements,planCadCaptureCampaign,
  blankCadFieldObservations,validateCadFieldObservations}
  from "./cad_capture_campaign.mjs";
+import {makeCadFieldNotebookRecord,upsertCadFieldNotebook,
+ removeCadFieldNotebookRecord,newCadFieldNotebook}
+ from "./cad_field_notebook.mjs";
 import {validateCadSourceLeadbook,buildCadSourceAcquisition}
  from "./cad_source_acquisition.mjs";
 const $=selector=>document.querySelector(selector);
@@ -235,7 +238,8 @@ function renderCadCaptureCampaign(){
    tasks.map(t=>'<li><strong>'+esc(t.task_id.replaceAll("-"," "))+
     '</strong> · '+esc(t.required_method.replaceAll("_"," "))+
     ' · '+esc(t.status.replaceAll("_"," "))+
-    '<p>'+esc(t.instruction)+'</p></li>').join("")+
+    '<p>'+esc(t.instruction)+'</p><button type="button" data-cad-field-task="'+
+    esc(t.task_id)+'">Record / edit field evidence</button></li>').join("")+
    '</ol></details>';
  });
  $("#picker-cad-capture-tasks").innerHTML=taskGroups.join("");
@@ -243,6 +247,84 @@ function renderCadCaptureCampaign(){
   '<p><strong>Physical interface checks requiring independent review</strong></p><ol>'+
   report.interfaces.map(i=>'<li><strong>'+esc(i.id.replaceAll("-"," "))+
    '</strong>: '+esc(i.check)+' · NOT VERIFIED</li>').join("")+'</ol>':"";
+ renderCadFieldNotebook();
+}
+function fieldTaskForSelection(){
+ const id=$("#picker-cad-field-task").value;
+ return state.captureReport?.tasks.find(t=>t.task_id===id)??null;
+}
+function syncCadFieldMethod(){
+ const task=fieldTaskForSelection();
+ const metric=task?.required_method==="METRIC_MEASUREMENT";
+ const cadSource=task?.required_method==="CAD_SOURCE";
+ $("#picker-cad-field-metric").hidden=!metric;
+ $("#picker-cad-field-cadsource").hidden=!cadSource;
+ const point=metric&&$("#picker-cad-field-kind").value==="POINT_3D";
+ $("#picker-cad-field-point").hidden=!point;
+ $("#picker-cad-field-scalar").hidden=!metric||point;
+ for(const id of ["picker-cad-field-feature","picker-cad-field-uncertainty",
+  "picker-cad-field-scalar-value","picker-cad-field-x","picker-cad-field-y",
+  "picker-cad-field-z","picker-cad-field-frame","picker-cad-field-sha"]){
+  const target=$("#"+id);
+  target.required=!!task&&(id==="picker-cad-field-sha"?cadSource:
+   id==="picker-cad-field-feature"||id==="picker-cad-field-uncertainty"?metric:
+   id==="picker-cad-field-scalar-value"?metric&&!point:
+   point);
+ }
+ $("#picker-cad-field-save").disabled=!task;
+ $("#picker-cad-field-remove").disabled=!task||
+  !state.captureObservations?.records.some(r=>r.task_id===task.task_id);
+ $("#picker-cad-field-guidance").textContent=task?
+  task.required_method.replaceAll("_"," ")+" · "+task.instruction:
+  "Select an evidence task to see the method and instructions.";
+}
+function syncCadFieldEditor(){
+ const task=fieldTaskForSelection();
+ const rec=state.captureObservations?.records.find(r=>r.task_id===task?.task_id);
+ const form=$("#picker-cad-field-form");
+ for(const id of ["revision","url","note","sha","uncertainty","feature",
+  "scalar-value","x","y","z","frame"])$("#picker-cad-field-"+id).value="";
+ $("#picker-cad-field-date").value=rec?.recorded_on??new Date().toISOString().slice(0,10);
+ $("#picker-cad-field-kind").value="SCALAR";
+ $("#picker-cad-field-append").checked=false;
+ if(rec){
+  $("#picker-cad-field-revision").value=rec.part_revision;
+  $("#picker-cad-field-url").value=rec.evidence_url;
+  $("#picker-cad-field-note").value=rec.note;
+  $("#picker-cad-field-sha").value=rec.source_sha256??"";
+  $("#picker-cad-field-uncertainty").value=rec.uncertainty_mm??"";
+  const reading=rec.measurements_mm?.[0];
+  if(reading){
+   $("#picker-cad-field-feature").value=reading.feature_id;
+   $("#picker-cad-field-kind").value=reading.kind;
+   if(reading.kind==="SCALAR")
+    $("#picker-cad-field-scalar-value").value=String(reading.value_mm);
+   else{
+    for(const [i,axis] of ["x","y","z"].entries())
+     $("#picker-cad-field-"+axis).value=String(reading.value_mm[i]);
+    $("#picker-cad-field-frame").value=reading.frame_label;
+   }
+  }
+ }
+ $("#picker-cad-field-existing").textContent=task?
+  rec?"Current task: 1 unreviewed report, "+
+   (rec.measurements_mm?.length??0)+" structured reading(s). "+
+   "Saving without Add reading REPLACES this task's existing report.":
+   "No observation recorded for this task. Save to create an unreviewed field report.":
+  "No task selected. No observations are independently verified.";
+ syncCadFieldMethod();
+}
+function renderCadFieldNotebook(){
+ const select=$("#picker-cad-field-task"),previous=select.value;
+ const active=!!state.cadModel;
+ select.disabled=!active;
+ $("#picker-cad-field-export").disabled=!active;
+ select.innerHTML='<option value="">Select an evidence task…</option>'+
+  (state.captureReport?.tasks??[]).map(t=>'<option value="'+esc(t.task_id)+'">'+
+   esc(t.role.replaceAll("_"," "))+" · "+esc(t.task_id.replaceAll("-"," "))+
+   " ("+esc(t.required_method.replaceAll("_"," "))+")</option>").join("");
+ select.value=state.captureReport?.tasks.some(t=>t.task_id===previous)?previous:"";
+ syncCadFieldEditor();
 }
 function renderCadAssetReadiness(){
  const report=state.cadReadiness=planCadAssetReadiness(state.cadModel,state.cadRegistry);
@@ -680,6 +762,63 @@ function initEvents(){
   download("worcester-cad-manufacturer-requests-"+state.domain+".md",
    "# CAD file inquiry drafts · UNVERIFIED source research\n\n"+content+"\n",
    "text/markdown");
+ });
+ $("#picker-cad-capture-tasks").addEventListener("click",event=>{
+  const button=event.target.closest("[data-cad-field-task]");
+  if(!button||!state.cadModel)return;
+  $("#picker-cad-field-notebook").open=true;
+  const select=$("#picker-cad-field-task");
+  select.value=button.dataset.cadFieldTask;
+  syncCadFieldEditor();select.focus();
+ });
+ $("#picker-cad-field-task").addEventListener("change",syncCadFieldEditor);
+ $("#picker-cad-field-kind").addEventListener("change",syncCadFieldMethod);
+ $("#picker-cad-field-append").addEventListener("change",event=>{
+  if(event.target.checked){
+   $("#picker-cad-field-feature").value="";
+   $("#picker-cad-field-scalar-value").value="";
+   for(const id of ["x","y","z"])$("#picker-cad-field-"+id).value="";
+  }
+ });
+ $("#picker-cad-field-form").addEventListener("submit",event=>{
+  event.preventDefault();
+  const variant=state.cadModel?.selected_variant_id;
+  const status=$("#picker-cad-field-status");
+  try{
+   if(!variant)throw Error("Select an exact complete kit before recording evidence");
+   const fields=Object.fromEntries(new FormData(event.currentTarget));
+   fields.append_reading=$("#picker-cad-field-append").checked;
+   const notebook=state.captureObservations??
+    newCadFieldNotebook(variant,state.captureRequirements);
+   state.captureObservations=upsertCadFieldNotebook(
+    notebook,fields,state.captureRequirements,variant);
+   renderCadCaptureCampaign();
+   status.textContent="Saved unreviewed report for "+fields.task_id+
+    ". Export the field log to keep it; no independent validation or physical approval.";
+  }catch(err){
+   status.textContent="Field entry held: "+err.message+
+    ". Correct the measurement and try again; no approval changed.";
+  }
+ });
+ $("#picker-cad-field-remove").addEventListener("click",()=>{
+  const variant=state.cadModel?.selected_variant_id,task=fieldTaskForSelection();
+  if(!variant||!task||!state.captureObservations)return;
+  try{
+   state.captureObservations=removeCadFieldNotebookRecord(
+    state.captureObservations,task.task_id,state.captureRequirements,variant);
+   renderCadCaptureCampaign();
+   $("#picker-cad-field-status").textContent=
+    "Removed task "+task.task_id+" from this unsaved local field log.";
+  }catch(err){
+   $("#picker-cad-field-status").textContent="Removal held: "+err.message;
+  }
+ });
+ $("#picker-cad-field-export").addEventListener("click",()=>{
+  if(!state.cadModel)return;
+  const packet=state.captureObservations??
+   newCadFieldNotebook(state.cadModel.selected_variant_id,state.captureRequirements);
+  download("worcester-cad-unreviewed-field-log-"+state.domain+".json",
+   JSON.stringify(packet,null,2)+"\\n","application/json");
  });
  $("#picker-cad-capture-template").addEventListener("click",()=>{
   if(!state.cadModel)return;
