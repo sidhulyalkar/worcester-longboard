@@ -47,7 +47,17 @@ export function upsertCadFieldNotebook(packet,fields,requirements,variant){
  const next=structuredClone(packet);
  const index=next.records.findIndex(r=>r.task_id===record.task_id);
  if(index<0)next.records.push(record);
- else next.records[index]=record;
+ else if(fields?.append_reading===true&&record.method==="METRIC_MEASUREMENT"){
+  const prev=next.records[index];
+  for(const k of ["part_revision","evidence_url","recorded_on","uncertainty_mm","note"])
+   if(prev[k]!==record[k])fail("added points must share source, date, revision, note and uncertainty with existing task");
+  if(!Array.isArray(prev.measurements_mm))
+   fail("legacy task has no structured points; replace record before appending");
+  if(prev.measurements_mm.some(m=>m.feature_id===record.measurements_mm[0].feature_id))
+   fail("feature IDs must be unique within a task");
+  record.measurements_mm=[...prev.measurements_mm,...record.measurements_mm];
+  next.records[index]=record;
+ }else next.records[index]=record;
  validateCadFieldObservations(next,requirements,variant);
  return next;
 }
