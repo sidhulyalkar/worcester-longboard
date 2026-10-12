@@ -94,6 +94,13 @@
       <div class="cad-motion-lab" aria-label="Candidate steering motion study">
        <p id="picker-cad-motion-status" role="status" aria-live="polite">No optional motion study loaded. Steering and wheel-bite clearance UNKNOWN.</p>
        <div id="picker-cad-motion-plot" class="cad-motion-plot"></div>
+       <section id="picker-cad-scene-panel" class="cad-scene-panel" hidden>
+        <p>3D candidate envelopes: synthetic or unverified survey data, not manufacturer CAD</p>
+        <div id="picker-cad-scene-view" class="cad-candidate-viewport"></div>
+        <label for="picker-cad-scene-angle">Selected sample <output id="picker-cad-scene-angle-output">0°</output></label>
+        <input type="range" id="picker-cad-scene-angle" min="0" max="0" value="0" step="1" disabled>
+        <p id="picker-cad-scene-status" role="status" aria-live="polite">Physical clearance unverified.</p>
+       </section>
        <button type="button" id="picker-cad-motion-export" disabled>Export candidate motion samples</button>
       </div>
      </details>
