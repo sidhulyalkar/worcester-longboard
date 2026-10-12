@@ -144,6 +144,28 @@ async function main(){
   assert.equal(makerReport.claims.find(c=>c.label==="nominal_wheel_diameter").value_mm,105);
   assert.equal(makerReport.claims.find(c=>c.label==="template_along_holes").value_mm,53.975);
   assert.ok(makerReport.claims.every(c=>!c.usable_as_mounting_datum));
+  await page.locator("#picker-cad-import-lab .cad-source-acquisition > summary").click();
+  assertBrowser((await page.locator("#picker-cad-source-status").innerText())
+   .includes("7/7 part categories still need licensed CAD"),
+   "Known official pages cannot be counted as real component CAD");
+  assert.equal(await page.locator("#picker-cad-source-roles .cad-source-role").count(),7);
+  assert.equal(await page.locator("#picker-cad-source-exclusions > div").count(),2);
+  const leadDownload=page.waitForEvent("download");
+  await page.locator("#picker-cad-source-export").click();
+  const sourceLead=JSON.parse(await readFile(await (await leadDownload).path(),"utf8"));
+  assert.equal(sourceLead.rows.length,7);
+  assert.equal(sourceLead.manufacturer_request_packets.length,3);
+  assert.match(sourceLead.rows.find(x=>x.role==="wheels").source_url,/dad-bod-105mm/);
+  assert.ok(sourceLead.excluded_artifacts.every(x=>!x.qualifies_seven_component_models));
+  assert.equal(sourceLead.additional_purchase_lines,0);
+  const requestsDownload=page.waitForEvent("download");
+  await page.locator("#picker-cad-source-requests").click();
+  const requestsText=await readFile(await (await requestsDownload).path(),"utf8");
+  assertBrowser(requestsText.includes("Loaded Boards team")&&
+   requestsText.includes("Paris Truck Co team")&&
+   requestsText.includes("Orangatang Wheels team")&&
+   requestsText.includes("express written permissions"),
+   "Part-qualified, rights-aware maker inquiries missing");
   await page.locator("#picker-cad-import-lab .cad-capture-campaign > summary").click();
   assert.equal(await page.locator("#picker-cad-capture-tasks .cad-capture-role").count(),7);
   assert.equal(await page.locator("#picker-cad-capture-interfaces li").count(),7);
@@ -407,6 +429,12 @@ async function main(){
   const capture85Template=JSON.parse(await readFile(await (await capture85Download).path(),"utf8"));
   assert.notEqual(capture85Template.kit_variant_id,fieldTemplate.kit_variant_id);
   assert.deepEqual(capture85Template.records,[]);
+  const leads85Download=page.waitForEvent("download");
+  await page.locator("#picker-cad-source-export").click();
+  const leads85=JSON.parse(await readFile(await (await leads85Download).path(),"utf8"));
+  assert.match(leads85.rows.find(x=>x.role==="wheels").source_url,/caguama-85mm/);
+  assert.equal(leads85.qualified_models,0);
+  assert.notEqual(leads85.kit_variant_id,sourceLead.kit_variant_id);
   const kit85=await page.locator("#picker-kit-summary").innerText();
   assertBrowser(kit85.includes("loaded-tangent-caguama85")&&
     !kit85.includes("loaded-tangent-dadbod105"),
