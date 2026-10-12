@@ -57,7 +57,7 @@ test("operator-frame XYZ features may append to same task only with identical pr
   append_reading:true,feature_id:"third-hole",evidence_url:"https://example.org/new-photo",
   reading_kind:"POINT_3D",point_x:"1",point_y:"2",point_z:"3",
   frame_label:"Different frame"
- }),requirements,variants[0]),/same source, date, revision/);
+ }),requirements,variants[0]),/added points must share source, date, revision/);
  assert.throws(()=>upsertCadFieldNotebook(second,metric({
   append_reading:true,feature_id:"front-right-hole",
   reading_kind:"POINT_3D",point_x:"1",point_y:"2",point_z:"3",
@@ -78,7 +78,7 @@ test("structured field report preserves old JSON import format",()=>{
  assert.equal(validateCadFieldObservations(blank,requirements,variants[0]).structured_readings_unreviewed,0);
  assert.throws(()=>upsertCadFieldNotebook(blank,metric({
   append_reading:true
- }),requirements,variants[0]),/replace record before appending|same source, date/);
+ }),requirements,variants[0]),/replace record before appending|added points must share source/);
  const upgraded=upsertCadFieldNotebook(blank,metric(),requirements,variants[0]);
  assert.equal(upgraded.records[0].measurements_mm.length,1);
 });
