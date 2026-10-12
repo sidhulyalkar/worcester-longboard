@@ -46,6 +46,16 @@ test("angle scrubbing produces transformed world positions without changing inpu
  close(right[1],4/Math.sqrt(2));
  assert.deepEqual(center,[4,0,0]);
  assert.deepEqual(turn0.parts.find(p=>!p.is_moving).center_mm,[4,0,0]);
+ assert.deepEqual(turn0.view_bounds_mm,mid.view_bounds_mm);
+ assert.deepEqual(turn0.view_bounds_mm,turn1.view_bounds_mm);
+ assert.ok(turn0.view_bounds_mm.min_mm[1]<-4);
+ assert.ok(turn0.view_bounds_mm.max_mm[1]>4);
+ const shifted=structuredClone(fixture);
+ for(const item of shifted.parts)for(const corr of item.correspondences)
+  corr.assembly_mm[0]+=120;
+ const reconfigured=compileCandidateMetricScene(shifted,{sample_index:0});
+ assert.notDeepEqual(turn0.view_bounds_mm,reconfigured.view_bounds_mm,
+  "Changed fixture geometry must produce a new camera-fitting envelope");
  assert.equal(turn0.sample_index,0);
  assert.equal(turn1.sample_index,6);
  assert.equal(turn0.possible_overlap_pairs,0);
